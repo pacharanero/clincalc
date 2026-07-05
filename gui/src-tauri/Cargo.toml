@@ -28,4 +28,4 @@ serde_json = "1"
 # cloning just this gui directory could swap to the published version. No
 # FFI, no schema duplication - the same Rust types the CLI uses are the
 # types the Tauri commands return.
-clincalc = { path = "../..", version = "0.1.0", default-features = false }
+clincalc = { path = "../..", default-features = false }
