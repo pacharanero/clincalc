@@ -88,7 +88,7 @@ const blankInputs = (): Inputs =>
  * isolation band; we lay them out in a way a GP would actually paste.
  *
  * Defensive: read every `working` key through a helper that gracefully
- * handles missing values, so a future calc-core schema change can never
+ * handles missing values, so a future clincalc schema change can never
  * crash this UI - it just renders empty fields.
  */
 function asString(v: unknown): string {

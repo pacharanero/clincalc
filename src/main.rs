@@ -3,8 +3,8 @@
 
 //! The standalone `calc` binary.
 //!
-//! A thin wrapper over [`calc_cli`]: all behaviour lives in the library so host
-//! CLIs (e.g. GitEHR's `gitehr calc`) can reuse it without repetition.
+//! A thin wrapper over [`clincalc::cli`]: all behaviour lives in the library so
+//! host CLIs (e.g. GitEHR's `gitehr calc`) can reuse it without repetition.
 
 use std::env;
 use std::fs;
@@ -14,7 +14,7 @@ use anyhow::{Context, Result, anyhow};
 use clap::{Args, CommandFactory, Parser, Subcommand};
 use clap_complete::{Shell, generate};
 
-use calc_cli::CalcCommand;
+use clincalc::cli::CalcCommand;
 
 /// Open clinical calculators - scoring at the command line.
 #[derive(Debug, Parser)]
@@ -97,7 +97,7 @@ fn main() -> anyhow::Result<()> {
     }
 
     let cli = Cli::parse();
-    calc_cli::run(cli.command)
+    clincalc::cli::run(cli.command)
 }
 
 fn run_completions(args: CompletionsArgs) -> Result<()> {

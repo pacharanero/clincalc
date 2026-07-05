@@ -1,6 +1,6 @@
 # calc - open clinical calculators
 
-Open, auditable clinical calculators driven by a single Rust engine. One scoring core (`calc-core`) powers every surface - the `calc` command line, single-file web tools, a native desktop GUI, and, in host applications, an MCP server for LLMs and EHR integration - so a result is identical wherever it is produced.
+Open, auditable clinical calculators driven by a single Rust engine. One scoring core (`clincalc`) powers every surface - the `calc` command line, single-file web tools, a native desktop GUI, and, in host applications, an MCP server for LLMs and EHR integration - so a result is identical wherever it is produced.
 
 This is a standalone project: the engine, the CLI, the web tools, and the docs focus purely on calculators, and the `calc` CLI installs and runs on its own with no EHR. It is reusable by anyone with no knowledge of GitEHR; GitEHR is one downstream consumer (it depends on these crates, not the other way around).
 
@@ -15,7 +15,7 @@ Clinicians need clinical digital tools to provide good care, but the incentives 
 ## Install and use the `calc` CLI
 
 ```bash
-cargo install --git https://github.com/pacharanero/calc calc-cli
+cargo install --git https://github.com/pacharanero/calc clincalc
 ```
 
 There are no per-calculator flags. Every calculator is driven the same way - ask for a template, fill it in, pass it back:
@@ -57,11 +57,11 @@ University of Sheffield ... Open alternatives: qfracture ...
 
 The dependency arrows all point **into** the core, which never depends on anything above it:
 
-- **`calc-core`** - the pure scoring engine and result schema. A strict leaf crate: depends only on `serde` and `serde_json`, never on an async runtime or any host. This is what makes the calculators detachable and embeddable.
-- **`calc-cli`** - the `calc` binary plus a reusable library (`calc_cli::run`). A host CLI such as GitEHR's `gitehr calc` subcommand calls this same library, so nothing is reimplemented.
+- **`clincalc`** - one crate, two surfaces. With `default-features = false` it is the pure scoring engine and result schema: a strict leaf depending only on `serde` and `serde_json`, never on an async runtime or any host - which makes the calculators detachable and embeddable.
+- The default **`cli` feature** adds the `calc` binary and the reusable `clincalc::cli` module (`run` + `CalcCommand`). A host CLI such as GitEHR's `gitehr calc` subcommand calls this same module, so nothing is reimplemented.
 - **`calc-web`** - single-file HTML calculators with a shared context-detection bridge.
 
-Adding a calculator to `calc_core::all()` surfaces it everywhere - CLI, MCP, web - with no per-surface code.
+Adding a calculator to `clincalc::all()` surfaces it everywhere - CLI, MCP, web - with no per-surface code.
 
 ### Input definitions
 
@@ -69,7 +69,7 @@ Several inputs are clinician-asserted predicates whose TRUE/FALSE conditions are
 
 ## Embedding in a host (for example, GitEHR)
 
-Any application can embed these crates. GitEHR ([gitehr/gitehr](https://github.com/gitehr/gitehr)) is one consumer: its CLI forwards `gitehr calc` to `calc_cli::run`, and its MCP server exposes each calculator from `calc_core::all()` as a `calc_<name>` tool whose input schema is the calculator's own JSON Schema. The calculators are the engine; a host wires them into its own surfaces.
+Any application can embed these crates. GitEHR ([gitehr/gitehr](https://github.com/gitehr/gitehr)) is one consumer: its CLI forwards `gitehr calc` to `clincalc::cli::run`, and its MCP server exposes each calculator from `clincalc::all()` as a `calc_<name>` tool whose input schema is the calculator's own JSON Schema. The calculators are the engine; a host wires them into its own surfaces.
 
 ## Develop
 
@@ -79,11 +79,11 @@ cargo clippy --all-targets -- -D warnings
 cargo fmt --all --check
 ```
 
-CI enforces all three. Adding a calculator: implement it in `calc-core` (typed input, pure `compute`, `build_response`, a `Calculator` impl with `input_schema()` and `license()`, and literature-vector tests), register it in `all()`, and that is the only Rust work - the CLI and MCP surfaces pick it up automatically. See `spec/calculators.md` and `skills/build-calculator/`.
+CI enforces all three. Adding a calculator: implement it in `clincalc` (typed input, pure `compute`, `build_response`, a `Calculator` impl with `input_schema()` and `license()`, and literature-vector tests), register it in `all()`, and that is the only Rust work - the CLI and MCP surfaces pick it up automatically. See `spec/calculators.md` and `skills/build-calculator/`.
 
 ## Licensing
 
-- `calc-core` / `calc-cli`: AGPL-3.0-or-later. This work is deliberately not available for subsumption into proprietary EHRs; if that service needs to exist, it can be offered as a hosted Calc-API.
+- `clincalc`: AGPL-3.0-or-later. This work is deliberately not available for subsumption into proprietary EHRs; if that service needs to exist, it can be offered as a hosted Calc-API.
 - Clinical algorithms are implemented from primary literature (most scores are public-domain methods); QRISK3 and QFracture are ported from ClinRisk's LGPL-3.0 source and carry the required disclaimer. Each calculator records its own distribution licence via `calc <name> --license`.
 - Clinical content (source references) under CC-BY-SA-4.0.
 

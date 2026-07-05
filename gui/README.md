@@ -29,7 +29,7 @@ gui/
     └── src/lib.rs         Tauri commands: list_calculators, calculate
 ```
 
-The Tauri backend is a thin wrapper: `list_calculators` enumerates `calc_core::all()` into a `CalcSummary` shape the frontend can render; `calculate` takes a name + JSON input and returns the same `CalculationResponse` shape every surface produces. **No scoring logic lives in the GUI** - everything defers to `calc-core`.
+The Tauri backend is a thin wrapper: `list_calculators` enumerates `clincalc::all()` into a `CalcSummary` shape the frontend can render; `calculate` takes a name + JSON input and returns the same `CalculationResponse` shape every surface produces. **No scoring logic lives in the GUI** - everything defers to `clincalc`.
 
 ## Adding a calculator UI
 

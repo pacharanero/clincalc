@@ -1,6 +1,10 @@
 // SPDX-FileCopyrightText: 2026 Marcus Baw and Baw Medical Ltd
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+// The `calc` binary only exists with the `cli` feature; skip this whole
+// integration test under --no-default-features so the leaf build still passes.
+#![cfg(feature = "cli")]
+
 use std::process::Command;
 
 #[test]

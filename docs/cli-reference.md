@@ -133,18 +133,18 @@ Every computed result, regardless of calculator, has the same JSON shape:
 
 ## Embedding in a host CLI
 
-The same library that drives the `calc` binary is reusable as `calc_cli::run`, so a host CLI repeats nothing:
+The same library that drives the `calc` binary is reusable as `clincalc::cli::run`, so a host CLI repeats nothing:
 
 ```rust
 #[derive(clap::Subcommand)]
 enum Commands {
     // ...
     /// Clinical calculators
-    Calc(calc_cli::CalcCommand),
+    Calc(clincalc::cli::CalcCommand),
 }
 
 // dispatch:
-Commands::Calc(cmd) => calc_cli::run(cmd)?,
+Commands::Calc(cmd) => clincalc::cli::run(cmd)?,
 ```
 
 GitEHR's `gitehr calc` subcommand is implemented exactly this way. See [How it works](how-it-works.md) for the wider architecture.

@@ -86,6 +86,6 @@ Every value in the score becomes traceable to a concept and a governed definitio
 ## Open questions
 
 - A typed `InputDefinition` Rust struct for authoring ergonomics, versus the current hand-written JSON in each schema. A builder would prevent shape drift across calculators once there are many.
-- Where the deterministic ECL evaluator lives - in `calc-core` (which would break its leaf discipline by needing a terminology server) or in a separate extraction crate that depends on both `calc-core` and the `sct` server. The latter keeps `calc-core` pure.
+- Where the deterministic ECL evaluator lives - in `clincalc` (which would break its leaf discipline by needing a terminology server) or in a separate extraction crate that depends on both `clincalc` and the `sct` server. The latter keeps `clincalc` pure.
 - Whether to version definitions independently of the calculator (a definition can be corrected without the scoring logic changing).
 - How to represent banded / non-boolean predicates (smoking) - an ordered set of definitions, one per band, rather than a single include/exclude pair.

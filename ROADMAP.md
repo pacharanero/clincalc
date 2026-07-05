@@ -20,25 +20,26 @@ Engineering, infrastructure, and product-level work for the `calc` project. **Th
 - [x] **Single-sourced workspace version** in root `Cargo.toml`.
 - [x] **Per-calculator `license()` registry test** enforces a non-empty distribution licence with an `http(s)` evidence URL.
 - [x] **`Cargo.lock` committed** for reproducible builds.
+- [x] **cargo-dist binary pipeline** - `calc` binary for macOS / Linux / Windows (x64 + arm64) + MSI + shell / powershell / homebrew installers, driven by `[workspace.metadata.dist]` in `Cargo.toml`. Regenerate `.github/workflows/release.yml` with `dist generate --mode ci` after config edits (it is hand-edited to pin action SHAs and add the `workflow_call` trigger; `allow-dirty = ["ci"]` covers the drift).
+- [x] **Auto-tag cascade** - `s/version++` -> `auto-tag.yml` -> `release.yml` (binaries + Homebrew tap) + `publish-crates.yml` (clincalc). This is the house-style release model and replaced `release-plz`.
+- [x] **git-cliff changelog** (`cliff.toml`), a **`cargo audit`** CI gate, and the **`s/version++` / `s/test`** scripts.
 
 ### In-progress
 
-- [~] **Publish `calc-core` to crates.io via `release-plz`** - the unblocker for downstream consumers (notably [GitEHR](https://github.com/gitehr/gitehr), whose own release-plz workflow cannot follow git deps). Workflow, config, and CHANGELOG seed are committed and dormant. Activation needs two repo secrets:
-    - `RELEASE_PLZ_TOKEN` - fine-grained PAT with `contents:write` + `pull-requests:write` on this repo.
-    - `CARGO_REGISTRY_TOKEN` - crates.io API token with publish permissions on `calc-core`.
+- [~] **Activate releases** - the pipeline above is built and validated (`dist plan` green, workflows lint-clean) but dormant until two repo secrets are set:
+    - `CARGO_REGISTRY_TOKEN` - crates.io API token with publish rights on `clincalc`.
+    - `HOMEBREW_TAP_TOKEN` - PAT with write access to `pacharanero/homebrew-tap`.
 
-    Once both are set, the next push to `main` opens a Release PR; merging it bumps the version, regenerates `CHANGELOG.md` from conventional commits, tags `vX.Y.Z`, creates the GitHub Release, and pushes to crates.io. `calc-cli` rides the same workspace version but is held back from crates.io (see Planned, below). See [`release-plz.yml`](.github/workflows/release-plz.yml) and [`release-plz.toml`](release-plz.toml).
+    Once set, `s/version++ [patch|minor|major]` cuts a release: it bumps the workspace (and excluded GUI) version, regenerates `CHANGELOG.md` (git-cliff), and lands `chore(release): vX.Y.Z` on `main`. `auto-tag.yml` then tags `vX.Y.Z` and invokes `release.yml` and `publish-crates.yml`. After the first publish, `cargo install clincalc` works without `--git`, and downstream consumers (notably [GitEHR](https://github.com/gitehr/gitehr)) can depend on `clincalc` (with `default-features = false` for the pure engine) from crates.io.
 
 ### Planned
 
-- [ ] **`cargo-dist` for binary releases of `calc-cli`** - prebuilt installers for macOS / Linux / Windows, then flip `publish = true` in `release-plz.toml` so `cargo install calc-cli` from crates.io also works without `--git`.
-- [ ] **`pacharanero/homebrew-tap` formula** - shared tap, same as sibling repos (`sct`, `dsc`, `gitehr`).
+- [ ] **Install one-liners** (`install.sh`, `install.ps1`) hosted at the docs-site root, per house-style (fetch latest cargo-dist installer, verify SHA256).
 - [ ] **Windows code-signing** - EV cert from Sectigo / SSL.com once procured. The cert covers `sct`, `dsc`, **and** `calc` in one purchase; see [`spec/gui.md`](spec/gui.md#windows-code-signing). Until then the GUI installer triggers SmartScreen on first run.
 
 ### Future
 
-- [ ] **`cargo binstall` metadata** so `cargo binstall calc-cli` finds the prebuilt archives.
-- [ ] **Install one-liners** (`install.sh`, `install.ps1`) hosted at the docs-site root.
+- [ ] **`cargo binstall`** - cargo-dist releases are natively binstall-discoverable; add an explicit `[package.metadata.binstall]` override only if a case needs it.
 - [ ] **deb / rpm / Scoop** packaging - only if user demand surfaces.
 
 ---
@@ -63,7 +64,7 @@ See the design spec at [`spec/gui.md`](spec/gui.md) and the implementation guide
 ### Future
 
 - [ ] **Updater** - Tauri's built-in updater speaking to a manifest hosted on the docs site.
-- [ ] **iOS / Android builds** - Tauri 2 supports them and `calc-core` is pure Rust, so this is mostly a packaging question.
+- [ ] **iOS / Android builds** - Tauri 2 supports them and `clincalc` is pure Rust, so this is mostly a packaging question.
 - [ ] **Theme parity with GitEHR** - shared CSS variables or a tiny `@calc/ui-tokens` package, so the two apps stay visually coherent without copy-paste drift.
 
 ---
@@ -74,19 +75,19 @@ See the design spec at [`spec/gui.md`](spec/gui.md) and the implementation guide
 
 - [x] **Zensical docs site** deployed to GitHub Pages via `actions/upload-pages-artifact` + `actions/deploy-pages` (no `gh-pages` branch). See [`.github/workflows/docs.yml`](.github/workflows/docs.yml).
 - [x] **`AGENTS.md`** + canonical `s/` script directory (`s/docs`, `s/install`, `s/gui-dev`).
-- [x] **Tag taxonomy** in `calc-core/src/tags.rs` + `calc list --tag` CLI filter + tag-aware docs catalogue.
+- [x] **Tag taxonomy** in `src/tags.rs` + `calc list --tag` CLI filter + tag-aware docs catalogue.
 - [x] **`spec/`** structure: `calculators.md` (architecture), `calculator-roadmap.md` (calculator backlog), `gui.md` (desktop), `multilingual.md` (locale design), `calculator-input-definitions.md`.
 - [x] **`docs/walkthrough.md`** with copy-paste demos drawn from committed `examples/*.json`.
 
 ### Planned
 
 - [ ] **Retire `.claude/skills/build-calculator/`** in favour of `spec/` + `examples/` + `AGENTS.md` as the authoring entry point. Skill is Claude-specific; new authoring path should work in any agent.
-- [ ] **Per-crate `README.md` for `calc-cli`** matching the calc-core one, ready for if/when calc-cli publishes.
+- [ ] **docs.rs front-page polish** - document the `cli` feature and the `default-features = false` leaf usage prominently in the `clincalc` rustdoc.
 
 ### Future
 
 - [ ] **`docs/translating.md`** - contribution path for translators once multilingual lands.
-- [ ] **API reference for `calc-core`** linked from the docs site (docs.rs handles this automatically once published; just need a link from the Zensical nav).
+- [ ] **API reference for `clincalc`** linked from the docs site (docs.rs handles this automatically once published; just need a link from the Zensical nav).
 
 ---
 
@@ -94,7 +95,7 @@ See the design spec at [`spec/gui.md`](spec/gui.md) and the implementation guide
 
 ### Completed
 
-- [x] **Leaf rule** for `calc-core` (serde-only, no async, no I/O, no host); CI-enforced by the dependency tree.
+- [x] **Leaf rule** for `clincalc` (serde-only, no async, no I/O, no host); CI-enforced by the dependency tree.
 - [x] **Schema-driven input templates** so the CLI surface is regular across all 52 calculators with no per-calculator clap struct.
 - [x] **Proprietary "unavailable" stub treatment** - 10 named-not-hidden entries with structured `unavailable` responses naming the open alternative.
 - [x] **Input-definition system** for clinician-asserted predicates (`spec/calculator-input-definitions.md`).
@@ -103,8 +104,8 @@ See the design spec at [`spec/gui.md`](spec/gui.md) and the implementation guide
 
 - [ ] **Multilingual support** - implement `Locale` enum + `LocalizedString` per [`spec/multilingual.md`](spec/multilingual.md). Validate with one calculator (FeverPAIN) and a native speaker before opening the catalogue for batched translation.
 - [ ] **Translation reciprocity with [MedikQuantis](https://medikquantis.me)** - their Catalan/Spanish strings for the 14 overlapping calculators are exactly what we need; agree a shared tag taxonomy and citation shape so either project can ingest the other's metadata.
-- [ ] **Reference MCP server** in this repo. Today, embedding hosts roll their own from `calc_core::all()`.
-- [ ] **`calc-web`** (single-file HTML calculators) returning, ideally with `calc-core` compiled to WebAssembly so the browser surface shares the engine.
+- [ ] **Reference MCP server** in this repo. Today, embedding hosts roll their own from `clincalc::all()`.
+- [ ] **`calc-web`** (single-file HTML calculators) returning, ideally with `clincalc` compiled to WebAssembly so the browser surface shares the engine.
 - [ ] **FHIR Observation export** for standardised exchange of results.
 - [ ] **Unit conversion** (metric ↔ imperial) at the input boundary; today `--input` is units-explicit per field.
 - [ ] **Printable / clipboard-friendly result formatting** beyond the existing text block (rich Markdown with citation links? PDF? RTF?).

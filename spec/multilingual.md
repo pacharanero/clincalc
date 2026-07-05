@@ -4,13 +4,13 @@
 
 ## Why this is in scope
 
-`calc-core` today emits English-only strings: titles, descriptions, interpretations, references, and the human-readable hints inside the working map. Other open calculator projects (notably [MedikQuantis](https://medikquantis.me) - Catalan, Spanish, English by native speakers) demonstrate that a credible clinical-calculator project in 2026 is multilingual from day one.
+`clincalc` today emits English-only strings: titles, descriptions, interpretations, references, and the human-readable hints inside the working map. Other open calculator projects (notably [MedikQuantis](https://medikquantis.me) - Catalan, Spanish, English by native speakers) demonstrate that a credible clinical-calculator project in 2026 is multilingual from day one.
 
 This document is design-only. No code in this repo speaks any language but English today. The goal is to **freeze a design that does not paint us into a corner**, so we can adopt languages incrementally without breaking the engine or any host.
 
 ## Constraints (non-negotiable)
 
-- **The leaf rule still holds.** No new dependencies in `calc-core` (still `serde` + `serde_json`). No I/O, no global state, no clock.
+- **The leaf rule still holds.** No new always-on dependencies in `clincalc` (the engine stays `serde` + `serde_json`). No I/O, no global state, no clock.
 - **Machine-stable identifiers stay English.** Calculator `name()` (the CLI subcommand and MCP tool name), the keys inside the `working` map, the keys in `input_schema()`, and every enum variant are stable English slugs. They are part of the contract, not human prose.
 - **The result schema does not gain a `lang` field.** A response is a response; the locale used to produce it is the responsibility of the caller / host.
 - **Translations are versioned with the source.** A translation that drifts behind the English source is worse than no translation, so every translatable string carries a stable key and translations live in-tree with their literature citation context.
@@ -103,7 +103,7 @@ calc --lang ca list
 
 ### MCP surface
 
-The host passes a locale to `calc_cli::run`, set from the LLM's session preference or from a tool-call argument. No engine change beyond the new trait shape.
+The host passes a locale to `clincalc::cli::run`, set from the LLM's session preference or from a tool-call argument. No engine change beyond the new trait shape.
 
 ## What we are NOT designing today
 
@@ -116,7 +116,7 @@ The host passes a locale to `calc_cli::run`, set from the LLM's session preferen
 
 When this is picked up:
 
-1. Add `Locale` to `calc-core` (zero-cost while only `En` exists).
+1. Add `Locale` to `clincalc` (zero-cost while only `En` exists).
 2. Migrate `Calculator` trait to take `Locale` (default to `En` everywhere, no behaviour change).
 3. Pick **one** calculator (FeverPAIN: small, NICE-cited) as the migration pattern.
 4. Translate three calculators to validate the design with a native speaker.

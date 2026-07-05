@@ -1,19 +1,25 @@
 // SPDX-FileCopyrightText: 2026 Marcus Baw and Baw Medical Ltd
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-//! # calc-core
+//! # clincalc
 //!
-//! The pure scoring engine behind the open clinical calculators.
+//! Open, auditable clinical calculators: the pure scoring engine and the `calc`
+//! command-line surface in one crate.
 //!
-//! This crate is deliberately a **leaf**: it depends only on `serde` and
-//! `serde_json`, never on a host application and never on an async runtime.
-//! That is what lets the same logic drive every surface without divergence:
+//! With `default-features = false` this crate is a strict **leaf**: it depends
+//! only on `serde` and `serde_json`, never on a host application and never on an
+//! async runtime. That is what lets the same logic drive every surface without
+//! divergence:
 //!
-//! - the standalone `calc` binary
-//! - host CLIs that embed `calc-cli` (e.g. GitEHR's `gitehr calc` subcommand)
+//! - the standalone `calc` binary (the default `cli` feature)
+//! - host CLIs that embed the `cli` module (e.g. GitEHR's `gitehr calc`)
 //! - an MCP server (each calculator exposed as a tool)
 //! - a native desktop GUI (called natively over a Tauri command)
 //! - the single-file web calculators
+//!
+//! The `cli` feature (on by default) pulls in `clap` / `anyhow` and the `cli`
+//! module; a library embedder that wants only the engine builds with
+//! `default-features = false`.
 //!
 //! Every calculator implements the [`Calculator`] trait and returns a
 //! [`CalculationResponse`] — the Rust counterpart of the JSON schema the
@@ -35,6 +41,11 @@ pub mod proprietary;
 pub mod response;
 pub mod tags;
 pub mod template;
+
+/// The command-line surface (`CalcCommand`, `run`), behind the `cli` feature.
+/// Embeddable by host CLIs such as GitEHR's `gitehr calc`.
+#[cfg(feature = "cli")]
+pub mod cli;
 
 pub use calculator::{CalcError, Calculator};
 pub use license::CalculatorLicense;
@@ -140,7 +151,7 @@ mod registry_tests {
         for calc in all() {
             assert!(
                 !calc.tags().is_empty(),
-                "{}: tags() must return at least one tag - add an entry to calc_core::tags::TAGS",
+                "{}: tags() must return at least one tag - add an entry to clincalc::tags::TAGS",
                 calc.name()
             );
         }

@@ -12,7 +12,7 @@ Open, auditable clinical calculators driven by a single Rust engine.
 === "With Cargo (from source)"
 
     ```bash
-    cargo install --git https://github.com/pacharanero/calc calc-cli
+    cargo install --git https://github.com/pacharanero/calc clincalc
     ```
 
     Installs the `calc` binary. Needs a Rust toolchain (edition 2024). Full options on the [Install](install.md) page.

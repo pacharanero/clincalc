@@ -1,18 +1,18 @@
 // SPDX-FileCopyrightText: 2026 Marcus Baw and Baw Medical Ltd
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-//! # calc-cli
+//! # clincalc::cli
 //!
-//! The command-line surface for the open clinical calculators. This crate is
+//! The command-line surface for the open clinical calculators. This module is
 //! the single source of CLI behaviour: the standalone `calc` binary
 //! (`src/main.rs`) and any host CLI that embeds it (e.g. GitEHR's `gitehr calc`)
 //! both drive [`CalcCommand`] + [`run`], so there is nothing to re-implement
-//! when embedding it.
+//! when embedding it. It is compiled only with the `cli` feature (on by default).
 //!
 //! ## One regular surface for every calculator
 //!
 //! There are no per-calculator flags. Every calculator is driven through the
-//! same registry-backed shape, so adding a calculator to `calc-core` gives it a
+//! same registry-backed shape, so adding a calculator to the registry gives it a
 //! working CLI for free, and a human or an LLM learns the interface once:
 //!
 //! ```text
@@ -36,10 +36,10 @@
 //! enum Commands {
 //!     // ...
 //!     /// Clinical calculators
-//!     Calc(calc_cli::CalcCommand),
+//!     Calc(clincalc::cli::CalcCommand),
 //! }
 //! // ...
-//! Commands::Calc(cmd) => calc_cli::run(cmd)?,
+//! Commands::Calc(cmd) => clincalc::cli::run(cmd)?,
 //! ```
 
 use std::io::Read;
@@ -48,7 +48,7 @@ use std::path::Path;
 use anyhow::{Result, anyhow};
 use clap::{Args, ValueEnum};
 
-use calc_core::{CalculationResponse, Calculator};
+use crate::{CalculationResponse, Calculator};
 
 /// How to render computed results.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, ValueEnum)]
@@ -63,7 +63,7 @@ pub enum OutputFormat {
 /// The `calc` command surface. Reused unchanged by host CLIs such as `gitehr calc`.
 ///
 /// A single shape covers discovery, schema, and compute for every calculator;
-/// the calculator is selected by `name` and looked up in the `calc-core`
+/// the calculator is selected by `name` and looked up in the `clincalc`
 /// registry at runtime.
 #[derive(Debug, Args)]
 pub struct CalcCommand {
@@ -116,8 +116,8 @@ pub fn run(cmd: CalcCommand) -> Result<()> {
         Some(n) => n,
     };
 
-    let calc = calc_core::get(name)
-        .ok_or_else(|| anyhow!("unknown calculator: {name} (try `calc list`)"))?;
+    let calc =
+        crate::get(name).ok_or_else(|| anyhow!("unknown calculator: {name} (try `calc list`)"))?;
 
     // `--schema` prints the formal contract, regardless of everything else.
     if cmd.schema {
@@ -205,7 +205,7 @@ fn print_list(format: OutputFormat, required_tags: &[String]) -> Result<()> {
 
     match format {
         OutputFormat::Json => {
-            let items: Vec<_> = calc_core::all()
+            let items: Vec<_> = crate::all()
                 .iter()
                 .filter(|c| passes(c.as_ref()))
                 .map(|c| {
@@ -223,7 +223,7 @@ fn print_list(format: OutputFormat, required_tags: &[String]) -> Result<()> {
             println!("{}", serde_json::to_string_pretty(&items)?);
         }
         OutputFormat::Text => {
-            for c in calc_core::all().iter().filter(|c| passes(c.as_ref())) {
+            for c in crate::all().iter().filter(|c| passes(c.as_ref())) {
                 println!(
                     "{:<12}  {:<48}  [{}]",
                     c.name(),
@@ -241,7 +241,7 @@ fn print_tags(format: OutputFormat) -> Result<()> {
     use std::collections::BTreeMap;
 
     let mut counts: BTreeMap<&'static str, usize> = BTreeMap::new();
-    for c in calc_core::all() {
+    for c in crate::all() {
         for t in c.tags() {
             *counts.entry(*t).or_insert(0) += 1;
         }

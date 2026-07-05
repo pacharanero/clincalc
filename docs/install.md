@@ -7,10 +7,10 @@
 The route that works today:
 
 ```bash
-cargo install --git https://github.com/pacharanero/calc calc-cli
+cargo install --git https://github.com/pacharanero/calc clincalc
 ```
 
-This builds and installs the `calc` binary into `~/.cargo/bin`. You need a Rust toolchain with edition 2024 support ([rustup](https://rustup.rs) is the easy way). The package is named `calc-cli`; the installed binary is always `calc`.
+This builds and installs the `calc` binary into `~/.cargo/bin`. You need a Rust toolchain with edition 2024 support ([rustup](https://rustup.rs) is the easy way). The package is named `clincalc`; the installed binary is always `calc`.
 
 ## From a clone
 
@@ -26,7 +26,7 @@ cargo build --release          # binary at ./target/release/calc
 To put it on your `PATH` from the clone:
 
 ```bash
-cargo install --path calc-cli
+cargo install --path .
 ```
 
 A clone also gives you [`examples/`](https://github.com/pacharanero/calc/tree/main/examples) - ready-made JSON inputs used throughout the [Walkthrough](walkthrough.md).
@@ -45,7 +45,7 @@ gad7          GAD-7 Anxiety Severity
 If you see the catalogue, you are ready. Head to the [Walkthrough](walkthrough.md).
 
 !!! note "Coming with the distribution pipeline"
-    Prebuilt binaries, a Homebrew tap, and `cargo install calc-cli` from crates.io (no `--git`) are planned once the release pipeline lands. Until then, the two routes above are the way in.
+    Prebuilt binaries, a Homebrew tap, and `cargo install clincalc` from crates.io (no `--git`) are planned once the release pipeline lands. Until then, the two routes above are the way in.
 
 ## Requirements
 

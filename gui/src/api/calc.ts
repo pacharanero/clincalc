@@ -6,7 +6,7 @@
  *
  * The shapes here match the Rust types in `src-tauri/src/lib.rs` exactly -
  * if you change the Rust side, change these in the same commit. Both sides
- * ultimately defer to `calc-core`, so the canonical contract is the Rust
+ * ultimately defer to `clincalc`, so the canonical contract is the Rust
  * struct, not the TypeScript interface.
  */
 
@@ -22,7 +22,7 @@ export interface CalcSummary {
   proprietary: boolean;
 }
 
-/** A computed result (mirrors `calc_core::CalculationResponse`). */
+/** A computed result (mirrors `clincalc::CalculationResponse`). */
 export interface CalculationResponse {
   calculator: string;
   /** Number for most scores; a short string for categorical results. */

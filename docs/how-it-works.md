@@ -6,7 +6,7 @@
 
 ```text
               ┌────────────────────────────────┐
-              │   calc-core (leaf crate)        │
+              │   clincalc (leaf crate)        │
               │   scoring logic + result schema │
               │   deps: serde, serde_json only  │
               │   NO host, NO async runtime     │
@@ -15,26 +15,26 @@
         ┌───────────────────────┼───────────────────────┐
         │                       │                       │
    ┌─────────┐         ┌────────────────┐       ┌──────────────┐
-   │ calc-cli│         │ host MCP server│       │ host GUI     │
-   │ (lib+bin)│        │ (e.g. gitehr)  │       │ (e.g. Tauri) │
+   │ calc CLI│         │ host MCP server│       │ host GUI     │
+   │(cli feat)│        │ (e.g. gitehr)  │       │ (e.g. Tauri) │
    │  `calc`  │        │ tools driven   │       │ direct calls │
    │          │        │ from registry  │       │ into core    │
    └─────────┘         └────────────────┘       └──────────────┘
         ▲                       ▲                       ▲
-        └─ every surface enumerates calc_core::all() ──┘
+        └─ every surface enumerates clincalc::all() ──┘
 ```
 
-The dependency arrows all point **into** `calc-core`; the core never depends on anything above it.
+The dependency arrows all point **into** `clincalc`; the core never depends on anything above it.
 
 ### Why this matters
 
-- A calculator added to `calc_core::all()` surfaces **everywhere** with no per-surface code: a new CLI subcommand, a new MCP tool, a new GUI entry.
+- A calculator added to `clincalc::all()` surfaces **everywhere** with no per-surface code: a new CLI subcommand, a new MCP tool, a new GUI entry.
 - Results are **identical by construction** across surfaces - there is no parallel implementation to drift.
-- `calc-core` is **embeddable**. It has no opinions about your host, no global state, no clock, and no I/O.
+- `clincalc` is **embeddable**. It has no opinions about your host, no global state, no clock, and no I/O.
 
-## The crates
+## The crate
 
-### `calc-core` - the leaf engine
+### `clincalc` - the leaf engine (default-features off)
 
 Pure, deterministic scoring. The trait every calculator implements:
 
@@ -52,28 +52,28 @@ pub trait Calculator {
 }
 ```
 
-`calc_core::all()` returns every registered calculator; `calc_core::get(name)` resolves one by name. Both are what every surface dispatches through.
+`clincalc::all()` returns every registered calculator; `clincalc::get(name)` resolves one by name. Both are what every surface dispatches through.
 
-**Leaf discipline**: `calc-core` depends only on `serde` and `serde_json`. Not on `tokio`, not on a host, not on a network library. This is non-negotiable and CI-enforced. It is what makes the calculators trivially auditable and trivially embeddable.
+**Leaf discipline**: with `default-features = false`, `clincalc` depends only on `serde` and `serde_json` - not on `tokio`, not on a host, not on a network library. The CLI's `clap` / `anyhow` are optional, behind the default `cli` feature, and the leaf build is tested with `--no-default-features`. This is non-negotiable and CI-enforced. It is what makes the calculators trivially auditable and trivially embeddable.
 
-### `calc-cli` - CLI surface, library + binary
+### The `cli` feature - CLI surface, library module + binary
 
-All CLI behaviour lives in `calc_cli::run` so host CLIs reuse it verbatim. The standalone `calc` binary is a 25-line wrapper around it. The same library is what a host like GitEHR calls for `gitehr calc`:
+The `cli` feature (on by default) adds the `clincalc::cli` module and the `calc` binary. All CLI behaviour lives in `clincalc::cli::run` so host CLIs reuse it verbatim. The standalone `calc` binary is a thin wrapper around it. The same library is what a host like GitEHR calls for `gitehr calc`:
 
 ```rust
 #[derive(clap::Subcommand)]
 enum Commands {
     /// Clinical calculators
-    Calc(calc_cli::CalcCommand),
+    Calc(clincalc::cli::CalcCommand),
 }
 
 // dispatch:
-Commands::Calc(cmd) => calc_cli::run(cmd)?,
+Commands::Calc(cmd) => clincalc::cli::run(cmd)?,
 ```
 
 ### `calc-web` - single-file HTML tools (deprioritised)
 
-Self-contained per-calculator HTML files with a shared context-detection bridge. Currently inline JS; the planned end-state is the same `calc-core` compiled to WebAssembly so the browser surface shares the engine. Not on the active work list.
+Self-contained per-calculator HTML files with a shared context-detection bridge. Currently inline JS; the planned end-state is the same `clincalc` compiled to WebAssembly so the browser surface shares the engine. Not on the active work list.
 
 ## The result shape
 
@@ -106,23 +106,23 @@ This is deliberate. **Naming the gap is part of the project.** Clinical decision
 
 ## Embedding `calc` in a host
 
-Any application can pull in the engine. The minimum is a Cargo dependency on `calc-core`; CLIs and MCP servers usually also pull in `calc-cli`.
+Any application can pull in the engine. The minimum is `clincalc` with `default-features = false` (serde-only); a CLI that wants the ready-made command surface enables the `cli` feature.
 
 ### As a CLI subcommand
 
-`gitehr calc` is the worked example: the GitEHR binary's `Calc` variant flattens [`calc_cli::CalcCommand`] and dispatches to `calc_cli::run`. Adding `gitehr calc` was about a dozen lines and gave it the entire `calc` surface for free.
+`gitehr calc` is the worked example: the GitEHR binary's `Calc` variant flattens [`clincalc::cli::CalcCommand`] and dispatches to `clincalc::cli::run`. Adding `gitehr calc` was about a dozen lines and gave it the entire `calc` surface for free.
 
 ### As an MCP server
 
-The same `calc_core::all()` registry maps trivially onto MCP tools: each calculator's `name()` becomes the tool name, `input_schema()` becomes the tool's `inputSchema`, and the tool body calls `calculate(value)`. The LLM and the human are working from the same contract.
+The same `clincalc::all()` registry maps trivially onto MCP tools: each calculator's `name()` becomes the tool name, `input_schema()` becomes the tool's `inputSchema`, and the tool body calls `calculate(value)`. The LLM and the human are working from the same contract.
 
 ### In a desktop GUI
 
-A Tauri (or any) GUI calls `calc_core` over a native command. Inputs come from the form, results render directly - no webview-to-engine round trip, no JS reimplementation, no drift.
+A Tauri (or any) GUI calls the `clincalc` engine over a native command. Inputs come from the form, results render directly - no webview-to-engine round trip, no JS reimplementation, no drift.
 
 ## Licensing
 
-- **Code** (`calc-core`, `calc-cli`): AGPL-3.0-or-later. Deliberately not available for subsumption into proprietary EHRs; if that service needs to exist, it can be offered as a hosted Calc-API.
+- **Code** (`clincalc`): AGPL-3.0-or-later. Deliberately not available for subsumption into proprietary EHRs; if that service needs to exist, it can be offered as a hosted Calc-API.
 - **Algorithms**: most scores are public-domain methods implemented from primary literature. QRISK3 and QFracture are ported from ClinRisk's LGPL-3.0 source and carry the required disclaimer. Each calculator records its own distribution licence via `calc <name> --license`.
 - **Clinical content** (source references): CC-BY-SA-4.0.
 

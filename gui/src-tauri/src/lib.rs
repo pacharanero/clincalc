@@ -3,16 +3,16 @@
 
 //! Tauri 2 desktop GUI for the open clinical calculators.
 //!
-//! All real scoring lives in `calc-core`; this crate is purely the
+//! All real scoring lives in `clincalc`; this crate is purely the
 //! webview-to-Rust bridge plus the bundled-binary build. Every Tauri
-//! command is a thin wrapper that hands a JSON value to `calc-core` and
+//! command is a thin wrapper that hands a JSON value to `clincalc` and
 //! returns the same `CalculationResponse` shape every surface produces -
 //! so the GUI, the CLI, and any MCP host yield byte-identical output.
 //!
 //! The frontend (React + Mantine + Vite) lives at `gui/src/` and is built
 //! to `gui/dist/` for production bundling.
 
-use calc_core::CalculationResponse;
+use clincalc::CalculationResponse;
 use serde::Serialize;
 
 /// One row of the catalogue, suitable for sidebar / picker rendering.
@@ -32,7 +32,7 @@ struct CalcSummary {
 
 #[tauri::command]
 fn list_calculators() -> Vec<CalcSummary> {
-    calc_core::all()
+    clincalc::all()
         .iter()
         .map(|c| {
             let tags = c.tags();
@@ -49,11 +49,11 @@ fn list_calculators() -> Vec<CalcSummary> {
 
 /// Compute a result from a JSON input. The frontend is responsible for
 /// building the input object that matches the calculator's schema; this
-/// command simply hands it to `calc-core` and surfaces the typed response
+/// command simply hands it to `clincalc` and surfaces the typed response
 /// (or the typed error message).
 #[tauri::command]
 fn calculate(name: &str, input: serde_json::Value) -> Result<CalculationResponse, String> {
-    let calc = calc_core::get(name).ok_or_else(|| format!("unknown calculator: {name}"))?;
+    let calc = clincalc::get(name).ok_or_else(|| format!("unknown calculator: {name}"))?;
     calc.calculate(&input).map_err(|e| e.to_string())
 }
 

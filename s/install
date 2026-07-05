@@ -4,7 +4,7 @@
 #
 # Install the `calc` binary from this checkout onto your PATH.
 #
-# Builds the calc-cli crate in release mode and installs the resulting `calc`
+# Builds the clincalc crate in release mode and installs the resulting `calc`
 # binary into ~/.cargo/bin (or $CARGO_INSTALL_ROOT). --locked uses the
 # committed Cargo.lock so the install is reproducible.
 #
@@ -16,4 +16,4 @@
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
 
-exec cargo install --locked --path calc-cli "$@"
+exec cargo install --locked --path . "$@"

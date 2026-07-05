@@ -10,14 +10,14 @@ A clinical-calculator suite driven by one engine, shippable in many shapes, is s
 
 ## Project shape
 
-`calc` is a **standalone project**. The two crates that ship today live in this workspace:
+`calc` is a **standalone project**. It ships as one crate, `clincalc`, with two surfaces selected by a Cargo feature:
 
-- `calc-core` - the pure scoring engine (leaf crate; `serde` + `serde_json` only).
-- `calc-cli` - the `calc` binary plus a reusable library (`calc_cli::run`).
+- the **engine** (`default-features = false`) - the pure scoring engine and result schema; a leaf depending only on `serde` + `serde_json`.
+- the **`cli` feature** (on by default) - the `calc` binary plus the reusable `clincalc::cli` module (`CalcCommand` + `run`), embeddable by host CLIs.
 
 `calc-web` (single-file HTML calculators) is on the roadmap but deprioritised. A Tauri desktop GUI is the next major surface.
 
-GitEHR (<https://github.com/gitehr/gitehr>) is a **downstream consumer** - its CLI forwards `gitehr calc` to `calc_cli::run`, and its MCP server exposes each calculator from `calc_core::all()` as a `calc_<name>` tool whose input schema is the calculator's own JSON Schema. Anyone else can embed `calc` the same way.
+GitEHR (<https://github.com/gitehr/gitehr>) is a **downstream consumer** - its CLI forwards `gitehr calc` to `clincalc::cli::run`, and its MCP server exposes each calculator from `clincalc::all()` as a `calc_<name>` tool whose input schema is the calculator's own JSON Schema. Anyone else can embed `calc` the same way.
 
 ## Philosophy
 
@@ -39,7 +39,7 @@ The defining decision is a single scoring engine reused everywhere, so a result 
 
 ```
                          ┌───────────────────────────┐
-                         │   calc-core (leaf crate)   │
+                         │   clincalc (leaf crate)   │
                          │  scoring logic + schema    │
                          │  deps: serde, serde_json   │
                          │  NO host, NO async runtime │
@@ -48,8 +48,8 @@ The defining decision is a single scoring engine reused everywhere, so a result 
         ┌───────────────┬──────────────┼──────────────┬──────────────────┐
         │               │              │              │                  │
    ┌─────────┐   ┌────────────┐  ┌──────────┐  ┌────────────┐   ┌───────────────┐
-   │ calc-cli│   │ host MCP   │  │ host GUI │  │ standalone │   │  calc-web      │
-   │ (lib+bin)│  │ (e.g.      │  │ (e.g.    │  │ desktop    │   │  single-file   │
+   │ calc CLI│   │ host MCP   │  │ host GUI │  │ standalone │   │  calc-web      │
+   │ (default)│  │ (e.g.      │  │ (e.g.    │  │ desktop    │   │  single-file   │
    │  `calc`  │  │  gitehr)   │  │  Tauri)  │  │ (planned,  │   │  HTML + bridge │
    │          │  │            │  │          │  │  Tauri 2)  │   │  (deferred)    │
    └────┬─────┘  └────────────┘  └──────────┘  └────────────┘   └───────────────┘
@@ -64,22 +64,19 @@ The defining decision is a single scoring engine reused everywhere, so a result 
 
 ```
 calc/                                 # repo root = Cargo workspace root
-├── Cargo.toml                        # members: calc-core, calc-cli
-├── calc-core/                        # the engine — leaf crate
-│   ├── Cargo.toml                    #   deps: serde, serde_json only
-│   └── src/
-│       ├── lib.rs                    #   registry: all() / get(name)
-│       ├── response.rs               #   CalculationResponse schema
-│       ├── calculator.rs             #   Calculator trait + CalcError
-│       ├── license.rs                #   CalculatorLicense type
-│       ├── template.rs               #   schema → fillable template
-│       ├── proprietary.rs            #   shared "unavailable" stub helper
-│       └── calculators/              #   one file per calculator (~52)
-├── calc-cli/                         # CLI surface — lib + bin
-│   ├── Cargo.toml                    #   [[bin]] name = "calc"; [lib] name = "calc_cli"
-│   └── src/
-│       ├── lib.rs                    #   CalcCommand + run() reused by hosts
-│       └── main.rs                   #   thin standalone wrapper
+├── Cargo.toml                        # package `clincalc`; [[bin]] `calc`; `cli` default feature
+├── cliff.toml                        # git-cliff changelog config
+├── src/                              # the single `clincalc` crate
+│   ├── lib.rs                        #   engine registry: all() / get(name)
+│   ├── response.rs                   #   CalculationResponse schema
+│   ├── calculator.rs                 #   Calculator trait + CalcError
+│   ├── license.rs                    #   CalculatorLicense type
+│   ├── template.rs                   #   schema → fillable template
+│   ├── proprietary.rs                #   shared "unavailable" stub helper
+│   ├── calculators/                  #   one file per calculator (~52)
+│   ├── cli.rs                        #   CalcCommand + run()  (behind `cli` feature)
+│   └── main.rs                       #   thin standalone `calc` binary (`cli` feature)
+├── tests/                            # integration tests (completions; gated on `cli`)
 ├── calc-web/                         # single-file HTML calculators (deprioritised)
 ├── docs/                             # Zensical docs site (deployed to GH Pages)
 ├── examples/                         # ready-to-pipe JSON inputs used in the docs
@@ -87,18 +84,18 @@ calc/                                 # repo root = Cargo workspace root
 └── .claude/skills/build-calculator/  # authoring skill (may be retired)
 ```
 
-### `calc-core` - the leaf engine
+### `clincalc` - the leaf engine
 
-The single source of truth. Pure, deterministic scoring with no clock, no I/O, and no global state; a host that needs a timestamp stamps it when recording. It depends only on `serde` and `serde_json` - never on any host application and never on an async runtime. That leaf discipline is what makes the calculators detachable, embeddable, and trivially auditable.
+The single source of truth. Pure, deterministic scoring with no clock, no I/O, and no global state; a host that needs a timestamp stamps it when recording. With `default-features = false` it depends only on `serde` and `serde_json` - never on any host application and never on an async runtime (the CLI's `clap` / `anyhow` are optional, behind the default `cli` feature). That leaf discipline is what makes the calculators detachable, embeddable, and trivially auditable.
 
 Every calculator implements the `Calculator` trait and also exposes a strongly-typed `Input`/`compute` pair plus a `build_response` adapter. The crate-level registry (`all()` / `get(name)`) is the one list every surface enumerates, so adding a calculator surfaces it everywhere.
 
-### `calc-cli` - the CLI surface (lib + bin)
+### The `cli` feature - the CLI surface (default)
 
 All CLI behaviour lives in the library (`CalcCommand` + `run()`), so there is nothing to re-implement when embedding it. It ships two ways:
 
-1. The standalone `calc` binary - `cargo install --git https://github.com/pacharanero/calc calc-cli` installs a small, dependency-light tool (tree: `anyhow`, `serde`/`serde_json`, `clap` - no async runtime, no host).
-2. A host CLI subcommand - the host's CLI depends on `calc-cli` and forwards to `calc_cli::run`, repeating nothing:
+1. The standalone `calc` binary - `cargo install --git https://github.com/pacharanero/calc clincalc` installs a small, dependency-light tool (tree: `anyhow`, `serde`/`serde_json`, `clap` - no async runtime, no host).
+2. A host CLI subcommand - the host's CLI depends on `clincalc` (with the `cli` feature) and forwards to `clincalc::cli::run`, repeating nothing:
 
 ```rust
 // host's CLI (e.g. gitehr/cli/src/main.rs)
@@ -106,26 +103,26 @@ All CLI behaviour lives in the library (`CalcCommand` + `run()`), so there is no
 enum Commands {
     // ...existing commands
     /// Clinical calculators
-    Calc(calc_cli::CalcCommand),
+    Calc(clincalc::cli::CalcCommand),
 }
 // dispatch:
-Commands::Calc(cmd) => calc_cli::run(cmd)?,
+Commands::Calc(cmd) => clincalc::cli::run(cmd)?,
 ```
 
 ### MCP, GUI, and the standalone app
 
-- **MCP** - a host's MCP server exposes each calculator from `calc_core::all()` as a tool. The tool's input schema is `Calculator::input_schema()` and the tool body calls `Calculator::calculate(value)`. This is the most LLM-native surface: typed schemas handed directly to the model rather than scraped from help text.
-- **GUI** - a Tauri app (host or standalone) calls `calc_core` natively over a Tauri command, rather than reimplementing logic in the webview. The next planned `calc` surface is a standalone Tauri desktop GUI whose headline is prominent copy-paste.
-- **Standalone calc app** - because `calc-core` is pure Rust it cross-compiles to iOS/Android. A standalone Tauri app gives byte-identical results to every other surface.
+- **MCP** - a host's MCP server exposes each calculator from `clincalc::all()` as a tool. The tool's input schema is `Calculator::input_schema()` and the tool body calls `Calculator::calculate(value)`. This is the most LLM-native surface: typed schemas handed directly to the model rather than scraped from help text.
+- **GUI** - a Tauri app (host or standalone) calls the `clincalc` engine natively over a Tauri command, rather than reimplementing logic in the webview. The next planned `calc` surface is a standalone Tauri desktop GUI whose headline is prominent copy-paste.
+- **Standalone calc app** - because `clincalc` is pure Rust it cross-compiles to iOS/Android. A standalone Tauri app gives byte-identical results to every other surface.
 
 ### Distribution and decoupling
 
-The leaf discipline (nothing in `calc-core` depends on a host or on an async runtime) is what enables both of these without trade-off:
+The leaf discipline (nothing in `clincalc` depends on a host or on an async runtime) is what enables both of these without trade-off:
 
-- **Install just the calculators**: `cargo install --git https://github.com/pacharanero/calc calc-cli` (and, once published, `cargo install calc-cli` from crates.io). Cargo builds only `calc-core` + `clap` + `serde` - no host. The installed binary name is `calc` (set by `[[bin]] name`), independent of the package name.
-- **Embed in any host**: a host path-, git-, or version-depends on `calc-core` and `calc-cli`. There is no fork to maintain.
+- **Install just the calculators**: `cargo install --git https://github.com/pacharanero/calc clincalc` (and, once published, `cargo install clincalc` from crates.io). Cargo builds only `clincalc` + `clap` + `serde` - no host. The installed binary name is `calc` (set by `[[bin]] name`), independent of the package name.
+- **Embed in any host**: a host path-, git-, or version-depends on `clincalc` (with `default-features = false` for just the engine, or the `cli` feature to reuse the command surface). There is no fork to maintain.
 
-The one rule that keeps this true: `calc-core` must stay a leaf.
+The one rule that keeps this true: the `clincalc` engine must stay a leaf.
 
 ### Binary-size note
 
@@ -190,7 +187,7 @@ pub trait Calculator {
 
 ## CLI design (LLM-friendly)
 
-There are **no per-calculator flags**. Flags do not scale past the simplest scores (QRISK3 has ~20 mixed-type, enumerated, unit-bearing inputs) and would force a hand-written, drift-prone clap struct per calculator. Instead every calculator is driven through one regular, registry-backed surface - so a human or an LLM learns it once, and adding a calculator to `calc-core` gives it a working CLI for free:
+There are **no per-calculator flags**. Flags do not scale past the simplest scores (QRISK3 has ~20 mixed-type, enumerated, unit-bearing inputs) and would force a hand-written, drift-prone clap struct per calculator. Instead every calculator is driven through one regular, registry-backed surface - so a human or an LLM learns it once, and adding a calculator to `clincalc` gives it a working CLI for free:
 
 ```bash
 calc list                       # list calculators (text or JSON via --format)
@@ -213,7 +210,7 @@ User-facing CLI documentation lives in [`docs/cli-reference.md`](../docs/cli-ref
 
 ## Web frontend (`calc-web`) - deprioritised
 
-The browser tools are single, self-contained HTML files with a shared context-detection bridge. The end-state is the same `calc-core` compiled to WebAssembly so the browser surface shares the engine; until then the inline JS logic must be validated against the `calc-core` test vectors. Not actively worked on - documented for completeness and for when it returns to the roadmap.
+The browser tools are single, self-contained HTML files with a shared context-detection bridge. The end-state is the same `clincalc` compiled to WebAssembly so the browser surface shares the engine; until then the inline JS logic must be validated against the `clincalc` test vectors. Not actively worked on - documented for completeness and for when it returns to the roadmap.
 
 ### Result Card UI conventions (when it returns)
 
@@ -233,9 +230,9 @@ Any host that records results should do something similar; the engine itself sta
 
 ## Authoring a new calculator
 
-1. Implement it in `calc-core`: a typed `Input`, a pure `compute()`, a `build_response()` adapter, a `Calculator` impl with `input_schema()` and `license()` (the distribution licence plus an evidence URL), and unit tests against known vectors. Register it in `all()`. This is the **only** Rust work needed - the CLI (`calc <name>`, template, `--schema`, `--license`, `--input`) and the MCP tool are both driven generically from the registry, so there is no per-calculator CLI or MCP code to write.
+1. Implement it in `clincalc`: a typed `Input`, a pure `compute()`, a `build_response()` adapter, a `Calculator` impl with `input_schema()` and `license()` (the distribution licence plus an evidence URL), and unit tests against known vectors. Register it in `all()`. This is the **only** Rust work needed - the CLI (`calc <name>`, template, `--schema`, `--license`, `--input`) and the MCP tool are both driven generically from the registry, so there is no per-calculator CLI or MCP code to write.
 2. (Optional) add a row to [`docs/calculators.md`](../docs/calculators.md) so it appears in the published catalogue.
-3. (When `calc-web` returns) create `calc-web/calculators/<name>.html` with its JS logic validated against the `calc-core` vectors.
+3. (When `calc-web` returns) create `calc-web/calculators/<name>.html` with its JS logic validated against the `clincalc` vectors.
 
 See `.claude/skills/build-calculator/` for the detailed authoring workflow. This skill may be retired in favour of `spec/` + `examples/` + `AGENTS.md`.
 
@@ -273,13 +270,13 @@ UK-WHO (0-4y, WHO 2006) and UK90 (4-20y) reference data, gestational-age correct
 
 ## Clinical validation
 
-Each calculator must include: a primary peer-reviewed citation; evidence of clinical utility; test cases with known inputs/outputs from the literature (encoded as unit tests in `calc-core`); documented limitations and contraindications; and a process for incorporating guideline changes.
+Each calculator must include: a primary peer-reviewed citation; evidence of clinical utility; test cases with known inputs/outputs from the literature (encoded as unit tests in `clincalc`); documented limitations and contraindications; and a process for incorporating guideline changes.
 
 ---
 
 ## Licensing
 
-- `calc-core` / `calc-cli`: AGPL-3.0-or-later. Deliberately not available for subsumption into proprietary EHRs; if that service needs to exist, it can be offered as a hosted Calc-API.
+- `clincalc`: AGPL-3.0-or-later. Deliberately not available for subsumption into proprietary EHRs; if that service needs to exist, it can be offered as a hosted Calc-API.
 - Clinical algorithms: implement from primary literature; most scores are public-domain methods. Do not copy proprietary implementations (e.g. MDCalc). QRISK3 and QFracture are ported from ClinRisk's LGPL-3.0 source and carry the required disclaimer.
 - RCPCH growth charts: confirm licensing terms with RCPCH before distribution.
 - All calculators cite original publications and validation studies.

@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 /// distributed, with a URL evidencing them so the basis can be reverified.
 ///
 /// This is the licence of the *algorithm and clinical content*, which is
-/// distinct from the licence of the calc-core source code (AGPL-3.0). Pure
+/// distinct from the licence of the clincalc source code (AGPL-3.0). Pure
 /// scoring algorithms are generally not subject to copyright and are
 /// implemented here from the primary literature; some instruments (for example
 /// questionnaires) carry an explicit licence or public-domain grant from their

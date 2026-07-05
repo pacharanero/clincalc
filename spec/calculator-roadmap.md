@@ -6,7 +6,7 @@ The clinical-calculator backlog, grouped strictly by completion status. Calculat
 
 ## Status legend
 
-- `[x]` **Completed** - shipped in `calc-core::all()`; returns a real score against literature vectors.
+- `[x]` **Completed** - shipped in `clincalc::all()`; returns a real score against literature vectors.
 - `[x]` (stub) - **Completed as a proprietary / unavailable stub**. Listed, schemable, and embeddable, but invoking it returns a structured explanation (owner, reason, open alternative) rather than a score because the algorithm or content is licence-locked. Named on purpose.
 - `[~]` **In-progress** - actively being implemented or under review.
 - `[ ]` **Planned** - committed to build; the next batch.

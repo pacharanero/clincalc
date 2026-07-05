@@ -20,7 +20,7 @@ calc list --tag proprietary                      # the unshippable ones
 calc --tags                                      # enumerate every tag, with counts
 ```
 
-The full vocabulary lives in [`calc-core/src/tags.rs`](https://github.com/pacharanero/calc/blob/main/calc-core/src/tags.rs) and is reviewable in one file. New tags are added there only after at least two calculators want one.
+The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/calc/blob/main/src/tags.rs) and is reviewable in one file. New tags are added there only after at least two calculators want one.
 
 ## Catalogue
 
