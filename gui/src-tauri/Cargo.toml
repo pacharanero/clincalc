@@ -1,6 +1,6 @@
 [package]
 name = "calc-gui"
-version = "0.1.0"
+version = "0.2.0"
 description = "Open clinical calculators - native desktop GUI"
 authors = ["Marcus Baw"]
 edition = "2024"
