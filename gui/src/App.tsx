@@ -11,7 +11,6 @@ import {
   Group,
   Loader,
   NavLink,
-  ScrollArea,
   Stack,
   Text,
   TextInput,
@@ -27,7 +26,9 @@ import {
 
 import logoUrl from "/logo.svg";
 import { listCalculators, type CalcSummary } from "./api/calc";
+import { Cha2ds2VascCalculator } from "./calculators/Cha2ds2Vasc";
 import { FeverPainCalculator } from "./calculators/FeverPain";
+import { Qrisk3Calculator } from "./calculators/Qrisk3";
 
 /**
  * Which calculators have a hand-crafted UI today. As we build more, we add
@@ -37,6 +38,8 @@ import { FeverPainCalculator } from "./calculators/FeverPain";
  */
 const IMPLEMENTED: Record<string, () => ReactElement> = {
   feverpain: FeverPainCalculator,
+  cha2ds2vasc: Cha2ds2VascCalculator,
+  qrisk3: Qrisk3Calculator,
 };
 
 /**
@@ -47,7 +50,7 @@ const IMPLEMENTED: Record<string, () => ReactElement> = {
  */
 const FEATURED = ["feverpain", "cha2ds2vasc", "qrisk3"];
 
-function ComingSoon({ clincalc }: { calc: CalcSummary }) {
+function ComingSoon({ calc }: { calc: CalcSummary }) {
   return (
     <Stack gap="md" maw={620}>
       <Title order={2}>{calc.title}</Title>
@@ -64,10 +67,11 @@ function ComingSoon({ clincalc }: { calc: CalcSummary }) {
         </Text>
         <Text size="sm" c="dimmed">
           The scoring logic for this calculator already ships in the{" "}
-          <code>calc</code> CLI - the desktop UI is being built calculator by
-          calculator, each one hand-crafted so the form fits the clinical
+          <code>clincalc</code> CLI - the desktop UI is being built calculator
+          by calculator, each one hand-crafted so the form fits the clinical
           question. Try it now with{" "}
-          <code>calc {calc.name} --input examples/{calc.name}.json</code>.
+          <code>{`clincalc ${calc.name} --input examples/${calc.name}.json`}</code>
+          .
         </Text>
       </Box>
     </Stack>
@@ -87,7 +91,7 @@ function Brand() {
       />
       <Box style={{ minWidth: 0 }}>
         <Text className="brand-wordmark" fz="xl" c="teal">
-          calc
+          clincalc
         </Text>
         <Text size="xs" c="dimmed" lh={1}>
           open clinical calculators
@@ -137,9 +141,7 @@ export default function App() {
   // Featured calcs at the top (in declared order); everything else
   // alphabetically below.
   const featured = filtered.filter((c) => FEATURED.includes(c.name));
-  featured.sort(
-    (a, b) => FEATURED.indexOf(a.name) - FEATURED.indexOf(b.name),
-  );
+  featured.sort((a, b) => FEATURED.indexOf(a.name) - FEATURED.indexOf(b.name));
   const others = filtered
     .filter((c) => !FEATURED.includes(c.name))
     .sort((a, b) => a.title.localeCompare(b.title));
@@ -183,7 +185,7 @@ export default function App() {
             size="sm"
           />
 
-          <ScrollArea style={{ flex: 1 }} type="hover">
+          <Box className="sidebar-scroll">
             <Stack gap={2}>
               {!calcs && !error && (
                 <Center py="xl">
@@ -226,22 +228,44 @@ export default function App() {
                 />
               ))}
             </Stack>
-          </ScrollArea>
+          </Box>
 
           <Text size="xs" c="dimmed" px="sm">
-            {calcs?.length ?? 0} calculators - 1 hand-crafted UI so far
+            {calcs?.length ?? 0} calculators - {Object.keys(IMPLEMENTED).length}{" "}
+            hand-crafted UIs so far
           </Text>
         </Stack>
       </AppShell.Navbar>
 
-      <AppShell.Main>
-        {!current && (
+      <AppShell.Main className="app-main">
+        {error && (
+          <Center h="60vh">
+            <Stack gap="xs" maw={560}>
+              <Title order={2} c="red">
+                Could not load calculators
+              </Title>
+              <Text c="dimmed">
+                The desktop shell opened, but the calculator catalogue could not
+                be loaded from the Rust engine.
+              </Text>
+              <Text
+                component="pre"
+                size="sm"
+                c="red"
+                style={{ whiteSpace: "pre-wrap" }}
+              >
+                {error}
+              </Text>
+            </Stack>
+          </Center>
+        )}
+        {!error && !current && (
           <Center h="60vh">
             <Loader />
           </Center>
         )}
-        {current && Body && <Body />}
-        {current && !Body && <ComingSoon calc={current} />}
+        {!error && current && Body && <Body />}
+        {!error && current && !Body && <ComingSoon calc={current} />}
       </AppShell.Main>
     </AppShell>
   );

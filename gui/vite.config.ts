@@ -8,6 +8,11 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
 
+  // Tauri serves the production frontend from the bundled app resources, not
+  // from an HTTP origin root. Keep all generated asset URLs relative so the
+  // webview can resolve JS/CSS/images correctly in packaged builds.
+  base: "./",
+
   // Prevent Vite from clearing the screen so we can see Rust compiler errors.
   clearScreen: false,
 

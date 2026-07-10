@@ -12,7 +12,9 @@ import {
   Divider,
   Group,
   Loader,
+  NumberInput,
   Paper,
+  SegmentedControl,
   Stack,
   Text,
   Textarea,
@@ -22,75 +24,82 @@ import {
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import {
-  IconAlertCircle,
+  IconBrain,
   IconCheck,
   IconCopy,
+  IconHeartbeat,
   IconRefresh,
-  IconThermometer,
 } from "@tabler/icons-react";
 
 import { calculate, type CalculationResponse } from "../api/calc";
 
-/**
- * FeverPAIN: five-item validated score guiding antibiotic prescribing in
- * acute sore throat (Little et al, Lancet Infect Dis 2014).
- *
- * The five inputs are independent booleans, so the form is trivial - the
- * design effort goes into:
- *   1. Instant recompute on every change (no Calculate button to forget).
- *   2. A prominent, editable clipboard-preview textarea (the "soft
- *      interoperability" headline). The text is pre-built but the user
- *      can tweak before copying, so clinician edits survive.
- *   3. A working/breakdown panel that explains the score, so a clinician
- *      can sense-check it without leaving the calculator.
- */
+type Sex = "male" | "female";
+
+type Inputs = {
+  age: number;
+  sex: Sex;
+  congestive_heart_failure: boolean;
+  hypertension: boolean;
+  diabetes: boolean;
+  stroke_tia_thromboembolism: boolean;
+  vascular_disease: boolean;
+};
+
+const blankInputs = (): Inputs => ({
+  age: 70,
+  sex: "male",
+  congestive_heart_failure: false,
+  hypertension: false,
+  diabetes: false,
+  stroke_tia_thromboembolism: false,
+  vascular_disease: false,
+});
 
 const CRITERIA: Array<{
-  key: string;
+  key: keyof Pick<
+    Inputs,
+    | "congestive_heart_failure"
+    | "hypertension"
+    | "diabetes"
+    | "stroke_tia_thromboembolism"
+    | "vascular_disease"
+  >;
   label: string;
   hint: string;
+  points: string;
 }> = [
   {
-    key: "fever",
-    label: "Fever in the last 24 hours",
-    hint: "Reported or measured fever within the past day.",
+    key: "congestive_heart_failure",
+    label: "Congestive heart failure / LV dysfunction",
+    hint: "Signs/symptoms of heart failure, or moderate-to-severe LV systolic dysfunction.",
+    points: "+1",
   },
   {
-    key: "purulence",
-    label: "Purulence on the tonsils",
-    hint: "Visible pus on the tonsillar surface.",
+    key: "hypertension",
+    label: "Hypertension",
+    hint: "History of hypertension, treated or untreated.",
+    points: "+1",
   },
   {
-    key: "attend_rapidly",
-    label: "Attended within 3 days of symptom onset",
-    hint: "Rapid attendance suggests more severe disease.",
+    key: "diabetes",
+    label: "Diabetes mellitus",
+    hint: "Type 1 or type 2 diabetes.",
+    points: "+1",
   },
   {
-    key: "inflamed_tonsils",
-    label: "Severely inflamed tonsils",
-    hint: "Markedly red, swollen tonsils on examination.",
+    key: "stroke_tia_thromboembolism",
+    label: "Prior stroke, TIA, or systemic arterial embolism",
+    hint: "Two points. Do not use this for venous thromboembolism.",
+    points: "+2",
   },
   {
-    key: "absence_of_cough",
-    label: "No cough or coryza",
-    hint: "Absence of cough/coryza tilts toward bacterial cause.",
+    key: "vascular_disease",
+    label: "Vascular disease",
+    hint: "Prior MI, peripheral arterial disease, or aortic plaque. Excludes VTE.",
+    points: "+1",
   },
 ];
 
-type Inputs = Record<string, boolean>;
-
-const blankInputs = (): Inputs =>
-  Object.fromEntries(CRITERIA.map((c) => [c.key, false]));
-
-/**
- * The default clipboard summary. FeverPAIN's `working` map already
- * contains the score, level, prescribing recommendation, and streptococcus
- * isolation band; we lay them out in a way a GP would actually paste.
- *
- * Defensive: read every `working` key through a helper that gracefully
- * handles missing values, so a future clincalc schema change can never
- * crash this UI - it just renders empty fields.
- */
 function asString(v: unknown): string {
   if (v === null || v === undefined) return "";
   if (typeof v === "string") return v;
@@ -99,41 +108,47 @@ function asString(v: unknown): string {
 
 function buildClipboardSummary(r: CalculationResponse, inputs: Inputs): string {
   const working = r.working ?? {};
-  const score = r.result;
-  const rec = asString(working.prescribing_recommendation);
-  const strep = asString(working.streptococcus_rate);
-  const ticked = CRITERIA.filter((c) => inputs[c.key])
-    .map((c) => `- ${c.label}`)
+  const selected = CRITERIA.filter((c) => inputs[c.key])
+    .map((c) => `- ${c.label} (${c.points})`)
     .join("\n");
+  const agePoints = asString(working.age_points);
+  const sexPoint = asString(working.sex_point);
+  const recommendation = asString(working.recommendation);
 
   return [
-    `FeverPAIN ${asString(score)} / 5`,
+    `CHA2DS2-VASc ${asString(r.result)}`,
+    "",
+    `Age: ${inputs.age} years (${agePoints || "0"} point${agePoints === "1" ? "" : "s"})`,
+    `Sex: ${inputs.sex}${sexPoint ? ` (${sexPoint} point${sexPoint === "1" ? "" : "s"})` : ""}`,
+    selected
+      ? `Risk factors:\n${selected}`
+      : "No non-age/sex criteria selected.",
     "",
     r.interpretation ?? "",
     "",
-    ticked.length > 0 ? "Positive criteria:\n" + ticked : "No criteria met.",
-    "",
-    `Prescribing: ${rec || "(not stated)"}`,
-    `Streptococcus isolation: ${strep || "(not stated)"}`,
-    "",
+    `Recommendation band: ${recommendation || "not stated"}`,
     `Reference: ${r.reference ?? ""}`,
   ].join("\n");
 }
 
-export function FeverPainCalculator() {
+function recommendationColour(recommendation: string, score: number): string {
+  if (recommendation === "offer" || score >= 2) return "red";
+  if (recommendation === "consider") return "yellow";
+  return "teal";
+}
+
+export function Cha2ds2VascCalculator() {
   const [inputs, setInputs] = useState<Inputs>(blankInputs());
   const [response, setResponse] = useState<CalculationResponse | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [clipboardText, setClipboardText] = useState("");
 
-  // Recompute on every change. FeverPAIN is so cheap to score that there
-  // is no value in debouncing - the round trip to Rust is sub-millisecond.
   useEffect(() => {
     let cancelled = false;
     setPending(true);
     setError(null);
-    calculate("feverpain", inputs as Record<string, unknown>)
+    calculate("cha2ds2vasc", inputs as unknown as Record<string, unknown>)
       .then((r) => {
         if (cancelled) return;
         setResponse(r);
@@ -150,22 +165,13 @@ export function FeverPainCalculator() {
     };
   }, [inputs]);
 
-  const score = response?.result ?? 0;
+  const score = Number(response?.result ?? 0);
   const working = response?.working ?? {};
-  const level = asString(working.level);
-  const strepRate = asString(working.streptococcus_rate);
-  const prescribing = asString(working.prescribing_recommendation);
-
-  // Colour-code the score tile by the FeverPAIN bands (Little 2014):
-  //   0-1  no antibiotic, low strep yield   -> green
-  //   2-3  delayed prescribing              -> amber
-  //   4-5  immediate antibiotic considered  -> red
-  const scoreColor = useMemo(() => {
-    const n = typeof score === "number" ? score : Number(score);
-    if (n >= 4) return "red";
-    if (n >= 2) return "yellow";
-    return "teal";
-  }, [score]);
+  const recommendation = asString(working.recommendation);
+  const colour = useMemo(
+    () => recommendationColour(recommendation, score),
+    [recommendation, score],
+  );
 
   const reset = () => setInputs(blankInputs());
 
@@ -174,7 +180,7 @@ export function FeverPainCalculator() {
       await navigator.clipboard.writeText(clipboardText);
       notifications.show({
         title: "Copied",
-        message: "Result on the clipboard - paste anywhere.",
+        message: "CHA2DS2-VASc result copied.",
         color: "teal",
         icon: <IconCheck size={18} />,
         autoClose: 2000,
@@ -182,33 +188,32 @@ export function FeverPainCalculator() {
     } catch {
       notifications.show({
         title: "Copy failed",
-        message: "Select the text above and copy manually.",
+        message: "Select the text and copy manually.",
         color: "red",
-        icon: <IconAlertCircle size={18} />,
       });
     }
   };
 
   return (
-    <Stack gap="xl" maw={920}>
+    <Stack gap="xl" maw={960}>
       <Group justify="space-between" align="flex-start">
         <Box>
           <Group gap="sm" mb={4}>
             <ThemeIcon size="lg" variant="light" color="teal" radius="md">
-              <IconThermometer size={22} />
+              <IconBrain size={22} />
             </ThemeIcon>
-            <Title order={2}>FeverPAIN</Title>
+            <Title order={2}>CHA2DS2-VASc</Title>
             <Badge color="teal" variant="light">
-              Acute sore throat
+              Atrial fibrillation
             </Badge>
           </Group>
           <Text c="dimmed" size="sm">
-            Five-item score guiding antibiotic prescribing in acute sore throat
-            (Little et al, Lancet Infect Dis 2014). Validated in adults and
-            children aged 3+.
+            Stroke risk in non-valvular atrial fibrillation, guiding
+            anticoagulation decisions. Female sex alone is treated as low risk
+            in line with NICE NG196.
           </Text>
         </Box>
-        <Tooltip label="Reset all criteria">
+        <Tooltip label="Reset to defaults">
           <ActionIcon variant="subtle" color="gray" onClick={reset} size="lg">
             <IconRefresh size={18} />
           </ActionIcon>
@@ -218,30 +223,56 @@ export function FeverPainCalculator() {
       <Group align="stretch" gap="lg" wrap="nowrap">
         <Card withBorder padding="lg" radius="lg" style={{ flex: 1 }}>
           <Stack gap="md">
-            <Text fw={600}>Tick each criterion that applies</Text>
+            <Group grow align="flex-end">
+              <NumberInput
+                label="Age"
+                description="65-74 scores 1; 75+ scores 2"
+                min={18}
+                max={120}
+                value={inputs.age}
+                onChange={(value) =>
+                  setInputs((prev) => ({ ...prev, age: Number(value) || 0 }))
+                }
+              />
+              <Box>
+                <Text fw={500} size="sm" mb={4}>
+                  Sex
+                </Text>
+                <SegmentedControl
+                  fullWidth
+                  value={inputs.sex}
+                  onChange={(value) =>
+                    setInputs((prev) => ({ ...prev, sex: value as Sex }))
+                  }
+                  data={[
+                    { value: "male", label: "Male" },
+                    { value: "female", label: "Female" },
+                  ]}
+                />
+              </Box>
+            </Group>
+
             <Divider />
+
             <Stack gap="sm">
+              <Text fw={600}>Clinical criteria</Text>
               {CRITERIA.map((c) => (
                 <Checkbox
                   key={c.key}
                   size="md"
-                  label={c.label}
+                  label={
+                    <Group gap="xs">
+                      <Text>{c.label}</Text>
+                      <Badge size="xs" variant="light" color="gray">
+                        {c.points}
+                      </Badge>
+                    </Group>
+                  }
                   description={c.hint}
                   checked={inputs[c.key]}
                   onChange={(e) => {
-                    // Read .checked SYNCHRONOUSLY here, before the
-                    // functional setState updater closes over `e`. React
-                    // 19's concurrent renderer can defer the updater
-                    // until after the synthetic event has finished
-                    // propagating, at which point `currentTarget` has
-                    // been nulled out and reading `.checked` throws
-                    // "null is not an object". Capture the boolean now,
-                    // refer to it (not `e`) inside the updater.
                     const checked = e.currentTarget.checked;
-                    setInputs((prev) => ({
-                      ...prev,
-                      [c.key]: checked,
-                    }));
+                    setInputs((prev) => ({ ...prev, [c.key]: checked }));
                   }}
                 />
               ))}
@@ -260,7 +291,6 @@ export function FeverPainCalculator() {
             <Text fw={600} c="dimmed" size="sm" tt="uppercase">
               Result
             </Text>
-
             {pending && !response && (
               <Group gap="xs">
                 <Loader size="xs" />
@@ -272,37 +302,37 @@ export function FeverPainCalculator() {
                 {error}
               </Text>
             )}
-
             {response && (
               <>
                 <Group align="baseline" gap="xs">
-                  <Title order={1} c={scoreColor} fz={64} lh={1}>
-                    {String(score)}
+                  <Title order={1} c={colour} fz={64} lh={1}>
+                    {String(response.result)}
                   </Title>
                   <Text c="dimmed" fz="lg">
-                    / 5
+                    / 9
                   </Text>
-                  <Badge ml="auto" color={scoreColor} variant="light" size="lg">
-                    {level || "—"}
+                  <Badge ml="auto" color={colour} variant="light" size="lg">
+                    {recommendation || "—"}
                   </Badge>
                 </Group>
-
                 <Text size="sm" style={{ lineHeight: 1.55 }}>
                   {response.interpretation}
                 </Text>
-
                 <Divider my={4} />
-
                 <Stack gap={4}>
                   <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
                     Working
                   </Text>
                   <Group gap="xs" wrap="wrap">
                     <Badge variant="outline" color="gray">
-                      Strep isolation: {strepRate || "—"}
+                      Age: {asString(working.age_points) || "0"}
                     </Badge>
                     <Badge variant="outline" color="gray">
-                      Prescribing: {prescribing || "—"}
+                      Sex: {asString(working.sex_point) || "0"}
+                    </Badge>
+                    <Badge variant="outline" color="gray">
+                      Non-sex score:{" "}
+                      {Math.max(0, score - Number(working.sex_point ?? 0))}
                     </Badge>
                   </Group>
                 </Stack>
@@ -318,11 +348,7 @@ export function FeverPainCalculator() {
           radius="lg"
           p="lg"
           className="clipboard-preview"
-          style={{
-            // Bring the headline-feature card visually forward.
-            borderColor: "var(--mantine-color-teal-4)",
-            borderWidth: 2,
-          }}
+          style={{ borderColor: "var(--mantine-color-teal-4)", borderWidth: 2 }}
         >
           <Stack gap="sm">
             <Group justify="space-between" align="center">
@@ -348,15 +374,12 @@ export function FeverPainCalculator() {
               maxRows={8}
               value={clipboardText}
               onChange={(e) => setClipboardText(e.currentTarget.value)}
-              styles={{
-                input: {
-                  background: "var(--mantine-color-body)",
-                },
-              }}
+              styles={{ input: { background: "var(--mantine-color-body)" } }}
             />
-            <Text size="xs" c="dimmed">
-              Reference: {response.reference}
-            </Text>
+            <Group gap="xs" c="dimmed">
+              <IconHeartbeat size={14} />
+              <Text size="xs">Reference: {response.reference}</Text>
+            </Group>
           </Stack>
         </Paper>
       )}

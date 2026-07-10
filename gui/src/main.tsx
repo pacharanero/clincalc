@@ -11,15 +11,13 @@ import App from "./App";
 import { ErrorBoundary } from "./ErrorBoundary";
 import "./App.css";
 
-// Theme mirrors the gitehr GUI so the two apps read as one product family:
-//   - IBM Plex Sans for body, Space Grotesk for headings
-//   - primaryColor "teal" matches the docs-site palette
-//     (docs/stylesheets/extra.css: --calc-teal #0f766e / bright #14b8a6)
-// `defaultRadius: "md"` keeps cards / buttons softly-rounded rather than
-// boxy; clinicians have read enough hospital-IT chrome for a lifetime.
+// Theme mirrors the gitehr GUI palette while using a quieter, neutral Lato
+// typeface for both body and headings. `defaultRadius: "md"` keeps cards /
+// buttons softly-rounded rather than boxy; clinicians have read enough
+// hospital-IT chrome for a lifetime.
 const theme = createTheme({
-  fontFamily: "'IBM Plex Sans', system-ui, -apple-system, sans-serif",
-  headings: { fontFamily: "'Space Grotesk', 'IBM Plex Sans', sans-serif" },
+  fontFamily: "Lato, system-ui, -apple-system, sans-serif",
+  headings: { fontFamily: "Lato, system-ui, -apple-system, sans-serif" },
   primaryColor: "teal",
   defaultRadius: "md",
 });

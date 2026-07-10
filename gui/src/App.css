@@ -6,9 +6,29 @@
 html,
 body,
 #root {
-  height: 100vh;
-  margin: 0;
-  overflow: hidden; /* AppShell scrolls its own regions */
+    height: 100vh;
+    margin: 0;
+    overflow: hidden; /* AppShell scrolls its own regions */
+}
+
+/*
+ * The document itself is locked because AppShell owns the layout. Make the
+ * main pane the scroll container so long calculator forms and paste-ready
+ * summaries remain reachable in the Tauri webview.
+ */
+.app-main {
+    height: 100vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    contain: layout paint;
+}
+
+.sidebar-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
 }
 
 /*
@@ -16,17 +36,21 @@ body,
  * against the chrome.
  */
 .brand-wordmark {
-  letter-spacing: -0.02em;
-  font-weight: 700;
+    letter-spacing: -0.02em;
+    font-weight: 700;
 }
 
 /*
- * The "soft interoperability" copy-paste preview is the headline UI.
- * A monospace stack reinforces "this is the literal text that will be
- * pasted"; the slightly larger line-height keeps it scannable.
+ * The "soft interoperability" copy-paste preview is the headline UI. Keep it
+ * in the same neutral typeface as the rest of the app so it reads like clinical
+ * text, not generated boilerplate.
  */
 .clipboard-preview textarea {
-  font-family: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  font-size: 0.92rem;
-  line-height: 1.55;
+    font-family:
+        Lato,
+        system-ui,
+        -apple-system,
+        sans-serif;
+    font-size: 0.92rem;
+    line-height: 1.55;
 }
