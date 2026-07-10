@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Marcus Baw and Baw Medical Ltd
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-//! The standalone `calc` binary.
+//! The standalone `clincalc` binary.
 //!
 //! A thin wrapper over [`clincalc::cli`]: all behaviour lives in the library so
 //! host CLIs (e.g. GitEHR's `gitehr calc`) can reuse it without repetition.
@@ -19,7 +19,7 @@ use clincalc::cli::CalcCommand;
 /// Open clinical calculators - scoring at the command line.
 #[derive(Debug, Parser)]
 #[command(
-    name = "calc",
+    name = "clincalc",
     version,
     about,
     long_about = None,
@@ -28,10 +28,10 @@ use clincalc::cli::CalcCommand;
     // positional that would otherwise swallow the word "completions"), so
     // it is not a clap subcommand and would not appear here otherwise.
     after_long_help = "Shell completions:\n  \
-        calc completions install                  Install for the current shell\n  \
-        calc completions <bash|zsh|fish|...>      Print to stdout\n  \
-        calc completions --dir <DIR> <SHELL>      Write to a specific dir\n\n\
-See `calc completions --help` and `docs/cli-reference.md` for the full surface."
+        clincalc completions install                  Install for the current shell\n  \
+        clincalc completions <bash|zsh|fish|...>      Print to stdout\n  \
+        clincalc completions --dir <DIR> <SHELL>      Write to a specific dir\n\n\
+See `clincalc completions --help` and `docs/cli-reference.md` for the full surface."
 )]
 struct Cli {
     #[command(flatten)]
@@ -39,7 +39,7 @@ struct Cli {
 }
 
 #[derive(Debug, Parser)]
-#[command(name = "calc completions")]
+#[command(name = "clincalc completions")]
 struct CompletionsCli {
     #[command(flatten)]
     args: CompletionsArgs,
@@ -91,18 +91,34 @@ fn main() -> anyhow::Result<()> {
 
     let mut args = env::args_os();
     let program = args.next();
-    if args.next().as_deref() == Some(std::ffi::OsStr::new("completions")) {
-        let parse_args = program.into_iter().chain(args);
-        return run_completions(CompletionsCli::parse_from(parse_args).args);
+    match args.next().as_deref() {
+        Some(arg) if arg == std::ffi::OsStr::new("completions") => {
+            let parse_args = program.into_iter().chain(args);
+            return run_completions(CompletionsCli::parse_from(parse_args).args);
+        }
+        Some(arg) if arg == std::ffi::OsStr::new("mcp") => return run_mcp(),
+        _ => {}
     }
 
     let cli = Cli::parse();
     clincalc::cli::run(cli.command)
 }
 
+#[cfg(feature = "mcp")]
+fn run_mcp() -> Result<()> {
+    tokio::runtime::Runtime::new()?.block_on(clincalc::mcp::serve_stdio())
+}
+
+#[cfg(not(feature = "mcp"))]
+fn run_mcp() -> Result<()> {
+    Err(anyhow!(
+        "MCP support was not compiled into this clincalc binary.\nReinstall with MCP enabled, for example: cargo install clincalc --features mcp"
+    ))
+}
+
 fn run_completions(args: CompletionsArgs) -> Result<()> {
     let mut cmd = TopCommand::augment_subcommands(Cli::command());
-    cmd.set_bin_name("calc");
+    cmd.set_bin_name("clincalc");
     match args.command {
         Some(CompletionCommand::Install { shell, dir }) => {
             let shell = shell.or_else(detect_shell).ok_or_else(|| {
@@ -117,11 +133,11 @@ fn run_completions(args: CompletionsArgs) -> Result<()> {
         None => {
             let shell = args
                 .shell
-                .ok_or_else(|| anyhow!("missing shell; try `calc completions install`"))?;
+                .ok_or_else(|| anyhow!("missing shell; try `clincalc completions install`"))?;
             if let Some(dir) = args.dir {
                 write_completion(shell, &mut cmd, &dir)?;
             } else {
-                generate(shell, &mut cmd, "calc", &mut std::io::stdout());
+                generate(shell, &mut cmd, "clincalc", &mut std::io::stdout());
             }
         }
     }
@@ -134,19 +150,19 @@ fn write_completion(shell: Shell, cmd: &mut clap::Command, dir: &Path) -> Result
     let path = dir.join(completion_filename(shell));
     let mut file = fs::File::create(&path)
         .with_context(|| format!("creating completion file {}", path.display()))?;
-    generate(shell, cmd, "calc", &mut file);
+    generate(shell, cmd, "clincalc", &mut file);
     println!("Completion script written to: {}", path.display());
     Ok(path)
 }
 
 fn completion_filename(shell: Shell) -> &'static str {
     match shell {
-        Shell::Bash => "calc",
-        Shell::Zsh => "_calc",
-        Shell::Fish => "calc.fish",
-        Shell::PowerShell => "calc.ps1",
-        Shell::Elvish => "calc.elv",
-        _ => "calc.completion",
+        Shell::Bash => "clincalc",
+        Shell::Zsh => "_clincalc",
+        Shell::Fish => "clincalc.fish",
+        Shell::PowerShell => "clincalc.ps1",
+        Shell::Elvish => "clincalc.elv",
+        _ => "clincalc.completion",
     }
 }
 
@@ -176,7 +192,7 @@ fn default_completion_dir(shell: Shell) -> Result<PathBuf> {
             .join("fish/completions"),
         Shell::PowerShell => home.join(".config/powershell/completions"),
         Shell::Elvish => home.join(".elvish/lib"),
-        _ => home.join(".local/share/calc/completions"),
+        _ => home.join(".local/share/clincalc/completions"),
     })
 }
 
@@ -195,7 +211,7 @@ fn print_install_note(shell: Shell, dir: &Path) {
         }
         Shell::PowerShell => {
             println!("Add this to your PowerShell profile if it is not already there:");
-            println!("  . {}/calc.ps1", dir.display());
+            println!("  . {}/clincalc.ps1", dir.display());
         }
         _ => println!("Restart your shell to load the updated completions."),
     }

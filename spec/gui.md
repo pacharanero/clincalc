@@ -2,20 +2,20 @@
 
 # Desktop GUI
 
-`calc` ships a native desktop GUI alongside the CLI. This file is the design spec; the living code lives in [`gui/`](../gui/) and the operational details in [`gui/README.md`](../gui/README.md).
+`clincalc` ships a native desktop GUI alongside the CLI. This file is the design spec; the living code lives in [`gui/`](../gui/) and the operational details in [`gui/README.md`](../gui/README.md).
 
 ## Goals
 
 1. **Native desktop install** on Windows, macOS, and Linux. Single signed installer per platform; no runtime to pre-install (modern Windows ships WebView2 with Edge, Tauri uses it).
 2. **Soft interoperability is the headline.** Every calculator's result is presented as an editable, paste-ready text block with a prominent **Copy** button. Clinician edits before copying are preserved. This is the design feature, not an afterthought.
-3. **Same engine, same results.** The GUI calls `clincalc` directly via a Tauri command - no parallel scoring implementation. A FeverPAIN score in the GUI is byte-identical to `calc feverpain --input ...`.
+3. **Same engine, same results.** The GUI calls `clincalc` directly via a Tauri command - no parallel scoring implementation. A FeverPAIN score in the GUI is byte-identical to `clincalc feverpain --input ...`.
 4. **Sibling product family.** Visual language matches the GitEHR desktop app (IBM Plex Sans + Space Grotesk, teal primary, Mantine components, AppShell + sidebar nav), so a clinician moving between the two apps reads them as one suite.
-5. **One UI per calculator, hand-crafted.** No schema-driven form generator. The CLI surface (`calc <name>` template, `--schema`) handles the generic case; clinician-facing UIs need hand-tuned hints, ordering, and units per calculator.
+5. **One UI per calculator, hand-crafted.** No schema-driven form generator. The CLI surface (`clincalc <name>` template, `--schema`) handles the generic case; clinician-facing UIs need hand-tuned hints, ordering, and units per calculator.
 
 ## Non-goals
 
 - Replacing the CLI. Pipelines, automation, and embedding remain the CLI's job. The GUI is *for clinicians at a desk*.
-- Storing patient data. The GUI is stateless across sessions; calculations are local and ephemeral. (If a host like GitEHR embeds `clincalc`, *it* records results into its journal - the standalone `calc` GUI does not.)
+- Storing patient data. The GUI is stateless across sessions; calculations are local and ephemeral. (If a host like GitEHR embeds `clincalc`, *it* records results into its journal - the standalone `clincalc` GUI does not.)
 - Cloud sync, accounts, telemetry. Local-first, no network beyond opening links to external references on user click.
 
 ## Stack (matches GitEHR)

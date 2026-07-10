@@ -6,7 +6,7 @@
 #   default bump: patch
 #   default mode: auto-detect from whether `main` is branch-protected
 #
-# The one release action. Gates the tree, bumps every calc version-bearing file
+# The one release action. Gates the tree, bumps every clincalc version-bearing file
 # (the Rust crate + the excluded Tauri GUI crate, its npm package, and
 # tauri.conf.json), regenerates CHANGELOG.md (git-cliff), commits the release,
 # and lands it on `main`. Landing on `main` triggers

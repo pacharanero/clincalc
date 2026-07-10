@@ -17,7 +17,7 @@ use serde::Serialize;
 
 /// One row of the catalogue, suitable for sidebar / picker rendering.
 ///
-/// Mirrors what `calc list --format json` returns, kept deliberately small.
+/// Mirrors what `clincalc list --format json` returns, kept deliberately small.
 #[derive(Debug, Serialize)]
 struct CalcSummary {
     name: &'static str,

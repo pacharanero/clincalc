@@ -1,10 +1,10 @@
 # Example inputs
 
-Ready-to-run JSON inputs for the `calc` CLI, one per file. They exist so you never have to invent your own test data: clone the repo and pipe a file straight in.
+Ready-to-run JSON inputs for the `clincalc` CLI, one per file. They exist so you never have to invent your own test data: clone the repo and pipe a file straight in.
 
 ```bash
-calc feverpain --input examples/feverpain.json   # from the file
-cat examples/auditc.json | calc auditc --input -  # or over a pipe
+clincalc feverpain --input examples/feverpain.json   # from the file
+cat examples/auditc.json | clincalc auditc --input -  # or over a pipe
 ```
 
 | File | Calculator | What it shows |
@@ -14,4 +14,4 @@ cat examples/auditc.json | calc auditc --input -  # or over a pipe
 | `auditc.json` | `auditc` | An array plus an enum (`sex`) - an alcohol screen scoring 7 (positive). |
 | `news2.json` | `news2` | Mixed vitals with enums - an acutely unwell patient scoring 7 (high). |
 
-These are also the worked examples in the [Walkthrough](https://pacharanero.github.io/calc/walkthrough/). Each calculator's full input contract is `calc <name> --schema`; a fillable template is `calc <name>`.
+These are also the worked examples in the [Walkthrough](https://pacharanero.github.io/clincalc/walkthrough/). Each calculator's full input contract is `clinclinclincalc <name> --schema`; a fillable template is `clinclincalc <name>`.

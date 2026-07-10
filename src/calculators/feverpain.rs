@@ -4,7 +4,7 @@
 //! FeverPAIN score for acute sore throat.
 //!
 //! Five-item validated score guiding antibiotic prescribing. Ported verbatim
-//! from the web calculator (`calc-web/calculators/feverpain.html`); the band
+//! from the web calculator (`clincalc-web/calculators/feverpain.html`); the band
 //! thresholds, streptococcus isolation rates, and interpretation strings match
 //! it exactly so results are identical across surfaces.
 

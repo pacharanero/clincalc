@@ -149,7 +149,7 @@ controls:
   - id: C003
     description: "license() is a required trait method returning a licence with an http(s) evidence URL; a registry test rejects any calculator that omits it. The provenance of every shipped algorithm is always on record and re-checkable from the cited source."
   - id: C004
-    description: "input_schema() (JSON Schema) declares each input's type, units, and permitted values, exposed via `calc <name> --schema` and to any MCP/GUI host, so the expected unit is machine-discoverable rather than assumed."
+    description: "input_schema() (JSON Schema) declares each input's type, units, and permitted values, exposed via `clincalc <name> --schema` and to any MCP/GUI host, so the expected unit is machine-discoverable rather than assumed."
   - id: C005
     description: "Strongly-typed Input structs (serde::Deserialize) reject wrong-shape input at the boundary; malformed or wrong-type input returns CalcError::InvalidInput rather than being silently coerced."
   - id: C006
@@ -163,7 +163,7 @@ controls:
   - id: C010
     description: "Required inputs are marked required in the schema and in the typed Input; a missing required input fails deserialization (CalcError::InvalidInput) rather than defaulting to a scored value."
   - id: C011
-    description: "Every calculator has a unique, stable machine name(), a human title(), and a one-line description(); the central tag taxonomy (src/tags.rs) and `calc list --tag` support unambiguous selection."
+    description: "Every calculator has a unique, stable machine name(), a human title(), and a one-line description(); the central tag taxonomy (src/tags.rs) and `clincalc list --tag` support unambiguous selection."
   - id: C012
     description: "The docs catalogue (docs/calculators.md) and per-calculator reference disambiguate similarly-named scores, each stating its distinct indication and primary source."
   - id: C013
@@ -182,7 +182,7 @@ controls:
     description: "Integer arithmetic is used for integer scores; explicit banding/threshold tests assert the correct band on both sides of each cutoff."
 ---
 
-# Hazard Log - calc
+# Hazard Log - clincalc
 
 > **Template Origin**: Community | **ArcKit Version**: arckit-uk-nhs 5.0.3 | **Command**: `/arckit:uk-nhs-dcb0129` | **Filename**: `HAZARD-LOG.md` (DCB0129 manufacturer)
 
@@ -192,7 +192,7 @@ controls:
 |---|---|
 | **Document ID** | `HAZARD-LOG.md` (Marcus Baw SAFETY.md spec convention; no ARC- prefix) |
 | **Document Type** | Hazard Log (DCB0129 manufacturer) |
-| **Project** | calc - open library of clinical calculators |
+| **Project** | clincalc - open library of clinical calculators |
 | **Classification** | PUBLIC (open-source project) |
 | **Status** | DRAFT |
 | **Version** | 0.1.0 |
@@ -245,7 +245,7 @@ controls:
 | C008 | Enum/boolean predicates constrain domain; numeric inputs bounded by schema `minimum`/`maximum` |
 | C009 | Governed input-definition system defines each clinician-asserted predicate; 'not asserted' ≠ 'asserted false' |
 | C010 | Required schema fields; missing required input fails deserialization rather than defaulting |
-| C011 | Unique stable `name()`/`title()`/`description()`; central tag taxonomy (`tags.rs`); `calc list --tag` |
+| C011 | Unique stable `name()`/`title()`/`description()`; central tag taxonomy (`tags.rs`); `clincalc list --tag` |
 | C012 | Docs catalogue (`docs/calculators.md`) + per-calculator reference disambiguate similar scores |
 | C013 | `CalculationResponse.interpretation` + `working` returned with every numeric `result` |
 | C014 | `reference` (primary citation) carried in every response and in the clipboard summary (`to_summary_text`) |

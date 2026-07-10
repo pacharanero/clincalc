@@ -95,8 +95,8 @@ Recommendation: **option 2** when translations land, with option 1 acceptable as
 ### CLI surface
 
 ```bash
-calc --lang es feverpain --input examples/feverpain.json
-calc --lang ca list
+clincalc --lang es feverpain --input examples/feverpain.json
+clincalc --lang ca list
 ```
 
 `--lang` defaults to `en`. Invalid locales fail loudly at the CLI boundary. The locale is also accepted via `CALC_LANG=es` for environments where flags are awkward.

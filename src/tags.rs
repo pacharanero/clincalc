@@ -5,7 +5,7 @@
 //!
 //! Tags categorise each calculator by **specialty** (where it is used) and
 //! **status** (what kind of tool it is). They are surfaced everywhere a
-//! calculator is listed - the `calc list --tag <t>` filter, `calc list --tags`,
+//! calculator is listed - the `clincalc list --tag <t>` filter, `clincalc list --tags`,
 //! the published docs catalogue, and any host that enumerates the registry.
 //!
 //! The taxonomy is centralised here, not split across the calculators, so the
@@ -184,7 +184,7 @@ pub fn for_name(name: &str) -> &'static [&'static str] {
 }
 
 /// Every distinct tag in [`TAGS`], deduplicated and sorted. Useful for the
-/// `calc list --tags` listing and for the docs catalogue.
+/// `clincalc list --tags` listing and for the docs catalogue.
 pub fn all_tags() -> Vec<&'static str> {
     let mut out: Vec<&'static str> = TAGS.iter().flat_map(|(_, ts)| ts.iter().copied()).collect();
     out.sort_unstable();

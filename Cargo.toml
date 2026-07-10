@@ -4,9 +4,9 @@ version = "0.2.0"
 edition = "2024"
 authors = ["Marcus Baw"]
 license = "AGPL-3.0-or-later"
-repository = "https://github.com/pacharanero/calc"
-homepage = "https://github.com/pacharanero/calc"
-description = "Open, auditable clinical calculators: a pure scoring engine plus the `calc` CLI in one crate. The engine is a serde-only leaf (build with default-features = false); the default `cli` feature adds the `calc` binary."
+repository = "https://github.com/pacharanero/clincalc"
+homepage = "https://github.com/pacharanero/clincalc"
+description = "Open, auditable clinical calculators: a pure scoring engine plus the `clincalc` CLI in one crate. The engine is a serde-only leaf (build with default-features = false); the default `cli` feature adds the `clincalc` binary."
 readme = "README.md"
 documentation = "https://docs.rs/clincalc"
 keywords = ["clinical", "medical", "calculator", "scoring", "healthcare"]
@@ -18,19 +18,20 @@ categories = ["science", "command-line-utilities"]
 name = "clincalc"
 path = "src/lib.rs"
 
-# The standalone `calc` binary. Requires the `cli` feature (on by default), so a
+# The standalone `clincalc` binary. Requires the `cli` feature (on by default), so a
 # library-only consumer building with `default-features = false` gets the pure
 # serde-only engine and never compiles clap / anyhow / clap_complete.
 [[bin]]
-name = "calc"
+name = "clincalc"
 path = "src/main.rs"
 required-features = ["cli"]
 
 [features]
 default = ["cli"]
-# The command-line surface: the `calc` binary plus the reusable `clincalc::cli`
+# The command-line surface: the `clincalc` binary plus the reusable `clincalc::cli`
 # module (CalcCommand + run), embeddable by host CLIs such as GitEHR.
 cli = ["dep:anyhow", "dep:clap", "dep:clap_complete"]
+mcp = ["cli", "dep:rmcp", "dep:tokio"]
 
 [dependencies]
 # The leaf engine depends only on serde. Everything the CLI needs is optional
@@ -41,6 +42,8 @@ serde_json = "1.0"
 anyhow = { version = "1", optional = true }
 clap = { version = "4.6", features = ["derive"], optional = true }
 clap_complete = { version = "4.6", optional = true }
+rmcp = { version = "2.2.0", default-features = false, features = ["server", "transport-io"], optional = true }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"], optional = true }
 
 [package.metadata.wix]
 upgrade-guid = "53C371C7-A0F3-445B-B0D1-567A0DF17F70"
@@ -55,7 +58,7 @@ eula = false
 [workspace]
 exclude = ["gui/src-tauri"]
 
-# cargo-dist builds and ships the `calc` binary (archives + shell / powershell /
+# cargo-dist builds and ships the `clincalc` binary (archives + shell / powershell /
 # homebrew / msi installers) from the vX.Y.Z tag. Regenerate
 # .github/workflows/release.yml with `dist generate --mode ci` after config
 # edits. Version pinned to the house-style known-good line.

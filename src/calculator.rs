@@ -54,7 +54,7 @@ pub trait Calculator {
 
     /// JSON Schema describing the accepted inputs.
     ///
-    /// Powers `calc <name> --schema` and MCP tool definitions, and lets an LLM
+    /// Powers `clincalc <name> --schema` and MCP tool definitions, and lets an LLM
     /// work out the required inputs without parsing prose help.
     fn input_schema(&self) -> Value;
 
@@ -74,7 +74,7 @@ pub trait Calculator {
     /// Tags categorising this calculator: specialty (where it is used) and
     /// status (proprietary / unavailable / nhs-mandated / risk / ...).
     ///
-    /// Used for filtering and grouping in `calc list --tag <t>`, the docs
+    /// Used for filtering and grouping in `clincalc list --tag <t>`, the docs
     /// catalogue, and any host that enumerates the registry. The default
     /// implementation looks the calculator up by its machine name in the
     /// central [`tags::TAGS`](crate::tags::TAGS) table, so the whole taxonomy

@@ -2,9 +2,9 @@
 # SPDX-FileCopyrightText: 2026 Marcus Baw and Baw Medical Ltd
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-# Install the `calc` binary from this checkout onto your PATH.
+# Install the `clincalc` binary from this checkout onto your PATH.
 #
-# Builds the clincalc crate in release mode and installs the resulting `calc`
+# Builds the clincalc crate in release mode and installs the resulting `clincalc`
 # binary into ~/.cargo/bin (or $CARGO_INSTALL_ROOT). --locked uses the
 # committed Cargo.lock so the install is reproducible.
 #

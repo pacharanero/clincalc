@@ -1,9 +1,9 @@
-site_name: calc
+site_name: clincalc
 site_description: Open, auditable clinical calculators - one Rust scoring engine behind a simple command line.
-site_url: https://pacharanero.github.io/calc/
+site_url: https://pacharanero.github.io/clincalc/
 
-repo_url: https://github.com/pacharanero/calc
-repo_name: pacharanero/calc
+repo_url: https://github.com/pacharanero/clincalc
+repo_name: pacharanero/clincalc
 edit_uri: edit/main/docs/
 
 docs_dir: docs
@@ -20,10 +20,10 @@ theme:
   logo: assets/logo.svg
   favicon: assets/logo.svg
   features:
-    - content.code.copy      # copy button on every code block (the headline: copy-paste)
-    - content.code.annotate   # numbered (1) annotations inside code blocks
-    - content.action.edit     # "edit this page" link back to GitHub
-    - content.action.view     # "view source" link back to GitHub
+    - content.code.copy # copy button on every code block (the headline: copy-paste)
+    - content.code.annotate # numbered (1) annotations inside code blocks
+    - content.action.edit # "edit this page" link back to GitHub
+    - content.action.view # "view source" link back to GitHub
     - navigation.sections
     - navigation.top
     - navigation.footer
@@ -60,6 +60,7 @@ nav:
   - Install: install.md
   - Walkthrough: walkthrough.md
   - CLI reference: cli-reference.md
+  - MCP server: mcp.md
   - Calculator catalogue: calculators.md
   - How it works: how-it-works.md
 
@@ -93,9 +94,9 @@ markdown_extensions:
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.emoji:
-      emoji_index: !!python/name:material.extensions.emoji.twemoji
-      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      emoji_index: !!python/name:zensical.extensions.emoji.twemoji
+      emoji_generator: !!python/name:zensical.extensions.emoji.to_svg
 
 copyright: >-
   Copyright &copy; 2026 Marcus Baw.
-  Source <a href="https://github.com/pacharanero/calc">pacharanero/calc</a>.
+  Source <a href="https://github.com/pacharanero/clincalc">pacharanero/clincalc</a>.

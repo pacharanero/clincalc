@@ -1,5 +1,5 @@
 /*
- * calc docs palette.
+ * clincalc docs palette.
  *
  * Brand colour is a deep clinical teal - deliberately not NHS Blue, to avoid
  * any chance of confusion with NHS England's protected identity (which has
@@ -8,9 +8,9 @@
  * in a different hue family so no plausible screenshot mistakes it for NHS
  * Blue at any size.
  *
- *   --calc-teal         deep teal for link text / accents on white (passes WCAG AA)
- *   --calc-teal-bright  lifted teal for dark-mode links on slate
- *   --calc-teal-dark    reserved for future hover / pressed states
+ *   --clincalc-teal         deep teal for link text / accents on white (passes WCAG AA)
+ *   --clincalc-teal-bright  lifted teal for dark-mode links on slate
+ *   --clincalc-teal-dark    reserved for future hover / pressed states
  *
  * The header chrome itself stays neutral (white in light mode, near-black in
  * dark) via the `primary: white` / `primary: black` palette entries in
@@ -19,20 +19,20 @@
  */
 
 :root {
-  --calc-teal: #0f766e;
-  --calc-teal-bright: #14b8a6;
-  --calc-teal-dark: #115e59;
+  --clincalc-teal: #0f766e;
+  --clincalc-teal-bright: #14b8a6;
+  --clincalc-teal-dark: #115e59;
 }
 
 [data-md-color-scheme="default"] {
-  --md-accent-fg-color: var(--calc-teal);
-  --md-typeset-a-color: var(--calc-teal);
+  --md-accent-fg-color: var(--clincalc-teal);
+  --md-typeset-a-color: var(--clincalc-teal);
 }
 
 [data-md-color-scheme="slate"] {
   /* Lift the teal for comfortable contrast against the slate surface. */
-  --md-accent-fg-color: var(--calc-teal-bright);
-  --md-typeset-a-color: var(--calc-teal-bright);
+  --md-accent-fg-color: var(--clincalc-teal-bright);
+  --md-typeset-a-color: var(--clincalc-teal-bright);
 }
 
 /*
@@ -42,10 +42,10 @@
  */
 .md-header__button.md-logo svg,
 .md-header__button.md-logo img {
-  color: var(--calc-teal);
+  color: var(--clincalc-teal);
 }
 
 [data-md-color-scheme="slate"] .md-header__button.md-logo svg,
 [data-md-color-scheme="slate"] .md-header__button.md-logo img {
-  color: var(--calc-teal-bright);
+  color: var(--clincalc-teal-bright);
 }

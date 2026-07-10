@@ -5,11 +5,11 @@ description = "Open clinical calculators - native desktop GUI"
 authors = ["Marcus Baw"]
 edition = "2024"
 license = "AGPL-3.0-or-later"
-repository = "https://github.com/pacharanero/calc"
+repository = "https://github.com/pacharanero/clincalc"
 
 # The lib name carries a `_lib` suffix to dodge a Windows-only name-collision
 # between the lib and the bin (https://github.com/rust-lang/cargo/issues/8519).
-# This is a Tauri 2 convention, not a calc choice.
+# This is a Tauri 2 convention, not a clincalc choice.
 [lib]
 name = "calc_gui_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
@@ -23,7 +23,7 @@ tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 
-# The engine. Dual path+version dep: a clone of the calc repo builds against
+# The engine. Dual path+version dep: a clone of the clincalc repo builds against
 # the local path (no waiting for crates.io), while a downstream consumer
 # cloning just this gui directory could swap to the published version. No
 # FFI, no schema duplication - the same Rust types the CLI uses are the

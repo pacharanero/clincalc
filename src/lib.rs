@@ -3,7 +3,7 @@
 
 //! # clincalc
 //!
-//! Open, auditable clinical calculators: the pure scoring engine and the `calc`
+//! Open, auditable clinical calculators: the pure scoring engine and the `clincalc`
 //! command-line surface in one crate.
 //!
 //! With `default-features = false` this crate is a strict **leaf**: it depends
@@ -11,7 +11,7 @@
 //! async runtime. That is what lets the same logic drive every surface without
 //! divergence:
 //!
-//! - the standalone `calc` binary (the default `cli` feature)
+//! - the standalone `clincalc` binary (the default `cli` feature)
 //! - host CLIs that embed the `cli` module (e.g. GitEHR's `gitehr calc`)
 //! - an MCP server (each calculator exposed as a tool)
 //! - a native desktop GUI (called natively over a Tauri command)
@@ -46,6 +46,10 @@ pub mod template;
 /// Embeddable by host CLIs such as GitEHR's `gitehr calc`.
 #[cfg(feature = "cli")]
 pub mod cli;
+
+/// The Model Context Protocol server surface, behind the optional `mcp` feature.
+#[cfg(feature = "mcp")]
+pub mod mcp;
 
 pub use calculator::{CalcError, Calculator};
 pub use license::CalculatorLicense;
@@ -143,7 +147,7 @@ mod registry_tests {
     }
 
     /// Policy: every calculator must declare at least one tag, so it is
-    /// discoverable via `calc list --tag <t>` and groupable in the docs.
+    /// discoverable via `clincalc list --tag <t>` and groupable in the docs.
     /// The central [`tags::TAGS`](crate::tags::TAGS) table is the canonical
     /// place to add new entries.
     #[test]

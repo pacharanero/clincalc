@@ -1,4 +1,4 @@
-# Clinical Safety Case Report - calc
+# Clinical Safety Case Report - clincalc
 
 > **Template Origin**: Community | **ArcKit Version**: arckit-uk-nhs 5.0.3 | **Command**: `/arckit:uk-nhs-dcb0129` | **Filename**: `SAFETY-CASE.md` (DCB0129 manufacturer case)
 
@@ -8,7 +8,7 @@
 |---|---|
 | **Document ID** | `SAFETY-CASE.md` (Marcus Baw SAFETY.md spec convention; no ARC- prefix) |
 | **Document Type** | Clinical Safety Case Report (DCB0129 manufacturer) |
-| **Project** | calc - open library of clinical calculators |
+| **Project** | clincalc - open library of clinical calculators |
 | **Classification** | PUBLIC (open-source project) |
 | **Status** | DRAFT |
 | **Version** | 0.1.0 |
@@ -45,7 +45,7 @@
 
 ## 1. Intended Use
 
-`calc` is an open, standalone library of clinical calculators. Its purpose is to compute recognised clinical scores and calculator outputs (e.g. symptom scores, risk scores, severity indices) **from anonymous inputs supplied by the caller**, returning the numeric result together with a human-readable clinical interpretation and the primary-source reference. It is a single Rust crate (`clincalc`) - a pure scoring engine plus the `calc` CLI (the default `cli` feature) - driving multiple surfaces from one source of truth: the command line, an MCP host surface, and a desktop GUI (Tauri). GitEHR is one downstream consumer; the library is reusable by anyone with no knowledge of GitEHR.
+`clincalc` is an open, standalone library of clinical calculators. Its purpose is to compute recognised clinical scores and calculator outputs (e.g. symptom scores, risk scores, severity indices) **from anonymous inputs supplied by the caller**, returning the numeric result together with a human-readable clinical interpretation and the primary-source reference. It is a single Rust crate (`clincalc`) - a pure scoring engine plus the `clincalc` CLI (the default `cli` feature) - driving multiple surfaces from one source of truth: the command line, an MCP host surface, and a desktop GUI (Tauri). GitEHR is one downstream consumer; the library is reusable by anyone with no knowledge of GitEHR.
 
 ### What this product is
 
@@ -129,7 +129,7 @@ Evidence:
 
 Evidence:
 
-- `input_schema()` (JSON Schema) declares each input's type, units, and permitted values, exposed via `calc <name> --schema` and to MCP/GUI hosts, so expected units are machine-discoverable (**C004**, addressing **H002**).
+- `input_schema()` (JSON Schema) declares each input's type, units, and permitted values, exposed via `clincalc <name> --schema` and to MCP/GUI hosts, so expected units are machine-discoverable (**C004**, addressing **H002**).
 - Strongly-typed `Input` structs reject wrong-shape input and return `CalcError::InvalidInput` rather than silently coercing; range/plausibility checks reject implausible values instead of scoring them (**C005, C007, C008**, addressing **H002, H003**).
 - Required inputs fail deserialization if missing rather than defaulting to a scored value; the governed input-definition system defines each clinician-asserted predicate so "not asserted" is not collapsed into "asserted false" (**C009, C010**, addressing **H004**).
 
@@ -145,7 +145,7 @@ Evidence:
 
 Evidence:
 
-- Every calculator has a unique stable machine `name()`, a human `title()`, and a `description()`; the central tag taxonomy (`src/tags.rs`) and `calc list --tag` support unambiguous selection (**C011**, addressing **H005**).
+- Every calculator has a unique stable machine `name()`, a human `title()`, and a `description()`; the central tag taxonomy (`src/tags.rs`) and `clincalc list --tag` support unambiguous selection (**C011**, addressing **H005**).
 - The docs catalogue (`docs/calculators.md`) and per-calculator reference disambiguate similarly-named scores, each stating its distinct indication (**C012**, **H005**).
 
 ### G1.6 - Calculators stay aligned with current clinical guidance

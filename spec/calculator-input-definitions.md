@@ -57,7 +57,7 @@ The sharp end is the **`excludes`** field. It promotes the silent-failure cases 
 
 The definition travels inside `input_schema()`, as a non-standard `definition` keyword on each property. JSON Schema validators ignore unknown keywords, so validation is unaffected, and the definition reaches every surface for free:
 
-- **CLI** - `calc <name> --schema` already prints the definitions; a `calc <name> --define <field>` pretty-printer is a thin convenience on top. The fillable template marks fields that carry a definition.
+- **CLI** - `clincalc <name> --schema` already prints the definitions; a `clincalc <name> --define <field>` pretty-printer is a thin convenience on top. The fillable template marks fields that carry a definition.
 - **MCP / LLM** - this is the decisive win. The model already receives `input_schema()` as the tool's `inputSchema`, so the `includes`, `excludes`, and `snomedEcl` are *in the tool contract the model reasons over*. An LLM mapping record data to score inputs sees "VTE does NOT count" at the point of decision, not in documentation it never reads.
 - **Docs** - definition tables are generated from the schema, never hand-maintained.
 - **Web UI** - per-input info popovers, which the Result Card spec already anticipates for clinical guidance.

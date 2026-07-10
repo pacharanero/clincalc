@@ -4,20 +4,20 @@
 
 ## Goal
 
-Provide a comprehensive, open-source library of clinical calculators with **one canonical scoring engine** driving every surface: the `calc` command line, an MCP server (in any embedding host), a desktop GUI, and standalone single-file web tools. Calculations are evidence-based, auditable, and - when run inside a host that records them - travel with both inputs and result as immutable provenance.
+Provide a comprehensive, open-source library of clinical calculators with **one canonical scoring engine** driving every surface: the `clincalc` command line, an MCP server (in any embedding host), a desktop GUI, and standalone single-file web tools. Calculations are evidence-based, auditable, and - when run inside a host that records them - travel with both inputs and result as immutable provenance.
 
 A clinical-calculator suite driven by one engine, shippable in many shapes, is something a monolithic "Big EHR" platform structurally cannot produce. That advantage is the architecture this spec is built to capture.
 
 ## Project shape
 
-`calc` is a **standalone project**. It ships as one crate, `clincalc`, with two surfaces selected by a Cargo feature:
+`clincalc` is a **standalone project**. It ships as one crate, `clincalc`, with two surfaces selected by a Cargo feature:
 
 - the **engine** (`default-features = false`) - the pure scoring engine and result schema; a leaf depending only on `serde` + `serde_json`.
-- the **`cli` feature** (on by default) - the `calc` binary plus the reusable `clincalc::cli` module (`CalcCommand` + `run`), embeddable by host CLIs.
+- the **`cli` feature** (on by default) - the `clincalc` binary plus the reusable `clincalc::cli` module (`CalcCommand` + `run`), embeddable by host CLIs.
 
-`calc-web` (single-file HTML calculators) is on the roadmap but deprioritised. A Tauri desktop GUI is the next major surface.
+`clincalc-web` (single-file HTML calculators) is on the roadmap but deprioritised. A Tauri desktop GUI is the next major surface.
 
-GitEHR (<https://github.com/gitehr/gitehr>) is a **downstream consumer** - its CLI forwards `gitehr calc` to `clincalc::cli::run`, and its MCP server exposes each calculator from `clincalc::all()` as a `calc_<name>` tool whose input schema is the calculator's own JSON Schema. Anyone else can embed `calc` the same way.
+GitEHR (<https://github.com/gitehr/gitehr>) is a **downstream consumer** - its CLI forwards `gitehr calc` to `clincalc::cli::run`, and its MCP server exposes each calculator from `clincalc::all()` as a `clincalc_<name>` tool whose input schema is the calculator's own JSON Schema. Anyone else can embed `clincalc` the same way.
 
 ## Philosophy
 
@@ -48,9 +48,9 @@ The defining decision is a single scoring engine reused everywhere, so a result 
         ┌───────────────┬──────────────┼──────────────┬──────────────────┐
         │               │              │              │                  │
    ┌─────────┐   ┌────────────┐  ┌──────────┐  ┌────────────┐   ┌───────────────┐
-   │ calc CLI│   │ host MCP   │  │ host GUI │  │ standalone │   │  calc-web      │
+   │clincalc│   │ host MCP   │  │ host GUI │  │ standalone │   │  clincalc-web      │
    │ (default)│  │ (e.g.      │  │ (e.g.    │  │ desktop    │   │  single-file   │
-   │  `calc`  │  │  gitehr)   │  │  Tauri)  │  │ (planned,  │   │  HTML + bridge │
+   │  CLI    │  │  gitehr)   │  │  Tauri)  │  │ (planned,  │   │  HTML + bridge │
    │          │  │            │  │          │  │  Tauri 2)  │   │  (deferred)    │
    └────┬─────┘  └────────────┘  └──────────┘  └────────────┘   └───────────────┘
         │ reused verbatim
@@ -63,8 +63,8 @@ The defining decision is a single scoring engine reused everywhere, so a result 
 ### Workspace layout (as built)
 
 ```
-calc/                                 # repo root = Cargo workspace root
-├── Cargo.toml                        # package `clincalc`; [[bin]] `calc`; `cli` default feature
+clincalc/                             # repo root = Cargo workspace root
+├── Cargo.toml                        # package `clincalc`; [[bin]] `clincalc`; `cli` default feature
 ├── cliff.toml                        # git-cliff changelog config
 ├── src/                              # the single `clincalc` crate
 │   ├── lib.rs                        #   engine registry: all() / get(name)
@@ -75,9 +75,9 @@ calc/                                 # repo root = Cargo workspace root
 │   ├── proprietary.rs                #   shared "unavailable" stub helper
 │   ├── calculators/                  #   one file per calculator (~52)
 │   ├── cli.rs                        #   CalcCommand + run()  (behind `cli` feature)
-│   └── main.rs                       #   thin standalone `calc` binary (`cli` feature)
+│   └── main.rs                       #   thin standalone `clincalc` binary (`cli` feature)
 ├── tests/                            # integration tests (completions; gated on `cli`)
-├── calc-web/                         # single-file HTML calculators (deprioritised)
+├── clincalc-web/                         # single-file HTML calculators (deprioritised)
 ├── docs/                             # Zensical docs site (deployed to GH Pages)
 ├── examples/                         # ready-to-pipe JSON inputs used in the docs
 ├── spec/                             # this file plus roadmap and input-definitions
@@ -94,7 +94,7 @@ Every calculator implements the `Calculator` trait and also exposes a strongly-t
 
 All CLI behaviour lives in the library (`CalcCommand` + `run()`), so there is nothing to re-implement when embedding it. It ships two ways:
 
-1. The standalone `calc` binary - `cargo install --git https://github.com/pacharanero/calc clincalc` installs a small, dependency-light tool (tree: `anyhow`, `serde`/`serde_json`, `clap` - no async runtime, no host).
+1. The standalone `clincalc` binary - `cargo install --git https://github.com/pacharanero/clincalc clincalc` installs a small, dependency-light tool (tree: `anyhow`, `serde`/`serde_json`, `clap` - no async runtime, no host).
 2. A host CLI subcommand - the host's CLI depends on `clincalc` (with the `cli` feature) and forwards to `clincalc::cli::run`, repeating nothing:
 
 ```rust
@@ -112,14 +112,14 @@ Commands::Calc(cmd) => clincalc::cli::run(cmd)?,
 ### MCP, GUI, and the standalone app
 
 - **MCP** - a host's MCP server exposes each calculator from `clincalc::all()` as a tool. The tool's input schema is `Calculator::input_schema()` and the tool body calls `Calculator::calculate(value)`. This is the most LLM-native surface: typed schemas handed directly to the model rather than scraped from help text.
-- **GUI** - a Tauri app (host or standalone) calls the `clincalc` engine natively over a Tauri command, rather than reimplementing logic in the webview. The next planned `calc` surface is a standalone Tauri desktop GUI whose headline is prominent copy-paste.
-- **Standalone calc app** - because `clincalc` is pure Rust it cross-compiles to iOS/Android. A standalone Tauri app gives byte-identical results to every other surface.
+- **GUI** - a Tauri app (host or standalone) calls the `clincalc` engine natively over a Tauri command, rather than reimplementing logic in the webview. The next planned `clincalc` surface is a standalone Tauri desktop GUI whose headline is prominent copy-paste.
+- **Standalone clincalc app** - because `clincalc` is pure Rust it cross-compiles to iOS/Android. A standalone Tauri app gives byte-identical results to every other surface.
 
 ### Distribution and decoupling
 
 The leaf discipline (nothing in `clincalc` depends on a host or on an async runtime) is what enables both of these without trade-off:
 
-- **Install just the calculators**: `cargo install --git https://github.com/pacharanero/calc clincalc` (and, once published, `cargo install clincalc` from crates.io). Cargo builds only `clincalc` + `clap` + `serde` - no host. The installed binary name is `calc` (set by `[[bin]] name`), independent of the package name.
+- **Install just the calculators**: `cargo install --git https://github.com/pacharanero/clincalc clincalc` (and, once published, `cargo install clincalc` from crates.io). Cargo builds only `clincalc` + `clap` + `serde` - no host. The installed binary name is `clincalc`, matching the package name.
 - **Embed in any host**: a host path-, git-, or version-depends on `clincalc` (with `default-features = false` for just the engine, or the `cli` feature to reuse the command surface). There is no fork to maintain.
 
 The one rule that keeps this true: the `clincalc` engine must stay a leaf.
@@ -181,7 +181,7 @@ pub trait Calculator {
 
 `license()` is a **required** method (see Licensing): every calculator must declare the terms its algorithm/content is distributed under, with a URL evidencing them, so the basis for shipping it is always on record.
 
-`input_schema()` is the key LLM affordance: it powers `calc <name> --schema`, the fillable `calc <name>` template (derived from it via `input_template()`), MCP tool definitions, and any agent that wants to discover the required inputs without parsing prose. Each calculator additionally exposes a typed `compute()` for ergonomic, compile-time-checked use from Rust.
+`input_schema()` is the key LLM affordance: it powers `clincalc <name> --schema`, the fillable `clincalc <name>` template (derived from it via `input_template()`), MCP tool definitions, and any agent that wants to discover the required inputs without parsing prose. Each calculator additionally exposes a typed `compute()` for ergonomic, compile-time-checked use from Rust.
 
 ---
 
@@ -190,25 +190,25 @@ pub trait Calculator {
 There are **no per-calculator flags**. Flags do not scale past the simplest scores (QRISK3 has ~20 mixed-type, enumerated, unit-bearing inputs) and would force a hand-written, drift-prone clap struct per calculator. Instead every calculator is driven through one regular, registry-backed surface - so a human or an LLM learns it once, and adding a calculator to `clincalc` gives it a working CLI for free:
 
 ```bash
-calc list                       # list calculators (text or JSON via --format)
-calc <name>                     # print a fillable INPUT TEMPLATE (JSON on stdout)
-calc <name> --schema            # print the JSON Schema (the full input contract)
-calc <name> --license           # the algorithm's distribution licence
-calc <name> --input -           # compute, reading JSON from stdin
-calc <name> --input data.json   # compute, reading JSON from a file
-calc <name> --input '{...}'     # compute, reading an inline JSON string
-calc <name> --input ... --format json   # CalculationResponse as JSON on stdout
+clincalc list                       # list calculators (text or JSON via --format)
+clincalc <name>                     # print a fillable INPUT TEMPLATE (JSON on stdout)
+clincalc <name> --schema            # print the JSON Schema (the full input contract)
+clincalc <name> --license           # the algorithm's distribution licence
+clincalc <name> --input -           # compute, reading JSON from stdin
+clincalc <name> --input data.json   # compute, reading JSON from a file
+clincalc <name> --input '{...}'     # compute, reading an inline JSON string
+clincalc <name> --input ... --format json   # CalculationResponse as JSON on stdout
 ```
 
-The template printed by `calc <name>` has the same shape as the input that `calc <name> --input` expects: each key carries a placeholder describing the expected value, derived from the schema so it can never drift from the contract.
+The template printed by `clincalc <name>` has the same shape as the input that `clincalc <name> --input` expects: each key carries a placeholder describing the expected value, derived from the schema so it can never drift from the contract.
 
-Conventions: the template/schema/compute outputs are pure JSON on **stdout**; usage hints go to **stderr** so they never corrupt a piped stream. Computing always requires an explicit `--input`, so a bare `calc <name>` is pure discovery and never blocks reading stdin. Invalid input is rejected by the calculator's own typed deserialization with a clear message and a non-zero exit. This mirrors the MCP surface exactly: there an LLM receives each calculator's `input_schema()` as the tool's `inputSchema` and passes back a JSON object - the same "here is the schema, give me the JSON" contract.
+Conventions: the template/schema/compute outputs are pure JSON on **stdout**; usage hints go to **stderr** so they never corrupt a piped stream. Computing always requires an explicit `--input`, so a bare `clincalc <name>` is pure discovery and never blocks reading stdin. Invalid input is rejected by the calculator's own typed deserialization with a clear message and a non-zero exit. This mirrors the MCP surface exactly: there an LLM receives each calculator's `input_schema()` as the tool's `inputSchema` and passes back a JSON object - the same "here is the schema, give me the JSON" contract.
 
 User-facing CLI documentation lives in [`docs/cli-reference.md`](../docs/cli-reference.md) and the [Walkthrough](../docs/walkthrough.md); committed example inputs (used by both) live in [`examples/`](../examples).
 
 ---
 
-## Web frontend (`calc-web`) - deprioritised
+## Web frontend (`clincalc-web`) - deprioritised
 
 The browser tools are single, self-contained HTML files with a shared context-detection bridge. The end-state is the same `clincalc` compiled to WebAssembly so the browser surface shares the engine; until then the inline JS logic must be validated against the `clincalc` test vectors. Not actively worked on - documented for completeness and for when it returns to the roadmap.
 
@@ -230,9 +230,9 @@ Any host that records results should do something similar; the engine itself sta
 
 ## Authoring a new calculator
 
-1. Implement it in `clincalc`: a typed `Input`, a pure `compute()`, a `build_response()` adapter, a `Calculator` impl with `input_schema()` and `license()` (the distribution licence plus an evidence URL), and unit tests against known vectors. Register it in `all()`. This is the **only** Rust work needed - the CLI (`calc <name>`, template, `--schema`, `--license`, `--input`) and the MCP tool are both driven generically from the registry, so there is no per-calculator CLI or MCP code to write.
+1. Implement it in `clincalc`: a typed `Input`, a pure `compute()`, a `build_response()` adapter, a `Calculator` impl with `input_schema()` and `license()` (the distribution licence plus an evidence URL), and unit tests against known vectors. Register it in `all()`. This is the **only** Rust work needed - the CLI (`clincalc <name>`, template, `--schema`, `--license`, `--input`) and the MCP tool are both driven generically from the registry, so there is no per-calculator CLI or MCP code to write.
 2. (Optional) add a row to [`docs/calculators.md`](../docs/calculators.md) so it appears in the published catalogue.
-3. (When `calc-web` returns) create `calc-web/calculators/<name>.html` with its JS logic validated against the `clincalc` vectors.
+3. (When `clincalc-web` returns) create `clincalc-web/calculators/<name>.html` with its JS logic validated against the `clincalc` vectors.
 
 See `.claude/skills/build-calculator/` for the detailed authoring workflow. This skill may be retired in favour of `spec/` + `examples/` + `AGENTS.md`.
 
@@ -287,7 +287,7 @@ Distinct from the **code** licence (AGPL-3.0), every calculator must record the 
 
 - The `Calculator` trait requires `fn license(&self) -> CalculatorLicense`, where `CalculatorLicense { license, source_url }` carries the terms (an SPDX id where one applies, otherwise a short description such as "Public domain - no permission required") and a reverifiable URL. A calculator that omits it does not compile.
 - A registry test (`every_calculator_records_its_license`) asserts every registered calculator has a non-empty licence and an `http(s)` source URL, so a new calculator cannot ship without recording its basis.
-- The licence is surfaced for evidencing via `calc <name> --license` and in `calc list --format json` (`license`, `license_source`). When a host records calculator results, the licence should travel with the recorded result as provenance.
+- The licence is surfaced for evidencing via `clincalc <name> --license` and in `clincalc list --format json` (`license`, `license_source`). When a host records calculator results, the licence should travel with the recorded result as provenance.
 
 Most scores are pure published methods (algorithms are generally not subject to copyright), implemented from the primary literature and citing the publication as their source. Some instruments carry an explicit grant: PHQ-9 and GAD-7 are public domain (Pfizer, 2010); the ASRS is copyright WHO / NYU / Harvard and free to use with citation. Where terms are proprietary or unclear (e.g. FRAX, MMSE, MUST, CAT, ACQ, ELF, CFS, LANSS, OHS, OKS), the calculator is listed as a stub that returns an `unavailable` response, names the owner, and points at an open alternative where one exists - the gap is a first-class object, not silently hidden.
 
@@ -306,4 +306,4 @@ Calculator plugins; fetching guideline updates from a registry; multi-step decis
 
 ---
 
-This specification establishes `calc` as a comprehensive clinical decision support library with auditable, version-controlled-friendly calculation results, driven by a single engine that is equally at home at the command line, in an LLM's toolset, embedded in a host EHR, or as a standalone app.
+This specification establishes `clincalc` as a comprehensive clinical decision support library with auditable, version-controlled-friendly calculation results, driven by a single engine that is equally at home at the command line, in an LLM's toolset, embedded in a host EHR, or as a standalone app.

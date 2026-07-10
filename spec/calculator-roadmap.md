@@ -2,7 +2,7 @@
 
 The clinical-calculator backlog, grouped strictly by completion status. Calculator categorisation by specialty / setting / status now lives in [tags](../docs/calculators.md#filtering-by-tag) on each calculator - this file is purely a list of what is done, what is being built, and what is queued.
 
-**Engineering, infrastructure, GUI, distribution, and any other non-calculator work lives in the top-level [`ROADMAP.md`](../ROADMAP.md), not this file.** Keeping the two split means a clinician scanning the calculator backlog is not buried in build-tooling items, and an engineer scanning the build-tooling roadmap is not buried in clinical scores.
+**Engineering, infrastructure, GUI, distribution, and any other non-calculator work lives in [`spec/roadmap.md`](roadmap.md), not this file.** Keeping the two split means a clinician scanning the calculator backlog is not buried in build-tooling items, and an engineer scanning the build-tooling roadmap is not buried in clinical scores.
 
 ## Status legend
 

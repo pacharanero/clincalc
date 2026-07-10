@@ -2,25 +2,25 @@
 
 The full registry. 42 active calculators that compute a real score, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator, sorted by machine name.
 
-`calc list` prints the same data at any time; `calc list --tag <tag>` filters by tag; `calc <name> --license` prints the algorithm's distribution licence for any single entry.
+`clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc <name> --license` prints the algorithm's distribution licence for any single entry.
 
 !!! info "Two kinds of entry"
     **Active** entries compute a real score. Their algorithm is either public-domain (implemented from primary literature) or open-source (notably QRISK3 and QFracture, ported from ClinRisk's LGPL-3 source).
 
-    **Unavailable** entries (`proprietary` + `unavailable` tags) are named on purpose. They appear in `calc list`, but invoking them returns a structured explanation - owner, reason, and an open alternative where one exists. See [Unavailable on principle](#unavailable-on-principle).
+    **Unavailable** entries (`proprietary` + `unavailable` tags) are named on purpose. They appear in `clincalc list`, but invoking them returns a structured explanation - owner, reason, and an open alternative where one exists. See [Unavailable on principle](#unavailable-on-principle).
 
 ## Filtering by tag
 
-Every calculator carries one or more **tags** - specialty (where it is used) and status (`proprietary`, `nhs-mandated`, `screening`, `risk`, ...). Tags drive the catalogue below, the `--tag` CLI filter, and the JSON output of `calc list`:
+Every calculator carries one or more **tags** - specialty (where it is used) and status (`proprietary`, `nhs-mandated`, `screening`, `risk`, ...). Tags drive the catalogue below, the `--tag` CLI filter, and the JSON output of `clincalc list`:
 
 ```bash
-calc list --tag cardiology                       # everything in cardiology
-calc list --tag primary-care --tag screening     # AND - narrows the filter
-calc list --tag proprietary                      # the unshippable ones
-calc --tags                                      # enumerate every tag, with counts
+clincalc list --tag cardiology                       # everything in cardiology
+clincalc list --tag primary-care --tag screening     # AND - narrows the filter
+clincalc list --tag proprietary                      # the unshippable ones
+clincalc --tags                                      # enumerate every tag, with counts
 ```
 
-The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/calc/blob/main/src/tags.rs) and is reviewable in one file. New tags are added there only after at least two calculators want one.
+The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clincalc/blob/main/src/tags.rs) and is reviewable in one file. New tags are added there only after at least two calculators want one.
 
 ## Catalogue
 
@@ -84,7 +84,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/calc
 A handful of widely-used clinical tools are licence-locked or proprietary. They are tagged `proprietary` + `unavailable` in the table above. Invoking any of them returns a structured "unavailable" response, never a score:
 
 ```console
-$ calc frax --input '{}'
+$ clincalc frax --input '{}'
 frax = unavailable: proprietary
 
 FRAX (10-year fracture risk) is not available here because it is proprietary or licence-locked. Owner: University of Sheffield (Centre for Metabolic Bone Diseases). The FRAX algorithm and its country-specific coefficients are a trade secret and have never been published, so it cannot be reimplemented from primary literature. ...
@@ -98,7 +98,7 @@ See [Why some calculators are unavailable](how-it-works.md#unavailable-on-princi
 
 Calculators below are clinically valuable and on the radar but not yet implemented. Several originate from [MedikQuantis](https://medikquantis.me) (Laura Piró, Barcelona, MIT) - a sibling project we're exploring collaboration with.
 
-Contributions welcome. The shape of the work is documented in [How it works](how-it-works.md#embedding-calc-in-a-host) and the [build-calculator skill](https://github.com/pacharanero/calc/tree/main/.claude/skills/build-calculator).
+Contributions welcome. The shape of the work is documented in [How it works](how-it-works.md#embedding-clincalc-in-a-host) and the [build-calculator skill](https://github.com/pacharanero/clincalc/tree/main/.claude/skills/build-calculator).
 
 | Candidate | What it does | Tentative tags |
 |---|---|---|
@@ -137,4 +137,4 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 | **FINDRISC** | T2DM risk. | `endocrinology`, `risk` |
 | **RCPCH Digital Growth Charts** | UK-WHO + UK90; z-score / centile / SDS; chart rendering. Needs LMS tables + RCPCH licensing terms. | `paediatrics` |
 
-The multilingual design in [`spec/multilingual.md`](https://github.com/pacharanero/calc/blob/main/spec/multilingual.md) is what makes ingesting MedikQuantis's Catalan and Spanish translations practical when these calculators land.
+The multilingual design in [`spec/multilingual.md`](https://github.com/pacharanero/clincalc/blob/main/spec/multilingual.md) is what makes ingesting MedikQuantis's Catalan and Spanish translations practical when these calculators land.

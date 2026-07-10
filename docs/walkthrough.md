@@ -2,7 +2,7 @@
 
 Four real calculators, end to end, in the order you'd actually meet them. Every command below is copy-pasteable; every example file is committed to the repo so you never need to invent your own input.
 
-If you haven't installed `calc` yet, head to [Install](install.md) first - it takes one line.
+If you haven't installed `clincalc` yet, head to [Install](install.md) first - it takes one line.
 
 !!! tip "How to read this page"
     Each section follows the same shape: **discover** the calculator, **ask** it for a template, **fill** the template, **compute**. Once you've done it once, you've done all 42.
@@ -12,13 +12,13 @@ If you haven't installed `calc` yet, head to [Install](install.md) first - it ta
 Every calculator is driven through the same four moves. There are no per-calculator flags to learn:
 
 ```bash
-calc list                       # what's available
-calc <name>                     # print a fillable JSON template
-calc <name> --schema            # the full JSON Schema (the formal contract)
-calc <name> --input <json>      # compute - file path, `-` for stdin, or inline
+clincalc list                       # what's available
+clincalc <name>                     # print a fillable JSON template
+clincalc <name> --schema            # the full JSON Schema (the formal contract)
+clincalc <name> --input <json>      # compute - file path, `-` for stdin, or inline
 ```
 
-Computing always needs an explicit `--input`, so a bare `calc <name>` is pure discovery and will never block waiting on stdin.
+Computing always needs an explicit `--input`, so a bare `clincalc <name>` is pure discovery and will never block waiting on stdin.
 
 ---
 
@@ -29,7 +29,7 @@ FeverPAIN is a five-criterion score for acute sore throat that guides antibiotic
 === "Discover"
 
     ```console
-    $ calc list | head -3
+    $ clincalc list | head -3
     feverpain     FeverPAIN Score
     asrs          ASRS-v1.1 Adult ADHD Screener
     phq9          PHQ-9 Depression Severity
@@ -38,7 +38,7 @@ FeverPAIN is a five-criterion score for acute sore throat that guides antibiotic
 === "Ask for a template"
 
     ```console
-    $ calc feverpain
+    $ clincalc feverpain
     {
       "absence_of_cough": "<boolean> No cough or coryza",
       "attend_rapidly": "<boolean> Symptom onset within 3 days (≤ 3 days)",
@@ -61,7 +61,7 @@ FeverPAIN is a five-criterion score for acute sore throat that guides antibiotic
     Pipe it in:
 
     ```console
-    $ calc feverpain --input examples/feverpain.json
+    $ clincalc feverpain --input examples/feverpain.json
     feverpain = 3
 
     A score of 3 is associated with 34–40% isolation of streptococcus. A delayed prescribing strategy is appropriate after discussion with the patient.
@@ -83,7 +83,7 @@ FeverPAIN is a five-criterion score for acute sore throat that guides antibiotic
 That text block is the headline. It is a clean, paste-able clinical summary - the result, the interpretation, every intermediate value as `working`, and the primary citation. Drop it straight into a letter, a record, or a message.
 
 !!! note "Soft interoperability"
-    Copy-and-paste is often derided as a kludge, but it is what clinicians actually use. `calc` treats this textual summary as a **first-class output**, not an afterthought.
+    Copy-and-paste is often derided as a kludge, but it is what clinicians actually use. `clincalc` treats this textual summary as a **first-class output**, not an afterthought.
 
 ---
 
@@ -96,7 +96,7 @@ GAD-7 (Generalised Anxiety Disorder, 7-item) is a questionnaire: seven items eac
     The compact way - paste the whole input on the command line:
 
     ```bash
-    calc gad7 --input '{"responses":[2,2,2,1,1,1,2]}'
+    clincalc gad7 --input '{"responses":[2,2,2,1,1,1,2]}'
     ```
 
 === "From the repo"
@@ -108,7 +108,7 @@ GAD-7 (Generalised Anxiety Disorder, 7-item) is a questionnaire: seven items eac
     ```
 
     ```bash
-    calc gad7 --input examples/gad7.json
+    clincalc gad7 --input examples/gad7.json
     ```
 
 Either way:
@@ -133,7 +133,7 @@ The PHQ-9 (depression) and AUDIT (alcohol) calculators follow the identical patt
 
 ## 3. AUDIT-C - mixed types via stdin
 
-AUDIT-C is a three-item alcohol screen. Its input mixes a numeric array with an enum (`sex`), because the threshold for a positive screen differs by sex (4 for men, 3 for women). This is also a chance to see `calc` reading from **stdin** (`--input -`), which is the shape every Unix pipeline expects.
+AUDIT-C is a three-item alcohol screen. Its input mixes a numeric array with an enum (`sex`), because the threshold for a positive screen differs by sex (4 for men, 3 for women). This is also a chance to see `clincalc` reading from **stdin** (`--input -`), which is the shape every Unix pipeline expects.
 
 ```json title="examples/auditc.json"
 --8<-- "examples/auditc.json"
@@ -142,7 +142,7 @@ AUDIT-C is a three-item alcohol screen. Its input mixes a numeric array with an 
 Pipe the file in:
 
 ```console
-$ cat examples/auditc.json | calc auditc --input -
+$ cat examples/auditc.json | clincalc auditc --input -
 auditc = 7
 
 Total score 7/12 indicates higher risk (male). At or above the validated cut-point of 4 for male patients; the screen is positive for hazardous drinking or a possible alcohol use disorder, and warrants further assessment. Also at or above the higher-specificity unisex cut-point of 5 used by some services. AUDIT-C is a screen for consumption-related risk; it is not a diagnosis.
@@ -175,7 +175,7 @@ This is also a good moment to switch to **`--format json`** - the same `Calculat
 ```
 
 ```console
-$ calc news2 --input examples/news2.json --format json
+$ clincalc news2 --input examples/news2.json --format json
 {
   "calculator": "news2",
   "result": 7,
@@ -201,10 +201,10 @@ Drop the `--format json` and you get the same clinician-facing text block as the
 If you ever need the formal contract - exact field names, types, enumerations, units - ask for the JSON Schema:
 
 ```bash
-calc news2 --schema
+clincalc news2 --schema
 ```
 
-That schema also drives the MCP tool definition when `calc` is embedded in an LLM host, so an agent and a human are working from the **same contract**.
+That schema also drives the MCP tool definition when `clincalc` is embedded in an LLM host, so an agent and a human are working from the **same contract**.
 
 ---
 
@@ -213,23 +213,23 @@ That schema also drives the MCP tool definition when `calc` is embedded in an LL
 Every calculator records the terms its algorithm is distributed under, with a reverifiable URL:
 
 ```console
-$ calc feverpain --license
+$ clincalc feverpain --license
 {
   "license": "Public-domain method - implemented from the primary literature (NIHR HTA, open access)",
   "source_url": "https://www.ncbi.nlm.nih.gov/books/NBK261544/"
 }
 ```
 
-The same data is in `calc list --format json` for the whole catalogue, so an auditor can grep the basis on which every score in the library is shipped.
+The same data is in `clincalc list --format json` for the whole catalogue, so an auditor can grep the basis on which every score in the library is shipped.
 
 ---
 
 ## Tools we name but cannot ship
 
-A handful of widely-used clinical tools (FRAX, MMSE, MUST, CAT, ACQ, ELF, CFS, LANSS, OHS, OKS) are licence-locked or proprietary. `calc` lists them, but invoking them returns a structured explanation rather than a score:
+A handful of widely-used clinical tools (FRAX, MMSE, MUST, CAT, ACQ, ELF, CFS, LANSS, OHS, OKS) are licence-locked or proprietary. `clincalc` lists them, but invoking them returns a structured explanation rather than a score:
 
 ```console
-$ calc frax --input '{}'
+$ clincalc frax --input '{}'
 frax = unavailable: proprietary
 
 FRAX (10-year fracture risk) is not available here because it is proprietary or licence-locked. Owner: University of Sheffield (Centre for Metabolic Bone Diseases). The FRAX algorithm and its country-specific coefficients are a trade secret and have never been published, so it cannot be reimplemented from primary literature. ...
@@ -243,4 +243,4 @@ The point is to make the *gap* a first-class object. Where an open alternative e
 
 - Browse the full [Calculator catalogue](calculators.md) - 42 active calculators plus 10 named-but-unavailable.
 - Read the [CLI reference](cli-reference.md) for every mode, flag, and exit code in one place.
-- See [How it works](how-it-works.md) for the one-core-many-surfaces design and embedding `calc` in your own host.
+- See [How it works](how-it-works.md) for the one-core-many-surfaces design and embedding `clincalc` in your own host.

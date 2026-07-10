@@ -1,4 +1,4 @@
-# Builds and deploys the calc documentation site to GitHub Pages.
+# Builds and deploys the clincalc documentation site to GitHub Pages.
 #
 # Method: artifact-based deploy (actions/upload-pages-artifact +
 # actions/deploy-pages). The built site is handed straight to GitHub's Pages

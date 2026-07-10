@@ -47,7 +47,7 @@ const IMPLEMENTED: Record<string, () => ReactElement> = {
  */
 const FEATURED = ["feverpain", "cha2ds2vasc", "qrisk3"];
 
-function ComingSoon({ calc }: { calc: CalcSummary }) {
+function ComingSoon({ clincalc }: { calc: CalcSummary }) {
   return (
     <Stack gap="md" maw={620}>
       <Title order={2}>{calc.title}</Title>
@@ -162,7 +162,7 @@ export default function App() {
               variant="subtle"
               color="gray"
               component="a"
-              href="https://github.com/pacharanero/calc"
+              href="https://github.com/pacharanero/clincalc"
               target="_blank"
               rel="noreferrer"
               title="View on GitHub"

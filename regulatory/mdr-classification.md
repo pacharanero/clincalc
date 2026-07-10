@@ -1,4 +1,4 @@
-# UK MDR + EU MDR Software-as-Medical-Device Classification - calc
+# UK MDR + EU MDR Software-as-Medical-Device Classification - clincalc
 
 > **Template Origin**: Community | **ArcKit Version**: arckit-uk-nhs 5.0.3 | **Command**: `/arckit:uk-mdr-classification`
 
@@ -8,7 +8,7 @@
 |---|---|
 | **Document ID** | `regulatory/mdr-classification.md` (repo-root placement; this repo is not ArcKit-scaffolded, so no `ARC-NNN-NHSMDR` ID is minted) |
 | **Document Type** | SaMD/AIaMD Classification Assessment (UK MDR 2002 + EU MDR 2017/745) |
-| **Project** | calc - open library of clinical calculators |
+| **Project** | clincalc - open library of clinical calculators |
 | **Classification** | PUBLIC (open-source project) |
 | **Status** | DRAFT |
 | **Version** | 0.1.0 |
@@ -56,7 +56,7 @@ This assessment is pinned to:
 | **Quality Management System expectation** | ISO 13485 (if IIa+) |
 | **Standards alignment expected** | ISO 14971, IEC 62304 (safety class **C** absent segregation - see §7), IEC 62366-1, BS EN 82304-1, ISO/IEC 27001 (limited) |
 
-`calc` is a suite of recognised clinical scores that returns not just a number but a **clinical interpretation** (e.g. `curb65 = 4 → "High severity ... consider hospital admission and assessment for intensive care"`). Software that creates new medical information used to inform diagnostic or therapeutic decisions is, on the settled MHRA/MDCG reading, **medical device software** - so any surface put in front of clinicians as a usable clinical tool (the `calc` CLI installed by clinicians, the Tauri GUI) is very likely SaMD, landing at **EU MDR Rule 11 Class IIa** for most calculators and **IIb** for the highest-stakes ones. The single most consequential regulatory lever is **positioning**: whether `clincalc` as a library (`default-features = false`) is placed on the market as a *developer component/library* (pushing device obligations onto downstream integrators such as GitEHR) or whether `calc`'s own clinician-facing surfaces are placed as *finished devices* (making Baw Medical Ltd the manufacturer). The recommended next step is a **qualified Regulatory Affairs review of the intended-purpose statement and placing-on-market model**, plus an MHRA borderline pre-submission where the component route is pursued. Note in `calc`'s favour: it is **deterministic and rule-based, not AI/ML**, so the AIaMD-specific regime does not apply.
+`calc` is a suite of recognised clinical scores that returns not just a number but a **clinical interpretation** (e.g. `curb65 = 4 → "High severity ... consider hospital admission and assessment for intensive care"`). Software that creates new medical information used to inform diagnostic or therapeutic decisions is, on the settled MHRA/MDCG reading, **medical device software** - so any surface put in front of clinicians as a usable clinical tool (the `clincalc` CLI installed by clinicians, the Tauri GUI) is very likely SaMD, landing at **EU MDR Rule 11 Class IIa** for most calculators and **IIb** for the highest-stakes ones. The single most consequential regulatory lever is **positioning**: whether `clincalc` as a library (`default-features = false`) is placed on the market as a *developer component/library* (pushing device obligations onto downstream integrators such as GitEHR) or whether `calc`'s own clinician-facing surfaces are placed as *finished devices* (making Baw Medical Ltd the manufacturer). The recommended next step is a **qualified Regulatory Affairs review of the intended-purpose statement and placing-on-market model**, plus an MHRA borderline pre-submission where the component route is pursued. Note in `calc`'s favour: it is **deterministic and rule-based, not AI/ML**, so the AIaMD-specific regime does not apply.
 
 ---
 
@@ -70,7 +70,7 @@ From the project's own descriptions (README, `spec/calculators.md`, `docs/how-it
 
 > "Clinicians need clinical digital tools to provide good care... This project makes them open source, free to use, evidence-based, and auditable." (README)
 
-> Worked example (README): `calc curb65 --input '{...}'` → `curb65 = 4` / *"High severity ... consider hospital admission and assessment for intensive care."*
+> Worked example (README): `clincalc curb65 --input '{...}'` → `curb65 = 4` / *"High severity ... consider hospital admission and assessment for intensive care."*
 
 **Load-bearing observations.** The declared purpose is a *decision aid* returning a **clinical interpretation** (not a bare number), for use by clinicians in relation to individual patients. The words "decision aid", "clinician remains responsible", and "never makes an autonomous clinical decision" are helpful risk-lowering framing but, per MHRA guidance, **disclaimers do not override an intended purpose evidenced by actual functionality and marketing**. The interpretive output ("consider hospital admission") is information used to take a decision with a therapeutic purpose.
 
@@ -97,9 +97,9 @@ From the project's own descriptions (README, `spec/calculators.md`, `docs/how-it
 The case is borderline **not on qualification of the calculators** (they qualify) but on **who is the manufacturer of what is placed on the market**, because `calc` is deliberately polymorphic:
 
 - **Route A - `clincalc` (with `default-features = false`) as a software *component / library* for developers.** Distributed via crates.io / `cargo install` and consumed by downstream products (GitEHR and others). If the placed-on-market intended purpose is *"a software toolkit for developers to embed"* - with no clinical intended purpose claimed and no direct clinician-facing distribution - then `clincalc` may sit as a **component**, and the finished-device obligations fall on the downstream manufacturer who adds a clinical intended purpose. This is a recognised open-source SaMD strategy. It is **not** a loophole: MDR general safety requirements still reach components supplied for incorporation, and the moment the component is handed to clinicians as a usable tool the analysis flips to Route B.
-- **Route B - `calc`'s own clinician-facing surfaces (the `calc` CLI installed and run by clinicians; the Tauri GUI).** Here a product *is* placed on the market with a clinical intended purpose, and **Baw Medical Ltd is the manufacturer**. "Placing on the market" does **not** require payment - free/open-source software distributed in the course of an activity can still be a device; intended purpose governs.
+- **Route B - `calc`'s own clinician-facing surfaces (the `clincalc` CLI installed and run by clinicians; the Tauri GUI).** Here a product *is* placed on the market with a clinical intended purpose, and **Baw Medical Ltd is the manufacturer**. "Placing on the market" does **not** require payment - free/open-source software distributed in the course of an activity can still be a device; intended purpose governs.
 
-> **One-crate caveat (default `cli` feature).** `calc` ships as a **single crate**, `clincalc`, whose CLI is behind a `cli` feature that is **on by default**. So `cargo install clincalc` (and the crate's default build) *is* the clinician-facing `calc` binary - the crate's default published form is the Route B finished tool, not the bare Route A component. This slightly weakens a clean Route A "pure component" posture: a regulator could observe that the default artefact is the runnable clinician CLI. If the component positioning is pursued, consider making `cli` **not** a default feature (so `cargo add clincalc` and the default library surface is the pure `serde`-only engine, and the CLI is an explicit opt-in), and lead the crate's presentation with the library/component intended purpose. This is a Regulatory-Affairs-informed engineering decision.
+> **One-crate caveat (default `cli` feature).** `calc` ships as a **single crate**, `clincalc`, whose CLI is behind a `cli` feature that is **on by default**. So `cargo install clincalc` (and the crate's default build) *is* the clinician-facing `clincalc` binary - the crate's default published form is the Route B finished tool, not the bare Route A component. This slightly weakens a clean Route A "pure component" posture: a regulator could observe that the default artefact is the runnable clinician CLI. If the component positioning is pursued, consider making `cli` **not** a default feature (so `cargo add clincalc` and the default library surface is the pure `serde`-only engine, and the CLI is an explicit opt-in), and lead the crate's presentation with the library/component intended purpose. This is a Regulatory-Affairs-informed engineering decision.
 
 Closest MHRA Borderline Manual analogues: clinical calculators / clinical scoring tools that provide patient-specific interpretive output are generally treated as devices; the "simple calculator a clinician could do by hand and which provides no interpretation" carve-out does **not** fit calc, because calc supplies interpretation and covers high-stakes scores.
 
@@ -367,7 +367,7 @@ To keep the whole presentation consistent with Annex A (a disclaimer cannot over
 - **"This project makes them open source, free to use, evidence-based, and auditable"** - "them" = clinical calculators for clinicians.
 - **"Soft interoperability... empowers clinicians to use the tools they want"** - clinician-facing product framing.
 - The **CURB-65 worked example** emitting *"consider hospital admission and assessment for intensive care"* - interpretive therapeutic output shown as a clinician-facing feature.
-- The clinician-facing surfaces themselves (the `calc` CLI promoted to clinicians; the Tauri GUI as a point-of-care tool) - these are the Route B surfaces; if Annex A is adopted they must be **demarcated** (e.g. "for evaluation / research", or handled as separate finished products with their own regulatory status), not presented as ready-to-use clinical tools under the same non-device banner.
+- The clinician-facing surfaces themselves (the `clincalc` CLI promoted to clinicians; the Tauri GUI as a point-of-care tool) - these are the Route B surfaces; if Annex A is adopted they must be **demarcated** (e.g. "for evaluation / research", or handled as separate finished products with their own regulatory status), not presented as ready-to-use clinical tools under the same non-device banner.
 
 **The unavoidable decision:** calc genuinely *is* both a developer library *and* a set of clinician-facing surfaces. Route A can cleanly cover `clincalc` (with `default-features = false`) as a library; it cannot simultaneously cover a Tauri GUI shipped to clinicians as a bedside tool. Decide, per surface, which are non-device components and which are (accepted) devices.
 

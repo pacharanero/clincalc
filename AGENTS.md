@@ -1,18 +1,18 @@
 # Agent instructions
 
-`calc` is an open, standalone library of clinical calculators: one Rust crate (`clincalc`) - a pure scoring engine plus the `calc` CLI behind a default `cli` feature - drives every surface from one source of truth. It is reusable by anyone with no knowledge of GitEHR; GitEHR is one downstream consumer.
+`clincalc` is an open, standalone library of clinical calculators: one Rust crate (`clincalc`) - a pure scoring engine plus the `clincalc` CLI behind a default `cli` feature - drives every surface from one source of truth. It is reusable by anyone with no knowledge of GitEHR; GitEHR is one downstream consumer.
 
 This file (with the matching `CLAUDE.md`, which points here) is the entry point for any coding agent working on this repository. Read it before changing anything.
 
 ## Read first
 
-- [`ROADMAP.md`](ROADMAP.md) - **all non-calculator work** (distribution & release, GUI, authoring workflow, engine direction). Engineering items live here, not in spec.
+- [`spec/roadmap.md`](spec/roadmap.md) - **all non-calculator work** (distribution & release, GUI, authoring workflow, engine direction). Engineering items live here, not in the calculator backlog.
 - `spec/calculators.md` - the architecture (one core, many surfaces).
 - `spec/calculator-roadmap.md` - the **calculator** backlog (Completed / Future); calculator categorisation lives in tags, not tiers.
 - `spec/calculator-input-definitions.md` - the governed input-definition system for clinician-asserted predicates.
 - `spec/gui.md` - desktop GUI design and build priority.
 - `spec/multilingual.md` - design for future multilingual support (English-only today; locale shape agreed).
-- `src/tags.rs` - the central tag taxonomy used by `calc list --tag` and the docs catalogue. Add new entries here, not per-calculator.
+- `src/tags.rs` - the central tag taxonomy used by `clincalc list --tag` and the docs catalogue. Add new entries here, not per-calculator.
 - `docs/how-it-works.md` - the architecture phrased for users.
 - `~/code/house-style/AGENTS.md` - the cross-repository engineering standards (CI, distribution, docs, licensing, scripts). Source of truth; this file does not duplicate it.
 
@@ -38,7 +38,7 @@ Scoring must be **verified against primary sources** and unit-tested with litera
 
 ## One registry, every surface
 
-Adding a calculator to `clincalc::all()` surfaces it everywhere - the `calc` CLI, any MCP host, any GUI - with **no per-surface code**. There is no per-calculator clap struct, no per-calculator MCP tool definition, no per-calculator GUI form. If you find yourself writing per-calculator dispatch code, stop and rethink.
+Adding a calculator to `clincalc::all()` surfaces it everywhere - the `clincalc` CLI, any MCP host, any GUI - with **no per-surface code**. There is no per-calculator clap struct, no per-calculator MCP tool definition, no per-calculator GUI form. If you find yourself writing per-calculator dispatch code, stop and rethink.
 
 The CLI surface (one shape for all 42 calculators) is documented in [`docs/cli-reference.md`](docs/cli-reference.md).
 
@@ -85,6 +85,6 @@ The skill at `.claude/skills/build-calculator/` covers the detail (and may be re
 
 - `cargo-dist` release pipeline publishing `clincalc` to crates.io and the `pacharanero/homebrew-tap`.
 - Tauri desktop GUI whose headline is prominent copy-paste ("soft interoperability").
-- `calc-web` (single-file HTML) is on the roadmap but deprioritised.
+- `clincalc-web` (single-file HTML) is on the roadmap but deprioritised.
 
-Project lives at <https://github.com/pacharanero/calc>. Docs are deployed to <https://pacharanero.github.io/calc/> from `.github/workflows/deploy-docs-to-ghpages.yml`.
+Project lives at <https://github.com/pacharanero/clincalc>. Docs are deployed to <https://pacharanero.github.io/clincalc/> from `.github/workflows/deploy-docs-to-ghpages.yml`.

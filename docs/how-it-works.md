@@ -1,6 +1,6 @@
 # How it works
 
-`calc` is **one scoring engine behind many surfaces**. A FeverPAIN score computed at the command line, inside a Tauri GUI, or by an LLM tool call is the same code path producing byte-identical output. This page explains the design that makes that true, and how to embed `calc` in your own application.
+`clincalc` is **one scoring engine behind many surfaces**. A FeverPAIN score computed at the command line, inside a Tauri GUI, or by an LLM tool call is the same code path producing byte-identical output. This page explains the design that makes that true, and how to embed `clincalc` in your own application.
 
 ## One core, many surfaces
 
@@ -15,10 +15,10 @@
         ┌───────────────────────┼───────────────────────┐
         │                       │                       │
    ┌─────────┐         ┌────────────────┐       ┌──────────────┐
-   │ calc CLI│         │ host MCP server│       │ host GUI     │
-   │(cli feat)│        │ (e.g. gitehr)  │       │ (e.g. Tauri) │
-   │  `calc`  │        │ tools driven   │       │ direct calls │
-   │          │        │ from registry  │       │ into core    │
+   │clincalc│         │ clincalc/host │       │ host GUI     │
+   │(cli feat)│        │ server tools   │       │ (e.g. Tauri) │
+   │  CLI    │        │ MCP driven    │       │ direct calls │
+   │          │        │ registry       │       │ into core    │
    └─────────┘         └────────────────┘       └──────────────┘
         ▲                       ▲                       ▲
         └─ every surface enumerates clincalc::all() ──┘
@@ -58,7 +58,7 @@ pub trait Calculator {
 
 ### The `cli` feature - CLI surface, library module + binary
 
-The `cli` feature (on by default) adds the `clincalc::cli` module and the `calc` binary. All CLI behaviour lives in `clincalc::cli::run` so host CLIs reuse it verbatim. The standalone `calc` binary is a thin wrapper around it. The same library is what a host like GitEHR calls for `gitehr calc`:
+The `cli` feature (on by default) adds the `clincalc::cli` module and the `clincalc` binary. All CLI behaviour lives in `clincalc::cli::run` so host CLIs reuse it verbatim. The standalone `clincalc` binary is a thin wrapper around it. The same library is what a host like GitEHR calls for `gitehr calc`:
 
 ```rust
 #[derive(clap::Subcommand)]
@@ -71,7 +71,13 @@ enum Commands {
 Commands::Calc(cmd) => clincalc::cli::run(cmd)?,
 ```
 
-### `calc-web` - single-file HTML tools (deprioritised)
+### The `mcp` feature - local MCP server
+
+The optional `mcp` feature adds `clincalc mcp`, a local stdio MCP server for LLM hosts. It exposes every calculator from `clincalc::all()` as a tool named `clincalc_<name>`, with `input_schema()` as the MCP `inputSchema` and `calculate(value)` as the tool body. See [MCP server](mcp.md) for installation and host configuration.
+
+MCP dependencies live behind the `mcp` feature. They do not affect the `default-features = false` leaf engine.
+
+### `clincalc-web` - single-file HTML tools (deprioritised)
 
 Self-contained per-calculator HTML files with a shared context-detection bridge. Currently inline JS; the planned end-state is the same `clincalc` compiled to WebAssembly so the browser surface shares the engine. Not on the active work list.
 
@@ -100,21 +106,21 @@ For these inputs the schema carries a machine-readable definition - **includes**
 
 ## Unavailable on principle
 
-Ten tools widely used in UK clinical practice are licence-locked: FRAX, MMSE, MUST, CAT, ACQ, ELF, CFS, LANSS, OHS, OKS. `calc` lists them, but invoking them returns a structured `unavailable` response rather than a score - with the owner, the reason, and the named open alternative where one exists.
+Ten tools widely used in UK clinical practice are licence-locked: FRAX, MMSE, MUST, CAT, ACQ, ELF, CFS, LANSS, OHS, OKS. `clincalc` lists them, but invoking them returns a structured `unavailable` response rather than a score - with the owner, the reason, and the named open alternative where one exists.
 
 This is deliberate. **Naming the gap is part of the project.** Clinical decision tools that public healthcare relies on should be open, free to use, and auditable; tools that are not should be visible as the licensing problem they are, not silently absent. See the [catalogue](calculators.md#unavailable-on-principle).
 
-## Embedding `calc` in a host
+## Embedding `clincalc` in a host
 
 Any application can pull in the engine. The minimum is `clincalc` with `default-features = false` (serde-only); a CLI that wants the ready-made command surface enables the `cli` feature.
 
 ### As a CLI subcommand
 
-`gitehr calc` is the worked example: the GitEHR binary's `Calc` variant flattens [`clincalc::cli::CalcCommand`] and dispatches to `clincalc::cli::run`. Adding `gitehr calc` was about a dozen lines and gave it the entire `calc` surface for free.
+`gitehr calc` is the worked example: the GitEHR binary's `Calc` variant flattens [`clincalc::cli::CalcCommand`] and dispatches to `clincalc::cli::run`. Adding `gitehr calc` was about a dozen lines and gave it the entire `clincalc` surface for free.
 
 ### As an MCP server
 
-The same `clincalc::all()` registry maps trivially onto MCP tools: each calculator's `name()` becomes the tool name, `input_schema()` becomes the tool's `inputSchema`, and the tool body calls `calculate(value)`. The LLM and the human are working from the same contract.
+The reference `clincalc mcp` server does this directly for local MCP hosts. Embedding applications can also do the same inside their own MCP server: each calculator's `name()` becomes the tool name, `input_schema()` becomes the tool's `inputSchema`, and the tool body calls `calculate(value)`. The LLM and the human are working from the same contract.
 
 ### In a desktop GUI
 
@@ -123,7 +129,7 @@ A Tauri (or any) GUI calls the `clincalc` engine over a native command. Inputs c
 ## Licensing
 
 - **Code** (`clincalc`): AGPL-3.0-or-later. Deliberately not available for subsumption into proprietary EHRs; if that service needs to exist, it can be offered as a hosted Calc-API.
-- **Algorithms**: most scores are public-domain methods implemented from primary literature. QRISK3 and QFracture are ported from ClinRisk's LGPL-3.0 source and carry the required disclaimer. Each calculator records its own distribution licence via `calc <name> --license`.
+- **Algorithms**: most scores are public-domain methods implemented from primary literature. QRISK3 and QFracture are ported from ClinRisk's LGPL-3.0 source and carry the required disclaimer. Each calculator records its own distribution licence via `clincalc <name> --license`.
 - **Clinical content** (source references): CC-BY-SA-4.0.
 
 ## Quality bars (CI-enforced)

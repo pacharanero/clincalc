@@ -1,22 +1,23 @@
 #!/usr/bin/env bash
 #
-# Serve the calc docs locally with hot-reload at http://localhost:8000.
+# Serve the clincalc docs locally with hot reload. Binds the first free port in
+# 8000-8030, so it does not clash with another project's docs server already
+# running. Opens the browser by default; pass your own `-a`/`--dev-addr` to
+# override the auto-picked port.
 #
-# First-time setup (once):
+# First-time setup, from the repo root:
+#
 #   python3 -m venv .venv
 #   ./.venv/bin/pip install -r requirements.txt
 #
-# Then just run `s/docs` from anywhere in the repo.
-#
-# Linux gotcha: Zensical's file watcher consumes an inotify instance, and the
-# per-user cap (fs.inotify.max_user_instances, often 128) is easily saturated by
-# editors and file-syncers. If serve panics with "Too many open files", raise it:
-#   sudo sysctl fs.inotify.max_user_instances=512
+# Linux gotcha: Zensical's watcher consumes inotify instances. If the per-user
+# cap is saturated by editors, file syncers, or other docs servers, Zensical can
+# panic with "Too many open files". This script checks the cap before serving
+# and prints a copy-pasteable fix.
 
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
 
-# Prefer the project venv; fall back to a zensical already on PATH.
 if [[ -x .venv/bin/zensical ]]; then
   ZENSICAL=.venv/bin/zensical
 elif command -v zensical >/dev/null 2>&1; then
@@ -33,11 +34,78 @@ EOF
   exit 1
 fi
 
-# With no arguments, open the browser at http://localhost:8000 automatically -
-# the common case during docs work. Pass any argument(s) to take full control
-# (e.g. `s/docs --dev-addr 0.0.0.0:8000` on a remote / headless machine).
-if [[ $# -eq 0 ]]; then
-  exec "$ZENSICAL" serve --open
-else
-  exec "$ZENSICAL" serve "$@"
+if [[ -r /proc/sys/fs/inotify/max_user_instances ]] && command -v find >/dev/null 2>&1; then
+  limit=$(cat /proc/sys/fs/inotify/max_user_instances 2>/dev/null || echo 0)
+  held=$(find /proc -maxdepth 3 -user "$(id -u)" -name fd 2>/dev/null \
+    | xargs -r -I{} ls -l {} 2>/dev/null \
+    | grep -c 'anon_inode:inotify' || true)
+
+  if [[ "$limit" -gt 0 && "$held" -ge "$limit" ]]; then
+    cat >&2 <<EOF
+ERROR: no free inotify instances for Zensical's file watcher
+  cap:  fs.inotify.max_user_instances = $limit
+  held: $held (by existing processes in your user session)
+
+Fix this session:
+  sudo sysctl fs.inotify.max_user_instances=$(( limit * 2 < 512 ? 512 : limit * 2 ))
+
+Persist across reboots:
+  echo 'fs.inotify.max_user_instances=512' | sudo tee /etc/sysctl.d/99-inotify.conf
+  sudo sysctl --system
+
+Then re-run s/docs.
+EOF
+    exit 1
+  fi
+
+  if [[ "$limit" -gt 0 && "$held" -ge $(( limit - 4 )) ]]; then
+    echo >&2 "warning: only $(( limit - held )) free inotify instances (cap $limit, held $held)"
+    echo >&2 "         if Zensical panics with \"Too many open files\", raise the cap:"
+    echo >&2 "           sudo sysctl fs.inotify.max_user_instances=$(( limit * 2 ))"
+    echo >&2
+  fi
 fi
+
+PORT_MIN=8000
+PORT_MAX=8030
+
+addr_given=0
+open_given=0
+for arg in "$@"; do
+  case "$arg" in
+    -a | --dev-addr | --dev-addr=*) addr_given=1 ;;
+    --open) open_given=1 ;;
+  esac
+done
+
+port_in_use() {
+  if command -v ss >/dev/null 2>&1; then
+    ss -ltnH 2>/dev/null | awk '{print $4}' | awk -F: '{print $NF}' | grep -qx "$1"
+  elif command -v lsof >/dev/null 2>&1; then
+    lsof -nP -iTCP:"$1" -sTCP:LISTEN >/dev/null 2>&1
+  else
+    (exec 3<>"/dev/tcp/127.0.0.1/$1") 2>/dev/null
+  fi
+}
+
+if [[ "$addr_given" -eq 0 ]]; then
+  chosen=""
+  for port in $(seq "$PORT_MIN" "$PORT_MAX"); do
+    if ! port_in_use "$port"; then
+      chosen="$port"
+      break
+    fi
+  done
+  if [[ -n "$chosen" ]]; then
+    echo >&2 "Serving docs on http://localhost:$chosen"
+    set -- --dev-addr "localhost:$chosen" "$@"
+  else
+    echo >&2 "warning: no free port in ${PORT_MIN}-${PORT_MAX}; letting zensical use its default"
+  fi
+fi
+
+if [[ "$open_given" -eq 0 ]]; then
+  set -- --open "$@"
+fi
+
+exec "$ZENSICAL" serve "$@"

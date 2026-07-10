@@ -12,20 +12,20 @@ Read these files in full — they are the source of truth:
 
 - `spec/calculators.md` — architecture (one core, many surfaces), the `Calculator` trait, bridge API, result-card conventions, the roadmap
 - `src/calculators/feverpain.rs` and `asrs.rs` — the canonical scoring logic and test-vector pattern; **`clincalc` is the source of truth for scoring**
-- `calc-web/shared/gitehr-bridge.js` — the bridge module the web tools import
-- `calc-web/shared/styles.css` — the shared stylesheet (do not duplicate these styles locally)
-- An existing web calculator (e.g. `calc-web/calculators/feverpain.html`) — study its structure end-to-end before writing a single line
+- `clincalc-web/shared/gitehr-bridge.js` — the bridge module the web tools import
+- `clincalc-web/shared/styles.css` — the shared stylesheet (do not duplicate these styles locally)
+- An existing web calculator (e.g. `clincalc-web/calculators/feverpain.html`) — study its structure end-to-end before writing a single line
 
 The roadmap (with NICE guideline references) lives in `spec/calculators.md § Calculator library roadmap`.
 
-A complete new calculator means: a `clincalc` implementation with unit tests, and optionally a `calc-web` HTML tool whose JS logic is validated against the `clincalc` test vectors.
+A complete new calculator means: a `clincalc` implementation with unit tests, and optionally a `clincalc-web` HTML tool whose JS logic is validated against the `clincalc` test vectors.
 
 ---
 
 ## File to create
 
 ```
-calc-web/calculators/<calculator-name>.html
+clincalc-web/calculators/<calculator-name>.html
 ```
 
 One self-contained HTML file. No build step. No external JS beyond the bridge and optional CDN CSS. (The scoring logic itself belongs in `clincalc` first — see below.)
@@ -115,8 +115,8 @@ One self-contained HTML file. No build step. No external JS beyond the bridge an
 ## Scoring logic
 
 - The **source of truth is `clincalc`**. Implement the typed `Input`, pure `compute()`, `build_response()`, and `Calculator` impl there first, with unit tests against known vectors from the literature. The CLI, MCP, and GUI surfaces pick it up from the registry automatically - there is no per-calculator CLI code to add.
-- Any web (`calc-web`) implementation mirrors `clincalc` and must be validated against the same test vectors — variable names and logic should match so it stays trivially auditable.
-- Use the authoritative source material in `calc-web/clinical-source-references/` as the clinical reference.
+- Any web (`clincalc-web`) implementation mirrors `clincalc` and must be validated against the same test vectors — variable names and logic should match so it stays trivially auditable.
+- Use the authoritative source material in `clincalc-web/clinical-source-references/` as the clinical reference.
 - For lookup tables or non-trivial statistics, prefer embedding the data in `clincalc`; in the browser, Pyodide may run authoritative Python (see `spec/calculators.md`).
 
 ---

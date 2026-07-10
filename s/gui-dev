@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2026 Marcus Baw and Baw Medical Ltd
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-# Run the calc desktop GUI in dev mode (hot-reload, both Rust and React).
+# Run the clincalc desktop GUI in dev mode (hot-reload, both Rust and React).
 #
 # First-time setup (once):
 #   cd gui && npm install

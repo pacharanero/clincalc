@@ -6,7 +6,7 @@
 //! 18-item WHO-validated screener. Part A (items 1–6) is the validated screen;
 //! Part B (items 7–18) provides additional clinical detail and does not affect
 //! the screen result. Ported verbatim from the web calculator
-//! (`calc-web/calculators/adhd-questionnaire-asrs111.html`).
+//! (`clincalc-web/calculators/adhd-questionnaire-asrs111.html`).
 
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value, json};

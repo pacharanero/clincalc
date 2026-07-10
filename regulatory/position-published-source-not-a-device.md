@@ -8,7 +8,7 @@
 |---|---|
 | **Document ID** | `regulatory/position-published-source-not-a-device.md` |
 | **Document Type** | Regulatory position statement (argument, not determination) |
-| **Project** | calc - open library of clinical calculators |
+| **Project** | clincalc - open library of clinical calculators |
 | **Position-holder** | Marcus Baw / Baw Medical Ltd |
 | **Classification** | PUBLIC |
 | **Status** | DRAFT - for specialist legal review |

@@ -1,4 +1,4 @@
-# Clinical Safety - calc
+# Clinical Safety - clincalc
 
 > **Template Origin**: Community | **ArcKit Version**: arckit-uk-nhs 5.0.3 | **Command**: `/arckit:uk-nhs-dcb0129` | **Filename**: `SAFETY.md` (DCB0129 manufacturer anchor)
 
@@ -8,7 +8,7 @@
 |---|---|
 | **Document ID** | `SAFETY.md` (Marcus Baw SAFETY.md spec convention; no ARC- prefix) |
 | **Document Type** | Clinical Safety Anchor (DCB0129 manufacturer) |
-| **Project** | calc - open library of clinical calculators |
+| **Project** | clincalc - open library of clinical calculators |
 | **Classification** | PUBLIC (open-source project) |
 | **Status** | DRAFT |
 | **Version** | 0.1.0 |
@@ -33,7 +33,7 @@
 
 | Field | Value |
 |---|---|
-| `product-name` | calc |
+| `product-name` | clincalc |
 | `version` | 0.1.0 |
 | `standard` | DCB0129 |
 | `clinical-safety-officer` | [PENDING - CSO name and GMC/NMC/HCPC/GPhC registration number] |
@@ -46,7 +46,7 @@
 
 ## Summary
 
-`calc` is an open, standalone library of clinical calculators: one Rust crate (`clincalc`) - a pure scoring engine plus the `calc` CLI (the default `cli` feature) - driving multiple surfaces (command line, an MCP host surface, and a Tauri desktop GUI) from one source of truth. Given anonymous inputs conforming to a calculator's published schema, it returns the computed score together with a human-readable clinical interpretation and the primary-source reference. It is intended as a **decision aid** for registered clinicians (and for clinical software acting on their behalf), used for each score's intended population and interpreted in clinical context. It holds no patient-identifiable data, has no persistence, cache, network, audit, or access-control surface, and never makes an autonomous clinical decision.
+`clincalc` is an open, standalone library of clinical calculators: one Rust crate (`clincalc`) - a pure scoring engine plus the `clincalc` CLI (the default `cli` feature) - driving multiple surfaces (command line, an MCP host surface, and a Tauri desktop GUI) from one source of truth. Given anonymous inputs conforming to a calculator's published schema, it returns the computed score together with a human-readable clinical interpretation and the primary-source reference. It is intended as a **decision aid** for registered clinicians (and for clinical software acting on their behalf), used for each score's intended population and interpreted in clinical context. It holds no patient-identifiable data, has no persistence, cache, network, audit, or access-control surface, and never makes an autonomous clinical decision.
 
 The safety approach follows DCB0129 for the **manufacturer** side. Because the engine is a strict, stateless leaf crate, its safety claim is concentrated on the correctness of scoring (verified against primary sources and literature-vector unit-tested), on evidenced algorithm provenance (a mandatory, registry-enforced `license()` with an evidence URL), on safe input handling at the engine boundary, and on never presenting a naked number. Hazards that concern patient identity, storage, audit, access control, and transmission arise only in the **host** that embeds the engine and belong in that host's companion **DCB0160** deployer safety case. This document is a generated starting point and is **not** clinical, legal, or regulatory advice.
 

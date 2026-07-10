@@ -1,26 +1,26 @@
 # Install
 
-`calc` is a single self-contained binary - no runtime dependencies, no network access, no configuration. Pick whichever route suits you.
+`clincalc` is a single self-contained binary - no runtime dependencies, no network access, no configuration. Pick whichever route suits you.
 
 ## With Cargo (from source)
 
 The route that works today:
 
 ```bash
-cargo install --git https://github.com/pacharanero/calc clincalc
+cargo install --git https://github.com/pacharanero/clincalc clincalc
 ```
 
-This builds and installs the `calc` binary into `~/.cargo/bin`. You need a Rust toolchain with edition 2024 support ([rustup](https://rustup.rs) is the easy way). The package is named `clincalc`; the installed binary is always `calc`.
+This builds and installs the `clincalc` binary into `~/.cargo/bin`. You need a Rust toolchain with edition 2024 support ([rustup](https://rustup.rs) is the easy way). The package is named `clincalc`; the installed binary is also `clincalc`.
 
 ## From a clone
 
 Clone if you want the source, the example input files, or to contribute:
 
 ```bash
-git clone https://github.com/pacharanero/calc
-cd calc
-cargo build --release          # binary at ./target/release/calc
-./target/release/calc list
+git clone https://github.com/pacharanero/clincalc
+cd clincalc
+cargo build --release          # binary at ./target/release/clincalc
+./target/release/clincalc list
 ```
 
 To put it on your `PATH` from the clone:
@@ -29,12 +29,12 @@ To put it on your `PATH` from the clone:
 cargo install --path .
 ```
 
-A clone also gives you [`examples/`](https://github.com/pacharanero/calc/tree/main/examples) - ready-made JSON inputs used throughout the [Walkthrough](walkthrough.md).
+A clone also gives you [`examples/`](https://github.com/pacharanero/clincalc/tree/main/examples) - ready-made JSON inputs used throughout the [Walkthrough](walkthrough.md).
 
 ## Verify it works
 
 ```console
-$ calc list
+$ clincalc list
 feverpain     FeverPAIN Score
 asrs          ASRS-v1.1 Adult ADHD Screener
 phq9          PHQ-9 Depression Severity
@@ -50,4 +50,4 @@ If you see the catalogue, you are ready. Head to the [Walkthrough](walkthrough.m
 ## Requirements
 
 - A Rust toolchain (edition 2024) - install via [rustup](https://rustup.rs).
-- Nothing else at runtime: `calc` reads JSON in and writes JSON or text out.
+- Nothing else at runtime: `clincalc` reads JSON in and writes JSON or text out.

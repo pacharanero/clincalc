@@ -4,7 +4,7 @@
 //! # clincalc::cli
 //!
 //! The command-line surface for the open clinical calculators. This module is
-//! the single source of CLI behaviour: the standalone `calc` binary
+//! the single source of CLI behaviour: the standalone `clincalc` binary
 //! (`src/main.rs`) and any host CLI that embeds it (e.g. GitEHR's `gitehr calc`)
 //! both drive [`CalcCommand`] + [`run`], so there is nothing to re-implement
 //! when embedding it. It is compiled only with the `cli` feature (on by default).
@@ -16,16 +16,16 @@
 //! working CLI for free, and a human or an LLM learns the interface once:
 //!
 //! ```text
-//! calc list                       # list available calculators
-//! calc <name>                     # print a fillable INPUT TEMPLATE
-//! calc <name> --schema            # print the JSON Schema (the full contract)
-//! calc <name> --input -           # compute, reading JSON from stdin
-//! calc <name> --input data.json   # compute, reading JSON from a file
-//! calc <name> --input '{...}'     # compute, reading an inline JSON string
+//! clincalc list                       # list available calculators
+//! clincalc <name>                     # print a fillable INPUT TEMPLATE
+//! clincalc <name> --schema            # print the JSON Schema (the full contract)
+//! clincalc <name> --input -           # compute, reading JSON from stdin
+//! clincalc <name> --input data.json   # compute, reading JSON from a file
+//! clincalc <name> --input '{...}'     # compute, reading an inline JSON string
 //! ```
 //!
-//! The template printed by `calc <name>` has the same shape as the input
-//! `calc <name> --input` expects: fill in the placeholder values and pass it
+//! The template printed by `clincalc <name>` has the same shape as the input
+//! `clincalc <name> --input` expects: fill in the placeholder values and pass it
 //! back. Computing always requires an explicit `--input`, so a bare invocation
 //! never blocks reading stdin.
 //!
@@ -60,7 +60,7 @@ pub enum OutputFormat {
     Json,
 }
 
-/// The `calc` command surface. Reused unchanged by host CLIs such as `gitehr calc`.
+/// The `clincalc` command surface. Reused unchanged by host CLIs such as `gitehr calc`.
 ///
 /// A single shape covers discovery, schema, and compute for every calculator;
 /// the calculator is selected by `name` and looked up in the `clincalc`
@@ -116,8 +116,8 @@ pub fn run(cmd: CalcCommand) -> Result<()> {
         Some(n) => n,
     };
 
-    let calc =
-        crate::get(name).ok_or_else(|| anyhow!("unknown calculator: {name} (try `calc list`)"))?;
+    let calc = crate::get(name)
+        .ok_or_else(|| anyhow!("unknown calculator: {name} (try `clincalc list`)"))?;
 
     // `--schema` prints the formal contract, regardless of everything else.
     if cmd.schema {
@@ -156,10 +156,10 @@ pub fn run(cmd: CalcCommand) -> Result<()> {
             }
             eprintln!(
                 "\nReplace each placeholder with a value, then compute with one of:\n  \
-                 calc {name} --input <file.json>\n  \
-                 calc {name} --input '<json>'\n  \
-                 calc {name} --input -        # read JSON from stdin\n\
-                 See the full input contract with: calc {name} --schema"
+                 clincalc {name} --input <file.json>\n  \
+                 clincalc {name} --input '<json>'\n  \
+                 clincalc {name} --input -        # read JSON from stdin\n\
+                 See the full input contract with: clincalc {name} --schema"
             );
             Ok(())
         }
@@ -188,8 +188,9 @@ fn read_input(src: &str) -> Result<serde_json::Value> {
         src.to_string()
     };
 
-    serde_json::from_str(&raw)
-        .map_err(|e| anyhow!("invalid JSON input: {e}\nSee the expected shape with: calc <name>"))
+    serde_json::from_str(&raw).map_err(|e| {
+        anyhow!("invalid JSON input: {e}\nSee the expected shape with: clincalc <name>")
+    })
 }
 
 fn print_list(format: OutputFormat, required_tags: &[String]) -> Result<()> {
@@ -236,7 +237,7 @@ fn print_list(format: OutputFormat, required_tags: &[String]) -> Result<()> {
     Ok(())
 }
 
-/// `calc list --tags`: enumerate every tag in the registry with a count.
+/// `clincalc list --tags`: enumerate every tag in the registry with a count.
 fn print_tags(format: OutputFormat) -> Result<()> {
     use std::collections::BTreeMap;
 
@@ -301,7 +302,7 @@ fn value_to_string(v: &serde_json::Value) -> String {
 /// If the schema declares top-level `oneOf` alternative input shapes (each
 /// with its own `required` array), build a one-paragraph note listing them.
 ///
-/// The template printed by `calc <name>` shows only the first alternative;
+/// The template printed by `clincalc <name>` shows only the first alternative;
 /// this note tells the reader what else is permitted, so they don't have to
 /// read the full schema to discover the other shapes.
 fn oneof_alternatives_note(schema: &serde_json::Value) -> Option<String> {
