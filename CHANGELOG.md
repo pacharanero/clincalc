@@ -1,8 +1,14 @@
 # Changelog
 
-All notable changes to `clincalc` are documented in this file.
+All notable changes to `calc` are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
+
+## [0.2.1] - 2026-07-10
+
+### Added
+
+- **mcp**: Add registry-backed MCP server ([68645ce](https://github.com/pacharanero/clincalc/commit/68645ce4ab6763d407a2b75f80c7e1affb5113d4))
 
 ## [0.2.0] - 2026-07-05
 
@@ -66,7 +72,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 
 - **calc**: Add eGFR (CKD-EPI 2021) and FIB-4 calculators ([da3a403](https://github.com/pacharanero/clincalc/commit/da3a4030eadf8c12a3047c9720bc6ac2f5958746))
 
-- **calc**: Add PHQ-9 and GAD-7; design input-definition system; clincalc docs ([7b9188a](https://github.com/pacharanero/clincalc/commit/7b9188a4e66bcd38b1907adf3f3d4395cf682296))
+- **calc**: Add PHQ-9 and GAD-7; design input-definition system; calc docs ([7b9188a](https://github.com/pacharanero/clincalc/commit/7b9188a4e66bcd38b1907adf3f3d4395cf682296))
 
 - **calc**: Replace per-calculator flags with one JSON template surface ([4992c7e](https://github.com/pacharanero/clincalc/commit/4992c7e1f9273161f831da946905cc21bd1fa1aa))
 
