@@ -1,8 +1,8 @@
-# calc desktop GUI
+# clincalc desktop GUI
 
-Tauri 2 + React 19 + Mantine 8 + Vite 7, matching the GitEHR house-style frontend stack so the two apps read as one product family (same fonts, same teal primary).
+Tauri 2 + React 19 + Mantine 8 + Vite 7, matching the GitEHR house-style frontend stack while using a quieter Lato typeface and the same teal primary.
 
-Status: **MVP**. One calculator (FeverPAIN) is hand-crafted end-to-end. The other 51 calculators in the registry are listed in the sidebar and show a "GUI coming soon" placeholder when selected - the scoring already works via the CLI today.
+Status: **MVP**. Three calculators (FeverPAIN, CHA2DS2-VASc, and QRISK3) are hand-crafted end-to-end. The other calculators in the registry are listed in the sidebar and show a "GUI coming soon" placeholder when selected - the scoring already works via the CLI today.
 
 ## Architecture
 
@@ -11,16 +11,18 @@ gui/
 ├── package.json           React / Mantine / Tauri JS deps
 ├── vite.config.ts         Tauri-aware Vite config (port 5173, no auto-open)
 ├── tsconfig.json
-├── index.html             Loads IBM Plex Sans + Space Grotesk
+├── index.html             Loads Lato
 ├── public/
 │   └── logo.svg           function-variant icon, currentColor for CSS theming
 ├── src/
-│   ├── main.tsx           Mantine theme (teal, IBM Plex Sans / Space Grotesk)
+│   ├── main.tsx           Mantine theme (teal, Lato)
 │   ├── App.tsx            AppShell + sidebar nav + filter
 │   ├── App.css            Thin overrides on top of Mantine
 │   ├── api/calc.ts        Typed wrappers around Tauri invoke
 │   └── calculators/
-│       └── FeverPain.tsx  Hand-crafted UI for the MVP calculator
+│       ├── Cha2ds2Vasc.tsx
+│       ├── FeverPain.tsx
+│       └── Qrisk3.tsx
 └── src-tauri/
     ├── Cargo.toml         Excluded from the calc workspace (own Cargo.lock)
     ├── tauri.conf.json
@@ -74,6 +76,21 @@ Outputs:
 - **Windows**: NSIS `.exe` installer + MSI in `src-tauri/target/release/bundle/`.
 - **macOS**: `.app` + `.dmg`. The bundled `.icns` is currently a renamed PNG; for production macOS builds, regenerate it on a Mac with `iconutil -c icns icon.iconset`.
 - **Linux**: `.deb`, `.rpm`, `.AppImage`.
+
+## Linux WebKitGTK diagnostics
+
+Tauri 2 uses Wry/WebKitGTK on Linux, so scrolling and compositor performance can vary by distro, desktop, GPU, and driver. The current development machine reports `webkit2gtk-4.1: 2.52.4` on Wayland/NVIDIA; upstream Tauri/Wry issues such as `tauri-apps/tauri#14963` and `tauri-apps/wry#890` track the broader WebKitGTK performance problem.
+
+Useful short diagnostics after `npm run tauri -- build --no-bundle`:
+
+```bash
+timeout 8s gui/src-tauri/target/release/calc-gui
+WEBKIT_DISABLE_COMPOSITING_MODE=1 timeout 8s gui/src-tauri/target/release/calc-gui
+WEBKIT_DISABLE_DMABUF_RENDERER=1 timeout 8s gui/src-tauri/target/release/calc-gui
+LIBGL_ALWAYS_SOFTWARE=1 timeout 8s gui/src-tauri/target/release/calc-gui
+```
+
+Treat these as diagnostic switches, not defaults. In local testing all variants launched and stayed up until `timeout`; `LIBGL_ALWAYS_SOFTWARE=1` emitted an NVIDIA/libEGL warning and is likely only useful to confirm a GPU/compositor path issue.
 
 ## Windows code signing
 

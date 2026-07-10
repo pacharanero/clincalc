@@ -42,6 +42,10 @@ Adding a calculator to `clincalc::all()` surfaces it everywhere - the `clincalc`
 
 The CLI surface (one shape for all 42 calculators) is documented in [`docs/cli-reference.md`](docs/cli-reference.md).
 
+## GUI debugging
+
+For anything happening in a GUI - Tauri desktop, React frontend, `clincalc-web`, or docs UI - Playwright is essential. Reproduce with Playwright, inspect the DOM, console, and network requests, and only then patch the code. A typecheck or build alone is not enough evidence for GUI bugs.
+
 ## House style
 
 - Hyphens, not emdashes, in prose. Slug-case-with-hyphens for filenames (except recognised conventions like `README.md`, `AGENTS.md`, `Cargo.toml`).
