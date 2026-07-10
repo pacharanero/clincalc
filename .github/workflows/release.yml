@@ -295,7 +295,22 @@ jobs:
           # Write and read notes from a file to avoid quoting breaking things
           echo "$ANNOUNCEMENT_BODY" > $RUNNER_TEMP/notes.txt
 
-          gh release create "${{ needs.plan.outputs.tag }}" --target "$RELEASE_COMMIT" $PRERELEASE_FLAG --title "$ANNOUNCEMENT_TITLE" --notes-file "$RUNNER_TEMP/notes.txt" artifacts/*
+          tag="${{ needs.plan.outputs.tag }}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "GitHub Release $tag already exists - treating as success."
+            exit 0
+          fi
+
+          if gh release create "$tag" --target "$RELEASE_COMMIT" $PRERELEASE_FLAG --title "$ANNOUNCEMENT_TITLE" --notes-file "$RUNNER_TEMP/notes.txt" artifacts/*; then
+            exit 0
+          fi
+
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "GitHub Release $tag was created by another run - treating as success."
+            exit 0
+          fi
+
+          exit 1
 
   publish-homebrew-formula:
     needs:
