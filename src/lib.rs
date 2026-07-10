@@ -6,24 +6,50 @@
 //! Open, auditable clinical calculators: the pure scoring engine and the `clincalc`
 //! command-line surface in one crate.
 //!
-//! With `default-features = false` this crate is a strict **leaf**: it depends
-//! only on `serde` and `serde_json`, never on a host application and never on an
-//! async runtime. That is what lets the same logic drive every surface without
-//! divergence:
+//! ## Feature flags
+//!
+//! - `default = ["cli"]` builds the standalone `clincalc` binary and exposes the
+//!   reusable [`cli`] module.
+//! - `mcp` adds the optional local stdio MCP server used by `clincalc mcp`. It
+//!   pulls in the MCP SDK and async runtime behind the feature gate.
+//! - `default-features = false` builds only the leaf engine: calculators,
+//!   registry, schemas, tags, licences, and [`CalculationResponse`]. This mode
+//!   depends only on `serde` and `serde_json`.
+//!
+//! ```toml
+//! clincalc = { version = "0.2", default-features = false }
+//! ```
+//!
+//! ## One registry, many surfaces
+//!
+//! With `default-features = false` this crate is a strict **leaf**: it never
+//! depends on a host application and never on an async runtime. That is what lets
+//! the same logic drive every surface without divergence:
 //!
 //! - the standalone `clincalc` binary (the default `cli` feature)
-//! - host CLIs that embed the `cli` module (e.g. GitEHR's `gitehr calc`)
-//! - an MCP server (each calculator exposed as a tool)
+//! - host CLIs that embed the `cli` module (for example GitEHR's `gitehr calc`)
+//! - the optional MCP server (each calculator exposed as a tool)
 //! - a native desktop GUI (called natively over a Tauri command)
 //! - the single-file web calculators
 //!
-//! The `cli` feature (on by default) pulls in `clap` / `anyhow` and the `cli`
-//! module; a library embedder that wants only the engine builds with
-//! `default-features = false`.
+//! Adding a calculator to [`all()`] surfaces it everywhere.
+//!
+//! ```rust
+//! let calc = clincalc::get("feverpain").expect("calculator exists");
+//! let input = serde_json::json!({
+//!     "fever": true,
+//!     "purulence": true,
+//!     "attend_rapidly": true,
+//!     "inflamed_tonsils": false,
+//!     "absence_of_cough": false
+//! });
+//! let response = calc.calculate(&input).expect("valid input");
+//! assert_eq!(response.calculator, "feverpain");
+//! ```
 //!
 //! Every calculator implements the [`Calculator`] trait and returns a
-//! [`CalculationResponse`] — the Rust counterpart of the JSON schema the
-//! web calculators dispatch via `gitehr-bridge.js`.
+//! [`CalculationResponse`] - the Rust counterpart of the JSON schema the web
+//! calculators dispatch via `gitehr-bridge.js`.
 //!
 //! Scoring functions are pure: no clock, no I/O, no global state. A host that
 //! needs a timestamp stamps it when recording the result, so the core stays

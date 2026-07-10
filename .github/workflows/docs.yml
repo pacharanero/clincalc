@@ -55,9 +55,29 @@ jobs:
       - run: pip install -r requirements.txt
       - run: zensical build --clean
 
-      # When the distribution pipeline (cargo-dist) lands, drop install.sh /
-      # install.ps1 installer proxies into site/ here, as the sibling repos do,
-      # so the site can host the curl-able one-liners.
+      # Drop installer proxies at the site root so users can do
+      #   curl -LsSf https://pacharanero.github.io/clincalc/install.sh | sh
+      # instead of the full GitHub Releases URL. The scripts below simply
+      # re-fetch cargo-dist's real installer for the latest release, so they
+      # never go stale between docs deploys.
+      - name: Add installer proxies
+        run: |
+          cat > site/install.sh <<'EOF'
+          #!/bin/sh
+          # clincalc installer proxy - fetches the latest cargo-dist installer.
+          # Source: https://github.com/pacharanero/clincalc
+          set -eu
+          curl --proto '=https' --tlsv1.2 -LsSf \
+            https://github.com/pacharanero/clincalc/releases/latest/download/clincalc-installer.sh \
+            | sh
+          EOF
+          chmod +x site/install.sh
+
+          cat > site/install.ps1 <<'EOF'
+          # clincalc installer proxy - fetches the latest cargo-dist installer.
+          # Source: https://github.com/pacharanero/clincalc
+          irm https://github.com/pacharanero/clincalc/releases/latest/download/clincalc-installer.ps1 | iex
+          EOF
 
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:

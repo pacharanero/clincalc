@@ -1,18 +1,30 @@
 # clincalc - open clinical calculators
 
-Open, auditable clinical calculators driven by a single Rust engine. One scoring core (`clincalc`) powers every surface - the `clincalc` command line, the optional `clincalc mcp` server for LLM hosts, single-file web tools, and a native desktop GUI - so a result is identical wherever it is produced.
+Open source, community-auditable clinical calculators in a `stdio` CLI and MCP tool, on top of a fast, Rust-based core engine.
 
-This is a standalone project: the engine, the CLI, the web tools, and the docs focus purely on calculators, and the `clincalc` CLI installs and runs on its own with no EHR. It is reusable by anyone with no knowledge of GitEHR; GitEHR is one downstream consumer (it depends on these crates, not the other way around).
+A clinical calculation score is computed in the core Rust library, so the result is identical wherever it appears. Every calculator cites primary literature, is tested against published vectors, and records the licence it is distributed under.
 
 ## Why
 
 Clinicians need clinical digital tools to provide good care, but the incentives to build them into EHRs are weak and the compliance barriers are high. The result is a patchwork of calculators scattered across the web, often behind paywalls or implemented inconsistently. This project makes them **open source, free to use, evidence-based, and auditable** - each cites primary literature, is tested against published vectors, and records the licence it is distributed under.
 
-### Soft interoperability
+### 'Soft interoperability'
 
-"Soft" interoperability is copy-and-paste interop: it lets clinicians use the tools they want without being constrained by their EHR. Copy-and-paste is derided as a kludge, but it is what clinicians actually use, so every calculator produces a clean, editable text summary as a first-class output - while also dispatching structured results when embedded in a host.
+'Soft interoperability' is a phrase coined by Marcus Baw (@pacharanero) to describe the everyday copy-and-paste interop which is used by clincians as a substitute for 'proper' interoperability: it lets clinicians use the tools they want without being constrained by their EHR. Copy-and-paste is derided as a kludge, but it is what clinicians actually use, so every calculator produces a clean, editable text summary as a first-class output - while also dispatching structured results when embedded in a host.
 
 ## Install and use the `clincalc` CLI
+
+After the first GitHub Release is published, the docs site hosts cargo-dist installer proxies:
+
+```bash
+curl -LsSf https://pacharanero.github.io/clincalc/install.sh | sh
+```
+
+```powershell
+powershell -ExecutionPolicy Bypass -c "irm https://pacharanero.github.io/clincalc/install.ps1 | iex"
+```
+
+Until then, install from source:
 
 ```bash
 cargo install --git https://github.com/pacharanero/clincalc clincalc

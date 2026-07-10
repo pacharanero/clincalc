@@ -1,13 +1,29 @@
 # clincalc
 
-Open source, community-auditable clinical calculators in a CLI and MCP tool.
+Open source, community-auditable clinical calculators in a `stdio` CLI and MCP tool, on top of a fast, Rust-based core engine.
 
-`clincalc` is one scoring core behind many surfaces - the `clincalc` command line, single-file web tools, and (inside host applications) an MCP server for LLMs. A score is computed in exactly one place, so the result is identical wherever it appears. Every calculator cites primary literature, is tested against published vectors, and records the licence it is distributed under.
+A clinical calculation score is computed in the core Rust library, so the result is identical wherever it appears. Every calculator cites primary literature, is tested against published vectors, and records the licence it is distributed under.
 
 !!! tip "New here? Start with the Walkthrough"
     The **[Walkthrough](walkthrough.md)** runs four real calculators end to end - with copy-paste commands and ready-made example files, so you never have to invent your own inputs.
 
 ## Install
+
+=== "Linux / macOS"
+
+    ```bash
+    curl -LsSf https://pacharanero.github.io/clincalc/install.sh | sh
+    ```
+
+    Release installer proxy. Until the first release is published, use the Cargo source install on the [Install](install.md) page.
+
+=== "Windows PowerShell"
+
+    ```powershell
+    powershell -ExecutionPolicy Bypass -c "irm https://pacharanero.github.io/clincalc/install.ps1 | iex"
+    ```
+
+    Release installer proxy. Full options on the [Install](install.md) page.
 
 === "With Cargo (from source)"
 
@@ -15,7 +31,7 @@ Open source, community-auditable clinical calculators in a CLI and MCP tool.
     cargo install --git https://github.com/pacharanero/clincalc clincalc
     ```
 
-    Installs the `clincalc` binary. Needs a Rust toolchain (edition 2024). Full options on the [Install](install.md) page.
+    Installs the `clincalc` binary from source. Needs a Rust toolchain (edition 2024).
 
 === "From a clone"
 

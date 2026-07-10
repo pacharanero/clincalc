@@ -6,7 +6,7 @@
 //! The command-line surface for the open clinical calculators. This module is
 //! the single source of CLI behaviour: the standalone `clincalc` binary
 //! (`src/main.rs`) and any host CLI that embeds it (e.g. GitEHR's `gitehr calc`)
-//! both drive [`CalcCommand`] + [`run`], so there is nothing to re-implement
+//! both drive [`CalcCommand`](crate::cli::CalcCommand) + [`run`](crate::cli::run), so there is nothing to re-implement
 //! when embedding it. It is compiled only with the `cli` feature (on by default).
 //!
 //! ## One regular surface for every calculator

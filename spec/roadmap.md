@@ -7,6 +7,7 @@ Engineering, infrastructure, and product-level work for the `clincalc` project. 
 - `[~]` **In-progress** - actively being worked on or dormant pending a one-off setup.
 - `[ ]` **Planned** - committed to build; the next batch.
 - `[ ]` **Future** - under consideration; promote to Planned when scheduled.
+- `[x]` **Completed** - (these items are periodically removed from the file).
 
 ---
 
@@ -20,9 +21,10 @@ Engineering, infrastructure, and product-level work for the `clincalc` project. 
 
     Once set, `s/version++ [patch|minor|major]` cuts a release: it bumps the workspace (and excluded GUI) version, regenerates `CHANGELOG.md` (git-cliff), and lands `chore(release): vX.Y.Z` on `main`. `auto-tag.yml` then tags `vX.Y.Z` and invokes `release.yml` and `publish-crates.yml`. After the first publish, `cargo install clincalc` works without `--git`, and downstream consumers (notably [GitEHR](https://github.com/gitehr/gitehr)) can depend on `clincalc` (with `default-features = false` for the pure engine) from crates.io.
 
+    The docs-site `install.sh` / `install.ps1` proxy scripts are wired into the Pages deploy and will become usable as soon as the first cargo-dist release assets exist.
+
 ### Planned
 
-- [ ] **Install one-liners** (`install.sh`, `install.ps1`) hosted at the docs-site root, per house-style (fetch latest cargo-dist installer, verify SHA256).
 - [ ] **Windows code-signing** - EV cert from Sectigo / SSL.com once procured. The cert covers `sct`, `dsc`, **and** `clincalc` in one purchase; see [`spec/gui.md`](spec/gui.md#windows-code-signing). Until then the GUI installer triggers SmartScreen on first run.
 
 ### Future
@@ -55,7 +57,8 @@ See the design spec at [`spec/gui.md`](spec/gui.md) and the implementation guide
 ### Planned
 
 - [ ] **Retire `.claude/skills/build-calculator/`** in favour of `spec/` + `examples/` + `AGENTS.md` as the authoring entry point. Skill is Claude-specific; new authoring path should work in any agent.
-- [ ] **docs.rs front-page polish** - document the `cli` feature and the `default-features = false` leaf usage prominently in the `clincalc` rustdoc.
+
+The docs.rs front page now documents the `cli` / `mcp` feature flags, `default-features = false` leaf usage, and a minimal registry example. docs.rs is configured to build all features so the optional MCP module is visible.
 
 ### Future
 
@@ -66,9 +69,9 @@ See the design spec at [`spec/gui.md`](spec/gui.md) and the implementation guide
 
 ## Engine & embedding
 
-### In-progress
+### Completed
 
-- [~] **Reference MCP server** in this repo via `clincalc mcp`, gated behind an optional Cargo feature. See [`spec/mcp.md`](spec/mcp.md). Today, embedding hosts roll their own from `clincalc::all()`.
+- [x] **Reference MCP server** in this repo via `clincalc mcp`, gated behind the optional `mcp` Cargo feature. See [`spec/mcp.md`](spec/mcp.md) and [`docs/mcp.md`](../docs/mcp.md).
 
 ### Future
 

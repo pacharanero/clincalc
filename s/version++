@@ -95,9 +95,7 @@ fi
 echo "Release mode: $mode"
 
 echo "Pre-release checks (mirror .github/workflows/ci.yml): fmt + clippy + tests..."
-cargo fmt --all --check
-cargo clippy --all-targets --all-features -- -D warnings
-cargo test --all-features
+s/test
 
 current="$(awk -F\" '/^version[[:space:]]*=/ {print $2; exit}' Cargo.toml)"
 if [[ -z "$current" ]]; then

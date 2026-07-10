@@ -2,9 +2,31 @@
 
 `clincalc` is a single self-contained binary - no runtime dependencies, no network access, no configuration. Pick whichever route suits you.
 
+## Release installers
+
+Once the first GitHub Release has been cut, the docs site hosts short installer proxies that fetch cargo-dist's latest signed release installer:
+
+=== "Linux / macOS"
+
+    ```bash
+    curl -LsSf https://pacharanero.github.io/clincalc/install.sh | sh
+    ```
+
+    This downloads the latest prebuilt binary for your platform and installs it to Cargo's binary directory (`$CARGO_HOME/bin`, or `~/.cargo/bin` by default).
+
+=== "Windows PowerShell"
+
+    ```powershell
+    powershell -ExecutionPolicy Bypass -c "irm https://pacharanero.github.io/clincalc/install.ps1 | iex"
+    ```
+
+    This downloads the latest Windows binary and installs it to Cargo's binary directory.
+
+The short URLs proxy to cargo-dist's real installer assets on the [latest GitHub Release](https://github.com/pacharanero/clincalc/releases/latest). If you need to pin a version or audit the installer first, fetch the release asset directly from GitHub.
+
 ## With Cargo (from source)
 
-The route that works today:
+The route that works before the first release, and the easiest route for contributors:
 
 ```bash
 cargo install --git https://github.com/pacharanero/clincalc clincalc
@@ -44,8 +66,8 @@ gad7          GAD-7 Anxiety Severity
 
 If you see the catalogue, you are ready. Head to the [Walkthrough](walkthrough.md).
 
-!!! note "Coming with the distribution pipeline"
-    Prebuilt binaries, a Homebrew tap, and `cargo install clincalc` from crates.io (no `--git`) are planned once the release pipeline lands. Until then, the two routes above are the way in.
+!!! note "Distribution status"
+    The release pipeline and installer proxies are in place, but the first publish is still waiting on repository secrets for crates.io and the Homebrew tap. Until the first release exists, install from source with Cargo.
 
 ## Requirements
 
