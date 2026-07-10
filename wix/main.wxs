@@ -69,7 +69,7 @@
 
         <Package Id='*'
             Keywords='Installer'
-            Description='Open, auditable clinical calculators: a pure scoring engine plus the `calc` CLI in one crate. The engine is a serde-only leaf (build with default-features = false); the default `cli` feature adds the `calc` binary.'
+            Description='Open, auditable clinical calculators: a pure scoring engine plus the `clincalc` CLI in one crate. The engine is a serde-only leaf (build with default-features = false); the default `cli` feature adds the `clincalc` binary.'
             Manufacturer='Marcus Baw'
             InstallerVersion='450'
             Languages='1033'
@@ -123,9 +123,9 @@
                         <Component Id='binary0' Guid='*'>
                             <File
                                 Id='exe0'
-                                Name='calc.exe'
+                                Name='clincalc.exe'
                                 DiskId='1'
-                                Source='$(var.CargoTargetBinDir)\calc.exe'
+                                Source='$(var.CargoTargetBinDir)\clincalc.exe'
                                 KeyPath='yes'/>
                         </Component>
                     </Directory>

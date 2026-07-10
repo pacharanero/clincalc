@@ -17,6 +17,10 @@ on:
   push:
     branches: [main]
 
+concurrency:
+  group: auto-tag-${{ github.ref }}
+  cancel-in-progress: false
+
 permissions:
   contents: write
 
@@ -27,6 +31,7 @@ jobs:
     outputs:
       tag: ${{ steps.bump.outputs.tag }}
       bumped: ${{ steps.bump.outputs.bumped }}
+      created: ${{ steps.create.outputs.created }}
 
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -53,8 +58,8 @@ jobs:
           fi
 
           tag="v$new"
-          if git rev-parse "refs/tags/$tag" >/dev/null 2>&1; then
-            echo "Tag $tag already exists - assuming a previous run created it."
+          if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null 2>&1; then
+            echo "Tag $tag already exists on origin - assuming a previous run created it."
             echo "bumped=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
@@ -64,17 +69,36 @@ jobs:
           echo "bumped=true" >> "$GITHUB_OUTPUT"
 
       - name: Create and push tag
+        id: create
         if: steps.bump.outputs.bumped == 'true'
         run: |
           tag="${{ steps.bump.outputs.tag }}"
+          if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null 2>&1; then
+            echo "Tag $tag already exists on origin - another run won the race."
+            echo "created=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git tag -a "$tag" -m "Release $tag"
-          git push origin "$tag"
+
+          if git push origin "refs/tags/$tag"; then
+            echo "created=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null 2>&1; then
+            echo "Tag $tag now exists on origin - another run won the race."
+            echo "created=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          exit 1
 
   release:
     needs: tag
-    if: needs.tag.outputs.bumped == 'true'
+    if: needs.tag.outputs.created == 'true'
     uses: ./.github/workflows/release.yml
     with:
       tag: ${{ needs.tag.outputs.tag }}
@@ -82,7 +106,7 @@ jobs:
 
   publish-crates:
     needs: tag
-    if: needs.tag.outputs.bumped == 'true'
+    if: needs.tag.outputs.created == 'true'
     uses: ./.github/workflows/publish-crates.yml
     with:
       tag: ${{ needs.tag.outputs.tag }}
