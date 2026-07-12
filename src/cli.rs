@@ -43,7 +43,7 @@
 //! Commands::Calc(cmd) => clincalc::cli::run(cmd)?,
 //! ```
 
-use std::io::Read;
+use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 
 use anyhow::{Result, anyhow};
@@ -98,6 +98,27 @@ impl ActivityPreset {
     }
 }
 
+/// Goal-directed energy target adjustment.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
+pub enum EnergyGoal {
+    /// No calorie adjustment.
+    Maintain,
+    /// Negative calorie adjustment for weight loss.
+    Lose,
+    /// Positive calorie adjustment for weight gain.
+    Gain,
+}
+
+impl EnergyGoal {
+    fn slug(self) -> &'static str {
+        match self {
+            EnergyGoal::Maintain => "maintain",
+            EnergyGoal::Lose => "lose",
+            EnergyGoal::Gain => "gain",
+        }
+    }
+}
+
 /// How to render computed results.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, ValueEnum)]
 pub enum OutputFormat {
@@ -137,6 +158,70 @@ pub struct CalcCommand {
     /// Injects the corresponding `activity_factor` into JSON input.
     #[arg(long, value_enum, value_name = "PRESET")]
     pub activity: Option<ActivityPreset>,
+
+    /// Energy target goal for `energy_requirement`: derive calorie adjustment from a weight-change rate.
+    #[arg(long, value_enum, value_name = "lose|maintain|gain")]
+    pub goal: Option<EnergyGoal>,
+
+    /// Weight change rate in kg/week for `--goal lose|gain`.
+    #[arg(long, value_name = "KG_PER_WEEK")]
+    pub rate: Option<f64>,
+
+    /// Optional target weight for estimating time to target with `--goal lose|gain --rate`.
+    #[arg(long = "target-weight", alias = "target-weight-kg", value_name = "KG")]
+    pub target_weight_kg: Option<f64>,
+
+    /// Derive `lean_body_mass_kg` from `weight_kg` and body fat percentage, mainly for Cunningham.
+    #[arg(long, value_name = "PERCENT")]
+    pub body_fat_pct: Option<f64>,
+
+    /// Prompt for required fields from the calculator's schema, writing prompts to stderr.
+    #[arg(long)]
+    pub interactive: bool,
+
+    /// Fill missing fields from ~/.config/clincalc/profile.json.
+    #[arg(long)]
+    pub profile: bool,
+
+    /// Fill missing fields from a JSON record/profile file.
+    #[arg(long, value_name = "FILE", value_hint = ValueHint::AnyPath)]
+    pub from_record: Option<String>,
+
+    /// Human-friendly field input for calculators with an `equation` field.
+    #[arg(long, value_name = "VALUE")]
+    pub equation: Option<String>,
+
+    /// Human-friendly field input for calculators with a `sex` field.
+    #[arg(long, value_name = "male|female")]
+    pub sex: Option<String>,
+
+    /// Human-friendly field input for calculators with an `age` field.
+    #[arg(long, value_name = "YEARS")]
+    pub age: Option<u64>,
+
+    /// Human-friendly field input for calculators with a `weight_kg` field.
+    #[arg(long, value_name = "KG")]
+    pub weight_kg: Option<f64>,
+
+    /// Human-friendly field input for calculators with a `height_cm` field.
+    #[arg(long, value_name = "CM")]
+    pub height_cm: Option<f64>,
+
+    /// Human-friendly field input for calculators with a `lean_body_mass_kg` field.
+    #[arg(long, value_name = "KG")]
+    pub lean_body_mass_kg: Option<f64>,
+
+    /// Human-friendly field input for calculators with a `creatinine` field.
+    #[arg(long, value_name = "VALUE")]
+    pub creatinine: Option<f64>,
+
+    /// Human-friendly field input for calculators with a `creatinine_unit` field.
+    #[arg(long, value_name = "mg/dL|umol/L")]
+    pub creatinine_unit: Option<String>,
+
+    /// Human-friendly field input for calculators with a `calorie_adjustment_kcal_day` field.
+    #[arg(long, value_name = "KCAL_PER_DAY")]
+    pub calorie_adjustment_kcal_day: Option<f64>,
 
     /// Restrict `list` output to calculators that carry this tag (e.g.
     /// `cardiology`, `proprietary`, `nhs-mandated`). Repeat the flag to
@@ -205,9 +290,9 @@ pub fn run(cmd: CalcCommand) -> Result<()> {
     let calc =
         crate::get(canonical_name).ok_or_else(|| anyhow!(unknown_calculator_message(name)))?;
 
-    if cmd.activity.is_some() && calc.name() != "energy_requirement" {
+    if has_energy_only_flags(&cmd) && calc.name() != "energy_requirement" {
         return Err(anyhow!(
-            "--activity is only supported for energy_requirement (aliases: bmr, ree, rmr, tdee)"
+            "--activity, --goal, --rate, --target-weight, and --body-fat-pct are only supported for energy_requirement (aliases: bmr, ree, rmr, tdee)"
         ));
     }
 
@@ -223,9 +308,16 @@ pub fn run(cmd: CalcCommand) -> Result<()> {
         return Ok(());
     }
 
+    if cmd.interactive && cmd.input.is_some() {
+        return Err(anyhow!(
+            "--interactive cannot be combined with --input; use one input source"
+        ));
+    }
+
     match cmd.input.as_deref() {
-        // No input: print a fillable template and explain how to pass it back.
-        None => {
+        // No input: print a fillable template and explain how to pass it back,
+        // unless human flags or interactive mode provide an input object.
+        None if !has_input_intent(&cmd) => {
             let schema = calc.input_schema();
             let template = calc.input_template();
             // A calculator with no inputs (today: every proprietary "unavailable"
@@ -259,16 +351,24 @@ pub fn run(cmd: CalcCommand) -> Result<()> {
             );
             Ok(())
         }
-        // Input supplied: validate (via the calculator's typed deserialization)
-        // and compute.
-        Some(src) => {
-            let mut input = read_input(src)?;
-            apply_activity_preset(&mut input, cmd.activity)?;
+        // Input supplied or built from human-friendly flags: validate (via the
+        // calculator's typed deserialization) and compute.
+        maybe_src => {
+            let schema = calc.input_schema();
+            let mut input = match maybe_src {
+                Some(src) => read_input(src)?,
+                None if cmd.interactive => read_interactive_input(&schema)?,
+                None => serde_json::Value::Object(serde_json::Map::new()),
+            };
+            apply_human_field_flags(&mut input, &cmd)?;
+            apply_profile_sources(&mut input, &cmd, &schema)?;
+            let mut cli_working = serde_json::Map::new();
+            apply_body_fat_derivation(&mut input, &cmd, &mut cli_working)?;
+            apply_goal_adjustment(&mut input, &cmd, &mut cli_working)?;
+            apply_activity_preset(&mut input, cmd.activity, &mut cli_working)?;
             let mut response = calc.calculate(&input).map_err(|e| anyhow!("{e}"))?;
-            if let Some(activity) = cmd.activity {
-                response
-                    .working
-                    .insert("activity_preset".into(), serde_json::json!(activity.slug()));
+            for (key, value) in cli_working {
+                response.working.insert(key, value);
             }
             emit(&response, cmd.format)
         }
@@ -297,9 +397,442 @@ fn read_input(src: &str) -> Result<serde_json::Value> {
     })
 }
 
+fn has_input_intent(cmd: &CalcCommand) -> bool {
+    cmd.interactive
+        || cmd.profile
+        || cmd.from_record.is_some()
+        || has_energy_only_flags(cmd)
+        || has_human_field_flags(cmd)
+}
+
+fn has_energy_only_flags(cmd: &CalcCommand) -> bool {
+    cmd.activity.is_some()
+        || cmd.goal.is_some()
+        || cmd.rate.is_some()
+        || cmd.target_weight_kg.is_some()
+        || cmd.body_fat_pct.is_some()
+}
+
+fn has_human_field_flags(cmd: &CalcCommand) -> bool {
+    cmd.equation.is_some()
+        || cmd.sex.is_some()
+        || cmd.age.is_some()
+        || cmd.weight_kg.is_some()
+        || cmd.height_cm.is_some()
+        || cmd.lean_body_mass_kg.is_some()
+        || cmd.creatinine.is_some()
+        || cmd.creatinine_unit.is_some()
+        || cmd.calorie_adjustment_kcal_day.is_some()
+}
+
+fn apply_human_field_flags(input: &mut serde_json::Value, cmd: &CalcCommand) -> Result<()> {
+    if !has_human_field_flags(cmd) {
+        return Ok(());
+    }
+    let Some(input) = input.as_object_mut() else {
+        return Err(anyhow!("human field flags require JSON object input"));
+    };
+
+    insert_string_field(input, "equation", cmd.equation.as_deref())?;
+    insert_string_field(input, "sex", cmd.sex.as_deref())?;
+    insert_u64_field(input, "age", cmd.age)?;
+    insert_f64_field(input, "weight_kg", cmd.weight_kg)?;
+    insert_f64_field(input, "height_cm", cmd.height_cm)?;
+    insert_f64_field(input, "lean_body_mass_kg", cmd.lean_body_mass_kg)?;
+    insert_f64_field(input, "creatinine", cmd.creatinine)?;
+    insert_string_field(input, "creatinine_unit", cmd.creatinine_unit.as_deref())?;
+    insert_f64_field(
+        input,
+        "calorie_adjustment_kcal_day",
+        cmd.calorie_adjustment_kcal_day,
+    )?;
+    Ok(())
+}
+
+fn insert_string_field(
+    input: &mut serde_json::Map<String, serde_json::Value>,
+    key: &str,
+    value: Option<&str>,
+) -> Result<()> {
+    let Some(value) = value else {
+        return Ok(());
+    };
+    insert_field(input, key, serde_json::json!(value))
+}
+
+fn insert_u64_field(
+    input: &mut serde_json::Map<String, serde_json::Value>,
+    key: &str,
+    value: Option<u64>,
+) -> Result<()> {
+    let Some(value) = value else {
+        return Ok(());
+    };
+    insert_field(input, key, serde_json::json!(value))
+}
+
+fn insert_f64_field(
+    input: &mut serde_json::Map<String, serde_json::Value>,
+    key: &str,
+    value: Option<f64>,
+) -> Result<()> {
+    let Some(value) = value else {
+        return Ok(());
+    };
+    insert_field(input, key, serde_json::json!(value))
+}
+
+fn insert_field(
+    input: &mut serde_json::Map<String, serde_json::Value>,
+    key: &str,
+    value: serde_json::Value,
+) -> Result<()> {
+    if input.contains_key(key) {
+        return Err(anyhow!(
+            "--{flag} cannot be combined with `{key}` already present in JSON input",
+            flag = key.replace('_', "-")
+        ));
+    }
+    input.insert(key.to_string(), value);
+    Ok(())
+}
+
+fn read_interactive_input(schema: &serde_json::Value) -> Result<serde_json::Value> {
+    let mut input = serde_json::Map::new();
+    loop {
+        let required = required_fields(schema, &input);
+        let mut prompted = false;
+        for field in required {
+            if !input.contains_key(&field) {
+                let value = prompt_for_field(schema, &field)?;
+                input.insert(field, value);
+                prompted = true;
+            }
+        }
+        if !prompted {
+            break;
+        }
+    }
+    Ok(serde_json::Value::Object(input))
+}
+
+fn required_fields(
+    schema: &serde_json::Value,
+    input: &serde_json::Map<String, serde_json::Value>,
+) -> Vec<String> {
+    let mut fields = Vec::new();
+    append_required(schema.get("required"), &mut fields);
+    if let Some(all_of) = schema.get("allOf").and_then(serde_json::Value::as_array) {
+        for item in all_of {
+            if item
+                .get("if")
+                .is_some_and(|condition| condition_matches(condition, input))
+            {
+                append_required(
+                    item.get("then").and_then(|then| then.get("required")),
+                    &mut fields,
+                );
+            }
+        }
+    }
+    fields
+}
+
+fn append_required(required: Option<&serde_json::Value>, fields: &mut Vec<String>) {
+    if let Some(required) = required.and_then(serde_json::Value::as_array) {
+        for field in required.iter().filter_map(serde_json::Value::as_str) {
+            if !fields.iter().any(|existing| existing == field) {
+                fields.push(field.to_string());
+            }
+        }
+    }
+}
+
+fn condition_matches(
+    condition: &serde_json::Value,
+    input: &serde_json::Map<String, serde_json::Value>,
+) -> bool {
+    let Some(properties) = condition
+        .get("properties")
+        .and_then(serde_json::Value::as_object)
+    else {
+        return false;
+    };
+    properties.iter().all(|(key, expected)| {
+        expected
+            .get("const")
+            .is_some_and(|expected| input.get(key) == Some(expected))
+    })
+}
+
+fn prompt_for_field(schema: &serde_json::Value, field: &str) -> Result<serde_json::Value> {
+    let property = schema
+        .get("properties")
+        .and_then(|properties| properties.get(field));
+    let mut prompt = field.to_string();
+    if let Some(options) = property
+        .and_then(|p| p.get("enum"))
+        .and_then(serde_json::Value::as_array)
+    {
+        let options: Vec<_> = options
+            .iter()
+            .filter_map(serde_json::Value::as_str)
+            .collect();
+        if !options.is_empty() {
+            prompt.push_str(&format!(" ({})", options.join("|")));
+        }
+    }
+    prompt.push_str(": ");
+
+    let mut stderr = std::io::stderr();
+    stderr.write_all(prompt.as_bytes())?;
+    stderr.flush()?;
+
+    let mut line = String::new();
+    std::io::stdin().read_line(&mut line)?;
+    let raw = line.trim();
+    if raw.is_empty() {
+        return Err(anyhow!("{field} is required"));
+    }
+    parse_interactive_value(field, raw, property)
+}
+
+fn parse_interactive_value(
+    field: &str,
+    raw: &str,
+    property: Option<&serde_json::Value>,
+) -> Result<serde_json::Value> {
+    if let Some(options) = property
+        .and_then(|p| p.get("enum"))
+        .and_then(serde_json::Value::as_array)
+    {
+        let allowed = options.iter().filter_map(serde_json::Value::as_str);
+        if !allowed.clone().any(|option| option == raw) {
+            let values: Vec<_> = allowed.collect();
+            return Err(anyhow!(
+                "invalid value for {field}: {raw} (expected one of: {})",
+                values.join(", ")
+            ));
+        }
+        return Ok(serde_json::json!(raw));
+    }
+
+    match property
+        .and_then(|p| p.get("type"))
+        .and_then(serde_json::Value::as_str)
+    {
+        Some("integer") => raw
+            .parse::<u64>()
+            .map(serde_json::Value::from)
+            .map_err(|e| anyhow!("invalid integer for {field}: {e}")),
+        Some("number") => raw
+            .parse::<f64>()
+            .map(serde_json::Value::from)
+            .map_err(|e| anyhow!("invalid number for {field}: {e}")),
+        Some("boolean") => raw
+            .parse::<bool>()
+            .map(serde_json::Value::from)
+            .map_err(|e| anyhow!("invalid boolean for {field}: {e}")),
+        _ => Ok(serde_json::json!(raw)),
+    }
+}
+
+fn apply_profile_sources(
+    input: &mut serde_json::Value,
+    cmd: &CalcCommand,
+    schema: &serde_json::Value,
+) -> Result<()> {
+    if !cmd.profile && cmd.from_record.is_none() {
+        return Ok(());
+    }
+    let Some(target) = input.as_object_mut() else {
+        return Err(anyhow!("profile/record input requires JSON object input"));
+    };
+
+    if cmd.profile {
+        let path = default_profile_path()?;
+        let profile = read_json_file(&path)?;
+        merge_profile_fields(target, schema, &profile);
+    }
+    if let Some(path) = &cmd.from_record {
+        let record = read_json_file(&tilde_path(path))?;
+        merge_profile_fields(target, schema, &record);
+    }
+    Ok(())
+}
+
+fn default_profile_path() -> Result<PathBuf> {
+    if let Some(config_home) = std::env::var_os("XDG_CONFIG_HOME") {
+        return Ok(PathBuf::from(config_home).join("clincalc/profile.json"));
+    }
+    let home = home_dir().ok_or_else(|| anyhow!("could not determine home directory"))?;
+    Ok(home.join(".config/clincalc/profile.json"))
+}
+
+fn read_json_file(path: &Path) -> Result<serde_json::Value> {
+    let raw = std::fs::read_to_string(path)
+        .map_err(|e| anyhow!("reading profile/record {}: {e}", path.display()))?;
+    serde_json::from_str(&raw)
+        .map_err(|e| anyhow!("invalid JSON in profile/record {}: {e}", path.display()))
+}
+
+fn merge_profile_fields(
+    target: &mut serde_json::Map<String, serde_json::Value>,
+    schema: &serde_json::Value,
+    source: &serde_json::Value,
+) {
+    merge_profile_object(target, schema, source);
+    if let Some(subject) = source.get("subject") {
+        merge_profile_object(target, schema, subject);
+    }
+    if let Some(profile) = source.get("profile") {
+        merge_profile_object(target, schema, profile);
+    }
+}
+
+fn merge_profile_object(
+    target: &mut serde_json::Map<String, serde_json::Value>,
+    schema: &serde_json::Value,
+    source: &serde_json::Value,
+) {
+    let Some(source) = source.as_object() else {
+        return;
+    };
+    let Some(properties) = schema
+        .get("properties")
+        .and_then(serde_json::Value::as_object)
+    else {
+        return;
+    };
+    for key in properties.keys() {
+        if !target.contains_key(key)
+            && let Some(value) = source.get(key)
+        {
+            target.insert(key.clone(), value.clone());
+        }
+    }
+}
+
+fn apply_body_fat_derivation(
+    input: &mut serde_json::Value,
+    cmd: &CalcCommand,
+    cli_working: &mut serde_json::Map<String, serde_json::Value>,
+) -> Result<()> {
+    let Some(body_fat_pct) = cmd.body_fat_pct else {
+        return Ok(());
+    };
+    if !(0.0..=80.0).contains(&body_fat_pct) || !body_fat_pct.is_finite() {
+        return Err(anyhow!(
+            "--body-fat-pct must be a finite percentage between 0 and 80"
+        ));
+    }
+    let Some(input) = input.as_object_mut() else {
+        return Err(anyhow!("--body-fat-pct requires JSON object input"));
+    };
+    if input.contains_key("lean_body_mass_kg") {
+        return Err(anyhow!(
+            "--body-fat-pct cannot be combined with lean_body_mass_kg already present in input"
+        ));
+    }
+    let weight_kg = input
+        .get("weight_kg")
+        .and_then(serde_json::Value::as_f64)
+        .ok_or_else(|| anyhow!("--body-fat-pct requires weight_kg, for example --weight-kg 80"))?;
+    let lean_body_mass_kg = weight_kg * (1.0 - body_fat_pct / 100.0);
+    input.insert(
+        "lean_body_mass_kg".into(),
+        serde_json::json!(lean_body_mass_kg),
+    );
+    cli_working.insert("body_fat_pct".into(), serde_json::json!(body_fat_pct));
+    cli_working.insert(
+        "derived_lean_body_mass_kg".into(),
+        serde_json::json!(lean_body_mass_kg),
+    );
+    Ok(())
+}
+
+fn apply_goal_adjustment(
+    input: &mut serde_json::Value,
+    cmd: &CalcCommand,
+    cli_working: &mut serde_json::Map<String, serde_json::Value>,
+) -> Result<()> {
+    if cmd.goal.is_none() && cmd.rate.is_none() && cmd.target_weight_kg.is_none() {
+        return Ok(());
+    }
+    let goal = cmd
+        .goal
+        .ok_or_else(|| anyhow!("--rate and --target-weight require --goal lose|maintain|gain"))?;
+    let Some(input) = input.as_object_mut() else {
+        return Err(anyhow!("--goal requires JSON object input"));
+    };
+    if input.contains_key("calorie_adjustment_kcal_day") {
+        return Err(anyhow!(
+            "--goal cannot be combined with calorie_adjustment_kcal_day already present in input"
+        ));
+    }
+
+    let adjustment = match goal {
+        EnergyGoal::Maintain => {
+            if cmd.rate.is_some() || cmd.target_weight_kg.is_some() {
+                return Err(anyhow!(
+                    "--goal maintain cannot be combined with --rate or --target-weight"
+                ));
+            }
+            0.0
+        }
+        EnergyGoal::Lose | EnergyGoal::Gain => {
+            let rate = cmd
+                .rate
+                .ok_or_else(|| anyhow!("--goal lose|gain requires --rate <kg/week>"))?;
+            if !(0.0..=2.0).contains(&rate) || rate == 0.0 || !rate.is_finite() {
+                return Err(anyhow!(
+                    "--rate must be a finite number above 0 and at most 2 kg/week"
+                ));
+            }
+            cli_working.insert("weight_change_rate_kg_week".into(), serde_json::json!(rate));
+            if let Some(target_weight_kg) = cmd.target_weight_kg {
+                let current_weight_kg = input
+                    .get("weight_kg")
+                    .and_then(serde_json::Value::as_f64)
+                    .ok_or_else(|| {
+                        anyhow!("--target-weight requires weight_kg, for example --weight-kg 80")
+                    })?;
+                if !(20.0..=500.0).contains(&target_weight_kg) || !target_weight_kg.is_finite() {
+                    return Err(anyhow!(
+                        "--target-weight must be a finite number between 20 and 500 kg"
+                    ));
+                }
+                let kg_to_target = (target_weight_kg - current_weight_kg).abs();
+                cli_working.insert(
+                    "target_weight_kg".into(),
+                    serde_json::json!(target_weight_kg),
+                );
+                cli_working.insert(
+                    "estimated_weeks_to_target".into(),
+                    serde_json::json!(kg_to_target / rate),
+                );
+            }
+            let daily_delta = rate * 7700.0 / 7.0;
+            if matches!(goal, EnergyGoal::Lose) {
+                -daily_delta
+            } else {
+                daily_delta
+            }
+        }
+    };
+
+    input.insert(
+        "calorie_adjustment_kcal_day".into(),
+        serde_json::json!(adjustment),
+    );
+    cli_working.insert("energy_goal".into(), serde_json::json!(goal.slug()));
+    Ok(())
+}
+
 fn apply_activity_preset(
     input: &mut serde_json::Value,
     activity: Option<ActivityPreset>,
+    cli_working: &mut serde_json::Map<String, serde_json::Value>,
 ) -> Result<()> {
     let Some(activity) = activity else {
         return Ok(());
@@ -316,6 +849,7 @@ fn apply_activity_preset(
         "activity_factor".into(),
         serde_json::json!(activity.factor()),
     );
+    cli_working.insert("activity_preset".into(), serde_json::json!(activity.slug()));
     Ok(())
 }
 

@@ -51,6 +51,51 @@ clincalc calc tdee --activity moderate --input '{"equation":"mifflin_st_jeor","s
 
 The selected preset is echoed in the Working block as `activity_preset`; the numeric factor remains visible as `activity_factor`.
 
+Energy target helpers can derive `calorie_adjustment_kcal_day` from a goal and rate using roughly 7700 kcal/kg. For Cunningham, `--body-fat-pct` can derive `lean_body_mass_kg` from `weight_kg`.
+
+```bash
+clincalc calc tdee --equation mifflin_st_jeor --sex male --age 30 --weight-kg 70 --height-cm 175 --activity moderate --goal lose --rate 0.5 --target-weight 65
+clincalc calc bmr --equation cunningham --weight-kg 80 --body-fat-pct 25
+```
+
+These helpers echo their derived values in the Working block (`energy_goal`, `weight_change_rate_kg_week`, `estimated_weeks_to_target`, `body_fat_pct`, `derived_lean_body_mass_kg`).
+
+### Human field flags and `--interactive`
+
+For quick hand use, common scalar input fields can be supplied as flags instead of writing JSON: `--equation`, `--sex`, `--age`, `--weight-kg`, `--height-cm`, `--lean-body-mass-kg`, `--creatinine`, `--creatinine-unit`, and `--calorie-adjustment-kcal-day`. These flags build the same JSON object that `--input` would have supplied, so calculator validation and output remain unchanged.
+
+```bash
+clincalc calc tdee --equation mifflin_st_jeor --sex male --age 30 --weight-kg 70 --height-cm 175 --activity moderate
+clincalc calc egfr --age 60 --sex female --creatinine 80 --creatinine-unit umol/L
+```
+
+You can combine these flags with `--input` to add missing fields, but a flag cannot overwrite a field that is already present in the JSON. For guided entry, use `--interactive`; prompts are written to stderr and the result remains on stdout.
+
+```bash
+clincalc calc egfr --interactive
+```
+
+### `--profile` and `--from-record <FILE>`
+
+`--profile` fills missing fields from `~/.config/clincalc/profile.json` (or `$XDG_CONFIG_HOME/clincalc/profile.json`). `--from-record <FILE>` does the same from a specified JSON file. Only keys present in the selected calculator's schema are copied; matching keys can live at the top level, under `subject`, or under `profile`.
+
+```json
+{
+  "subject": {
+    "age": 60,
+    "sex": "female",
+    "weight_kg": 70,
+    "height_cm": 165
+  }
+}
+```
+
+Explicit `--input` values and human field flags win; profile/record data only fills gaps.
+
+```bash
+clincalc calc egfr --from-record patient.json --creatinine 80 --creatinine-unit umol/L
+```
+
 ### `--schema`
 
 Print the calculator's JSON Schema to stdout. This is the formal input contract - field names, types, ranges, enumerations - and is the same schema served to LLMs by the MCP surface when `clincalc` is embedded in a host.

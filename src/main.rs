@@ -42,7 +42,7 @@ enum Commands {
     List(ListCommand),
 
     /// Inspect or run one calculator.
-    Calc(CalcCommand),
+    Calc(Box<CalcCommand>),
 
     /// List every tag in the registry, with calculator counts.
     Tags(TagsCommand),
@@ -108,7 +108,7 @@ fn main() -> anyhow::Result<()> {
             format: Default::default(),
         }),
         Some(Commands::List(cmd)) => clincalc::cli::run_list(cmd),
-        Some(Commands::Calc(cmd)) => clincalc::cli::run(cmd),
+        Some(Commands::Calc(cmd)) => clincalc::cli::run(*cmd),
         Some(Commands::Tags(cmd)) => clincalc::cli::run_tags(cmd),
         Some(Commands::Version(cmd)) => clincalc::cli::run_version(cmd),
         Some(Commands::Completions(args)) => run_completions(args),

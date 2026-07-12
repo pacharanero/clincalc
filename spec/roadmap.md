@@ -65,18 +65,7 @@ The docs.rs front page now documents the `cli` / `mcp` feature flags, `default-f
 
 ---
 
-## CLI & interaction
 
-Making the terminal surface friendlier for a human at a prompt - the engine and MCP surfaces are strong; this is the ergonomics gap.
-
-### Future
-
-- [ ] **CLI-004 Human flag inputs + interactive mode** - accept `--sex male --age 48 ...` alongside `--input <json>` for common calculators; a guided `--interactive` walks and validates the schema (JSON stays the machine / MCP path).
-- [ ] **CLI-005 Reusable subject profile** - pull shared demographics / analytes from `~/.config/clincalc/profile.json` or a GitEHR record (`--from-record <path>`), so recurring self- or same-patient calcs don't re-enter demographics. Pairs with ENG-004 (FHIR Observation export).
-- [ ] **CLI-006 Goal-driven energy targets** - `--goal lose|maintain|gain --rate 0.5kg/week` derives the kcal adjustment (~7700 kcal/kg) and time-to-`--target-weight`, instead of a hand-computed `calorie_adjustment_kcal_day`.
-- [ ] **CLI-007 Body-fat to lean-mass convenience** - accept `body_fat_pct` + `weight_kg` and derive LBM internally for Cunningham (and a future Katch-McArdle).
-
----
 
 ## Engine & embedding
 

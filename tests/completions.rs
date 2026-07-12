@@ -5,8 +5,9 @@
 // integration test under --no-default-features so the leaf build still passes.
 #![cfg(feature = "cli")]
 
+use std::io::Write;
 use std::path::PathBuf;
-use std::process::Command;
+use std::process::{Command, Stdio};
 
 fn clincalc_bin() -> PathBuf {
     let from_cargo = PathBuf::from(env!("CARGO_BIN_EXE_clincalc"));
@@ -160,6 +161,153 @@ fn energy_requirement_alias_headlines_match_mode() {
 }
 
 #[test]
+fn energy_requirement_human_flags_compute_without_json_input() {
+    let bin = clincalc_bin();
+
+    let output = Command::new(&bin)
+        .args([
+            "calc",
+            "tdee",
+            "--equation",
+            "mifflin_st_jeor",
+            "--sex",
+            "male",
+            "--age",
+            "30",
+            "--weight-kg",
+            "70",
+            "--height-cm",
+            "175",
+            "--activity",
+            "moderate",
+        ])
+        .output()
+        .expect("run tdee alias with human field flags");
+    assert!(output.status.success());
+    let text = String::from_utf8(output.stdout).expect("output is utf8");
+    assert!(text.starts_with("TDEE = 2556 kcal/day"));
+    assert!(text.contains("activity_preset: moderate"));
+}
+
+#[test]
+fn energy_goal_flags_derive_target_adjustment() {
+    let bin = clincalc_bin();
+
+    let output = Command::new(&bin)
+        .args([
+            "calc",
+            "tdee",
+            "--equation",
+            "mifflin_st_jeor",
+            "--sex",
+            "male",
+            "--age",
+            "30",
+            "--weight-kg",
+            "70",
+            "--height-cm",
+            "175",
+            "--activity",
+            "moderate",
+            "--goal",
+            "lose",
+            "--rate",
+            "0.5",
+            "--target-weight",
+            "65",
+        ])
+        .output()
+        .expect("run tdee with goal flags");
+    assert!(output.status.success());
+    let text = String::from_utf8(output.stdout).expect("output is utf8");
+    assert!(text.starts_with("Target intake = 2006 kcal/day"));
+    assert!(text.contains("energy_goal: lose"));
+    assert!(text.contains("weight_change_rate_kg_week: 0.5"));
+    assert!(text.contains("estimated_weeks_to_target"));
+}
+
+#[test]
+fn body_fat_pct_derives_lean_body_mass_for_cunningham() {
+    let bin = clincalc_bin();
+
+    let output = Command::new(&bin)
+        .args([
+            "calc",
+            "bmr",
+            "--equation",
+            "cunningham",
+            "--weight-kg",
+            "80",
+            "--body-fat-pct",
+            "25",
+        ])
+        .output()
+        .expect("run cunningham with body fat percentage");
+    assert!(output.status.success());
+    let text = String::from_utf8(output.stdout).expect("output is utf8");
+    assert!(text.starts_with("BMR/RMR = 1820 kcal/day"));
+    assert!(text.contains("body_fat_pct: 25"));
+    assert!(text.contains("derived_lean_body_mass_kg"));
+}
+
+#[test]
+fn from_record_fills_missing_human_fields() {
+    let bin = clincalc_bin();
+    let record_path =
+        std::env::temp_dir().join(format!("clincalc-record-test-{}.json", std::process::id()));
+    std::fs::write(&record_path, r#"{"subject":{"age":60,"sex":"female"}}"#)
+        .expect("write temp record");
+
+    let output = Command::new(&bin)
+        .args([
+            "calc",
+            "egfr",
+            "--from-record",
+            record_path.to_str().expect("record path is utf8"),
+            "--creatinine",
+            "80",
+            "--creatinine-unit",
+            "umol/L",
+        ])
+        .output()
+        .expect("run egfr with record defaults");
+    let _ = std::fs::remove_file(&record_path);
+
+    assert!(output.status.success());
+    let text = String::from_utf8(output.stdout).expect("output is utf8");
+    assert!(text.starts_with("egfr = "));
+    assert!(text.contains("CKD G-stage"));
+}
+
+#[test]
+fn egfr_interactive_mode_walks_required_schema_fields() {
+    let bin = clincalc_bin();
+
+    let mut child = Command::new(&bin)
+        .args(["calc", "egfr", "--interactive"])
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .expect("spawn interactive egfr");
+    child
+        .stdin
+        .as_mut()
+        .expect("stdin available")
+        .write_all(b"60\nfemale\n80\numol/L\n")
+        .expect("write interactive input");
+
+    let output = child.wait_with_output().expect("egfr interactive output");
+    assert!(output.status.success());
+    let stdout = String::from_utf8(output.stdout).expect("stdout is utf8");
+    assert!(stdout.starts_with("egfr = "));
+    assert!(stdout.contains("CKD G-stage"));
+    let stderr = String::from_utf8(output.stderr).expect("stderr is utf8");
+    assert!(stderr.contains("age:"));
+    assert!(stderr.contains("sex (male|female):"));
+}
+
+#[test]
 fn energy_requirement_activity_presets_inject_factor() {
     let bin = clincalc_bin();
     let input = r#"{"equation":"mifflin_st_jeor","sex":"male","age":30,"weight_kg":70.0,"height_cm":175.0}"#;
@@ -180,5 +328,5 @@ fn energy_requirement_activity_presets_inject_factor() {
         .expect("run non-energy calculator with activity preset");
     assert!(!output.status.success());
     let stderr = String::from_utf8(output.stderr).expect("stderr is utf8");
-    assert!(stderr.contains("--activity is only supported for energy_requirement"));
+    assert!(stderr.contains("only supported for energy_requirement"));
 }
