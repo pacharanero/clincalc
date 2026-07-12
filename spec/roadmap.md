@@ -2,12 +2,15 @@
 
 Engineering, infrastructure, and product-level work for the `clincalc` project. **This file is the home for everything that is not a new calculator.** The clinical-calculator backlog lives in [`spec/calculator-roadmap.md`](spec/calculator-roadmap.md).
 
+Roadmap items have stable identifiers so they can be referred to in conversation, commits, PRs, and release notes. Do not renumber existing IDs just because items are completed or removed.
+
+Completed items are removed from this file rather than kept as a historical changelog. Use Git history and `CHANGELOG.md` for completed work.
+
 ## Status legend
 
 - `[~]` **In-progress** - actively being worked on or dormant pending a one-off setup.
 - `[ ]` **Planned** - committed to build; the next batch.
 - `[ ]` **Future** - under consideration; promote to Planned when scheduled.
-- `[x]` **Completed** - (these items are periodically removed from the file).
 
 ---
 
@@ -15,7 +18,7 @@ Engineering, infrastructure, and product-level work for the `clincalc` project. 
 
 ### In-progress
 
-- [~] **Activate releases** - the pipeline is built and validated (`dist plan` green, workflows lint-clean) but dormant until two repo secrets are set:
+- [~] **REL-001 Activate releases** - the pipeline is built and validated (`dist plan` green, workflows lint-clean) but dormant until two repo secrets are set:
     - `CARGO_REGISTRY_TOKEN` - crates.io API token with publish rights on `clincalc`.
     - `HOMEBREW_TAP_TOKEN` - PAT with write access to `pacharanero/homebrew-tap`.
 
@@ -25,12 +28,12 @@ Engineering, infrastructure, and product-level work for the `clincalc` project. 
 
 ### Planned
 
-- [ ] **Windows code-signing** - EV cert from Sectigo / SSL.com once procured. The cert covers `sct`, `dsc`, **and** `clincalc` in one purchase; see [`spec/gui.md`](spec/gui.md#windows-code-signing). Until then the GUI installer triggers SmartScreen on first run.
+- [ ] **REL-002 Windows code-signing** - EV cert from Sectigo / SSL.com once procured. The cert covers `sct`, `dsc`, **and** `clincalc` in one purchase; see [`spec/gui.md`](spec/gui.md#windows-code-signing). Until then the GUI installer triggers SmartScreen on first run.
 
 ### Future
 
-- [ ] **`cargo binstall`** - cargo-dist releases are natively binstall-discoverable; add an explicit `[package.metadata.binstall]` override only if a case needs it.
-- [ ] **deb / rpm / Scoop** packaging - only if user demand surfaces.
+- [ ] **REL-003 `cargo binstall` metadata** - cargo-dist releases are natively binstall-discoverable; add an explicit `[package.metadata.binstall]` override only if a case needs it.
+- [ ] **REL-004 deb / rpm / Scoop packaging** - only if user demand surfaces.
 
 ---
 
@@ -38,20 +41,15 @@ Engineering, infrastructure, and product-level work for the `clincalc` project. 
 
 See the design spec at [`spec/gui.md`](spec/gui.md) and the implementation guide at [`gui/README.md`](gui/README.md).
 
-### Completed
-
-- [x] **CHA₂DS₂-VASc UI** - first non-trivial calculator (enums, age band); templates the next class of widget.
-- [x] **QRISK3 UI** - the politically-motivated one (still missing from EMIS and SystmOne); 22 mixed-type inputs.
-
 ### Planned
 
-- [ ] **Decide CI build cadence for the GUI** - on every push (slow, ~5 min) vs on release tag only. Probably the latter once cargo-dist lands.
+- [ ] **GUI-001 Decide CI build cadence for the GUI** - on every push (slow, ~5 min) vs on release tag only. Probably the latter once cargo-dist lands.
 
 ### Future
 
-- [ ] **Updater** - Tauri's built-in updater speaking to a manifest hosted on the docs site.
-- [ ] **iOS / Android builds** - Tauri 2 supports them and `clincalc` is pure Rust, so this is mostly a packaging question.
-- [ ] **Theme parity with GitEHR** - shared CSS variables or a tiny `@clincalc/ui-tokens` package, so the two apps stay visually coherent without copy-paste drift.
+- [ ] **GUI-002 Updater** - Tauri's built-in updater speaking to a manifest hosted on the docs site.
+- [ ] **GUI-003 iOS / Android builds** - Tauri 2 supports them and `clincalc` is pure Rust, so this is mostly a packaging question.
+- [ ] **GUI-004 Theme parity with GitEHR** - shared CSS variables or a tiny `@clincalc/ui-tokens` package, so the two apps stay visually coherent without copy-paste drift.
 
 ---
 
@@ -59,34 +57,30 @@ See the design spec at [`spec/gui.md`](spec/gui.md) and the implementation guide
 
 ### Planned
 
-- [ ] **Retire `.claude/skills/build-calculator/`** in favour of `spec/` + `examples/` + `AGENTS.md` as the authoring entry point. Skill is Claude-specific; new authoring path should work in any agent.
+- [ ] **DOC-001 Retire `.claude/skills/build-calculator/`** in favour of `spec/` + `examples/` + `AGENTS.md` as the authoring entry point. Skill is Claude-specific; new authoring path should work in any agent.
 
 The docs.rs front page now documents the `cli` / `mcp` feature flags, `default-features = false` leaf usage, and a minimal registry example. docs.rs is configured to build all features so the optional MCP module is visible.
 
 ### Future
 
-- [ ] **`docs/translating.md`** - contribution path for translators once multilingual lands.
-- [ ] **API reference for `clincalc`** linked from the docs site (docs.rs handles this automatically once published; just need a link from the Zensical nav).
+- [ ] **DOC-002 `docs/translating.md`** - contribution path for translators once multilingual lands.
+- [ ] **DOC-003 API reference for `clincalc`** - link from the docs site. docs.rs handles this automatically once published; just need a link from the Zensical nav.
 
 ---
 
 ## Engine & embedding
 
-### Completed
-
-- [x] **Reference MCP server** in this repo via `clincalc mcp`, gated behind the optional `mcp` Cargo feature. See [`spec/mcp.md`](spec/mcp.md) and [`docs/mcp.md`](../docs/mcp.md).
-
 ### Future
 
-- [ ] **Multilingual support** - implement `Locale` enum + `LocalizedString` per [`spec/multilingual.md`](spec/multilingual.md). Validate with one calculator (FeverPAIN) and a native speaker before opening the catalogue for batched translation.
-- [ ] **Translation reciprocity with [MedikQuantis](https://medikquantis.me)** - their Catalan/Spanish strings for the 14 overlapping calculators are exactly what we need; agree a shared tag taxonomy and citation shape so either project can ingest the other's metadata.
-- [ ] **`clincalc-web`** (single-file HTML calculators) returning, ideally with `clincalc` compiled to WebAssembly so the browser surface shares the engine.
-- [ ] **FHIR Observation export** for standardised exchange of results.
-- [ ] **Unit conversion** (metric ↔ imperial) at the input boundary; today `--input` is units-explicit per field.
-- [ ] **Printable / clipboard-friendly result formatting** beyond the existing text block (rich Markdown with citation links? PDF? RTF?).
-- [ ] **Plugin system** for user-defined / third-party calculators loaded at runtime.
-- [ ] **Guideline-update registry** - a mechanism to re-verify each calculator's licence and reference URL on a schedule.
-- [ ] **High-risk-score alerts** as events embedding hosts can subscribe to (e.g. NEWS2 ≥ 7).
+- [ ] **ENG-001 Multilingual support** - implement `Locale` enum + `LocalizedString` per [`spec/multilingual.md`](spec/multilingual.md). Validate with one calculator (FeverPAIN) and a native speaker before opening the catalogue for batched translation.
+- [ ] **ENG-002 Translation reciprocity with [MedikQuantis](https://medikquantis.me)** - their Catalan/Spanish strings for the 14 overlapping calculators are exactly what we need; agree a shared tag taxonomy and citation shape so either project can ingest the other's metadata.
+- [ ] **ENG-003 `clincalc-web`** - single-file HTML calculators returning, ideally with `clincalc` compiled to WebAssembly so the browser surface shares the engine.
+- [ ] **ENG-004 FHIR Observation export** - standardised exchange of results.
+- [ ] **ENG-005 Unit conversion** - metric / imperial at the input boundary; today `--input` is units-explicit per field.
+- [ ] **ENG-006 Printable / clipboard-friendly result formatting** - beyond the existing text block, possibly rich Markdown with citation links, PDF, or RTF.
+- [ ] **ENG-007 Plugin system** - user-defined / third-party calculators loaded at runtime.
+- [ ] **ENG-008 Guideline-update registry** - a mechanism to re-verify each calculator's licence and reference URL on a schedule.
+- [ ] **ENG-009 High-risk-score alerts** - events embedding hosts can subscribe to, for example NEWS2 >= 7.
 
 ---
 
@@ -94,4 +88,4 @@ The docs.rs front page now documents the `cli` / `mcp` feature flags, `default-f
 
 See [`spec/calculator-roadmap.md`](spec/calculator-roadmap.md).
 
-At time of writing: 43 active + 10 proprietary stubs shipped; 35+ Future candidates queued (chiefly from MedikQuantis, plus the recently-added [StatinMD](https://www.thelancet.com/journals/landig/article/PIIS2589-7500\(26\)00047-6/fulltext)).
+At time of writing: 43 active + 10 proprietary stubs shipped; 36 Future candidates queued (chiefly from MedikQuantis, plus the recently-added [StatinMD](https://www.thelancet.com/journals/landig/article/PIIS2589-7500\(26\)00047-6/fulltext)).

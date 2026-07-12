@@ -240,31 +240,11 @@ See `.claude/skills/build-calculator/` for the detailed authoring workflow. This
 
 ## Calculator library roadmap
 
-UK-focused build priority (52 tools), ordered by clinical volume and patient-safety impact. As of this writing, 42 calculators are active and 10 are intentional "named but unavailable" stubs (licence-locked or proprietary). The full table with per-tool descriptions lives in [`spec/calculator-roadmap.md`](calculator-roadmap.md); the deployed catalogue is [`docs/calculators.md`](../docs/calculators.md).
+Open calculator work is tracked by stable ID in [`spec/calculator-roadmap.md`](calculator-roadmap.md). Completed calculators are removed from the roadmap and listed in the deployed catalogue at [`docs/calculators.md`](../docs/calculators.md), currently 43 active calculators plus 10 intentional "named but unavailable" stubs (licence-locked or proprietary).
 
-### Tier 1 - High-volume primary care / NHS-mandated
+### RCPCH Digital Growth Charts
 
-QRISK3 (NICE NG238), PHQ-9 (NG222), GAD-7 (CG113), AUDIT / AUDIT-C (CG115), eGFR CKD-EPI (NG203), MUST (CG32; stub), FRAX (CG146; stub) / QFracture (CG146), FIB-4 (NG49).
-
-### Tier 2 - Acute / emergency
-
-NEWS2 (NG51; RCP/NHSE mandated), CURB-65 (NG138; BTS), Wells DVT / Wells PE (NG158), GRACE (NG185, CG94), CHA2DS2-VASc (NG196), HAS-BLED (NG196, NG158), ABCD2 (NG128), 4AT (CG103), qSOFA (NG51), CHALICE (NG232).
-
-### Tier 3 - Common chronic disease management
-
-MRC Dyspnoea (NG115), CAT (NG115; stub), ACQ (stub), IPSS (CG97), DAS28 (NG100), uACR (NG203, NG28), KDIGO CKD risk (NG203), EPDS (CG192; SIGN 169), Clinical Frailty Scale (NG56; stub), MMSE (NG97; stub).
-
-### Tier 4 - Secondary care / specialist
-
-SOFA (NG51), EuroSCORE II (TA163, TA245), HEART (NG185), TIMI (CG94), Padua (NG89), ELF (NG49; stub), Child-Pugh / MELD / UKELD (NG50), Nottingham Hip Fracture Score (CG124; NHFD).
-
-### Tier 5 - Functional / PROMs / niche but guideline-endorsed
-
-AMTS (CG124), Waterlow (CG179), Oxford Hip / Knee Score (NHSE PROMs; stubs), BODE (NG115), LANSS (CG173; stub), ABPI (NG19, CG168), Gleason Grade Groups (NG131), Nottingham Prognostic Index (NG101), ASRS-v1.1.
-
-### RCPCH Digital Growth Charts (special case, not yet built)
-
-UK-WHO (0-4y, WHO 2006) and UK90 (4-20y) reference data, gestational-age correction for prematurity, z-score/centile/SDS calculation. Requires LMS reference tables (the binary-size variable noted above) and confirmation of RCPCH licensing terms for distribution.
+Tracked as `CALC-032` in [`spec/calculator-roadmap.md`](calculator-roadmap.md). The special-case concerns are UK-WHO (0-4y, WHO 2006) and UK90 (4-20y) reference data, gestational-age correction for prematurity, z-score/centile/SDS calculation, LMS reference tables (the binary-size variable noted above), and confirmation of RCPCH licensing terms for distribution.
 
 ---
 
@@ -295,14 +275,7 @@ Most scores are pure published methods (algorithms are generally not subject to 
 
 ## Open questions
 
-- Unit conversion support (metric/imperial)?
-- Printable reports for results in the GUI?
-- FHIR Observation export for standardised exchange?
-- User-defined / third-party calculators via a plugin system?
-
-## Future enhancements
-
-Calculator plugins; fetching guideline updates from a registry; multi-step decision trees beyond simple scores; trending results over time; high-risk-score alerts.
+Open engine-surface questions are tracked by stable ID in [`spec/roadmap.md`](roadmap.md): `ENG-004` for FHIR Observation export, `ENG-005` for unit conversion, `ENG-006` for richer printable / clipboard-friendly output, `ENG-007` for plugins, `ENG-008` for guideline-update registry work, and `ENG-009` for high-risk-score alerts.
 
 ---
 

@@ -35,21 +35,15 @@
 - The **paste-ready summary** sits below, in a teal-bordered card to draw the eye - this is the headline feature.
 - Recompute on every input change. No "Calculate" button. The cost of a round-trip to Rust for any calculator we'd ship is sub-millisecond.
 
-## Build priority
+## Implemented baseline
 
-1. **FeverPAIN** (MVP, shipped) - 5 booleans, trivial to score, demonstrates the whole loop end-to-end.
-2. **CHA2DS2-VASc** (shipped) - politically high-impact, validated against the standard literature vectors; the form has enums (sex, age band) so it's a good template for the next class of UI.
-3. **QRISK3** (shipped) - the headline-grabber: still not implemented natively in EMIS or SystmOne despite NICE NG238. ~20 inputs of mixed types, so a real test of the hand-crafted approach.
-4. Everything else as demand surfaces. The `Coming soon` placeholder in the GUI is a deliberate signal - the CLI works for everything, the GUI is opt-in per calculator.
+The GUI currently has hand-crafted UIs for FeverPAIN, CHA2DS2-VASc, and QRISK3. Everything else renders as `Coming soon`; the CLI works for every calculator, and the GUI is opt-in per calculator.
+
+Open GUI and distribution work is tracked by stable ID in [`spec/roadmap.md`](roadmap.md), especially `GUI-*` and `REL-*` items.
 
 ## Distribution
 
-Roadmap:
-
-- Tauri produces `.exe` (NSIS), `.msi`, `.app` / `.dmg`, `.deb` / `.rpm` / `.AppImage` from one codebase.
-- Windows: code-sign with EV cert (Sectigo / SSL.com) so SmartScreen passes silently. Until cert is procured, expect the "Windows protected your PC" dialog on first run; the click-through path works but is not great.
-- Updates: Tauri's built-in updater talks to a manifest hosted on the docs site. Wire when v0.2 is ready.
-- Installer published from CI per [house-style/distribution.md](https://github.com/pacharanero/house-style/blob/main/distribution.md) once cargo-dist + Tauri's bundler are stitched together.
+Tauri produces `.exe` (NSIS), `.msi`, `.app` / `.dmg`, `.deb` / `.rpm` / `.AppImage` from one codebase. Windows code-signing, updater support, and release cadence are tracked in [`spec/roadmap.md`](roadmap.md).
 
 ## Why not auto-generate forms?
 
