@@ -57,14 +57,11 @@ See the design spec at [`spec/gui.md`](spec/gui.md) and the implementation guide
 
 ### Planned
 
-- [ ] **DOC-001 Retire `.claude/skills/build-calculator/`** in favour of `spec/` + `examples/` + `AGENTS.md` as the authoring entry point. Skill is Claude-specific; new authoring path should work in any agent.
-
 The docs.rs front page now documents the `cli` / `mcp` feature flags, `default-features = false` leaf usage, and a minimal registry example. docs.rs is configured to build all features so the optional MCP module is visible.
 
 ### Future
 
 - [ ] **DOC-002 `docs/translating.md`** - contribution path for translators once multilingual lands.
-- [ ] **DOC-003 API reference for `clincalc`** - link from the docs site. docs.rs handles this automatically once published; just need a link from the Zensical nav.
 
 ---
 

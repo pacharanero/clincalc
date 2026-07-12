@@ -83,7 +83,7 @@ Before writing or bumping any dependency, fetch the package's official repositor
 3. That is the only Rust work - the CLI, MCP, and GUI surfaces pick it up automatically.
 4. If it should appear in the docs catalogue, add a row to `docs/calculators.md`.
 
-The skill at `.claude/skills/build-calculator/` covers the detail (and may be retired in favour of `spec/` + `examples/` + this file in due course).
+This file, `spec/calculators.md`, `spec/calculator-input-definitions.md`, and the committed JSON files in `examples/` are the calculator authoring path. Do not rely on Claude-specific skills or per-agent hidden workflows.
 
 ## Roadmap snapshot
 

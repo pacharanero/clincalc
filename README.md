@@ -104,7 +104,7 @@ cargo clippy --all-targets -- -D warnings
 cargo fmt --all --check
 ```
 
-CI enforces all three. Adding a calculator: implement it in `clincalc` (typed input, pure `compute`, `build_response`, a `Calculator` impl with `input_schema()` and `license()`, and literature-vector tests), register it in `all()`, and that is the only Rust work - the CLI and MCP surfaces pick it up automatically. See `spec/calculators.md` and `skills/build-calculator/`.
+CI enforces all three. Adding a calculator: implement it in `clincalc` (typed input, pure `compute`, `build_response`, a `Calculator` impl with `input_schema()` and `license()`, and literature-vector tests), register it in `all()`, and that is the only Rust work - the CLI and MCP surfaces pick it up automatically. See `AGENTS.md`, `spec/calculators.md`, `spec/calculator-input-definitions.md`, and the examples in `examples/`.
 
 ## Licensing
 

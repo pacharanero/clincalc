@@ -80,8 +80,7 @@ clincalc/                             # repo root = Cargo workspace root
 ├── clincalc-web/                         # single-file HTML calculators (deprioritised)
 ├── docs/                             # Zensical docs site (deployed to GH Pages)
 ├── examples/                         # ready-to-pipe JSON inputs used in the docs
-├── spec/                             # this file plus roadmap and input-definitions
-└── .claude/skills/build-calculator/  # authoring skill (may be retired)
+└── spec/                             # this file plus roadmap and input-definitions
 ```
 
 ### `clincalc` - the leaf engine
@@ -236,7 +235,7 @@ Any host that records results should do something similar; the engine itself sta
 2. (Optional) add a row to [`docs/calculators.md`](../docs/calculators.md) so it appears in the published catalogue.
 3. (When `clincalc-web` returns) create `clincalc-web/calculators/<name>.html` with its JS logic validated against the `clincalc` vectors.
 
-See `.claude/skills/build-calculator/` for the detailed authoring workflow. This skill may be retired in favour of `spec/` + `examples/` + `AGENTS.md`.
+The authoring workflow is intentionally repository-native: start with `AGENTS.md`, this spec, `spec/calculator-input-definitions.md`, and the committed JSON files in `examples/`. That path works for any coding agent and keeps calculator authoring independent of Claude-specific skills.
 
 ---
 

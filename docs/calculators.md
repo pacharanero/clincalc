@@ -99,7 +99,7 @@ See [Why some calculators are unavailable](how-it-works.md#unavailable-on-princi
 
 Calculators below are clinically valuable and on the radar but not yet implemented. Several originate from [MedikQuantis](https://medikquantis.me) (Laura Piró, Barcelona, MIT) - a sibling project we're exploring collaboration with.
 
-Contributions welcome. The shape of the work is documented in [How it works](how-it-works.md#embedding-clincalc-in-a-host) and the [build-calculator skill](https://github.com/pacharanero/clincalc/tree/main/.claude/skills/build-calculator).
+Contributions welcome. The shape of the work is documented in [How it works](how-it-works.md#embedding-clincalc-in-a-host), [`AGENTS.md`](https://github.com/pacharanero/clincalc/blob/main/AGENTS.md), and the [`spec/`](https://github.com/pacharanero/clincalc/tree/main/spec) and [`examples/`](https://github.com/pacharanero/clincalc/tree/main/examples) directories.
 
 | Candidate | What it does | Tentative tags |
 |---|---|---|

@@ -62,6 +62,7 @@ nav:
   - CLI reference: cli-reference.md
   - MCP server: mcp.md
   - Calculator catalogue: calculators.md
+  - API reference: https://docs.rs/clincalc/latest/clincalc/
   - How it works: how-it-works.md
 
 markdown_extensions:
