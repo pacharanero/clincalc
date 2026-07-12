@@ -3,52 +3,58 @@
 
 //! The standalone `clincalc` binary.
 //!
-//! A thin wrapper over [`clincalc::cli`]: all behaviour lives in the library so
-//! host CLIs (e.g. GitEHR's `gitehr calc`) can reuse it without repetition.
+//! A thin wrapper over [`clincalc::cli`]: all calculator behaviour lives in the
+//! library so host CLIs (e.g. GitEHR's `gitehr calc`) can reuse it without
+//! repetition. The binary adds the top-level command structure, shell
+//! completions, version command, MCP entrypoint, and legacy shorthand handling.
 
 use std::env;
+use std::ffi::{OsStr, OsString};
 use std::fs;
 use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result, anyhow};
-use clap::{Args, CommandFactory, Parser, Subcommand};
+use clap::{Args, CommandFactory, Parser, Subcommand, ValueHint};
 use clap_complete::{Shell, generate};
 
-use clincalc::cli::CalcCommand;
+use clincalc::cli::{CalcCommand, ListCommand, TagsCommand, VersionCommand};
 
-/// Open clinical calculators - scoring at the command line.
+/// Open, auditable clinical calculators.
 #[derive(Debug, Parser)]
 #[command(
     name = "clincalc",
     version,
-    about,
-    long_about = None,
-    // Surface the `completions` side-channel in `--help`. It is dispatched
-    // before the main clap parser in `main()` (because `name` is a
-    // positional that would otherwise swallow the word "completions"), so
-    // it is not a clap subcommand and would not appear here otherwise.
-    after_long_help = "Shell completions:\n  \
-        clincalc completions install                  Install for the current shell\n  \
-        clincalc completions <bash|zsh|fish|...>      Print to stdout\n  \
-        clincalc completions --dir <DIR> <SHELL>      Write to a specific dir\n\n\
-See `clincalc completions --help` and `docs/cli-reference.md` for the full surface."
+    about = "Open, auditable clinical calculators",
+    long_about = "Open, auditable clinical calculators. One registry-backed CLI shape drives every calculator: list the catalogue, inspect a calculator's template/schema/licence, then compute from JSON.",
+    subcommand_required = false,
+    arg_required_else_help = false,
+    after_long_help = "Examples:\n  clincalc list\n  clincalc ls --tag cardiology\n  clincalc calc feverpain\n  clincalc calc feverpain --input examples/feverpain.json\n  clincalc tags\n  clincalc completions install\n\nCompatibility: `clincalc <name>` is shorthand for `clincalc calc <name>`."
 )]
 struct Cli {
-    #[command(flatten)]
-    command: CalcCommand,
-}
-
-#[derive(Debug, Parser)]
-#[command(name = "clincalc completions")]
-struct CompletionsCli {
-    #[command(flatten)]
-    args: CompletionsArgs,
+    #[command(subcommand)]
+    command: Option<Commands>,
 }
 
 #[derive(Debug, Subcommand)]
-enum TopCommand {
+enum Commands {
+    /// List available calculators.
+    #[command(visible_alias = "ls")]
+    List(ListCommand),
+
+    /// Inspect or run one calculator.
+    Calc(CalcCommand),
+
+    /// List every tag in the registry, with calculator counts.
+    Tags(TagsCommand),
+
+    /// Print version information.
+    Version(VersionCommand),
+
     /// Generate or install shell completions.
     Completions(CompletionsArgs),
+
+    /// Start the local stdio MCP server when compiled with `--features mcp`.
+    Mcp,
 }
 
 #[derive(Debug, Args)]
@@ -60,7 +66,7 @@ struct CompletionsArgs {
     shell: Option<Shell>,
 
     /// Output directory. Prints to stdout when omitted.
-    #[arg(long, short = 'd')]
+    #[arg(long, short = 'd', value_hint = ValueHint::DirPath, value_parser = tilde_pathbuf)]
     dir: Option<PathBuf>,
 }
 
@@ -73,7 +79,7 @@ enum CompletionCommand {
         shell: Option<Shell>,
 
         /// Completion directory to write to.
-        #[arg(long, short = 'd')]
+        #[arg(long, short = 'd', value_hint = ValueHint::DirPath, value_parser = tilde_pathbuf)]
         dir: Option<PathBuf>,
     },
 }
@@ -89,19 +95,68 @@ fn main() -> anyhow::Result<()> {
         libc_signal_default_sigpipe();
     }
 
-    let mut args = env::args_os();
-    let program = args.next();
-    match args.next().as_deref() {
-        Some(arg) if arg == std::ffi::OsStr::new("completions") => {
-            let parse_args = program.into_iter().chain(args);
-            return run_completions(CompletionsCli::parse_from(parse_args).args);
-        }
-        Some(arg) if arg == std::ffi::OsStr::new("mcp") => return run_mcp(),
-        _ => {}
+    if let Some(version) = legacy_version_request() {
+        println!("{version}");
+        return Ok(());
     }
 
-    let cli = Cli::parse();
-    clincalc::cli::run(cli.command)
+    let cli = Cli::parse_from(normalized_args());
+    match cli.command {
+        None => clincalc::cli::run_list(ListCommand {
+            tag: Vec::new(),
+            tags: false,
+            format: Default::default(),
+        }),
+        Some(Commands::List(cmd)) => clincalc::cli::run_list(cmd),
+        Some(Commands::Calc(cmd)) => clincalc::cli::run(cmd),
+        Some(Commands::Tags(cmd)) => clincalc::cli::run_tags(cmd),
+        Some(Commands::Version(cmd)) => clincalc::cli::run_version(cmd),
+        Some(Commands::Completions(args)) => run_completions(args),
+        Some(Commands::Mcp) => run_mcp(),
+    }
+}
+
+/// Preserve the historical calculator shorthand while exposing real top-level
+/// subcommands to clap, help output, and completions.
+fn normalized_args() -> Vec<OsString> {
+    let mut args: Vec<OsString> = env::args_os().collect();
+    let Some(first) = args.get(1).cloned() else {
+        return args;
+    };
+
+    if first == OsStr::new("--tags") {
+        args[1] = OsString::from("tags");
+        return args;
+    }
+
+    if is_known_top_command(&first) || starts_with_dash(&first) {
+        return args;
+    }
+
+    args.insert(1, OsString::from("calc"));
+    args
+}
+
+fn starts_with_dash(arg: &OsStr) -> bool {
+    arg.to_string_lossy().starts_with('-')
+}
+
+fn is_known_top_command(arg: &OsStr) -> bool {
+    matches!(
+        arg.to_string_lossy().as_ref(),
+        "calc" | "list" | "ls" | "tags" | "version" | "completions" | "mcp" | "help"
+    )
+}
+
+fn legacy_version_request() -> Option<String> {
+    let mut args = env::args_os();
+    let _program = args.next()?;
+    let arg = args.next()?;
+    if args.next().is_some() {
+        return None;
+    }
+    matches!(arg.to_string_lossy().as_ref(), "-v" | "-version")
+        .then(|| format!("clincalc {}", env!("CARGO_PKG_VERSION")))
 }
 
 #[cfg(feature = "mcp")]
@@ -117,7 +172,7 @@ fn run_mcp() -> Result<()> {
 }
 
 fn run_completions(args: CompletionsArgs) -> Result<()> {
-    let mut cmd = TopCommand::augment_subcommands(Cli::command());
+    let mut cmd = Cli::command();
     cmd.set_bin_name("clincalc");
     match args.command {
         Some(CompletionCommand::Install { shell, dir }) => {
@@ -193,6 +248,18 @@ fn default_completion_dir(shell: Shell) -> Result<PathBuf> {
         Shell::PowerShell => home.join(".config/powershell/completions"),
         Shell::Elvish => home.join(".elvish/lib"),
         _ => home.join(".local/share/clincalc/completions"),
+    })
+}
+
+fn tilde_pathbuf(src: &str) -> Result<PathBuf, String> {
+    Ok(if src == "~" {
+        home_dir().ok_or_else(|| "could not determine home directory".to_string())?
+    } else if let Some(rest) = src.strip_prefix("~/") {
+        home_dir()
+            .ok_or_else(|| "could not determine home directory".to_string())?
+            .join(rest)
+    } else {
+        PathBuf::from(src)
     })
 }
 

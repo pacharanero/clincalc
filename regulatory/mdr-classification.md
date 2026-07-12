@@ -70,7 +70,7 @@ From the project's own descriptions (README, `spec/calculators.md`, `docs/how-it
 
 > "Clinicians need clinical digital tools to provide good care... This project makes them open source, free to use, evidence-based, and auditable." (README)
 
-> Worked example (README): `clincalc curb65 --input '{...}'` → `curb65 = 4` / *"High severity ... consider hospital admission and assessment for intensive care."*
+Worked example (README): `clincalc calc curb65 --input '{...}'` → `curb65 = 4` / *"High severity ... consider hospital admission and assessment for intensive care."*
 
 **Load-bearing observations.** The declared purpose is a *decision aid* returning a **clinical interpretation** (not a bare number), for use by clinicians in relation to individual patients. The words "decision aid", "clinician remains responsible", and "never makes an autonomous clinical decision" are helpful risk-lowering framing but, per MHRA guidance, **disclaimers do not override an intended purpose evidenced by actual functionality and marketing**. The interpretive output ("consider hospital admission") is information used to take a decision with a therapeutic purpose.
 

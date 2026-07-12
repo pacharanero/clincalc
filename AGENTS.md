@@ -40,7 +40,7 @@ Scoring must be **verified against primary sources** and unit-tested with litera
 
 Adding a calculator to `clincalc::all()` surfaces it everywhere - the `clincalc` CLI, any MCP host, any GUI - with **no per-surface code**. There is no per-calculator clap struct, no per-calculator MCP tool definition, no per-calculator GUI form. If you find yourself writing per-calculator dispatch code, stop and rethink.
 
-The CLI surface (one shape for all 42 calculators) is documented in [`docs/cli-reference.md`](docs/cli-reference.md).
+The CLI surface (one shape for the whole registry) is documented in [`docs/cli-reference.md`](docs/cli-reference.md).
 
 ## GUI debugging
 

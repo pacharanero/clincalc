@@ -149,7 +149,7 @@ controls:
   - id: C003
     description: "license() is a required trait method returning a licence with an http(s) evidence URL; a registry test rejects any calculator that omits it. The provenance of every shipped algorithm is always on record and re-checkable from the cited source."
   - id: C004
-    description: "input_schema() (JSON Schema) declares each input's type, units, and permitted values, exposed via `clincalc <name> --schema` and to any MCP/GUI host, so the expected unit is machine-discoverable rather than assumed."
+    description: "input_schema() (JSON Schema) declares each input's type, units, and permitted values, exposed via `clincalc calc <name> --schema` and to any MCP/GUI host, so the expected unit is machine-discoverable rather than assumed."
   - id: C005
     description: "Strongly-typed Input structs (serde::Deserialize) reject wrong-shape input at the boundary; malformed or wrong-type input returns CalcError::InvalidInput rather than being silently coerced."
   - id: C006

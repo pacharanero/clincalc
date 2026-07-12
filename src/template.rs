@@ -3,7 +3,7 @@
 
 //! Fillable input templates derived from a calculator's JSON Schema.
 //!
-//! `clincalc <name>` (with no `--input`) prints one of these: a JSON object
+//! `clincalc calc <name>` (with no `--input`) prints one of these: a JSON object
 //! with every input key present and a placeholder value describing the expected
 //! type, allowed values, and meaning. A human or an LLM fills in the values and
 //! passes the object straight back via `--input`, so the template's shape is by
@@ -24,7 +24,7 @@ use serde_json::{Map, Value};
 /// `required` array), the template emits only the **first** alternative's
 /// required fields - so the printed object always represents one valid input
 /// path rather than a confusing union of mutually-exclusive fields. The other
-/// alternatives are still discoverable via `clincalc <name> --schema`.
+/// alternatives are still discoverable via `clincalc calc <name> --schema`.
 pub fn template_from_schema(schema: &Value) -> Value {
     let Some(props) = schema.get("properties").and_then(Value::as_object) else {
         return Value::Object(Map::new());

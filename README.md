@@ -33,22 +33,23 @@ cargo install --git https://github.com/pacharanero/clincalc clincalc
 There are no per-calculator flags. Every calculator is driven the same way - ask for a template, fill it in, pass it back:
 
 ```bash
-clincalc list                       # list calculators (add --format json for licences)
-clincalc <name>                     # print a fillable input TEMPLATE (JSON)
-clincalc <name> --schema            # the JSON Schema (full input contract)
-clincalc <name> --license           # the algorithm's distribution licence + evidence URL
-clincalc <name> --input -           # compute, reading JSON from stdin
-clincalc <name> --input data.json   # ...or from a file
-clincalc <name> --input '{...}'     # ...or inline
+clincalc list                       # list calculators (alias: ls)
+clincalc tags                       # list tags with counts
+clincalc calc <name>                # print a fillable input TEMPLATE (JSON)
+clincalc calc <name> --schema       # the JSON Schema (full input contract)
+clincalc calc <name> --license      # the algorithm's distribution licence + evidence URL
+clincalc calc <name> --input -      # compute, reading JSON from stdin
+clincalc calc <name> --input data.json   # ...or from a file
+clincalc calc <name> --input '{...}'     # ...or inline
 ```
 
 ```console
-$ clincalc curb65 --input '{"confusion":false,"urea_mmol_l":8,"respiratory_rate":32,"systolic_bp":85,"diastolic_bp":55,"age":72}'
+$ clincalc calc curb65 --input '{"confusion":false,"urea_mmol_l":8,"respiratory_rate":32,"systolic_bp":85,"diastolic_bp":55,"age":72}'
 curb65 = 4
 High severity ... consider hospital admission and assessment for intensive care.
 ```
 
-The template printed by `clincalc <name>` has the same shape as the input it expects, so it is a clean round-trip. Output, schema, and template are JSON on stdout; hints go to stderr.
+The template printed by `clincalc calc <name>` has the same shape as the input it expects, so it is a clean round-trip. `clincalc <name>` remains supported as shorthand for `clincalc calc <name>`. Output, schema, and template are JSON on stdout; hints go to stderr.
 
 ## MCP server
 
@@ -70,7 +71,7 @@ The full UK-focused 50-tool roadmap (`spec/calculator-roadmap.md`) is implemente
 A handful of tools cannot be shipped because they are proprietary or licence-locked (FRAX, MMSE, ELF, ACQ, the Oxford Hip/Knee Scores, CAT, MUST, CFS, LANSS). Rather than omit them silently, each is registered as a calculator that returns a structured explanation - the owner, why it cannot be shipped, open alternatives (often one shipped here), and how to advocate for open clinical tools:
 
 ```console
-$ clincalc frax --input '{}'
+$ clincalc calc frax --input '{}'
 frax = unavailable: proprietary
 FRAX ... is not available because it is proprietary or licence-locked. Owner:
 University of Sheffield ... Open alternatives: qfracture ...
@@ -108,7 +109,7 @@ CI enforces all three. Adding a calculator: implement it in `clincalc` (typed in
 ## Licensing
 
 - `clincalc`: AGPL-3.0-or-later. This work is deliberately not available for subsumption into proprietary EHRs; if that service needs to exist, it can be offered as a hosted Calc-API.
-- Clinical algorithms are implemented from primary literature (most scores are public-domain methods); QRISK3 and QFracture are ported from ClinRisk's LGPL-3.0 source and carry the required disclaimer. Each calculator records its own distribution licence via `clincalc <name> --license`.
+- Clinical algorithms are implemented from primary literature (most scores are public-domain methods); QRISK3 and QFracture are ported from ClinRisk's LGPL-3.0 source and carry the required disclaimer. Each calculator records its own distribution licence via `clincalc calc <name> --license`.
 - Clinical content (source references) under CC-BY-SA-4.0.
 
 ## Roadmap

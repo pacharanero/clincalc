@@ -83,13 +83,13 @@ Tool definitions are generated from `clincalc::all()`. Adding a calculator to th
 Each MCP tool's input schema is the same JSON Schema returned by the CLI:
 
 ```bash
-clincalc feverpain --schema
+clincalc calc feverpain --schema
 ```
 
 For example, `clincalc_feverpain` expects the same object as:
 
 ```bash
-clincalc feverpain --input examples/feverpain.json --format json
+clincalc calc feverpain --input examples/feverpain.json --format json
 ```
 
 ```json
@@ -120,7 +120,7 @@ That shape is intentionally timestamp-free and patient-free. A host that records
 
 The CLI is still the universal surface for humans, shell scripts, and simple agents. MCP adds one specific advantage: **native LLM discoverability**.
 
-With the CLI, an agent must learn to run `clincalc list`, inspect `clincalc <name> --schema`, construct JSON, and call `clincalc <name> --input ...`. That works, and the CLI is designed for it.
+With the CLI, an agent must learn to run `clincalc list`, inspect `clincalc calc <name> --schema`, construct JSON, and call `clincalc calc <name> --input ...`. That works, and the CLI is designed for it.
 
 With MCP, the host presents the calculators directly as typed tools. The model sees the available calculators and their input schemas without first learning the command-line protocol.
 

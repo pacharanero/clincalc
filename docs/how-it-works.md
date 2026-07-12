@@ -129,7 +129,7 @@ A Tauri (or any) GUI calls the `clincalc` engine over a native command. Inputs c
 ## Licensing
 
 - **Code** (`clincalc`): AGPL-3.0-or-later. Deliberately not available for subsumption into proprietary EHRs; if that service needs to exist, it can be offered as a hosted Calc-API.
-- **Algorithms**: most scores are public-domain methods implemented from primary literature. QRISK3 and QFracture are ported from ClinRisk's LGPL-3.0 source and carry the required disclaimer. Each calculator records its own distribution licence via `clincalc <name> --license`.
+- **Algorithms**: most scores are public-domain methods implemented from primary literature. QRISK3 and QFracture are ported from ClinRisk's LGPL-3.0 source and carry the required disclaimer. Each calculator records its own distribution licence via `clincalc calc <name> --license`.
 - **Clinical content** (source references): CC-BY-SA-4.0.
 
 ## Quality bars (CI-enforced)

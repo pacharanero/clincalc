@@ -38,6 +38,9 @@ fn completions_generate_and_install() {
     assert!(output.status.success());
     let bash = String::from_utf8(output.stdout).expect("bash completions are utf8");
     assert!(bash.contains("complete"));
+    assert!(bash.contains("calc"));
+    assert!(bash.contains("list"));
+    assert!(bash.contains("tags"));
     assert!(bash.contains("completions"));
 
     let output = Command::new(&bin)
@@ -53,4 +56,50 @@ fn completions_generate_and_install() {
         .expect("run clincalc completions install");
     assert!(output.status.success());
     assert!(out_dir.join("_clincalc").exists());
+}
+
+#[test]
+fn top_level_commands_and_legacy_shorthand_work() {
+    let bin = clincalc_bin();
+
+    let output = Command::new(&bin)
+        .arg("list")
+        .output()
+        .expect("run clincalc list");
+    assert!(output.status.success());
+    let list = String::from_utf8(output.stdout).expect("list is utf8");
+    assert!(list.contains("feverpain"));
+
+    let output = Command::new(&bin)
+        .args(["ls", "--tag", "cardiology"])
+        .output()
+        .expect("run clincalc ls");
+    assert!(output.status.success());
+    let list = String::from_utf8(output.stdout).expect("filtered list is utf8");
+    assert!(list.contains("qrisk3"));
+
+    let output = Command::new(&bin)
+        .args(["calc", "feverpain"])
+        .output()
+        .expect("run clincalc calc feverpain");
+    assert!(output.status.success());
+    let template = String::from_utf8(output.stdout).expect("template is utf8");
+    assert!(template.contains("absence_of_cough"));
+
+    let output = Command::new(&bin)
+        .arg("feverpain")
+        .output()
+        .expect("run legacy clincalc feverpain shorthand");
+    assert!(output.status.success());
+    let template = String::from_utf8(output.stdout).expect("legacy template is utf8");
+    assert!(template.contains("absence_of_cough"));
+
+    let output = Command::new(&bin)
+        .args(["version", "--format", "json"])
+        .output()
+        .expect("run clincalc version");
+    assert!(output.status.success());
+    let version: serde_json::Value =
+        serde_json::from_slice(&output.stdout).expect("version output is json");
+    assert_eq!(version["name"], "clincalc");
 }

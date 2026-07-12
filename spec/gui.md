@@ -8,9 +8,9 @@
 
 1. **Native desktop install** on Windows, macOS, and Linux. Single signed installer per platform; no runtime to pre-install (modern Windows ships WebView2 with Edge, Tauri uses it).
 2. **Soft interoperability is the headline.** Every calculator's result is presented as an editable, paste-ready text block with a prominent **Copy** button. Clinician edits before copying are preserved. This is the design feature, not an afterthought.
-3. **Same engine, same results.** The GUI calls `clincalc` directly via a Tauri command - no parallel scoring implementation. A FeverPAIN score in the GUI is byte-identical to `clincalc feverpain --input ...`.
+3. **Same engine, same results.** The GUI calls `clincalc` directly via a Tauri command - no parallel scoring implementation. A FeverPAIN score in the GUI is byte-identical to `clincalc calc feverpain --input ...`.
 4. **Sibling product family.** Visual language matches the GitEHR desktop app (IBM Plex Sans + Space Grotesk, teal primary, Mantine components, AppShell + sidebar nav), so a clinician moving between the two apps reads them as one suite.
-5. **One UI per calculator, hand-crafted.** No schema-driven form generator. The CLI surface (`clincalc <name>` template, `--schema`) handles the generic case; clinician-facing UIs need hand-tuned hints, ordering, and units per calculator.
+5. **One UI per calculator, hand-crafted.** No schema-driven form generator. The CLI surface (`clincalc calc <name>` template, `--schema`) handles the generic case; clinician-facing UIs need hand-tuned hints, ordering, and units per calculator.
 
 ## Non-goals
 

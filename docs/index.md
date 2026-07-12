@@ -48,13 +48,14 @@ A clinical calculation score is computed in the core Rust library, so the result
 There are no per-calculator flags. Every calculator is driven the same way - ask for a template, fill it in, pass it back:
 
 ```bash
-clincalc list                       # list calculators
-clincalc <name>                     # print a fillable input TEMPLATE (JSON)
-clincalc <name> --schema            # the full JSON Schema contract
-clincalc <name> --license           # the algorithm's distribution licence
-clincalc <name> --input -           # compute, reading JSON from stdin
-clincalc <name> --input data.json   # ...or from a file
-clincalc <name> --input '{...}'     # ...or inline
+clincalc list                       # list calculators (alias: ls)
+clincalc tags                       # list tags with counts
+clincalc calc <name>                # print a fillable input TEMPLATE (JSON)
+clincalc calc <name> --schema       # the full JSON Schema contract
+clincalc calc <name> --license      # the algorithm's distribution licence
+clincalc calc <name> --input -      # compute, reading JSON from stdin
+clincalc calc <name> --input data.json   # ...or from a file
+clincalc calc <name> --input '{...}'     # ...or inline
 ```
 
 ## Try it right now
@@ -62,7 +63,7 @@ clincalc <name> --input '{...}'     # ...or inline
 With `clincalc` installed, paste this - a five-criterion sore-throat score:
 
 ```console
-$ clincalc feverpain --input '{"fever":true,"purulence":true,"attend_rapidly":true,"inflamed_tonsils":false,"absence_of_cough":false}'
+$ clincalc calc feverpain --input '{"fever":true,"purulence":true,"attend_rapidly":true,"inflamed_tonsils":false,"absence_of_cough":false}'
 feverpain = 3
 
 A score of 3 is associated with 34–40% isolation of streptococcus. A delayed prescribing strategy is appropriate after discussion with the patient.

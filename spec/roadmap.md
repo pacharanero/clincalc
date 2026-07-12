@@ -68,6 +68,22 @@ The docs.rs front page now documents the `cli` / `mcp` feature flags, `default-f
 
 ---
 
+## CLI & interaction
+
+Making the terminal surface friendlier for a human at a prompt - the engine and MCP surfaces are strong; this is the ergonomics gap.
+
+### Future
+
+- [ ] **CLI-001 Common-name aliases** - resolve `clincalc tdee` / `clincalc bmr` to `energy_requirement` (and `egfr`, etc.); show aliases in `list`; fuzzy "did you mean ..." on unknown names. User feedback: `tdee` reads better than `energy_requirement`.
+- [ ] **CLI-002 Dynamic result labelling for `energy_requirement`** - headline the result as **TDEE** when an `activity_factor` is supplied, **BMR/RMR** when not (keep both in the Working block). One calculator, correct name per mode.
+- [ ] **CLI-003 Named activity presets** - `--activity sedentary|light|moderate|very-active|extra-active` mapping to the standard multipliers instead of raw `activity_factor` numbers; echo the factor used.
+- [ ] **CLI-004 Human flag inputs + interactive mode** - accept `--sex male --age 48 ...` alongside `--input <json>` for common calculators; a guided `--interactive` walks and validates the schema (JSON stays the machine / MCP path).
+- [ ] **CLI-005 Reusable subject profile** - pull shared demographics / analytes from `~/.config/clincalc/profile.json` or a GitEHR record (`--from-record <path>`), so recurring self- or same-patient calcs don't re-enter demographics. Pairs with ENG-004 (FHIR Observation export).
+- [ ] **CLI-006 Goal-driven energy targets** - `--goal lose|maintain|gain --rate 0.5kg/week` derives the kcal adjustment (~7700 kcal/kg) and time-to-`--target-weight`, instead of a hand-computed `calorie_adjustment_kcal_day`.
+- [ ] **CLI-007 Body-fat to lean-mass convenience** - accept `body_fat_pct` + `weight_kg` and derive LBM internally for Cunningham (and a future Katch-McArdle).
+
+---
+
 ## Engine & embedding
 
 ### Future
@@ -88,4 +104,4 @@ The docs.rs front page now documents the `cli` / `mcp` feature flags, `default-f
 
 See [`spec/calculator-roadmap.md`](spec/calculator-roadmap.md).
 
-At time of writing: 43 active + 10 proprietary stubs shipped; 36 Future candidates queued (chiefly from MedikQuantis, plus the recently-added [StatinMD](https://www.thelancet.com/journals/landig/article/PIIS2589-7500\(26\)00047-6/fulltext)).
+At time of writing: 43 active + 10 proprietary stubs shipped; 46 Future candidates queued (chiefly from MedikQuantis, plus the recently-added [StatinMD](https://www.thelancet.com/journals/landig/article/PIIS2589-7500\(26\)00047-6/fulltext)).

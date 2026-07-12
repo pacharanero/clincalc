@@ -129,7 +129,7 @@ Evidence:
 
 Evidence:
 
-- `input_schema()` (JSON Schema) declares each input's type, units, and permitted values, exposed via `clincalc <name> --schema` and to MCP/GUI hosts, so expected units are machine-discoverable (**C004**, addressing **H002**).
+- `input_schema()` (JSON Schema) declares each input's type, units, and permitted values, exposed via `clincalc calc <name> --schema` and to MCP/GUI hosts, so expected units are machine-discoverable (**C004**, addressing **H002**).
 - Strongly-typed `Input` structs reject wrong-shape input and return `CalcError::InvalidInput` rather than silently coercing; range/plausibility checks reject implausible values instead of scoring them (**C005, C007, C008**, addressing **H002, H003**).
 - Required inputs fail deserialization if missing rather than defaulting to a scored value; the governed input-definition system defines each clinician-asserted predicate so "not asserted" is not collapsed into "asserted false" (**C009, C010**, addressing **H004**).
 

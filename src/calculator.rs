@@ -54,7 +54,7 @@ pub trait Calculator {
 
     /// JSON Schema describing the accepted inputs.
     ///
-    /// Powers `clincalc <name> --schema` and MCP tool definitions, and lets an LLM
+    /// Powers `clincalc calc <name> --schema` and MCP tool definitions, and lets an LLM
     /// work out the required inputs without parsing prose help.
     fn input_schema(&self) -> Value;
 

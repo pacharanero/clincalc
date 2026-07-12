@@ -17,17 +17,18 @@
 //!
 //! ```text
 //! clincalc list                       # list available calculators
-//! clincalc <name>                     # print a fillable INPUT TEMPLATE
-//! clincalc <name> --schema            # print the JSON Schema (the full contract)
-//! clincalc <name> --input -           # compute, reading JSON from stdin
-//! clincalc <name> --input data.json   # compute, reading JSON from a file
-//! clincalc <name> --input '{...}'     # compute, reading an inline JSON string
+//! clincalc ls                         # same as list
+//! clincalc calc <name>                # print a fillable INPUT TEMPLATE
+//! clincalc calc <name> --schema       # print the JSON Schema (the full contract)
+//! clincalc calc <name> --input -      # compute, reading JSON from stdin
+//! clincalc <name> --input data.json   # shorthand for `clincalc calc <name>`
+//! clincalc tags                       # list all tags
 //! ```
 //!
-//! The template printed by `clincalc <name>` has the same shape as the input
-//! `clincalc <name> --input` expects: fill in the placeholder values and pass it
+//! The template printed by `clincalc calc <name>` has the same shape as the input
+//! `clincalc calc <name> --input` expects: fill in the placeholder values and pass it
 //! back. Computing always requires an explicit `--input`, so a bare invocation
-//! never blocks reading stdin.
+//! never blocks reading stdin. `clincalc <name>` remains supported as shorthand.
 //!
 //! To embed in a host CLI (e.g. gitehr):
 //!
@@ -43,10 +44,10 @@
 //! ```
 
 use std::io::Read;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use anyhow::{Result, anyhow};
-use clap::{Args, ValueEnum};
+use clap::{Args, ValueEnum, ValueHint};
 
 use crate::{CalculationResponse, Calculator};
 
@@ -73,7 +74,7 @@ pub struct CalcCommand {
 
     /// Compute a result from this JSON input: `-` for stdin, a file path, or an
     /// inline JSON string. Without it, a fillable input template is printed.
-    #[arg(long, value_name = "JSON|FILE|-")]
+    #[arg(long, value_name = "JSON|FILE|-", value_hint = ValueHint::AnyPath)]
     pub input: Option<String>,
 
     /// Print the calculator's JSON Schema (the full input contract) instead of a
@@ -103,6 +104,38 @@ pub struct CalcCommand {
     pub format: OutputFormat,
 }
 
+/// Arguments for `clincalc list` / `clincalc ls`.
+#[derive(Debug, Args)]
+pub struct ListCommand {
+    /// Restrict output to calculators that carry this tag. Repeat to require ALL tags.
+    #[arg(long, value_name = "TAG")]
+    pub tag: Vec<String>,
+
+    /// List every tag in the registry instead of calculators. Prefer `clincalc tags`; this is kept for compatibility.
+    #[arg(long)]
+    pub tags: bool,
+
+    /// Output format for the listing.
+    #[arg(long, value_enum, default_value_t = OutputFormat::Text)]
+    pub format: OutputFormat,
+}
+
+/// Arguments for `clincalc tags`.
+#[derive(Debug, Args)]
+pub struct TagsCommand {
+    /// Output format for the tag listing.
+    #[arg(long, value_enum, default_value_t = OutputFormat::Text)]
+    pub format: OutputFormat,
+}
+
+/// Arguments for `clincalc version`.
+#[derive(Debug, Args)]
+pub struct VersionCommand {
+    /// Output format for version information.
+    #[arg(long, value_enum, default_value_t = OutputFormat::Text)]
+    pub format: OutputFormat,
+}
+
 /// Dispatch a parsed [`CalcCommand`].
 pub fn run(cmd: CalcCommand) -> Result<()> {
     // `--tags` lists every known tag (with calculator counts) and exits.
@@ -110,9 +143,9 @@ pub fn run(cmd: CalcCommand) -> Result<()> {
         return print_tags(cmd.format);
     }
 
-    // No name (or `list`) means: show the catalogue (optionally filtered by --tag).
+    // No name (or legacy `list` / `ls`) means: show the catalogue (optionally filtered by --tag).
     let name = match cmd.name.as_deref() {
-        None | Some("list") => return print_list(cmd.format, &cmd.tag),
+        None | Some("list") | Some("ls") => return print_list(cmd.format, &cmd.tag),
         Some(n) => n,
     };
 
@@ -156,10 +189,10 @@ pub fn run(cmd: CalcCommand) -> Result<()> {
             }
             eprintln!(
                 "\nReplace each placeholder with a value, then compute with one of:\n  \
-                 clincalc {name} --input <file.json>\n  \
-                 clincalc {name} --input '<json>'\n  \
-                 clincalc {name} --input -        # read JSON from stdin\n\
-                 See the full input contract with: clincalc {name} --schema"
+                 clincalc calc {name} --input <file.json>\n  \
+                 clincalc calc {name} --input '<json>'\n  \
+                 clincalc calc {name} --input -        # read JSON from stdin\n\
+                 See the full input contract with: clincalc calc {name} --schema"
             );
             Ok(())
         }
@@ -176,21 +209,76 @@ pub fn run(cmd: CalcCommand) -> Result<()> {
 /// Resolve an `--input` argument to a JSON value.
 ///
 /// `-` reads stdin; an existing file path is read from disk; anything else is
-/// treated as an inline JSON string.
+/// treated as an inline JSON string. A leading `~` is expanded before checking
+/// for a file, so `--input=~/score.json` behaves the same as shell-expanded
+/// `--input ~/score.json`.
 fn read_input(src: &str) -> Result<serde_json::Value> {
     let raw = if src == "-" {
         let mut buf = String::new();
         std::io::stdin().read_to_string(&mut buf)?;
         buf
-    } else if Path::new(src).is_file() {
-        std::fs::read_to_string(src)?
+    } else if let Some(path) = existing_input_path(src) {
+        std::fs::read_to_string(path)?
     } else {
         src.to_string()
     };
 
     serde_json::from_str(&raw).map_err(|e| {
-        anyhow!("invalid JSON input: {e}\nSee the expected shape with: clincalc <name>")
+        anyhow!("invalid JSON input: {e}\nSee the expected shape with: clincalc calc <name>")
     })
+}
+
+fn existing_input_path(src: &str) -> Option<PathBuf> {
+    let path = tilde_path(src);
+    path.is_file().then_some(path)
+}
+
+fn tilde_path(src: &str) -> PathBuf {
+    if src == "~" {
+        if let Some(home) = home_dir() {
+            return home;
+        }
+    } else if let Some(rest) = src.strip_prefix("~/")
+        && let Some(home) = home_dir()
+    {
+        return home.join(rest);
+    }
+    Path::new(src).to_path_buf()
+}
+
+fn home_dir() -> Option<PathBuf> {
+    std::env::var_os("HOME")
+        .or_else(|| std::env::var_os("USERPROFILE"))
+        .map(PathBuf::from)
+}
+
+/// Run `clincalc list` / `clincalc ls`.
+pub fn run_list(cmd: ListCommand) -> Result<()> {
+    if cmd.tags {
+        print_tags(cmd.format)
+    } else {
+        print_list(cmd.format, &cmd.tag)
+    }
+}
+
+/// Run `clincalc tags`.
+pub fn run_tags(cmd: TagsCommand) -> Result<()> {
+    print_tags(cmd.format)
+}
+
+/// Run `clincalc version`.
+pub fn run_version(cmd: VersionCommand) -> Result<()> {
+    match cmd.format {
+        OutputFormat::Text => println!("clincalc {}", env!("CARGO_PKG_VERSION")),
+        OutputFormat::Json => println!(
+            "{}",
+            serde_json::to_string_pretty(&serde_json::json!({
+                "name": env!("CARGO_PKG_NAME"),
+                "version": env!("CARGO_PKG_VERSION"),
+            }))?
+        ),
+    }
+    Ok(())
 }
 
 fn print_list(format: OutputFormat, required_tags: &[String]) -> Result<()> {
@@ -302,7 +390,7 @@ fn value_to_string(v: &serde_json::Value) -> String {
 /// If the schema declares top-level `oneOf` alternative input shapes (each
 /// with its own `required` array), build a one-paragraph note listing them.
 ///
-/// The template printed by `clincalc <name>` shows only the first alternative;
+/// The template printed by `clincalc calc <name>` shows only the first alternative;
 /// this note tells the reader what else is permitted, so they don't have to
 /// read the full schema to discover the other shapes.
 fn oneof_alternatives_note(schema: &serde_json::Value) -> Option<String> {

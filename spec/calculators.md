@@ -181,7 +181,7 @@ pub trait Calculator {
 
 `license()` is a **required** method (see Licensing): every calculator must declare the terms its algorithm/content is distributed under, with a URL evidencing them, so the basis for shipping it is always on record.
 
-`input_schema()` is the key LLM affordance: it powers `clincalc <name> --schema`, the fillable `clincalc <name>` template (derived from it via `input_template()`), MCP tool definitions, and any agent that wants to discover the required inputs without parsing prose. Each calculator additionally exposes a typed `compute()` for ergonomic, compile-time-checked use from Rust.
+`input_schema()` is the key LLM affordance: it powers `clincalc calc <name> --schema`, the fillable `clincalc calc <name>` template (derived from it via `input_template()`), MCP tool definitions, and any agent that wants to discover the required inputs without parsing prose. Each calculator additionally exposes a typed `compute()` for ergonomic, compile-time-checked use from Rust.
 
 ---
 
@@ -191,18 +191,20 @@ There are **no per-calculator flags**. Flags do not scale past the simplest scor
 
 ```bash
 clincalc list                       # list calculators (text or JSON via --format)
-clincalc <name>                     # print a fillable INPUT TEMPLATE (JSON on stdout)
-clincalc <name> --schema            # print the JSON Schema (the full input contract)
-clincalc <name> --license           # the algorithm's distribution licence
-clincalc <name> --input -           # compute, reading JSON from stdin
-clincalc <name> --input data.json   # compute, reading JSON from a file
-clincalc <name> --input '{...}'     # compute, reading an inline JSON string
-clincalc <name> --input ... --format json   # CalculationResponse as JSON on stdout
+clincalc ls                         # alias for list
+clincalc tags                       # list tags with counts
+clincalc calc <name>                # print a fillable INPUT TEMPLATE (JSON on stdout)
+clincalc calc <name> --schema       # print the JSON Schema (the full input contract)
+clincalc calc <name> --license      # the algorithm's distribution licence
+clincalc calc <name> --input -      # compute, reading JSON from stdin
+clincalc calc <name> --input data.json   # compute, reading JSON from a file
+clincalc calc <name> --input '{...}'     # compute, reading an inline JSON string
+clincalc calc <name> --input ... --format json   # CalculationResponse as JSON on stdout
 ```
 
-The template printed by `clincalc <name>` has the same shape as the input that `clincalc <name> --input` expects: each key carries a placeholder describing the expected value, derived from the schema so it can never drift from the contract.
+The template printed by `clincalc calc <name>` has the same shape as the input that `clincalc calc <name> --input` expects: each key carries a placeholder describing the expected value, derived from the schema so it can never drift from the contract. `clincalc <name>` remains supported as shorthand.
 
-Conventions: the template/schema/compute outputs are pure JSON on **stdout**; usage hints go to **stderr** so they never corrupt a piped stream. Computing always requires an explicit `--input`, so a bare `clincalc <name>` is pure discovery and never blocks reading stdin. Invalid input is rejected by the calculator's own typed deserialization with a clear message and a non-zero exit. This mirrors the MCP surface exactly: there an LLM receives each calculator's `input_schema()` as the tool's `inputSchema` and passes back a JSON object - the same "here is the schema, give me the JSON" contract.
+Conventions: the template/schema/compute outputs are pure JSON on **stdout**; usage hints go to **stderr** so they never corrupt a piped stream. Computing always requires an explicit `--input`, so a bare `clincalc calc <name>` is pure discovery and never blocks reading stdin. Invalid input is rejected by the calculator's own typed deserialization with a clear message and a non-zero exit. This mirrors the MCP surface exactly: there an LLM receives each calculator's `input_schema()` as the tool's `inputSchema` and passes back a JSON object - the same "here is the schema, give me the JSON" contract.
 
 User-facing CLI documentation lives in [`docs/cli-reference.md`](../docs/cli-reference.md) and the [Walkthrough](../docs/walkthrough.md); committed example inputs (used by both) live in [`examples/`](../examples).
 
@@ -230,7 +232,7 @@ Any host that records results should do something similar; the engine itself sta
 
 ## Authoring a new calculator
 
-1. Implement it in `clincalc`: a typed `Input`, a pure `compute()`, a `build_response()` adapter, a `Calculator` impl with `input_schema()` and `license()` (the distribution licence plus an evidence URL), and unit tests against known vectors. Register it in `all()`. This is the **only** Rust work needed - the CLI (`clincalc <name>`, template, `--schema`, `--license`, `--input`) and the MCP tool are both driven generically from the registry, so there is no per-calculator CLI or MCP code to write.
+1. Implement it in `clincalc`: a typed `Input`, a pure `compute()`, a `build_response()` adapter, a `Calculator` impl with `input_schema()` and `license()` (the distribution licence plus an evidence URL), and unit tests against known vectors. Register it in `all()`. This is the **only** Rust work needed - the CLI (`clincalc calc <name>`, template, `--schema`, `--license`, `--input`) and the MCP tool are both driven generically from the registry, so there is no per-calculator CLI or MCP code to write.
 2. (Optional) add a row to [`docs/calculators.md`](../docs/calculators.md) so it appears in the published catalogue.
 3. (When `clincalc-web` returns) create `clincalc-web/calculators/<name>.html` with its JS logic validated against the `clincalc` vectors.
 
@@ -267,7 +269,7 @@ Distinct from the **code** licence (AGPL-3.0), every calculator must record the 
 
 - The `Calculator` trait requires `fn license(&self) -> CalculatorLicense`, where `CalculatorLicense { license, source_url }` carries the terms (an SPDX id where one applies, otherwise a short description such as "Public domain - no permission required") and a reverifiable URL. A calculator that omits it does not compile.
 - A registry test (`every_calculator_records_its_license`) asserts every registered calculator has a non-empty licence and an `http(s)` source URL, so a new calculator cannot ship without recording its basis.
-- The licence is surfaced for evidencing via `clincalc <name> --license` and in `clincalc list --format json` (`license`, `license_source`). When a host records calculator results, the licence should travel with the recorded result as provenance.
+- The licence is surfaced for evidencing via `clincalc calc <name> --license` and in `clincalc list --format json` (`license`, `license_source`). When a host records calculator results, the licence should travel with the recorded result as provenance.
 
 Most scores are pure published methods (algorithms are generally not subject to copyright), implemented from the primary literature and citing the publication as their source. Some instruments carry an explicit grant: PHQ-9 and GAD-7 are public domain (Pfizer, 2010); the ASRS is copyright WHO / NYU / Harvard and free to use with citation. Where terms are proprietary or unclear (e.g. FRAX, MMSE, MUST, CAT, ACQ, ELF, CFS, LANSS, OHS, OKS), the calculator is listed as a stub that returns an `unavailable` response, names the owner, and points at an open alternative where one exists - the gap is a first-class object, not silently hidden.
 

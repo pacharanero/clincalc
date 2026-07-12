@@ -2,7 +2,7 @@
 
 The full registry. 43 active calculators that compute a real score, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator, sorted by machine name.
 
-`clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc <name> --license` prints the algorithm's distribution licence for any single entry.
+`clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
 !!! info "Two kinds of entry"
     **Active** entries compute a real score. Their algorithm is either public-domain (implemented from primary literature) or open-source (notably QRISK3 and QFracture, ported from ClinRisk's LGPL-3 source).
@@ -17,7 +17,7 @@ Every calculator carries one or more **tags** - specialty (where it is used) and
 clincalc list --tag cardiology                       # everything in cardiology
 clincalc list --tag primary-care --tag screening     # AND - narrows the filter
 clincalc list --tag proprietary                      # the unshippable ones
-clincalc --tags                                      # enumerate every tag, with counts
+clincalc tags                                        # enumerate every tag, with counts
 ```
 
 The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clincalc/blob/main/src/tags.rs) and is reviewable in one file. New tags are added there only after at least two calculators want one.
@@ -85,7 +85,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 A handful of widely-used clinical tools are licence-locked or proprietary. They are tagged `proprietary` + `unavailable` in the table above. Invoking any of them returns a structured "unavailable" response, never a score:
 
 ```console
-$ clincalc frax --input '{}'
+$ clincalc calc frax --input '{}'
 frax = unavailable: proprietary
 
 FRAX (10-year fracture risk) is not available here because it is proprietary or licence-locked. Owner: University of Sheffield (Centre for Metabolic Bone Diseases). The FRAX algorithm and its country-specific coefficients are a trade secret and have never been published, so it cannot be reimplemented from primary literature. ...

@@ -18,7 +18,7 @@ The always-on engine remains unchanged: with `default-features = false`, `clinca
 
 ## Why MCP belongs here
 
-The CLI is already LLM-friendly: `clincalc list`, `clincalc <name>`, `clincalc <name> --schema`, JSON input, and deterministic JSON output give a capable agent enough structure to use the calculators safely.
+The CLI is already LLM-friendly: `clincalc list`, `clincalc calc <name>`, `clincalc calc <name> --schema`, JSON input, and deterministic JSON output give a capable agent enough structure to use the calculators safely.
 
 MCP adds a different affordance: native tool discovery. Instead of an LLM needing to learn the `clincalc` command protocol and then ask for schemas one calculator at a time, the MCP host can see each calculator as a typed tool whose input contract is the calculator's own JSON Schema.
 
@@ -35,7 +35,7 @@ The MCP server should therefore be mostly glue code. If adding a calculator to `
 ## Goals
 
 1. **Native LLM discoverability.** Every calculator in the registry is exposed to MCP hosts as a callable, schema-described tool.
-2. **One engine, same results.** A result from `clincalc mcp` is produced by the same `Calculator::calculate()` path as `clincalc <name> --input ...`.
+2. **One engine, same results.** A result from `clincalc mcp` is produced by the same `Calculator::calculate()` path as `clincalc calc <name> --input ...`.
 3. **Zero per-calculator MCP code.** Tool definitions are generated from the registry. No hand-written wrappers, no duplicated schemas, no per-calculator dispatch tables.
 4. **Strict feature isolation.** MCP dependencies are optional and gated behind `mcp`. The `default-features = false` engine remains a serde-only leaf.
 5. **Simple command surface.** `clincalc mcp` starts the server. No separate `clincalc-mcp` binary for the first implementation.
