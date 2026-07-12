@@ -91,6 +91,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ),
     // ---- Renal ----
     ("egfr", &["primary-care", "nephrology"]),
+    ("energy_requirement", &["primary-care", "endocrinology"]),
     ("uacr", &["primary-care", "nephrology"]),
     ("ckd_risk", &["primary-care", "nephrology", "risk"]),
     // ---- Hepatology ----

@@ -1,0 +1,9 @@
+{
+  "equation": "mifflin_st_jeor",
+  "sex": "male",
+  "age": 30,
+  "weight_kg": 70.0,
+  "height_cm": 175.0,
+  "activity_factor": 1.55,
+  "calorie_adjustment_kcal_day": -500.0
+}

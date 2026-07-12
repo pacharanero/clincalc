@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry. 42 active calculators that compute a real score, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator, sorted by machine name.
+The full registry. 43 active calculators that compute a real score, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator, sorted by machine name.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc <name> --license` prints the algorithm's distribution licence for any single entry.
 
@@ -44,6 +44,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `das28` | DAS28 (Rheumatoid Arthritis Disease Activity) | Disease Activity Score in 28 joints for rheumatoid arthritis, from tender/swollen joint counts, an ESR or CRP marker, and patient global health. | `rheumatology`, `severity` |
 | `egfr` | eGFR (CKD-EPI 2021) | Estimated glomerular filtration rate from creatinine (race-free CKD-EPI 2021); reports CKD G-stage. | `primary-care`, `nephrology` |
 | `elf` | ELF (Enhanced Liver Fibrosis test) | Second-line serum biomarker test for liver fibrosis (NICE NG49). | `hepatology`, `screening`, `proprietary`, `unavailable` |
+| `energy_requirement` | Energy Requirement (BMR/RMR/TDEE) | Adult basal/resting energy estimate using Mifflin-St Jeor, Harris-Benedict original/revised, Schofield, or Cunningham, with optional activity factor and kcal target adjustment. | `primary-care`, `endocrinology` |
 | `epds` | Edinburgh Postnatal Depression Scale (EPDS) | Ten-item perinatal depression screen (0-30); >=10 possible, >=13 probable; item 10 flags self-harm risk. | `primary-care`, `mental-health`, `perinatal`, `screening` |
 | `euroscore2` | EuroSCORE II (Cardiac Surgery Mortality) | Predicted operative mortality after cardiac surgery from 18 preoperative factors (Nashef 2012). | `cardiology`, `surgery`, `prognostic` |
 | `feverpain` | FeverPAIN Score | Five-item score guiding antibiotic prescribing in acute sore throat (validated for adults and children aged 3+). | `primary-care`, `infectious-diseases`, `respiratory` |
@@ -120,7 +121,6 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 | **Anion gap** | Na − (Cl + HCO₃); screens for HAGMA. | `nephrology`, `acute-medicine` |
 | **FENa** | Separates prerenal from intrinsic AKI. | `nephrology` |
 | **PSA density** | PSA / prostate volume; grey-zone PSA. | `urology`, `oncology` |
-| **Harris-Benedict** (Roza 1984) | BMR / daily energy estimate. | `endocrinology` |
 | **Braden Scale**, **Norton Scale** | Pressure-ulcer risk; complement Waterlow. | `geriatrics`, `screening` |
 | **Barthel Index** | Activities of daily living. | `geriatrics` |
 | **RCRI (Lee)** | Pre-op cardiac risk. | `surgery`, `cardiology`, `risk` |

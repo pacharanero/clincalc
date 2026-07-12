@@ -18,7 +18,7 @@ The clinical-calculator backlog, grouped strictly by completion status. Calculat
 
 ### Completed
 
-Active calculators (42) that compute a real score:
+Active calculators (43) that compute a real score:
 
 - [x] **4AT** - Delirium screening at bedside
 - [x] **ABCD2** - Short-term stroke risk after TIA
@@ -35,6 +35,7 @@ Active calculators (42) that compute a real score:
 - [x] **DAS28** - Rheumatoid arthritis disease activity
 - [x] **eGFR (CKD-EPI 2021)** - Race-free eGFR; CKD G-stage
 - [x] **eGFR + uACR heatmap** (`ckd_risk`) - KDIGO CKD risk category
+- [x] **Energy Requirement (BMR/RMR/TDEE)** - Adult basal/resting energy estimates using Mifflin-St Jeor, Harris-Benedict original/revised, Schofield, or Cunningham, with optional activity factor and kcal target adjustment
 - [x] **EPDS** - Edinburgh Postnatal Depression Scale
 - [x] **EuroSCORE II** - Operative mortality after cardiac surgery
 - [x] **FeverPAIN** - Antibiotic prescribing in acute sore throat
@@ -106,7 +107,6 @@ Calculators worth shipping, under consideration. Largely surfaced from sibling o
 - [ ] **FINDRISC** - 10-year T2DM risk
 - [ ] **GCS** - Glasgow Coma Scale
 - [ ] **Glasgow-Blatchford** - Upper-GI bleed pre-endoscopy triage
-- [ ] **Harris-Benedict** - Basal metabolic rate / energy needs
 - [ ] **Hinchey** - Acute diverticulitis anatomy
 - [ ] **Hyperglycaemia-corrected sodium** (Katz / Hillier)
 - [ ] **LRINEC** - Necrotising fasciitis

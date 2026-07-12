@@ -22,6 +22,7 @@ pub mod ckd_risk;
 pub mod curb65;
 pub mod das28;
 pub mod egfr;
+pub mod energy_requirement;
 pub mod epds;
 pub mod euroscore2;
 pub mod feverpain;
