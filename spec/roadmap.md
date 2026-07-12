@@ -38,10 +38,13 @@ Engineering, infrastructure, and product-level work for the `clincalc` project. 
 
 See the design spec at [`spec/gui.md`](spec/gui.md) and the implementation guide at [`gui/README.md`](gui/README.md).
 
+### Completed
+
+- [x] **CHA₂DS₂-VASc UI** - first non-trivial calculator (enums, age band); templates the next class of widget.
+- [x] **QRISK3 UI** - the politically-motivated one (still missing from EMIS and SystmOne); 22 mixed-type inputs.
+
 ### Planned
 
-- [ ] **CHA₂DS₂-VASc UI** - first non-trivial calculator (enums, age band); templates the next class of widget.
-- [ ] **QRISK3 UI** - the politically-motivated one (still missing from EMIS and SystmOne); 22 mixed-type inputs.
 - [ ] **Decide CI build cadence for the GUI** - on every push (slow, ~5 min) vs on release tag only. Probably the latter once cargo-dist lands.
 
 ### Future
@@ -91,4 +94,4 @@ The docs.rs front page now documents the `cli` / `mcp` feature flags, `default-f
 
 See [`spec/calculator-roadmap.md`](spec/calculator-roadmap.md).
 
-At time of writing: 42 active + 10 proprietary stubs shipped; 36+ Future candidates queued (chiefly from MedikQuantis, plus the recently-added [StatinMD](https://www.thelancet.com/journals/landig/article/PIIS2589-7500\(26\)00047-6/fulltext)).
+At time of writing: 43 active + 10 proprietary stubs shipped; 35+ Future candidates queued (chiefly from MedikQuantis, plus the recently-added [StatinMD](https://www.thelancet.com/journals/landig/article/PIIS2589-7500\(26\)00047-6/fulltext)).

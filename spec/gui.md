@@ -38,8 +38,8 @@
 ## Build priority
 
 1. **FeverPAIN** (MVP, shipped) - 5 booleans, trivial to score, demonstrates the whole loop end-to-end.
-2. **CHA2DS2-VASc** - politically high-impact, validated against the standard literature vectors; the form has enums (sex, age band) so it's a good template for the next class of UI.
-3. **QRISK3** - the headline-grabber: still not implemented natively in EMIS or SystmOne despite NICE NG238. ~20 inputs of mixed types, so a real test of the hand-crafted approach.
+2. **CHA2DS2-VASc** (shipped) - politically high-impact, validated against the standard literature vectors; the form has enums (sex, age band) so it's a good template for the next class of UI.
+3. **QRISK3** (shipped) - the headline-grabber: still not implemented natively in EMIS or SystmOne despite NICE NG238. ~20 inputs of mixed types, so a real test of the hand-crafted approach.
 4. Everything else as demand surfaces. The `Coming soon` placeholder in the GUI is a deliberate signal - the CLI works for everything, the GUI is opt-in per calculator.
 
 ## Distribution
