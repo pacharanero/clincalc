@@ -21,7 +21,7 @@ clincalc [COMMAND]
 | `clincalc completions install` | Install shell completions for the current user. |
 | `clincalc mcp` | Start the local stdio MCP server when compiled with `--features mcp`. |
 
-`clincalc <name>` remains supported as shorthand for `clincalc calc <name>`, so existing scripts continue to work. Computing always requires an explicit `--input`, so template mode never blocks waiting on stdin.
+`clincalc <name>` remains supported as shorthand for `clincalc calc <name>`, so existing scripts continue to work. Common aliases such as `bmr`, `rmr`, `ree`, and `tdee` resolve to `energy_requirement`; `ckd-epi` / `ckdepi` resolve to `egfr`. `clincalc list` shows aliases, and unknown calculator names include a small "did you mean" hint when there is a close match. Computing always requires an explicit `--input`, so template mode never blocks waiting on stdin.
 
 ## Options
 
@@ -40,6 +40,16 @@ clincalc calc news2 --input '{"respiratory_rate":21, ...}'  # inline
 ```
 
 Invalid JSON is rejected with a clear message and a non-zero exit; the reminder points you at `clincalc calc <name>` to see the expected shape.
+
+### `--activity <sedentary|light|moderate|very-active|extra-active>`
+
+Convenience input for `energy_requirement` and its aliases (`bmr`, `rmr`, `ree`, `tdee`). The preset injects the standard activity factor before calculation: sedentary 1.2, light 1.375, moderate 1.55, very-active 1.725, extra-active 1.9. Do not combine it with an explicit `activity_factor` in the JSON input.
+
+```bash
+clincalc calc tdee --activity moderate --input '{"equation":"mifflin_st_jeor","sex":"male","age":30,"weight_kg":70,"height_cm":175}'
+```
+
+The selected preset is echoed in the Working block as `activity_preset`; the numeric factor remains visible as `activity_factor`.
 
 ### `--schema`
 
@@ -63,7 +73,7 @@ This is separate from the **code** licence (AGPL-3.0-or-later for the whole proj
 
 Output format for computed results, `list`, `tags`, and `version`.
 
-- `text` (default) - a clinician-facing block: result, interpretation, working, reference. Designed for the clipboard.
+- `text` (default) - a clinician-facing block: result, interpretation, working, reference. Designed for the clipboard. Calculators may provide a more helpful headline label than their machine name, for example `BMR/RMR`, `TDEE`, or `Target intake` for `energy_requirement`.
 - `json` - the `CalculationResponse` structure as machine-readable JSON. The same shape every surface (CLI, MCP, GUI) produces.
 
 ```bash

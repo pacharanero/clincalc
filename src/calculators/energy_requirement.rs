@@ -289,15 +289,27 @@ pub fn build_response(input: &EnergyRequirementInput) -> Result<CalculationRespo
     if let Some(band) = o.schofield_age_band {
         working.insert("schofield_age_band".into(), json!(band.slug()));
     }
+    let (result_label, result_value) = result_summary(&o);
+    working.insert("result_label".into(), json!(result_label));
     working.insert("unit".into(), json!("kcal/day"));
 
     Ok(CalculationResponse {
         calculator: NAME.to_string(),
-        result: json!(o.target_kcal_day),
+        result: json!(result_value),
         interpretation: o.interpretation,
         working,
         reference: REFERENCE.to_string(),
     })
+}
+
+fn result_summary(outcome: &EnergyRequirementOutcome) -> (&'static str, u32) {
+    if outcome.calorie_adjustment_kcal_day != 0.0 {
+        ("Target intake", outcome.target_kcal_day)
+    } else if outcome.activity_factor.is_some() {
+        ("TDEE", outcome.maintenance_kcal_day)
+    } else {
+        ("BMR/RMR", outcome.basal_kcal_day)
+    }
 }
 
 /// Unit struct implementing the dynamic [`Calculator`] surface.
@@ -671,6 +683,29 @@ mod tests {
         assert_eq!(o.basal_kcal_day, 1649);
         assert_eq!(o.maintenance_kcal_day, 2556);
         assert_eq!(o.target_kcal_day, 2056);
+    }
+
+    #[test]
+    fn response_result_label_matches_supplied_energy_mode() {
+        let basal = build_response(&input(Equation::MifflinStJeor)).unwrap();
+        assert_eq!(basal.result, json!(1649));
+        assert_eq!(basal.working["result_label"], "BMR/RMR");
+        assert_eq!(basal.working["basal_kcal_day"], 1649);
+
+        let mut tdee_input = input(Equation::MifflinStJeor);
+        tdee_input.activity_factor = Some(1.55);
+        let tdee = build_response(&tdee_input).unwrap();
+        assert_eq!(tdee.result, json!(2556));
+        assert_eq!(tdee.working["result_label"], "TDEE");
+        assert_eq!(tdee.working["basal_kcal_day"], 1649);
+        assert_eq!(tdee.working["maintenance_kcal_day"], 2556);
+
+        tdee_input.calorie_adjustment_kcal_day = Some(-500.0);
+        let target = build_response(&tdee_input).unwrap();
+        assert_eq!(target.result, json!(2056));
+        assert_eq!(target.working["result_label"], "Target intake");
+        assert_eq!(target.working["maintenance_kcal_day"], 2556);
+        assert_eq!(target.working["target_kcal_day"], 2056);
     }
 
     #[test]

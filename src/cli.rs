@@ -51,6 +51,53 @@ use clap::{Args, ValueEnum, ValueHint};
 
 use crate::{CalculationResponse, Calculator};
 
+const CALCULATOR_ALIASES: &[(&str, &str)] = &[
+    ("bmr", "energy_requirement"),
+    ("ckd-epi", "egfr"),
+    ("ckd_epi", "egfr"),
+    ("ckdepi", "egfr"),
+    ("ree", "energy_requirement"),
+    ("rmr", "energy_requirement"),
+    ("tdee", "energy_requirement"),
+];
+
+/// Named physical activity presets for energy-requirement calculations.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
+pub enum ActivityPreset {
+    /// Sedentary or little exercise: activity factor 1.2.
+    Sedentary,
+    /// Light exercise: activity factor 1.375.
+    Light,
+    /// Moderate exercise: activity factor 1.55.
+    Moderate,
+    /// Very active: activity factor 1.725.
+    VeryActive,
+    /// Extra active: activity factor 1.9.
+    ExtraActive,
+}
+
+impl ActivityPreset {
+    fn factor(self) -> f64 {
+        match self {
+            ActivityPreset::Sedentary => 1.2,
+            ActivityPreset::Light => 1.375,
+            ActivityPreset::Moderate => 1.55,
+            ActivityPreset::VeryActive => 1.725,
+            ActivityPreset::ExtraActive => 1.9,
+        }
+    }
+
+    fn slug(self) -> &'static str {
+        match self {
+            ActivityPreset::Sedentary => "sedentary",
+            ActivityPreset::Light => "light",
+            ActivityPreset::Moderate => "moderate",
+            ActivityPreset::VeryActive => "very-active",
+            ActivityPreset::ExtraActive => "extra-active",
+        }
+    }
+}
+
 /// How to render computed results.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, ValueEnum)]
 pub enum OutputFormat {
@@ -85,6 +132,11 @@ pub struct CalcCommand {
     /// Print the calculator's distribution licence and the URL evidencing it.
     #[arg(long)]
     pub license: bool,
+
+    /// Convenience activity preset for `energy_requirement` (and aliases such as `tdee`).
+    /// Injects the corresponding `activity_factor` into JSON input.
+    #[arg(long, value_enum, value_name = "PRESET")]
+    pub activity: Option<ActivityPreset>,
 
     /// Restrict `list` output to calculators that carry this tag (e.g.
     /// `cardiology`, `proprietary`, `nhs-mandated`). Repeat the flag to
@@ -149,8 +201,15 @@ pub fn run(cmd: CalcCommand) -> Result<()> {
         Some(n) => n,
     };
 
-    let calc = crate::get(name)
-        .ok_or_else(|| anyhow!("unknown calculator: {name} (try `clincalc list`)"))?;
+    let canonical_name = canonical_calculator_name(name);
+    let calc =
+        crate::get(canonical_name).ok_or_else(|| anyhow!(unknown_calculator_message(name)))?;
+
+    if cmd.activity.is_some() && calc.name() != "energy_requirement" {
+        return Err(anyhow!(
+            "--activity is only supported for energy_requirement (aliases: bmr, ree, rmr, tdee)"
+        ));
+    }
 
     // `--schema` prints the formal contract, regardless of everything else.
     if cmd.schema {
@@ -189,18 +248,28 @@ pub fn run(cmd: CalcCommand) -> Result<()> {
             }
             eprintln!(
                 "\nReplace each placeholder with a value, then compute with one of:\n  \
-                 clincalc calc {name} --input <file.json>\n  \
-                 clincalc calc {name} --input '<json>'\n  \
-                 clincalc calc {name} --input -        # read JSON from stdin\n\
-                 See the full input contract with: clincalc calc {name} --schema"
+                 clincalc calc {} --input <file.json>\n  \
+                 clincalc calc {} --input '<json>'\n  \
+                 clincalc calc {} --input -        # read JSON from stdin\n\
+                 See the full input contract with: clincalc calc {} --schema",
+                calc.name(),
+                calc.name(),
+                calc.name(),
+                calc.name()
             );
             Ok(())
         }
         // Input supplied: validate (via the calculator's typed deserialization)
         // and compute.
         Some(src) => {
-            let input = read_input(src)?;
-            let response = calc.calculate(&input).map_err(|e| anyhow!("{e}"))?;
+            let mut input = read_input(src)?;
+            apply_activity_preset(&mut input, cmd.activity)?;
+            let mut response = calc.calculate(&input).map_err(|e| anyhow!("{e}"))?;
+            if let Some(activity) = cmd.activity {
+                response
+                    .working
+                    .insert("activity_preset".into(), serde_json::json!(activity.slug()));
+            }
             emit(&response, cmd.format)
         }
     }
@@ -226,6 +295,28 @@ fn read_input(src: &str) -> Result<serde_json::Value> {
     serde_json::from_str(&raw).map_err(|e| {
         anyhow!("invalid JSON input: {e}\nSee the expected shape with: clincalc calc <name>")
     })
+}
+
+fn apply_activity_preset(
+    input: &mut serde_json::Value,
+    activity: Option<ActivityPreset>,
+) -> Result<()> {
+    let Some(activity) = activity else {
+        return Ok(());
+    };
+    let Some(input) = input.as_object_mut() else {
+        return Err(anyhow!("--activity requires JSON object input"));
+    };
+    if input.contains_key("activity_factor") {
+        return Err(anyhow!(
+            "--activity cannot be combined with an explicit activity_factor in --input"
+        ));
+    }
+    input.insert(
+        "activity_factor".into(),
+        serde_json::json!(activity.factor()),
+    );
+    Ok(())
 }
 
 fn existing_input_path(src: &str) -> Option<PathBuf> {
@@ -281,6 +372,95 @@ pub fn run_version(cmd: VersionCommand) -> Result<()> {
     Ok(())
 }
 
+fn canonical_calculator_name(name: &str) -> &str {
+    CALCULATOR_ALIASES
+        .iter()
+        .find_map(|(alias, canonical)| (*alias == name).then_some(*canonical))
+        .unwrap_or(name)
+}
+
+fn aliases_for(name: &str) -> Vec<&'static str> {
+    CALCULATOR_ALIASES
+        .iter()
+        .filter_map(|(alias, canonical)| (*canonical == name).then_some(*alias))
+        .collect()
+}
+
+fn unknown_calculator_message(name: &str) -> String {
+    let mut message = format!("unknown calculator: {name}");
+    if let Some(suggestion) = closest_calculator_name(name) {
+        message.push_str(". Did you mean `");
+        message.push_str(suggestion.name);
+        message.push('`');
+        if let Some(canonical) = suggestion.alias_for {
+            message.push_str(" (alias for `");
+            message.push_str(canonical);
+            message.push_str("`)");
+        }
+        message.push('?');
+    }
+    message.push_str(" (try `clincalc list`)");
+    message
+}
+
+struct NameSuggestion {
+    name: &'static str,
+    alias_for: Option<&'static str>,
+}
+
+fn closest_calculator_name(name: &str) -> Option<NameSuggestion> {
+    let mut candidates: Vec<NameSuggestion> = crate::all()
+        .into_iter()
+        .map(|c| NameSuggestion {
+            name: c.name(),
+            alias_for: None,
+        })
+        .collect();
+    candidates.extend(
+        CALCULATOR_ALIASES
+            .iter()
+            .map(|(alias, canonical)| NameSuggestion {
+                name: alias,
+                alias_for: Some(canonical),
+            }),
+    );
+
+    candidates
+        .into_iter()
+        .map(|candidate| {
+            let distance = levenshtein(name, candidate.name);
+            (distance, candidate)
+        })
+        .filter(|(distance, candidate)| *distance <= suggestion_threshold(name, candidate.name))
+        .min_by_key(|(distance, candidate)| (*distance, candidate.name.len()))
+        .map(|(_, candidate)| candidate)
+}
+
+fn suggestion_threshold(a: &str, b: &str) -> usize {
+    let max_len = a.len().max(b.len());
+    if max_len <= 4 { 1 } else { 3.min(max_len / 3) }
+}
+
+fn levenshtein(a: &str, b: &str) -> usize {
+    let a = a.as_bytes();
+    let b = b.as_bytes();
+    let mut prev: Vec<usize> = (0..=b.len()).collect();
+    let mut curr = vec![0; b.len() + 1];
+
+    for (i, &a_byte) in a.iter().enumerate() {
+        curr[0] = i + 1;
+        for (j, &b_byte) in b.iter().enumerate() {
+            let substitution = prev[j] + usize::from(a_byte != b_byte);
+            let insertion = curr[j] + 1;
+            let deletion = prev[j + 1] + 1;
+            curr[j + 1] = substitution.min(insertion).min(deletion);
+        }
+        std::mem::swap(&mut prev, &mut curr);
+    }
+
+    prev[b.len()]
+}
+
 fn print_list(format: OutputFormat, required_tags: &[String]) -> Result<()> {
     // A calculator passes the filter only if it carries every requested tag
     // (AND semantics, so the filter narrows as more --tag flags are added).
@@ -306,6 +486,7 @@ fn print_list(format: OutputFormat, required_tags: &[String]) -> Result<()> {
                         "license": lic.license,
                         "license_source": lic.source_url,
                         "tags": c.tags(),
+                        "aliases": aliases_for(c.name()),
                     })
                 })
                 .collect();
@@ -313,11 +494,18 @@ fn print_list(format: OutputFormat, required_tags: &[String]) -> Result<()> {
         }
         OutputFormat::Text => {
             for c in crate::all().iter().filter(|c| passes(c.as_ref())) {
+                let aliases = aliases_for(c.name());
+                let alias_note = if aliases.is_empty() {
+                    String::new()
+                } else {
+                    format!("  aliases: {}", aliases.join(", "))
+                };
                 println!(
-                    "{:<12}  {:<48}  [{}]",
+                    "{:<20}  {:<48}  [{}]{}",
                     c.name(),
                     c.title(),
-                    c.tags().join(", ")
+                    c.tags().join(", "),
+                    alias_note
                 );
             }
         }
@@ -365,19 +553,38 @@ fn emit(response: &CalculationResponse, format: OutputFormat) -> Result<()> {
 fn render_text(r: &CalculationResponse) -> String {
     let mut out = String::new();
     out.push_str(&format!(
-        "{} = {}\n\n",
-        r.calculator,
-        value_to_string(&r.result)
+        "{} = {}{}\n\n",
+        result_label(r),
+        value_to_string(&r.result),
+        result_unit(r)
     ));
     out.push_str(&r.interpretation);
     if !r.working.is_empty() {
         out.push_str("\n\nWorking:");
         for (k, v) in &r.working {
+            if k == "result_label" {
+                continue;
+            }
             out.push_str(&format!("\n  {k}: {}", value_to_string(v)));
         }
     }
     out.push_str(&format!("\n\nReference: {}", r.reference));
     out
+}
+
+fn result_label(r: &CalculationResponse) -> &str {
+    r.working
+        .get("result_label")
+        .and_then(serde_json::Value::as_str)
+        .unwrap_or(&r.calculator)
+}
+
+fn result_unit(r: &CalculationResponse) -> String {
+    r.working
+        .get("unit")
+        .and_then(serde_json::Value::as_str)
+        .map(|unit| format!(" {unit}"))
+        .unwrap_or_default()
 }
 
 fn value_to_string(v: &serde_json::Value) -> String {
@@ -422,8 +629,21 @@ fn oneof_alternatives_note(schema: &serde_json::Value) -> Option<String> {
 
 #[cfg(test)]
 mod tests {
-    use super::oneof_alternatives_note;
+    use super::{closest_calculator_name, levenshtein, oneof_alternatives_note};
     use serde_json::json;
+
+    #[test]
+    fn aliases_and_fuzzy_suggestions_work() {
+        let tdee = closest_calculator_name("tdde").unwrap();
+        assert_eq!(tdee.name, "tdee");
+        assert_eq!(tdee.alias_for, Some("energy_requirement"));
+
+        let feverpain = closest_calculator_name("fevrpain").unwrap();
+        assert_eq!(feverpain.name, "feverpain");
+        assert_eq!(feverpain.alias_for, None);
+
+        assert_eq!(levenshtein("fevrpain", "feverpain"), 1);
+    }
 
     #[test]
     fn oneof_note_lists_each_alternative() {

@@ -103,3 +103,82 @@ fn top_level_commands_and_legacy_shorthand_work() {
         serde_json::from_slice(&output.stdout).expect("version output is json");
     assert_eq!(version["name"], "clincalc");
 }
+
+#[test]
+fn aliases_and_fuzzy_unknown_name_help_work() {
+    let bin = clincalc_bin();
+
+    let output = Command::new(&bin)
+        .arg("list")
+        .output()
+        .expect("run clincalc list");
+    assert!(output.status.success());
+    let list = String::from_utf8(output.stdout).expect("list is utf8");
+    assert!(list.contains("aliases: bmr"));
+    assert!(list.contains("tdee"));
+
+    let output = Command::new(&bin)
+        .args(["calc", "tdee"])
+        .output()
+        .expect("run clincalc calc tdee alias");
+    assert!(output.status.success());
+    let template = String::from_utf8(output.stdout).expect("template is utf8");
+    assert!(template.contains("activity_factor"));
+
+    let output = Command::new(&bin)
+        .arg("fevrpain")
+        .output()
+        .expect("run clincalc typo");
+    assert!(!output.status.success());
+    let stderr = String::from_utf8(output.stderr).expect("stderr is utf8");
+    assert!(stderr.contains("Did you mean `feverpain`?"));
+}
+
+#[test]
+fn energy_requirement_alias_headlines_match_mode() {
+    let bin = clincalc_bin();
+
+    let bmr_input = r#"{"equation":"mifflin_st_jeor","sex":"male","age":30,"weight_kg":70.0,"height_cm":175.0}"#;
+    let output = Command::new(&bin)
+        .args(["calc", "bmr", "--input", bmr_input])
+        .output()
+        .expect("run bmr alias");
+    assert!(output.status.success());
+    let text = String::from_utf8(output.stdout).expect("output is utf8");
+    assert!(text.starts_with("BMR/RMR = 1649 kcal/day"));
+
+    let tdee_input = r#"{"equation":"mifflin_st_jeor","sex":"male","age":30,"weight_kg":70.0,"height_cm":175.0,"activity_factor":1.55}"#;
+    let output = Command::new(&bin)
+        .args(["calc", "tdee", "--input", tdee_input])
+        .output()
+        .expect("run tdee alias");
+    assert!(output.status.success());
+    let text = String::from_utf8(output.stdout).expect("output is utf8");
+    assert!(text.starts_with("TDEE = 2556 kcal/day"));
+    assert!(text.contains("basal_kcal_day: 1649"));
+    assert!(text.contains("maintenance_kcal_day: 2556"));
+}
+
+#[test]
+fn energy_requirement_activity_presets_inject_factor() {
+    let bin = clincalc_bin();
+    let input = r#"{"equation":"mifflin_st_jeor","sex":"male","age":30,"weight_kg":70.0,"height_cm":175.0}"#;
+
+    let output = Command::new(&bin)
+        .args(["calc", "tdee", "--activity", "moderate", "--input", input])
+        .output()
+        .expect("run tdee alias with activity preset");
+    assert!(output.status.success());
+    let text = String::from_utf8(output.stdout).expect("output is utf8");
+    assert!(text.starts_with("TDEE = 2556 kcal/day"));
+    assert!(text.contains("activity_factor: 1.55"));
+    assert!(text.contains("activity_preset: moderate"));
+
+    let output = Command::new(&bin)
+        .args(["calc", "feverpain", "--activity", "moderate"])
+        .output()
+        .expect("run non-energy calculator with activity preset");
+    assert!(!output.status.success());
+    let stderr = String::from_utf8(output.stderr).expect("stderr is utf8");
+    assert!(stderr.contains("--activity is only supported for energy_requirement"));
+}
