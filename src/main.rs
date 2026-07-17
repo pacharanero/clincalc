@@ -160,7 +160,7 @@ fn starts_with_dash(arg: &OsStr) -> bool {
 fn is_known_top_command(arg: &OsStr) -> bool {
     matches!(
         arg.to_string_lossy().as_ref(),
-        "calc" | "list" | "ls" | "tags" | "version" | "completions" | "mcp" | "help"
+        "calc" | "list" | "ls" | "tags" | "version" | "completions" | "mcp" | "api" | "help"
     )
 }
 
