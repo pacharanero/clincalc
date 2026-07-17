@@ -87,14 +87,13 @@ Status: Future
 
 Add a `Locale` enum and `LocalizedString` storage per [`spec/multilingual.md`](spec/multilingual.md) without breaking the leaf rule. Translations stay `&'static str` in-tree, keyed and looked up at compile time.
 
-Proposed implementation steps:
-1. Introduce `clincalc::Locale { En, Es, Ca, ... }` with `En` as the default fallback.
-2. Add `LocalizedString { en, es, ca }` and a `.get(locale)` method; strings live in each calculator module.
-3. Extend `Calculator` trait methods that emit human prose with an optional/defaulted `locale: Locale` parameter: `title`, `description`, `input_schema`, and `calculate`. Machine identifiers (`name`, `working` keys, enum variants) remain English.
-4. Convert `interpretation` strings from inline `format!` to a structured interpretation object keyed by stable IDs (band, score, recommendation), with localised labels and a small templater. This is less fragile than format-string argument ordering across languages.
-5. Wire `--lang` and `CALC_LANG` through `clincalc::cli::run` so all surfaces (CLI, MCP, Python, REST API) receive the same locale.
-6. Validate with FeverPAIN as the first migrated calculator, then translate three calculators with a native speaker before opening the catalogue for batched translation.
-7. Write `docs/translating.md` contribution path.
+- [ ] **ENG-001.1 Introduce `clincalc::Locale { En, Es, Ca, ... }`** with `En` as the default fallback.
+- [ ] **ENG-001.2 Add `LocalizedString { en, es, ca }`** and a `.get(locale)` method; strings live in each calculator module.
+- [ ] **ENG-001.3 Extend `Calculator` trait methods** that emit human prose with an optional/defaulted `locale: Locale` parameter: `title`, `description`, `input_schema`, and `calculate`. Machine identifiers (`name`, `working` keys, enum variants) remain English.
+- [ ] **ENG-001.4 Convert `interpretation` strings** from inline `format!` to a structured interpretation object keyed by stable IDs (band, score, recommendation), with localised labels and a small templater. This is less fragile than format-string argument ordering across languages.
+- [ ] **ENG-001.5 Wire `--lang` and `CALC_LANG`** through `clincalc::cli::run` so all surfaces (CLI, MCP, Python, REST API) receive the same locale.
+- [ ] **ENG-001.6 Validate with FeverPAIN** as the first migrated calculator, then translate three calculators with a native speaker before opening the catalogue for batched translation.
+- [ ] **ENG-001.7 Write `docs/translating.md`** contribution path.
 
 Open questions for comment:
 - Should the REST API and Python API accept `locale` per-request, or default to a configured locale? Per-request is more flexible but complicates caching.
@@ -106,11 +105,10 @@ Status: Future
 
 [MedikQuantis](https://medikquantis.me) ships Catalan/Spanish/English calculator strings for several scores we also implement. The goal is to avoid duplicating native-speaker translation work.
 
-Proposed implementation steps:
-1. Align tag taxonomy with MedikQuantis so calculators are discoverable under the same specialty labels in both projects.
-2. Agree a shared citation shape (PMID + URL + access date) so either project can ingest the other's metadata.
-3. Write a one-way or bidirectional converter that maps their exported JSON/YAML catalogue to our `LocalizedString` blocks, preserving provenance and licence.
-4. Pull their Catalan/Spanish strings for the 14 overlapping calculators (DAS28, CHA2DS2-VASc, HEART, Wells PE, GRACE, TIMI, qSOFA, SOFA, CURB-65, Child-Pugh, IPSS, HAS-BLED, Wells DVT, CKD-EPI) as the seed translations for ENG-001.
+- [ ] **ENG-002.1 Align tag taxonomy** with MedikQuantis so calculators are discoverable under the same specialty labels in both projects.
+- [ ] **ENG-002.2 Agree a shared citation shape** (PMID + URL + access date) so either project can ingest the other's metadata.
+- [ ] **ENG-002.3 Write a converter** (one-way or bidirectional) that maps their exported JSON/YAML catalogue to our `LocalizedString` blocks, preserving provenance and licence.
+- [ ] **ENG-002.4 Pull Catalan/Spanish strings** for the 14 overlapping calculators (DAS28, CHA2DS2-VASc, HEART, Wells PE, GRACE, TIMI, qSOFA, SOFA, CURB-65, Child-Pugh, IPSS, HAS-BLED, Wells DVT, CKD-EPI) as the seed translations for ENG-001.
 
 Open questions for comment:
 - Do we want a formal data-sharing agreement or is MIT-to-AGPL ingestion already acceptable with attribution?
@@ -122,11 +120,10 @@ Status: Future
 
 A single-file HTML/web UI for calculators. The headline is copy-paste interoperability, so the web surface should produce the same clean text summary as the CLI and let users copy results into an EHR.
 
-Proposed implementation steps:
-1. Compile the `clincalc` engine to WebAssembly (`wasm32-unknown-unknown`) with `default-features = false` so the browser surface shares the scoring logic.
-2. Build a minimal HTML/CSS/JS shell that loads the WASM module, lists calculators from `clincalc::all()`, renders forms from `input_schema()`, and displays the JSON/text result.
-3. Keep it single-file or very few files so it can be deployed to GitHub Pages or opened locally without a build step for end users.
-4. Add a `clincalc web` CLI subcommand (behind a new `web` feature?) that serves the bundle locally, or ship it as a static asset on the docs site.
+- [ ] **ENG-003.1 Compile the `clincalc` engine to WebAssembly** (`wasm32-unknown-unknown`) with `default-features = false` so the browser surface shares the scoring logic.
+- [ ] **ENG-003.2 Build a minimal HTML/CSS/JS shell** that loads the WASM module, lists calculators from `clincalc::all()`, renders forms from `input_schema()`, and displays the JSON/text result.
+- [ ] **ENG-003.3 Keep it single-file or very few files** so it can be deployed to GitHub Pages or opened locally without a build step for end users.
+- [ ] **ENG-003.4 Add a `clincalc web` CLI subcommand** (behind a new `web` feature?) that serves the bundle locally, or ship it as a static asset on the docs site.
 
 Open questions for comment:
 - Should the web UI be a separate repo (`clincalc-web`) or a sub-directory here that publishes to the existing Pages site?
@@ -138,11 +135,10 @@ Status: Future
 
 Map `CalculationResponse` to FHIR `Observation` resources for interoperability with EHRs and research pipelines.
 
-Proposed implementation steps:
-1. Define a mapping from calculator result fields to FHIR Observation elements: `code` (LOINC/SNOMED where available), `valueQuantity` or `valueString`, `component` for sub-scores, `note` for interpretation and citation.
-2. Add an optional `fhir` feature to `clincalc` that depends only on `serde_json` (to keep the leaf rule) and exports `CalculationResponse::to_fhir_observation(...)` returning a JSON object ready to POST to a FHIR server.
-3. Do NOT add network code or OAuth to the engine; the CLI can add a `clincalc export --format fhir` command and hosts can POST the JSON themselves.
-4. Start with calculators that have clear LOINC codes (BMI, eGFR) and document the mapping table.
+- [ ] **ENG-004.1 Define a mapping** from calculator result fields to FHIR Observation elements: `code` (LOINC/SNOMED where available), `valueQuantity` or `valueString`, `component` for sub-scores, `note` for interpretation and citation.
+- [ ] **ENG-004.2 Add an optional `fhir` feature** to `clincalc` that depends only on `serde_json` (to keep the leaf rule) and exports `CalculationResponse::to_fhir_observation(...)` returning a JSON object ready to POST to a FHIR server.
+- [ ] **ENG-004.3 Keep network code out of the engine**; the CLI can add a `clincalc export --format fhir` command and hosts can POST the JSON themselves.
+- [ ] **ENG-004.4 Start with clear LOINC codes** (BMI, eGFR) and document the mapping table.
 
 Open questions for comment:
 - Do we need full FHIR R4 validation, or is a documented JSON shape sufficient?
@@ -154,11 +150,10 @@ Status: Future
 
 Accept metric and imperial measurements at the input boundary so callers do not need to convert manually. The engine stays units-explicit internally.
 
-Proposed implementation steps:
-1. Add a `Unit` enum or string alias per field type: `weight: { kg, lb, st }`, `height: { cm, ft_in }`, `creatinine: { umol/L, mg/dL }`, etc.
-2. Validate and convert at the `Calculator::calculate` entrypoint before passing the typed `Input` to `compute`. Reject ambiguous or mixed-unit inputs.
-3. Keep `interpretation` output in the same units as the input so the copied text matches what the clinician entered.
-4. Document conversion constants and rounding rules; cite the source for any non-obvious conversions.
+- [ ] **ENG-005.1 Add a `Unit` enum or string alias** per field type: `weight: { kg, lb, st }`, `height: { cm, ft_in }`, `creatinine: { umol/L, mg/dL }`, etc.
+- [ ] **ENG-005.2 Validate and convert at the `Calculator::calculate` entrypoint** before passing the typed `Input` to `compute`. Reject ambiguous or mixed-unit inputs.
+- [ ] **ENG-005.3 Keep `interpretation` output in the same units** as the input so the copied text matches what the clinician entered.
+- [ ] **ENG-005.4 Document conversion constants and rounding rules**; cite the source for any non-obvious conversions.
 
 Open questions for comment:
 - Should conversion be automatic, or gated behind an `allow_unit_conversion` flag to preserve auditability?
@@ -170,12 +165,11 @@ Status: Future
 
 Improve the copy-paste output beyond the existing plain text block, with richer formats that preserve the citation.
 
-Proposed implementation steps:
-1. Define a `Formatter` trait or set of output modes in `clincalc::cli` (or a new module): `text`, `markdown`, `html`, `pdf`, `rtf`.
-2. `text` remains the default for CLI stdout and MCP.
-3. `markdown` adds headings, bullet working steps, and a hyperlink to the primary reference - useful for pasting into EHR free-text or notes apps.
-4. `html` and `pdf` are rendered by a small template engine for the web/GUI surfaces.
-5. Keep the engine returning the same structured `CalculationResponse`; formatting is a surface concern.
+- [ ] **ENG-006.1 Define a `Formatter` trait or output modes** in `clincalc::cli` (or a new module): `text`, `markdown`, `html`, `pdf`, `rtf`.
+- [ ] **ENG-006.2 Keep `text` as default** for CLI stdout and MCP.
+- [ ] **ENG-006.3 Add `markdown` output** with headings, bullet working steps, and a hyperlink to the primary reference - useful for pasting into EHR free-text or notes apps.
+- [ ] **ENG-006.4 Add `html` and `pdf` rendering** via a small template engine for the web/GUI surfaces.
+- [ ] **ENG-006.5 Keep the engine returning the same structured `CalculationResponse`**; formatting is a surface concern.
 
 Open questions for comment:
 - Which formats are actually used by clinicians today? Markdown + PDF seems highest value; RTF probably lowest.
@@ -187,12 +181,11 @@ Status: Future
 
 Allow users or third parties to load calculators at runtime without recompiling `clincalc`. Useful for trust-local calculators, research tools, or proprietary algorithms that cannot ship in the core crate.
 
-Proposed implementation steps:
-1. Define a stable plugin interface: a JSON schema, a WASM module, or a dynamic Rust trait loaded from a `.so`/`.dll`.
-2. The safest option is WASM plugins: sandboxed, language-agnostic, and aligned with ENG-003. Each plugin exposes the same `Calculator` trait shape via a small ABI.
-3. Add `clincalc plugin list / add / remove` to the CLI and a plugin directory (`~/.local/share/clincalc/plugins/`).
-4. Validate plugins on load: schema is valid, license is present, name does not collide with core calculators (or is namespaced as `plugin:<name>`).
-5. Core engine stays unchanged; the CLI and GUI load plugins at startup.
+- [ ] **ENG-007.1 Define a stable plugin interface**: a JSON schema, a WASM module, or a dynamic Rust trait loaded from a `.so`/`.dll`.
+- [ ] **ENG-007.2 Choose WASM plugins as the default** (sandboxed, language-agnostic, and aligned with ENG-003). Each plugin exposes the same `Calculator` trait shape via a small ABI.
+- [ ] **ENG-007.3 Add `clincalc plugin list / add / remove`** to the CLI and a plugin directory (`~/.local/share/clincalc/plugins/`).
+- [ ] **ENG-007.4 Validate plugins on load**: schema is valid, license is present, name does not collide with core calculators (or is namespaced as `plugin:<name>`).
+- [ ] **ENG-007.5 Keep the core engine unchanged**; the CLI and GUI load plugins at startup.
 
 Open questions for comment:
 - WASM plugins add a runtime dependency (`wasmtime` or `wasmer`). Is that acceptable behind a `plugins` feature, or do we prefer JSON-only "calculator definitions" for simple scoring rules?
@@ -204,11 +197,10 @@ Status: Future
 
 A mechanism to re-verify each calculator's licence and reference URL on a schedule, so dead links or superseded guidelines do not silently rot.
 
-Proposed implementation steps:
-1. Add a `last_verified` date and `verification_url` to `CalculatorLicense`.
-2. Provide a `clincalc audit` command (or `cargo xtask audit-references`) that HEAD-requests every `source_url`, reports 404s/redirects, and flags calculators whose `last_verified` is older than a threshold.
-3. Integrate with CI as a scheduled job (monthly) that opens an issue or fails a build if references go stale.
-4. Keep this out of the hot path; it is a maintenance tool, not part of scoring.
+- [ ] **ENG-008.1 Add `last_verified` date and `verification_url`** to `CalculatorLicense`.
+- [ ] **ENG-008.2 Provide a `clincalc audit` command** (or `cargo xtask audit-references`) that HEAD-requests every `source_url`, reports 404s/redirects, and flags calculators whose `last_verified` is older than a threshold.
+- [ ] **ENG-008.3 Integrate with CI as a scheduled job** (monthly) that opens an issue or fails a build if references go stale.
+- [ ] **ENG-008.4 Keep this out of the hot path**; it is a maintenance tool, not part of scoring.
 
 Open questions for comment:
 - Should stale references fail CI or just open a tracking issue?
@@ -220,11 +212,10 @@ Status: Future
 
 Let embedding hosts subscribe to high-risk result events, for example NEWS2 >= 7 or CURB-65 >= 3.
 
-Proposed implementation steps:
-1. Define a small `RiskThreshold` descriptor per calculator: `{ score >= 7 }`, `{ interpretation == "high" }`, etc.
-2. Add an optional `alerts` field to `CalculationResponse` listing triggered thresholds and recommended actions.
-3. Expose this through `clincalc::cli::run` so MCP hosts and the GUI can subscribe without per-calculator logic.
-4. Keep thresholds configurable per deployment so a host can override defaults.
+- [ ] **ENG-009.1 Define a `RiskThreshold` descriptor** per calculator: `{ score >= 7 }`, `{ interpretation == "high" }`, etc.
+- [ ] **ENG-009.2 Add an optional `alerts` field** to `CalculationResponse` listing triggered thresholds and recommended actions.
+- [ ] **ENG-009.3 Expose this through `clincalc::cli::run`** so MCP hosts and the GUI can subscribe without per-calculator logic.
+- [ ] **ENG-009.4 Keep thresholds configurable** per deployment so a host can override defaults.
 
 Open questions for comment:
 - Should thresholds live in the calculator module or in a central policy file?
