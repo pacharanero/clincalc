@@ -67,6 +67,30 @@ The docs.rs front page now documents the `cli` / `mcp` feature flags, `default-f
 
 
 
+## REST API surface
+
+A persistent HTTP server exposing every calculator as a JSON endpoint. Implemented as an optional `rest-api` feature (axum + tokio), following the same pattern as the `mcp` feature - the engine is unchanged, only a new surface is added.
+
+### Future
+
+- [ ] **API-001 `rest-api` feature flag** - add axum + tokio behind `--features rest-api`; `clincalc serve` starts the server. Endpoints: `GET /calculators`, `GET /calculators/{name}/schema`, `POST /calculators/{name}` (body = input JSON, returns `CalculationResponse`).
+- [ ] **API-002 OpenAPI / Swagger spec** - auto-generated from the calculator registry's JSON Schemas, so the REST API is self-documenting.
+- [ ] **API-003 Auth / rate-limiting** - optional middleware (API key or JWT) for deployments that need it; not required for local / private use.
+
+---
+
+## Python FFI
+
+A `clincalc-py` crate using `pyo3` to expose the engine to Python data-science workflows. Kept as a separate crate so the core `clincalc` crate remains leaf-clean.
+
+### Future
+
+- [ ] **PY-001 `clincalc-py` crate** - `pyo3`-based Python bindings. `import clincalc; clincalc.calculate("egfr", {...})` returning a dict matching `CalculationResponse`.
+- [ ] **PY-002 PyPI publish** - `maturin` build + publish to PyPI alongside the Rust crates.io release.
+- [ ] **PY-003 Pandas-friendly helpers** - `clincalc.batch("egfr", df)` applying a calculator to every row of a DataFrame.
+
+---
+
 ## Engine & embedding
 
 ### Future
@@ -87,4 +111,4 @@ The docs.rs front page now documents the `cli` / `mcp` feature flags, `default-f
 
 See [`spec/calculator-roadmap.md`](spec/calculator-roadmap.md).
 
-At time of writing: 53 active + 10 proprietary stubs shipped; 36 Future candidates queued (chiefly from MedikQuantis, plus the recently-added [StatinMD](https://www.thelancet.com/journals/landig/article/PIIS2589-7500\(26\)00047-6/fulltext)).
+At time of writing: 64 active + 10 proprietary stubs shipped; 36 Future candidates queued (chiefly from MedikQuantis, plus the recently-added [StatinMD](https://www.thelancet.com/journals/landig/article/PIIS2589-7500\(26\)00047-6/fulltext)).

@@ -1,8 +1,8 @@
 # clincalc - open clinical calculators
 
-Open source, community-auditable clinical calculators in a `stdio` CLI and MCP tool, on top of a fast, Rust-based core engine.
+Open source, community-auditable clinical calculators. One Rust crate is the scoring engine; every surface - CLI, MCP tool, REST API, desktop GUI, web UI, and embeddable Rust library - is driven from that single source of truth.
 
-A clinical calculation score is computed in the core Rust library, so the result is identical wherever it appears. Every calculator cites primary literature, is tested against published vectors, and records the licence it is distributed under.
+A score is computed once, in the core library, and the result is identical wherever it appears. Every calculator cites primary literature, is tested against published vectors, and records the licence it is distributed under.
 
 ## Why
 
@@ -79,14 +79,27 @@ University of Sheffield ... Open alternatives: qfracture ...
 
 ## Architecture: one core, many surfaces
 
-The dependency arrows all point **into** the core, which never depends on anything above it:
+The dependency arrows all point **into** the core, which never depends on anything above it. All surfaces are additive - none requires a rewrite of the others.
 
-- **`clincalc`** - one crate, two surfaces. With `default-features = false` it is the pure scoring engine and result schema: a strict leaf depending only on `serde` and `serde_json`, never on an async runtime or any host - which makes the calculators detachable and embeddable.
-- The default **`cli` feature** adds the `clincalc` binary and the reusable `clincalc::cli` module (`run` + `CalcCommand`). A host CLI such as GitEHR's `gitehr calc` subcommand calls this same module, so nothing is reimplemented.
-- The optional **`mcp` feature** adds `clincalc mcp`, a local stdio MCP server for LLM hosts. Each MCP tool is generated from `clincalc::all()` and uses the calculator's own `input_schema()`.
-- **`clincalc-web`** - single-file HTML calculators with a shared context-detection bridge.
+| Surface | Status | Notes |
+|---|---|---|
+| **Rust library** | Shipped | `clincalc = { default-features = false }` - pure leaf, only `serde` + `serde_json`. Embeddable in any Rust program. |
+| **Human CLI** | Shipped | `clincalc calc`, `clincalc list`, readable output with copy-paste text summary. |
+| **Programmatic / stdio CLI** | Shipped | `--json` flag, JSON stdin input - usable by any process that can exec a subprocess. |
+| **MCP server** | Shipped | `clincalc mcp` (optional `mcp` feature) - each calculator as a typed MCP tool for LLM hosts. |
+| **Desktop GUI** | Planned | Tauri desktop app; see `spec/gui.md`. Calls the Rust engine natively - no HTTP round-trip. |
+| **REST API** | Planned | Optional `rest-api` feature (axum/hyper, same pattern as `mcp`) - persistent HTTP server for any caller. |
+| **Web UI** | Planned | `clincalc-web` single-file HTML; see `spec/roadmap.md`. |
+| **Python FFI** | Future | `pyo3` bindings in a separate `clincalc-py` crate - makes the engine accessible to data-science workflows. |
 
-Adding a calculator to `clincalc::all()` surfaces it everywhere - CLI, MCP, web - with no per-surface code.
+The concrete Rust structure:
+
+- **`clincalc`** (this crate) - the scoring engine. With `default-features = false` it is a strict leaf: only `serde` and `serde_json`, no async runtime, no host dependency.
+- The default **`cli` feature** adds the `clincalc` binary and the reusable `clincalc::cli` module. A host CLI (e.g. GitEHR's `gitehr calc`) calls this module directly.
+- The optional **`mcp` feature** adds `clincalc mcp`, a local stdio MCP server. Each calculator in `clincalc::all()` becomes a typed MCP tool automatically.
+- The planned **`rest-api` feature** will follow the same optional-feature pattern as `mcp`.
+
+Adding a calculator to `clincalc::all()` surfaces it everywhere - CLI, MCP, REST API, GUI, web - with no per-surface code.
 
 ### Input definitions
 
