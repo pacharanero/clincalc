@@ -73,9 +73,9 @@ A persistent HTTP server exposing every calculator as a JSON endpoint. Implement
 
 ### Future
 
-- [ ] **API-001 `rest-api` feature flag** - add axum + tokio behind `--features rest-api`; `clincalc serve` starts the server. Endpoints: `GET /calculators`, `GET /calculators/{name}/schema`, `POST /calculators/{name}` (body = input JSON, returns `CalculationResponse`).
+- [x] **API-001 `rest-api` feature flag** - axum 0.8 + tokio behind `--features rest-api` (on by default); `clincalc api [--port 8080] [--host 127.0.0.1]` starts the server. Endpoints: `GET /calculators`, `GET /calculators/{name}/schema`, `GET /calculators/{name}/template`, `GET /calculators/{name}/license`, `POST /calculators/{name}`.
 - [ ] **API-002 OpenAPI / Swagger spec** - auto-generated from the calculator registry's JSON Schemas, so the REST API is self-documenting.
-- [ ] **API-003 Auth / rate-limiting** - optional middleware (API key or JWT) for deployments that need it; not required for local / private use.
+- ~~**API-003 Auth / rate-limiting**~~ - out of scope for the crate. Use a reverse proxy (e.g. Caddy) for auth, TLS, and rate-limiting in deployments that need it.
 
 ---
 
