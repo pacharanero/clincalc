@@ -1,6 +1,6 @@
 # CLI reference
 
-Every command and flag the `clincalc` binary supports, in one place. There are no per-calculator flags - the same surface drives all 43 active calculators and 10 proprietary/unavailable stubs.
+Every command and flag the `clincalc` binary supports, in one place. There are no per-calculator flags - the same surface drives all 53 active calculators and 10 proprietary/unavailable stubs.
 
 ```text
 clincalc [COMMAND]

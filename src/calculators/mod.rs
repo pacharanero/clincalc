@@ -10,15 +10,26 @@
 
 pub mod abcd2;
 pub mod abpi;
+pub mod alcohol_units;
+pub mod alvarado;
 pub mod amts;
+pub mod anion_gap;
+pub mod apache2;
+pub mod asa_physical_status;
+pub mod ascvd;
 pub mod asrs;
 pub mod audit;
 pub mod auditc;
+pub mod barthel;
+pub mod basdai;
+pub mod bmi;
 pub mod bode;
 pub mod cha2ds2vasc;
 pub mod chalice;
 pub mod child_pugh;
 pub mod ckd_risk;
+pub mod cockcroft_gault;
+pub mod corrected_calcium;
 pub mod curb65;
 pub mod das28;
 pub mod egfr;

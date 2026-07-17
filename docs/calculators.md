@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry. 43 active calculators that compute a real score, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator, sorted by machine name.
+The full registry. 54 active calculators that compute a real score, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator, sorted by machine name.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
@@ -29,10 +29,19 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `abcd2` | ABCD2 Score (Stroke Risk after TIA) | 2-day stroke risk after a transient ischaemic attack. Note NICE NG128 advises against using ABCD2 to guide referral urgency. | `neurology`, `emergency`, `risk` |
 | `abpi` | ABPI (Ankle-Brachial Pressure Index) | Ankle-Brachial Pressure Index per leg from ankle and brachial systolic pressures; screens for peripheral arterial disease and informs compression-therapy safety. | `primary-care`, `vascular` |
 | `acq` | ACQ (Asthma Control Questionnaire) | Asthma control monitoring (BTS/NICE/SIGN asthma). | `respiratory`, `severity`, `proprietary`, `unavailable` |
+| `alcohol_units` | Alcohol Units (UK) | Calculates UK alcohol units from drink volume and ABV, with optional weekly tally and alcohol kcal. | `primary-care`, `mental-health` |
+| `alvarado` | Alvarado Score (Appendicitis) | MANTRELS score for suspected acute appendicitis (0-10). | `emergency`, `surgery`, `risk` |
 | `amts` | Abbreviated Mental Test Score (AMTS) | Ten-item bedside cognitive screen (0-10); a score below 8 suggests cognitive impairment. | `primary-care`, `geriatrics`, `neurology`, `screening` |
+| `anion_gap` | Anion Gap | Serum anion gap from sodium, chloride, bicarbonate, optional potassium, and optional albumin correction. | `acute-medicine`, `nephrology` |
+| `apache2` | APACHE II | ICU acute physiology, age, and chronic health severity score (0-71). | `intensive-care`, `severity`, `prognostic` |
+| `asa_physical_status` | ASA Physical Status | ASA preoperative physical-status classification, with optional emergency suffix. | `surgery`, `severity` |
+| `ascvd` | ASCVD Pooled Cohort Equations | ACC/AHA 2013 10-year ASCVD risk estimate for US adults aged 40-79. | `primary-care`, `cardiology`, `risk` |
 | `asrs` | ASRS-v1.1 Adult ADHD Screener | 18-item WHO-validated screener for adult ADHD; Part A (items 1–6) is the validated screen. | `primary-care`, `mental-health`, `screening` |
 | `audit` | AUDIT Alcohol Use Screen | Ten-item WHO alcohol-use screen (0-40); four risk zones from low risk to possible dependence. | `primary-care`, `mental-health`, `screening` |
 | `auditc` | AUDIT-C Alcohol Consumption Screen | Three-item WHO AUDIT consumption subscale (0-12); positive at 4+ (men) or 3+ (women). | `primary-care`, `mental-health`, `screening` |
+| `barthel` | Barthel Index | Activities of daily living score (0-100) from ten functional domains. | `geriatrics`, `severity` |
+| `basdai` | BASDAI | Bath Ankylosing Spondylitis Disease Activity Index (0-10). | `rheumatology`, `severity` |
+| `bmi` | BMI (Body Mass Index) | Body mass index from weight and height, with standard adult category. | `primary-care`, `endocrinology` |
 | `bode` | BODE Index (COPD prognosis) | Multidimensional prognostic index in COPD from BMI, FEV1, mMRC dyspnoea, and six-minute walk distance; predicts ~4-year survival. | `respiratory`, `prognostic` |
 | `cat` | CAT (COPD Assessment Test) | Symptom-burden / health-status measure in COPD (8 items, 0-40; GOLD/NICE NG115). | `respiratory`, `severity`, `proprietary`, `unavailable` |
 | `cfs` | CFS (Clinical Frailty Scale) | 9-point judgement-based frailty grading in older adults (1 Very Fit to 9 Terminally Ill). | `geriatrics`, `severity`, `proprietary`, `unavailable` |
@@ -40,8 +49,10 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `chalice` | CHALICE Paediatric Head Injury Rule | Decision rule for CT head in children after head injury: any positive criterion predicts a clinically significant intracranial injury and a CT head scan is recommended (Dunning et al 2006; NICE NG232). | `paediatrics`, `emergency` |
 | `child_pugh` | Child-Pugh Score (Cirrhosis Severity) | Severity of chronic liver disease from bilirubin, albumin, INR, ascites, and encephalopathy; reports class A/B/C. | `hepatology`, `severity` |
 | `ckd_risk` | KDIGO CKD risk category (eGFR x ACR heatmap) | Combines the eGFR G-stage and albuminuria A-stage into the KDIGO prognosis risk category (the green/yellow/orange/red heatmap). | `primary-care`, `nephrology`, `risk` |
+| `corrected_calcium` | Albumin-corrected Calcium | Corrects total serum calcium for abnormal albumin using the Payne-style correction. | `primary-care`, `endocrinology` |
 | `curb65` | CURB-65 Pneumonia Severity | Severity and 30-day mortality risk in community-acquired pneumonia, guiding place of care (BTS / NICE NG138). | `acute-medicine`, `respiratory`, `infectious-diseases`, `severity` |
 | `das28` | DAS28 (Rheumatoid Arthritis Disease Activity) | Disease Activity Score in 28 joints for rheumatoid arthritis, from tender/swollen joint counts, an ESR or CRP marker, and patient global health. | `rheumatology`, `severity` |
+| `cockcroft_gault` | Cockcroft-Gault Creatinine Clearance | Creatinine clearance (CrCl, mL/min) from age, weight, sex, and creatinine. Superseded by CKD-EPI 2021 for CKD staging; retained for renal drug dosing where guidelines cite CrCl. | `primary-care`, `nephrology` |
 | `egfr` | eGFR (CKD-EPI 2021) | Estimated glomerular filtration rate from creatinine (race-free CKD-EPI 2021); reports CKD G-stage. | `primary-care`, `nephrology` |
 | `elf` | ELF (Enhanced Liver Fibrosis test) | Second-line serum biomarker test for liver fibrosis (NICE NG49). | `hepatology`, `screening`, `proprietary`, `unavailable` |
 | `energy_requirement` | Energy Requirement (BMR/RMR/TDEE) | Adult basal/resting energy estimate using Mifflin-St Jeor, Harris-Benedict original/revised, Schofield, or Cunningham, with optional activity factor and kcal target adjustment. | `primary-care`, `endocrinology` |

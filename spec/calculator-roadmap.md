@@ -6,7 +6,7 @@ The clinical-calculator backlog, grouped strictly by completion status. Calculat
 
 Roadmap items have stable identifiers so they can be referred to in conversation, commits, PRs, and release notes. Do not renumber existing IDs just because items are completed or removed.
 
-Completed calculators are removed from this file rather than kept as roadmap history. The shipped catalogue is [`docs/calculators.md`](../docs/calculators.md), currently 43 active calculators that compute a real score plus 10 proprietary / unavailable stubs.
+Completed calculators are removed from this file rather than kept as roadmap history. The shipped catalogue is [`docs/calculators.md`](../docs/calculators.md), currently 54 active calculators that compute a real score plus 10 proprietary / unavailable stubs.
 
 ## Status legend
 
@@ -30,16 +30,6 @@ _Nothing currently committed to build. Promote from [Future](#future) when sched
 
 Calculators worth shipping, under consideration. Largely surfaced from sibling open-source projects (notably [MedikQuantis](https://medikquantis.me), MIT licensed). Clinical context for each lives in the [docs catalogue wishlist](../docs/calculators.md#wishlist-candidates-for-future-addition).
 
-- [ ] **CALC-001 Albumin-corrected calcium** (Payne 1973)
-- [ ] **CALC-037 Alcohol units (UK)** - units = volume x ABV / 1000; weekly tally vs the 14-unit guideline + kcal from alcohol. Quantify-intake companion to the AUDIT / AUDIT-C screens.
-- [ ] **CALC-002 Alvarado** - Acute appendicitis
-- [ ] **CALC-003 Anion gap** - Na − (Cl + HCO₃)
-- [ ] **CALC-004 APACHE II** - ICU severity / mortality
-- [ ] **CALC-005 ASA Physical Status** - Peri-operative classification
-- [ ] **CALC-006 ASCVD Pooled Cohort** - ACC/AHA 2013 CV risk (US population)
-- [ ] **CALC-007 Barthel Index** - Activities of daily living
-- [ ] **CALC-008 BASDAI** - Ankylosing spondylitis disease activity
-- [ ] **CALC-038 BMI** - first-class body-mass index (currently only implicit inside `energy_requirement`)
 - [ ] **CALC-039 Body fat by circumference** - US Navy method / Relative Fat Mass; tape-measure alternative to BIA scales
 - [ ] **CALC-009 Braden Scale** - Pressure-ulcer risk (acute care)
 - [ ] **CALC-010 Caprini** - Peri-operative VTE risk

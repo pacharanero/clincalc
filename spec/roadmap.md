@@ -87,4 +87,4 @@ The docs.rs front page now documents the `cli` / `mcp` feature flags, `default-f
 
 See [`spec/calculator-roadmap.md`](spec/calculator-roadmap.md).
 
-At time of writing: 43 active + 10 proprietary stubs shipped; 46 Future candidates queued (chiefly from MedikQuantis, plus the recently-added [StatinMD](https://www.thelancet.com/journals/landig/article/PIIS2589-7500\(26\)00047-6/fulltext)).
+At time of writing: 53 active + 10 proprietary stubs shipped; 36 Future candidates queued (chiefly from MedikQuantis, plus the recently-added [StatinMD](https://www.thelancet.com/journals/landig/article/PIIS2589-7500\(26\)00047-6/fulltext)).

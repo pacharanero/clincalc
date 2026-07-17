@@ -241,7 +241,7 @@ The authoring workflow is intentionally repository-native: start with `AGENTS.md
 
 ## Calculator library roadmap
 
-Open calculator work is tracked by stable ID in [`spec/calculator-roadmap.md`](calculator-roadmap.md). Completed calculators are removed from the roadmap and listed in the deployed catalogue at [`docs/calculators.md`](../docs/calculators.md), currently 43 active calculators plus 10 intentional "named but unavailable" stubs (licence-locked or proprietary).
+Open calculator work is tracked by stable ID in [`spec/calculator-roadmap.md`](calculator-roadmap.md). Completed calculators are removed from the roadmap and listed in the deployed catalogue at [`docs/calculators.md`](../docs/calculators.md), currently 54 active calculators plus 10 intentional "named but unavailable" stubs (licence-locked or proprietary).
 
 ### RCPCH Digital Growth Charts
 
