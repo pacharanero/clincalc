@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry. 54 active calculators that compute a real score, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator, sorted by machine name.
+The full registry. 64 active calculators that compute a real score, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator, sorted by machine name.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
@@ -43,10 +43,16 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `basdai` | BASDAI | Bath Ankylosing Spondylitis Disease Activity Index (0-10). | `rheumatology`, `severity` |
 | `bmi` | BMI (Body Mass Index) | Body mass index from weight and height, with standard adult category. | `primary-care`, `endocrinology` |
 | `bode` | BODE Index (COPD prognosis) | Multidimensional prognostic index in COPD from BMI, FEV1, mMRC dyspnoea, and six-minute walk distance; predicts ~4-year survival. | `respiratory`, `prognostic` |
+| `body_fat_circumference` | Body Fat % (US Navy Circumference Method) | Estimates body fat percentage from height, waist, neck (and hip for women) using the US Navy / Hodgdon-Beckett regression equations. | `primary-care`, `endocrinology` |
+| `braden` | Braden Scale (Pressure Ulcer Risk) | Predicts pressure ulcer risk across six subscales (sensory perception, moisture, activity, mobility, nutrition, friction/shear). Score 6-23; lower = higher risk. | `acute-medicine`, `geriatrics`, `screening` |
+| `caprini` | Caprini VTE Risk Score | Peri-operative venous thromboembolism (VTE) risk assessment using weighted risk factors. Score 0=very low to ≥5=high. | `surgery`, `vascular`, `risk` |
 | `cat` | CAT (COPD Assessment Test) | Symptom-burden / health-status measure in COPD (8 items, 0-40; GOLD/NICE NG115). | `respiratory`, `severity`, `proprietary`, `unavailable` |
+| `centor` | Centor / McIsaac Score (Strep Pharyngitis) | Predicts probability of group-A streptococcal pharyngitis to guide antibiotic use and throat swab decisions. | `primary-care`, `infectious-diseases` |
 | `cfs` | CFS (Clinical Frailty Scale) | 9-point judgement-based frailty grading in older adults (1 Very Fit to 9 Terminally Ill). | `geriatrics`, `severity`, `proprietary`, `unavailable` |
+| `cha2ds2_va` | CHA₂DS₂-VA (2024 ESC) | Stroke risk in atrial fibrillation using the 2024 ESC sex-free update (score 0-8). | `cardiology`, `risk` |
 | `cha2ds2vasc` | CHA2DS2-VASc Stroke Risk (AF) | Stroke risk in non-valvular atrial fibrillation, guiding anticoagulation (NICE NG196). | `cardiology`, `risk` |
 | `chalice` | CHALICE Paediatric Head Injury Rule | Decision rule for CT head in children after head injury: any positive criterion predicts a clinically significant intracranial injury and a CT head scan is recommended (Dunning et al 2006; NICE NG232). | `paediatrics`, `emergency` |
+| `charlson` | Charlson Comorbidity Index (CCI) | Predicts 10-year mortality from 19 weighted comorbidities, with optional age adjustment. | `primary-care`, `risk`, `prognostic` |
 | `child_pugh` | Child-Pugh Score (Cirrhosis Severity) | Severity of chronic liver disease from bilirubin, albumin, INR, ascites, and encephalopathy; reports class A/B/C. | `hepatology`, `severity` |
 | `ckd_risk` | KDIGO CKD risk category (eGFR x ACR heatmap) | Combines the eGFR G-stage and albuminuria A-stage into the KDIGO prognosis risk category (the green/yellow/orange/red heatmap). | `primary-care`, `nephrology`, `risk` |
 | `corrected_calcium` | Albumin-corrected Calcium | Corrects total serum calcium for abnormal albumin using the Payne-style correction. | `primary-care`, `endocrinology` |
@@ -54,12 +60,16 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `das28` | DAS28 (Rheumatoid Arthritis Disease Activity) | Disease Activity Score in 28 joints for rheumatoid arthritis, from tender/swollen joint counts, an ESR or CRP marker, and patient global health. | `rheumatology`, `severity` |
 | `cockcroft_gault` | Cockcroft-Gault Creatinine Clearance | Creatinine clearance (CrCl, mL/min) from age, weight, sex, and creatinine. Superseded by CKD-EPI 2021 for CKD staging; retained for renal drug dosing where guidelines cite CrCl. | `primary-care`, `nephrology` |
 | `egfr` | eGFR (CKD-EPI 2021) | Estimated glomerular filtration rate from creatinine (race-free CKD-EPI 2021); reports CKD G-stage. | `primary-care`, `nephrology` |
+| `ehra` | EHRA AF Symptom Classification | Classifies atrial fibrillation symptom burden (Classes 1, 2a, 2b, 3, 4) to guide rhythm-control decisions. | `cardiology` |
 | `elf` | ELF (Enhanced Liver Fibrosis test) | Second-line serum biomarker test for liver fibrosis (NICE NG49). | `hepatology`, `screening`, `proprietary`, `unavailable` |
 | `energy_requirement` | Energy Requirement (BMR/RMR/TDEE) | Adult basal/resting energy estimate using Mifflin-St Jeor, Harris-Benedict original/revised, Schofield, or Cunningham, with optional activity factor and kcal target adjustment. | `primary-care`, `endocrinology` |
 | `epds` | Edinburgh Postnatal Depression Scale (EPDS) | Ten-item perinatal depression screen (0-30); >=10 possible, >=13 probable; item 10 flags self-harm risk. | `primary-care`, `mental-health`, `perinatal`, `screening` |
 | `euroscore2` | EuroSCORE II (Cardiac Surgery Mortality) | Predicted operative mortality after cardiac surgery from 18 preoperative factors (Nashef 2012). | `cardiology`, `surgery`, `prognostic` |
+| `familial_hypercholesterolaemia` | Familial Hypercholesterolaemia (Simon Broome + DLCN) | Diagnoses familial hypercholesterolaemia using both the Simon Broome (UK) and Dutch Lipid Clinic Network (DLCN) criteria. | `primary-care`, `cardiology`, `endocrinology`, `risk` |
+| `fena` | FENa (Fractional Excretion of Sodium) | Differentiates pre-renal from intrinsic renal failure using urine and plasma sodium and creatinine. | `acute-medicine`, `nephrology` |
 | `feverpain` | FeverPAIN Score | Five-item score guiding antibiotic prescribing in acute sore throat (validated for adults and children aged 3+). | `primary-care`, `infectious-diseases`, `respiratory` |
 | `fib4` | FIB-4 Liver Fibrosis Index | Non-invasive screen for advanced liver fibrosis from age, AST, ALT, and platelets (NICE NG49). | `primary-care`, `hepatology`, `screening` |
+| `findrisc` | FINDRISC (Finnish Diabetes Risk Score) | Predicts 10-year risk of type 2 diabetes using 8 lifestyle and clinical items (score 0-26). | `primary-care`, `endocrinology`, `screening` |
 | `fourat` | 4AT Rapid Delirium Screening | Rapid bedside screen for delirium and cognitive impairment (four items, score 0-12). | `acute-medicine`, `geriatrics`, `neurology`, `screening` |
 | `frax` | FRAX (10-year fracture risk) | 10-year probability of osteoporotic and hip fracture (NICE CG146). | `endocrinology`, `musculoskeletal`, `risk`, `proprietary`, `unavailable` |
 | `gad7` | GAD-7 Anxiety Severity | Seven-item generalised anxiety severity score (0-21); a total of 10+ flags likely GAD. | `primary-care`, `mental-health`, `screening` |

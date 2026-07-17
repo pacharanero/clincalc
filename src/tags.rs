@@ -43,6 +43,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
         "feverpain",
         &["primary-care", "infectious-diseases", "respiratory"],
     ),
+    ("centor", &["primary-care", "infectious-diseases"]),
     ("alvarado", &["emergency", "surgery", "risk"]),
     ("alcohol_units", &["primary-care", "mental-health"]),
     ("phq9", &["primary-care", "mental-health", "screening"]),
@@ -61,7 +62,13 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ("mrc_dyspnoea", &["primary-care", "respiratory"]),
     // ---- Cardiology ----
     ("cha2ds2vasc", &["cardiology", "risk"]),
+    ("cha2ds2_va", &["cardiology", "risk"]),
+    ("ehra", &["cardiology"]),
     ("ascvd", &["primary-care", "cardiology", "risk"]),
+    (
+        "familial_hypercholesterolaemia",
+        &["primary-care", "cardiology", "endocrinology", "risk"],
+    ),
     ("hasbled", &["cardiology", "risk"]),
     ("heart", &["cardiology", "emergency", "risk"]),
     ("grace", &["cardiology", "acute-medicine", "prognostic"]),
@@ -72,6 +79,11 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ("wells_dvt", &["emergency", "vascular"]),
     ("wells_pe", &["emergency", "respiratory", "vascular"]),
     ("padua", &["acute-medicine", "vascular", "risk"]),
+    (
+        "caprini",
+        &["acute-medicine", "surgery", "vascular", "risk"],
+    ),
+    ("caprini", &["surgery", "vascular", "risk"]),
     ("abpi", &["primary-care", "vascular"]),
     // ---- Stroke / neurology ----
     ("abcd2", &["neurology", "emergency", "risk"]),
@@ -84,6 +96,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ("qsofa", &["acute-medicine", "intensive-care", "screening"]),
     ("sofa", &["intensive-care", "severity"]),
     ("apache2", &["intensive-care", "severity", "prognostic"]),
+    ("charlson", &["primary-care", "risk", "prognostic"]),
     (
         "curb65",
         &[
@@ -96,11 +109,15 @@ pub const TAGS: &[(&str, &[&str])] = &[
     // ---- Renal ----
     ("egfr", &["primary-care", "nephrology"]),
     ("cockcroft_gault", &["primary-care", "nephrology"]),
-    ("cockcroft_gault", &["primary-care", "nephrology"]),
+    ("fena", &["acute-medicine", "nephrology"]),
     ("corrected_calcium", &["primary-care", "endocrinology"]),
     ("anion_gap", &["acute-medicine", "nephrology"]),
     ("energy_requirement", &["primary-care", "endocrinology"]),
     ("bmi", &["primary-care", "endocrinology"]),
+    ("body_fat_circumference", &["primary-care", "endocrinology"]),
+    ("findrisc", &["primary-care", "endocrinology", "screening"]),
+    ("body_fat_circumference", &["primary-care", "endocrinology"]),
+    ("findrisc", &["primary-care", "endocrinology", "screening"]),
     ("uacr", &["primary-care", "nephrology"]),
     ("ckd_risk", &["primary-care", "nephrology", "risk"]),
     // ---- Hepatology ----
@@ -125,6 +142,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ("asa_physical_status", &["surgery", "severity"]),
     ("barthel", &["geriatrics", "severity"]),
     ("waterlow", &["acute-medicine", "geriatrics", "screening"]),
+    ("braden", &["acute-medicine", "geriatrics", "screening"]),
     // ---- Respiratory / COPD ----
     ("bode", &["respiratory", "prognostic"]),
     // ---- Paediatrics ----
