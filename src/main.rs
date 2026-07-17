@@ -19,6 +19,18 @@ use clap_complete::{Shell, generate};
 
 use clincalc::cli::{CalcCommand, ListCommand, TagsCommand, VersionCommand};
 
+/// Arguments for `clincalc api`.
+#[derive(Debug, Args)]
+struct ApiCommand {
+    /// Port to listen on.
+    #[arg(long, default_value = "8080")]
+    port: u16,
+
+    /// Address to bind to.
+    #[arg(long, default_value = "127.0.0.1")]
+    host: String,
+}
+
 /// Open, auditable clinical calculators.
 #[derive(Debug, Parser)]
 #[command(
@@ -55,6 +67,9 @@ enum Commands {
 
     /// Start the local stdio MCP server when compiled with `--features mcp`.
     Mcp,
+
+    /// Start the local HTTP REST API server (default port 8080).
+    Api(ApiCommand),
 }
 
 #[derive(Debug, Args)]
@@ -113,6 +128,7 @@ fn main() -> anyhow::Result<()> {
         Some(Commands::Version(cmd)) => clincalc::cli::run_version(cmd),
         Some(Commands::Completions(args)) => run_completions(args),
         Some(Commands::Mcp) => run_mcp(),
+        Some(Commands::Api(cmd)) => run_api(cmd),
     }
 }
 
@@ -168,6 +184,18 @@ fn run_mcp() -> Result<()> {
 fn run_mcp() -> Result<()> {
     Err(anyhow!(
         "MCP support was not compiled into this clincalc binary.\nReinstall with MCP enabled, for example: cargo install clincalc --features mcp"
+    ))
+}
+
+#[cfg(feature = "rest-api")]
+fn run_api(cmd: ApiCommand) -> Result<()> {
+    tokio::runtime::Runtime::new()?.block_on(clincalc::api::serve(&cmd.host, cmd.port))
+}
+
+#[cfg(not(feature = "rest-api"))]
+fn run_api(_cmd: ApiCommand) -> Result<()> {
+    Err(anyhow!(
+        "REST API support was not compiled into this clincalc binary.\nReinstall with it enabled, for example: cargo install clincalc --features rest-api"
     ))
 }
 

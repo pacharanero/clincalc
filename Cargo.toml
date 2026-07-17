@@ -27,11 +27,14 @@ path = "src/main.rs"
 required-features = ["cli"]
 
 [features]
-default = ["cli"]
+default = ["cli", "rest-api"]
 # The command-line surface: the `clincalc` binary plus the reusable `clincalc::cli`
 # module (CalcCommand + run), embeddable by host CLIs such as GitEHR.
 cli = ["dep:anyhow", "dep:clap", "dep:clap_complete"]
 mcp = ["cli", "dep:rmcp", "dep:tokio"]
+# HTTP REST API surface: `clincalc api [--port 8080] [--host 127.0.0.1]`.
+# On by default; exclude with `default-features = false` for a lighter binary.
+rest-api = ["cli", "dep:axum", "dep:tokio"]
 
 [dependencies]
 # The leaf engine depends only on serde. Everything the CLI needs is optional
@@ -42,8 +45,9 @@ serde_json = "1.0"
 anyhow = { version = "1", optional = true }
 clap = { version = "4.6", features = ["derive"], optional = true }
 clap_complete = { version = "4.6", optional = true }
+axum = { version = "0.8.9", optional = true }
 rmcp = { version = "2.2.0", default-features = false, features = ["server", "transport-io"], optional = true }
-tokio = { version = "1", features = ["macros", "rt-multi-thread"], optional = true }
+tokio = { version = "1", features = ["macros", "net", "rt-multi-thread"], optional = true }
 
 [package.metadata.docs.rs]
 all-features = true

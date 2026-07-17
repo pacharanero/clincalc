@@ -77,6 +77,10 @@ pub mod cli;
 #[cfg(feature = "mcp")]
 pub mod mcp;
 
+/// The HTTP REST API surface, behind the optional `rest-api` feature.
+#[cfg(feature = "rest-api")]
+pub mod api;
+
 pub use calculator::{CalcError, Calculator};
 pub use license::CalculatorLicense;
 pub use proprietary::ProprietaryCalculator;
