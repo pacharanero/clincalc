@@ -83,11 +83,11 @@ A persistent HTTP server exposing every calculator as a JSON endpoint. Implement
 
 A `clincalc-py` crate using `pyo3` to expose the engine to Python data-science workflows. Kept as a separate crate so the core `clincalc` crate remains leaf-clean.
 
-### Future
+### Completed
 
-- [ ] **PY-001 `clincalc-py` crate** - `pyo3`-based Python bindings. `import clincalc; clincalc.calculate("egfr", {...})` returning a dict matching `CalculationResponse`.
-- [ ] **PY-002 PyPI publish** - `maturin` build + publish to PyPI alongside the Rust crates.io release.
-- [ ] **PY-003 Pandas-friendly helpers** - `clincalc.batch("egfr", df)` applying a calculator to every row of a DataFrame.
+- [x] **PY-001 `clincalc-py` crate** - `pyo3`-based Python bindings. `import clincalc; clincalc.calculate("egfr", {...})` returns a dict matching `CalculationResponse`. Implemented in `python/`; excluded from the main workspace so the engine stays a serde-only leaf.
+- [x] **PY-002 PyPI publish** - `maturin` build + publish to PyPI via `.github/workflows/publish-python.yml`, triggered by the same `v*` tag as the Rust release.
+- [x] **PY-003 Pandas-friendly helpers** - `clincalc.batch("egfr", df)` applies a calculator to every row of a DataFrame, with optional `input_columns` mapping for mismatched column names.
 
 ---
 

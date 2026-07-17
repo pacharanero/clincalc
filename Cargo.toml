@@ -58,12 +58,13 @@ path-guid = "A1A62FB5-0A76-4664-AF70-91F60BA2EA69"
 license = false
 eula = false
 
-# The Tauri desktop GUI is a separate crate with its own dependency graph and
-# lockfile (webkit / webview bindings); exclude it so `cargo build` for the
-# engine + CLI never pulls that in. This [workspace] section also makes the repo
-# root the workspace root, so cargo-dist reads [workspace.metadata.dist] below.
+# The Tauri desktop GUI and the Python bindings crate are separate packages with
+# their own dependency graphs and lockfiles (webkit / webview and PyO3 / maturin
+# respectively); exclude them so `cargo build` for the engine + CLI never pulls
+# those in. This [workspace] section also makes the repo root the workspace root,
+# so cargo-dist reads [workspace.metadata.dist] below.
 [workspace]
-exclude = ["gui/src-tauri"]
+exclude = ["gui/src-tauri", "python"]
 
 # cargo-dist builds and ships the `clincalc` binary (archives + shell / powershell /
 # homebrew / msi installers) from the vX.Y.Z tag. Regenerate

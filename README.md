@@ -62,6 +62,27 @@ clincalc mcp
 
 The MCP server exposes every calculator as a typed tool named `clincalc_<name>` using the calculator's own JSON Schema. See [`docs/mcp.md`](docs/mcp.md) for host configuration and safety notes.
 
+## Python package
+
+Install from PyPI after the first release:
+
+```bash
+pip install clincalc
+```
+
+```python
+import clincalc
+
+result = clincalc.calculate("bmi", {"weight_kg": 70, "height_cm": 175})
+print(result["result"], result["interpretation"])
+
+# Batch over a pandas DataFrame
+import pandas as pd
+results = clincalc.batch("bmi", pd.DataFrame({"weight_kg": [70], "height_cm": [175]}))
+```
+
+See [`docs/python.md`](docs/python.md) for the full API and pandas helpers.
+
 ## The library
 
 The full UK-focused 50-tool roadmap (`spec/calculator-roadmap.md`) is implemented across five tiers, from QRISK3, PHQ-9, GAD-7, eGFR and FIB-4 through NEWS2, CURB-65, the Wells scores, CHA2DS2-VASc and HAS-BLED, to DAS28, SOFA, MELD, CHALICE and Gleason. Run `clincalc list` for the current set.
@@ -88,16 +109,17 @@ The dependency arrows all point **into** the core, which never depends on anythi
 | **Programmatic / stdio CLI** | Shipped | `--json` flag, JSON stdin input - usable by any process that can exec a subprocess. |
 | **MCP server** | Shipped | `clincalc mcp` (optional `mcp` feature) - each calculator as a typed MCP tool for LLM hosts. |
 | **Desktop GUI** | Planned | Tauri desktop app; see `spec/gui.md`. Calls the Rust engine natively - no HTTP round-trip. |
-| **REST API** | Planned | Optional `rest-api` feature (axum/hyper, same pattern as `mcp`) - persistent HTTP server for any caller. |
+| **REST API** | Shipped | Optional `rest-api` feature - `clincalc api` starts an axum server with `GET /calculators`, per-calculator `POST`, and `GET /openapi.json`. |
 | **Web UI** | Planned | `clincalc-web` single-file HTML; see `spec/roadmap.md`. |
-| **Python FFI** | Future | `pyo3` bindings in a separate `clincalc-py` crate - makes the engine accessible to data-science workflows. |
+| **Python FFI** | Shipped | `pip install clincalc`; `clincalc.calculate("egfr", {...})` and `clincalc.batch("egfr", df)`. Implemented in `python/` as a separate `pyo3` crate so the core stays leaf-clean. |
 
 The concrete Rust structure:
 
 - **`clincalc`** (this crate) - the scoring engine. With `default-features = false` it is a strict leaf: only `serde` and `serde_json`, no async runtime, no host dependency.
 - The default **`cli` feature** adds the `clincalc` binary and the reusable `clincalc::cli` module. A host CLI (e.g. GitEHR's `gitehr calc`) calls this module directly.
 - The optional **`mcp` feature** adds `clincalc mcp`, a local stdio MCP server. Each calculator in `clincalc::all()` becomes a typed MCP tool automatically.
-- The planned **`rest-api` feature** will follow the same optional-feature pattern as `mcp`.
+- The optional **`rest-api` feature** follows the same optional-feature pattern as `mcp`: `clincalc api` starts an axum server with an auto-generated OpenAPI spec.
+- The **`clincalc` Python package** (`python/`) follows the same optional-dependency pattern, giving data-science workflows access to every calculator via PyPI without touching the Rust crate's dependency graph.
 
 Adding a calculator to `clincalc::all()` surfaces it everywhere - CLI, MCP, REST API, GUI, web - with no per-surface code.
 

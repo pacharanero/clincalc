@@ -1,0 +1,37 @@
+# SPDX-FileCopyrightText: 2026 Marcus Baw and Baw Medical Ltd
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "clincalc"
+version = "0.2.1"
+description = "Open, auditable clinical calculators - Python bindings for the clincalc Rust engine"
+authors = [{name = "Marcus Baw", email = "marcus@bawmedical.co.uk"}]
+license = {text = "AGPL-3.0-or-later"}
+requires-python = ">=3.9"
+readme = "README.md"
+keywords = ["clinical", "medical", "calculator", "healthcare", "scoring"]
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+]
+
+[project.optional-dependencies]
+pandas = ["pandas>=1.0"]
+
+[project.urls]
+Repository = "https://github.com/pacharanero/clincalc"
+Documentation = "https://pacharanero.github.io/clincalc/"
+
+[tool.maturin]
+# The Rust extension is installed as clincalc/_clincalc.so; the Python package
+# wrapper in clincalc/__init__.py imports from it and re-exports the public API.
+module-name = "clincalc._clincalc"
+python-source = "."
+features = ["pyo3/extension-module"]
