@@ -6,7 +6,7 @@ The clinical-calculator backlog, grouped strictly by completion status. Calculat
 
 Roadmap items have stable identifiers so they can be referred to in conversation, commits, PRs, and release notes. Do not renumber existing IDs just because items are completed or removed.
 
-Completed calculators are removed from this file rather than kept as roadmap history. The shipped catalogue is [`docs/calculators.md`](../docs/calculators.md), currently 54 active calculators that compute a real score plus 10 proprietary / unavailable stubs.
+Completed calculators are removed from this file rather than kept as roadmap history. The shipped catalogue is [`docs/calculators.md`](../docs/calculators.md).
 
 ## Status legend
 
@@ -30,29 +30,19 @@ _Nothing currently committed to build. Promote from [Future](#future) when sched
 
 Calculators worth shipping, under consideration. Largely surfaced from sibling open-source projects (notably [MedikQuantis](https://medikquantis.me), MIT licensed). Clinical context for each lives in the [docs catalogue wishlist](../docs/calculators.md#wishlist-candidates-for-future-addition).
 
-- [ ] **CALC-039 Body fat by circumference** - US Navy method / Relative Fat Mass; tape-measure alternative to BIA scales
-- [ ] **CALC-009 Braden Scale** - Pressure-ulcer risk (acute care)
-- [ ] **CALC-010 Caprini** - Peri-operative VTE risk
-- [ ] **CALC-011 Centor / McIsaac** - Strep pharyngitis probability
-- [ ] **CALC-012 CHA₂DS₂-VA** - 2024 ESC sex-free update of CHA₂DS₂-VASc
-- [ ] **CALC-013 Charlson Comorbidity Index** - 10-year comorbidity mortality
-- [ ] **CALC-014 EHRA** - AF symptom classification
-- [ ] **CALC-040 Familial hypercholesterolaemia criteria** - Simon Broome + Dutch Lipid Clinic Network scoring for suspected FH
-- [ ] **CALC-015 FENa** - Fractional excretion of sodium
-- [ ] **CALC-016 FINDRISC** - 10-year T2DM risk
+Anthropometric and body-composition measures beyond the shipped BMI, body-fat-circumference, WHtR, 1RM, and training-zone calculators are grouped under CALC-046..052. They range from simple tape-measure proxies (WHR, RFM, BAI) to lab/field methods for body composition (skinfolds, FFMI, SMI) and strength tools (Wilks/DOTS).
+
 - [ ] **CALC-017 GCS** - Glasgow Coma Scale
 - [ ] **CALC-018 Glasgow-Blatchford** - Upper-GI bleed pre-endoscopy triage
 - [ ] **CALC-019 Hinchey** - Acute diverticulitis anatomy
 - [ ] **CALC-020 Hyperglycaemia-corrected sodium** (Katz / Hillier)
 - [ ] **CALC-041 LDL / non-HDL cholesterol** - Friedewald, Martin-Hopkins, and Sampson-NIH LDL estimation from a lipid panel
 - [ ] **CALC-021 LRINEC** - Necrotising fasciitis
-- [ ] **CALC-042 Max HR + training zones** - Tanaka (208 - 0.7 x age); optional Karvonen with resting HR
 - [ ] **CALC-022 MELD 3.0** - Updated MELD
 - [ ] **CALC-023 Modified Duke criteria** - Infective endocarditis
 - [ ] **CALC-024 NIHSS** - Acute stroke severity
 - [ ] **CALC-025 Norton Scale** - Pressure-ulcer risk (immobile)
 - [ ] **CALC-026 NYHA** - Heart-failure functional class
-- [ ] **CALC-043 One-rep-max estimator** - Epley / Brzycki / Lombardi from weight x reps
 - [ ] **CALC-027 ORBIT** - Bleeding risk in AF (DOAC era)
 - [ ] **CALC-028 PASI** - Psoriasis Area and Severity Index
 - [ ] **CALC-029 PERC** - PE rule-out criteria
@@ -64,5 +54,10 @@ Calculators worth shipping, under consideration. Largely surfaced from sibling o
 - [ ] **CALC-034 SCORAD** - Atopic dermatitis severity
 - [ ] **CALC-035 SCORE2 / SCORE2-OP** - ESC 2021 CV risk (verify licensing)
 - [ ] **CALC-036 StatinMD** (Oxford STRATIFY) - personalised 1/5/10-year risk of serious statin-induced muscle disorders; natural pairing with QRISK3 (benefit vs harm). Academic licence via Oxford University Innovation (Cai et al, *Lancet Digital Health* 2026; [licence page](https://process.innovation.ox.ac.uk/software/p/25396/stratify---stainmd-risk-calculator---academic-use/1))
-- [ ] **CALC-045 Waist-to-height ratio (WHtR)** - central-adiposity proxy (boundary 0.5); NICE-endorsed, more informative than BMI
 - [ ] **CALC-046 Wilks / DOTS** - bodyweight-adjusted strength score
+- [ ] **CALC-047 Waist-to-hip ratio (WHR)** - abdominal-vs-gluteal adiposity distribution; sex-specific metabolic-risk thresholds
+- [ ] **CALC-048 Skinfold body fat % (Jackson-Pollock / Durnin-Womersley)** - caliper-derived body-fat estimate for training and body-comparison settings
+- [ ] **CALC-049 Body adiposity index (BAI)** - %BF proxy from height and hip circumference; population-specific (Hispanic-origin calibration)
+- [ ] **CALC-050 Relative fat mass (RFM)** - simplified sex-specific height/waist equation validated against DXA
+- [ ] **CALC-051 Fat-free mass index (FFMI)** - fat-free mass normalised to height^2; used in sports medicine and sarcopenia screening
+- [ ] **CALC-052 Skeletal muscle mass index (SMI)** - appendicular lean mass / height^2; sarcopenia definition (EWGSOP2 / FNIH)

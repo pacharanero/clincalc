@@ -55,10 +55,6 @@ See the design spec at [`spec/gui.md`](spec/gui.md) and the implementation guide
 
 ## Authoring workflow & docs
 
-### Planned
-
-The docs.rs front page now documents the `cli` / `mcp` feature flags, `default-features = false` leaf usage, and a minimal registry example. docs.rs is configured to build all features so the optional MCP module is visible.
-
 ### Future
 
 - [ ] **DOC-002 `docs/translating.md`** - contribution path for translators once multilingual lands.
@@ -66,18 +62,6 @@ The docs.rs front page now documents the `cli` / `mcp` feature flags, `default-f
 ---
 
 
-
-## REST API surface
-
-A persistent HTTP server exposing every calculator as a JSON endpoint. Implemented as an optional `rest-api` feature (axum + tokio), following the same pattern as the `mcp` feature - the engine is unchanged, only a new surface is added.
-
----
-
-## Python FFI
-
-A `clincalc-py` crate using `pyo3` to expose the engine to Python data-science workflows. Kept as a separate crate so the core `clincalc` crate remains leaf-clean.
-
----
 
 ## Engine & embedding
 
@@ -264,4 +248,4 @@ Open questions for comment:
 
 See [`spec/calculator-roadmap.md`](spec/calculator-roadmap.md).
 
-At time of writing: 64 active + 10 proprietary stubs shipped; 36 Future candidates queued (chiefly from MedikQuantis, plus the recently-added [StatinMD](https://www.thelancet.com/journals/landig/article/PIIS2589-7500\(26\)00047-6/fulltext)).
+The live calculator counts and remaining candidates are maintained in [`docs/calculators.md`](../docs/calculators.md) and [`spec/calculator-roadmap.md`](calculator-roadmap.md), respectively.
