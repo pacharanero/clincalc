@@ -52,15 +52,16 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: |
-          if cargo publish >publish.log 2>&1; then
+          log="$RUNNER_TEMP/cargo-publish.log"
+          if cargo publish >"$log" 2>&1; then
             exit 0
           fi
 
-          if grep -Eqi "already uploaded|already exists on crates.io index" publish.log; then
+          if grep -Eqi "already uploaded|already exists on crates.io index" "$log"; then
             echo "This crate version is already published on crates.io - treating as success."
-            cat publish.log
+            cat "$log"
             exit 0
           fi
 
-          cat publish.log >&2
+          cat "$log" >&2
           exit 1
