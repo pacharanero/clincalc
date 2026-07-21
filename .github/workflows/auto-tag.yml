@@ -4,8 +4,8 @@
 name: Auto-tag on version bump
 
 # When a push to main bumps the workspace version in Cargo.toml, create and push
-# the matching `v<version>` tag, then invoke the release + crates.io publish
-# workflows with that tag.
+# the matching `v<version>` tag, then invoke the binary release, crates.io, and
+# PyPI publish workflows with that tag.
 #
 # The downstream workflows are invoked via `workflow_call` rather than by relying
 # on the tag push to trigger them, because pushes performed via the default
@@ -23,6 +23,7 @@ concurrency:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   tag:
@@ -108,6 +109,14 @@ jobs:
     needs: tag
     if: needs.tag.outputs.created == 'true'
     uses: ./.github/workflows/publish-crates.yml
+    with:
+      tag: ${{ needs.tag.outputs.tag }}
+    secrets: inherit
+
+  publish-python:
+    needs: tag
+    if: needs.tag.outputs.created == 'true'
+    uses: ./.github/workflows/publish-python.yml
     with:
       tag: ${{ needs.tag.outputs.tag }}
     secrets: inherit

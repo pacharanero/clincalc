@@ -7,7 +7,8 @@ name: Publish Python package to PyPI
 # by auto-tag.yml via workflow_call (the cascade); also triggerable manually
 # or by a `v*` tag push to re-publish a given tag.
 #
-# Needs the PYPI_API_TOKEN secret on this repo.
+# Publishes with PyPI Trusted Publishing via GitHub OIDC. PyPI must trust this
+# repository and workflow; no long-lived API token is stored in GitHub.
 
 on:
   workflow_call:
@@ -42,7 +43,7 @@ jobs:
       - uses: PyO3/maturin-action@3e2bdf6ba6453a61e649744019b8a2d906c7eb38 # v1.51.0
         with:
           command: build
-          args: --release --features pyo3/extension-module --target ${{ matrix.target }}-unknown-linux-gnu --out dist --manifest-path python/Cargo.toml
+          args: --release --locked --target ${{ matrix.target }}-unknown-linux-gnu --out dist --manifest-path Cargo.toml
           manylinux: auto
           working-directory: python
       - name: Upload wheels
@@ -63,7 +64,7 @@ jobs:
       - uses: PyO3/maturin-action@3e2bdf6ba6453a61e649744019b8a2d906c7eb38 # v1.51.0
         with:
           command: build
-          args: --release --features pyo3/extension-module --target ${{ matrix.target }}-pc-windows-msvc --out dist --manifest-path python/Cargo.toml
+          args: --release --locked --target ${{ matrix.target }}-pc-windows-msvc --out dist --manifest-path Cargo.toml
           working-directory: python
       - name: Upload wheels
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -83,7 +84,7 @@ jobs:
       - uses: PyO3/maturin-action@3e2bdf6ba6453a61e649744019b8a2d906c7eb38 # v1.51.0
         with:
           command: build
-          args: --release --features pyo3/extension-module --target ${{ matrix.target }}-apple-darwin --out dist --manifest-path python/Cargo.toml
+          args: --release --locked --target ${{ matrix.target }}-apple-darwin --out dist --manifest-path Cargo.toml
           working-directory: python
       - name: Upload wheels
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -100,7 +101,7 @@ jobs:
       - uses: PyO3/maturin-action@3e2bdf6ba6453a61e649744019b8a2d906c7eb38 # v1.51.0
         with:
           command: sdist
-          args: --out dist --manifest-path python/Cargo.toml
+          args: --out dist --manifest-path Cargo.toml
           working-directory: python
       - name: Upload sdist
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

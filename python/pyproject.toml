@@ -7,7 +7,7 @@ build-backend = "maturin"
 
 [project]
 name = "clincalc"
-version = "0.2.1"
+dynamic = ["version"]
 description = "Open, auditable clinical calculators - Python bindings for the clincalc Rust engine"
 authors = [{name = "Marcus Baw", email = "marcus@bawmedical.co.uk"}]
 license = {text = "AGPL-3.0-or-later"}
@@ -17,7 +17,6 @@ keywords = ["clinical", "medical", "calculator", "healthcare", "scoring"]
 classifiers = [
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",
-    "Programming Language :: Python :: Implementation :: PyPy",
     "Topic :: Scientific/Engineering :: Medical Science Apps.",
     "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
 ]
