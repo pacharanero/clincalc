@@ -3,7 +3,7 @@
 
 [package]
 name = "clincalc-py"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2024"
 authors = ["Marcus Baw"]
 description = "Python bindings for clincalc - open, auditable clinical calculators"

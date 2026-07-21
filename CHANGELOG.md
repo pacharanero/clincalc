@@ -4,6 +4,56 @@ All notable changes to `calc` are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2] - 2026-07-21
+
+### Added
+
+- **calc**: Add anthropometric and training calculators ([ea4969b](https://github.com/pacharanero/clincalc/commit/ea4969bbf62d51a69630c8bfcd884bdb487761c8))
+
+- **python**: Ship PyO3 bindings, PyPI CI, and pandas batch helpers ([b2bb680](https://github.com/pacharanero/clincalc/commit/b2bb6805519eac9e19a5b79c292b9706fdb1e0bd))
+
+- **api**: Add GET /openapi.json - OpenAPI 3.1 spec auto-generated from registry ([c26504e](https://github.com/pacharanero/clincalc/commit/c26504eae5251f3471b5f404ced9e6e7a8a1331e))
+
+- **api**: Add REST API surface behind rest-api feature (on by default) ([7dbaa08](https://github.com/pacharanero/clincalc/commit/7dbaa08aaf25b6f8d6727f6b002333c749a129dd))
+
+- **calc**: Add 10 calculators (CALC-009/010/011/012/013/014/015/016/039/040) ([eb35871](https://github.com/pacharanero/clincalc/commit/eb35871f723559105be9fd296cd3408627dfb15c))
+
+- **calc**: Add Cockcroft-Gault creatinine clearance (CALC-047) ([a0f271b](https://github.com/pacharanero/clincalc/commit/a0f271bb6698db502d6b20d94ba4a8a662b8663b))
+
+- **cli**: Add human input and profile conveniences ([7046b15](https://github.com/pacharanero/clincalc/commit/7046b15e1852e962ffd8d913294530d12ac7363d))
+
+- **cli**: Add calculator aliases and energy presets ([77d4108](https://github.com/pacharanero/clincalc/commit/77d4108dc6f4883ca33b60d70429a139bc27a4e8))
+
+- **cli**: Add command structure and completions surface ([628a4df](https://github.com/pacharanero/clincalc/commit/628a4df322f11eed2a93b8f5ab1509a8b1625d5c))
+
+- **calc**: Add energy requirement equations ([5990395](https://github.com/pacharanero/clincalc/commit/5990395604bc17e3972ae598d3460e76354bd2fb))
+
+- **gui**: Add priority calculators and simplify shell ([a2231d3](https://github.com/pacharanero/clincalc/commit/a2231d3b42b936a294433abf3c0874b64d0efba1))
+
+### Documentation
+
+- **roadmap**: Checkbox-format all ENG implementation steps ([02eb48f](https://github.com/pacharanero/clincalc/commit/02eb48fcf9637f42da6d9531d5bc2cb880ff2e35))
+
+- **roadmap**: Checkbox-format COLL-001/002 implementation steps ([2d38465](https://github.com/pacharanero/clincalc/commit/2d3846551402b31076a6ea1954280303100fb6dd))
+
+- **roadmap**: Add COLL-001/002 MedikQuantis collaboration plan ([853c0ce](https://github.com/pacharanero/clincalc/commit/853c0ce582e0309bf87b9f4091f7306d7ba55ee3))
+
+- **roadmap**: Clear completed API/Python items and expand ENG backlog ([a1950b6](https://github.com/pacharanero/clincalc/commit/a1950b6db2ac567a4f9087280a3bffad7dce9f77))
+
+- Mark API-001 done, close API-003 in favour of reverse proxy ([5a430b8](https://github.com/pacharanero/clincalc/commit/5a430b85777cd29683a56562bb1c5fd7e4d10ec5))
+
+- Mark API-001 done, close API-003 in favour of reverse proxy ([99d1676](https://github.com/pacharanero/clincalc/commit/99d167683581a1a5544ce43c7ba90539b81a76fe))
+
+- Document all planned surfaces (REST API, Python FFI, GUI, web) in README and roadmap ([b67623b](https://github.com/pacharanero/clincalc/commit/b67623bbcbec96252c631fb692c60cf6bd483e12))
+
+- Complete calculator authoring docs items ([e652fbf](https://github.com/pacharanero/clincalc/commit/e652fbfbeb8317b06c6bd5cdd83822aaaddebabc))
+
+- Add roadmap item identifiers ([4a6692e](https://github.com/pacharanero/clincalc/commit/4a6692e22620ddac1c3a3aba7087737c8eb40b3f))
+
+- Check off completed roadmap items ([3f96e38](https://github.com/pacharanero/clincalc/commit/3f96e3879de1bd7ee1b46599c3cdccd69e09316d))
+
+- **gui**: Document debugging and Linux diagnostics ([c5495d9](https://github.com/pacharanero/clincalc/commit/c5495d9006b38a35a378e38d48fef3297a412b0d))
+
 ## [0.2.1] - 2026-07-10
 
 ### Added
