@@ -32,7 +32,6 @@ Calculators worth shipping, under consideration. Largely surfaced from sibling o
 
 Anthropometric and body-composition measures beyond the shipped BMI, body-fat-circumference, WHtR, 1RM, and training-zone calculators are grouped under CALC-046..052. They range from simple tape-measure proxies (WHR, RFM, BAI) to lab/field methods for body composition (skinfolds, FFMI, SMI) and strength tools (Wilks/DOTS).
 
-- [ ] **CALC-017 GCS** - Glasgow Coma Scale
 - [ ] **CALC-018 Glasgow-Blatchford** - Upper-GI bleed pre-endoscopy triage
 - [ ] **CALC-019 Hinchey** - Acute diverticulitis anatomy
 - [ ] **CALC-020 Hyperglycaemia-corrected sodium** (Katz / Hillier)

@@ -50,6 +50,7 @@ pub mod fib4;
 pub mod findrisc;
 pub mod fourat;
 pub mod gad7;
+pub mod gcs;
 pub mod gleason;
 pub mod grace;
 pub mod hasbled;
