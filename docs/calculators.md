@@ -76,6 +76,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `fourat` | 4AT Rapid Delirium Screening | Rapid bedside screen for delirium and cognitive impairment (four items, score 0-12). | `acute-medicine`, `geriatrics`, `neurology`, `screening` |
 | `frax` | FRAX (10-year fracture risk) | 10-year probability of osteoporotic and hip fracture (NICE CG146). | `endocrinology`, `musculoskeletal`, `risk`, `proprietary`, `unavailable` |
 | `gad7` | GAD-7 Anxiety Severity | Seven-item generalised anxiety severity score (0-21); a total of 10+ flags likely GAD. | `primary-care`, `mental-health`, `screening` |
+| `gcs` | Glasgow Coma Scale (GCS) | Bedside score (3-15) of conscious level from eye, verbal, and motor response (Teasdale & Jennett 1974); omits the total and band when any component is not testable, per current guidance. | `neurology`, `emergency`, `acute-medicine`, `severity` |
 | `gleason` | Gleason Grade Group (ISUP/WHO) | Gleason score and ISUP/WHO Grade Group (1-5) from the primary and secondary prostate cancer patterns. | `oncology`, `urology` |
 | `grace` | GRACE ACS Risk Score (in-hospital mortality) | Point-based GRACE 1.0 score (Granger 2003) estimating in-hospital mortality risk in acute coronary syndrome. | `cardiology`, `acute-medicine`, `prognostic` |
 | `hasbled` | HAS-BLED Bleeding Risk (AF) | Bleeding risk in atrial fibrillation on anticoagulation, used alongside CHA2DS2-VASc (NICE NG196). | `cardiology`, `risk` |
@@ -128,7 +129,6 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 | Candidate | What it does | Tentative tags |
 |---|---|---|
 | **StatinMD** (Oxford STRATIFY) | Personalised 1/5/10-year risk of serious statin-induced muscle disorders (rhabdomyolysis / hospitalised myopathy) from 22 routinely-recorded factors (Cai et al, *Lancet Digital Health* 2026). Natural pairing with QRISK3: QRISK3 is the benefit side, StatinMD is the harm side. Licensed for **academic use** via Oxford University Innovation - covered while this project is non-commercial. ([source](https://process.innovation.ox.ac.uk/software/p/25396/stratify---stainmd-risk-calculator---academic-use/1)) | `primary-care`, `cardiology`, `risk` |
-| **GCS** (Glasgow Coma Scale) | Universal bedside score; trauma, sedation, neuro obs. | `neurology`, `emergency` |
 | **NIHSS** | Acute stroke severity standard. | `neurology`, `emergency`, `severity` |
 | **Charlson Comorbidity Index** | Most-cited comorbidity index; 10-year mortality. | `prognostic` |
 | **APACHE II** | Classic ICU severity / mortality. | `intensive-care`, `severity`, `prognostic` |
