@@ -40,7 +40,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ inputs.tag || github.ref }}
-      - uses: PyO3/maturin-action@3e2bdf6ba6453a61e649744019b8a2d906c7eb38 # v1.51.0
+      - uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
         with:
           command: build
           args: --release --locked --target ${{ matrix.target }}-unknown-linux-gnu --out dist --manifest-path Cargo.toml
@@ -61,7 +61,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ inputs.tag || github.ref }}
-      - uses: PyO3/maturin-action@3e2bdf6ba6453a61e649744019b8a2d906c7eb38 # v1.51.0
+      - uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
         with:
           command: build
           args: --release --locked --target ${{ matrix.target }}-pc-windows-msvc --out dist --manifest-path Cargo.toml
@@ -81,7 +81,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ inputs.tag || github.ref }}
-      - uses: PyO3/maturin-action@3e2bdf6ba6453a61e649744019b8a2d906c7eb38 # v1.51.0
+      - uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
         with:
           command: build
           args: --release --locked --target ${{ matrix.target }}-apple-darwin --out dist --manifest-path Cargo.toml
@@ -98,7 +98,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ inputs.tag || github.ref }}
-      - uses: PyO3/maturin-action@3e2bdf6ba6453a61e649744019b8a2d906c7eb38 # v1.51.0
+      - uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
         with:
           command: sdist
           args: --out dist --manifest-path Cargo.toml
