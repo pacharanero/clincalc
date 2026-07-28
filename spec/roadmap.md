@@ -213,15 +213,17 @@ Open questions for comment:
 
 Status: Planned
 
-- [ ] **COLL-001.1 Verify point-for-point agreement** with the MedikQuantis implementation:
+- [x] **COLL-001.1 Verify point-for-point agreement** with the MedikQuantis implementation:
    - Age 65-74 = 1 point, ≥75 = 2 points.
    - Female sex = 1 point.
    - Congestive heart failure, hypertension, diabetes, vascular disease = 1 point each.
    - Prior stroke / TIA / systemic arterial thromboembolism = 2 points.
    - Maximum score = 9.
-- [ ] **COLL-001.2 Confirm the female-sex-only edge case** is handled identically: a total score of 1 arising only from female sex is treated as low risk (no anticoagulation), matching NICE NG196. clincalc already encodes this via `non_sex_score`.
-- [ ] **COLL-001.3 Add literature-vector tests** pinning the exact boundary cases Laura raised (age 74 vs 75) and the annual stroke-risk table from Friberg 2012 (PMID 22246443) to `src/calculators/cha2ds2vasc.rs`. Add the risk percentages to `working` so they are visible to both projects.
-- [ ] **COLL-001.4 Create `spec/calculators/cha2ds2-vasc.md`** as a shared source of truth: scoring table, recommendation rules, input definitions, reference, and a test-vector table.
+
+   Confirmed 2026-07-28 against MedikQuantis's actual `cha2ds2vasc.ts` source (not just its description) - raw scoring is identical. See "Cross-project verification" in `spec/calculators/cha2ds2-vasc.md`, which also documents a real divergence in the *recommendation thresholds* (NICE NG196 vs ESC) surfaced by this comparison - not a scoring bug, but worth a decision under `ENG-001`.
+- [x] **COLL-001.2 Confirm the female-sex-only edge case** is handled identically: a total score of 1 arising only from female sex is treated as low risk (no anticoagulation), matching NICE NG196. clincalc already encodes this via `non_sex_score`. Confirmed identical in MedikQuantis's source 2026-07-28.
+- [x] **COLL-001.3 Add literature-vector tests** pinning the exact boundary cases Laura raised (age 74 vs 75) and the annual stroke-risk table from Friberg 2012 (PMID 22246443) to `src/calculators/cha2ds2vasc.rs`. Add the risk percentages to `working` so they are visible to both projects.
+- [x] **COLL-001.4 Create `spec/calculators/cha2ds2-vasc.md`** as a shared source of truth: scoring table, recommendation rules, input definitions, reference, and a test-vector table.
 - [ ] **COLL-001.5 Invite Laura to review the spec** and contribute her MedikQuantis test cases in whatever format is easiest for her to share.
 - [ ] **COLL-001.6 Surface the collaboration** by adding a "sister projects" note to `docs/calculators.md` linking to MedikQuantis once converged.
 

@@ -31,6 +31,13 @@ pub const REFERENCE: &str = "Lip GYH, Nieuwlaat R, Pisters R, et al. Refining cl
 stroke and thromboembolism in atrial fibrillation using a novel risk factor-based approach: the \
 Euro Heart Survey on Atrial Fibrillation. Chest. 2010;137(2):263-272. Thresholds per NICE NG196.";
 
+/// Secondary citation for the annual stroke-risk-by-score table (see
+/// [`annual_stroke_risk_percent`]), from a larger validation cohort than the
+/// original derivation study.
+pub const STROKE_RISK_REFERENCE: &str = "Friberg L, Rosenqvist M, Lip GYH. Evaluation of risk stratification schemes for \
+ischaemic stroke and bleeding in 182 678 patients with atrial fibrillation: the Swedish Atrial \
+Fibrillation cohort study. Eur Heart J. 2012;33(12):1500-1510.";
+
 /// Distribution licence: the score is a published clinical method, implemented
 /// here from the primary literature.
 pub const LICENSE: CalculatorLicense = CalculatorLicense {
@@ -86,7 +93,7 @@ impl Recommendation {
 }
 
 /// The computed outcome.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Cha2ds2VascOutcome {
     /// Total score (0-9).
     pub score: u8,
@@ -94,6 +101,9 @@ pub struct Cha2ds2VascOutcome {
     pub age_points: u8,
     /// Score excluding the sex point - used to identify "sex-only" low risk.
     pub non_sex_score: u8,
+    /// Annual ischaemic stroke risk (%) for this score, per Friberg 2012
+    /// (see [`STROKE_RISK_REFERENCE`]).
+    pub annual_stroke_risk_percent: f64,
     pub recommendation: Recommendation,
     pub interpretation: String,
 }
@@ -105,6 +115,27 @@ fn age_points(age: u8) -> u8 {
         1
     } else {
         0
+    }
+}
+
+/// Annual ischaemic stroke risk (%) by CHA2DS2-VASc score, from the Swedish
+/// Atrial Fibrillation cohort study (Friberg 2012, PMID 22246443, table 3;
+/// see [`STROKE_RISK_REFERENCE`]). Risk does not rise monotonically at the
+/// top of the range in the source cohort (score 8 is lower than score 7),
+/// which is itself a well-known feature of this table worth preserving
+/// rather than smoothing away.
+fn annual_stroke_risk_percent(score: u8) -> f64 {
+    match score {
+        0 => 0.2,
+        1 => 0.6,
+        2 => 2.2,
+        3 => 3.2,
+        4 => 4.8,
+        5 => 7.2,
+        6 => 9.7,
+        7 => 11.2,
+        8 => 10.8,
+        _ => 12.2,
     }
 }
 
@@ -156,6 +187,7 @@ Stroke risk rises with the score."
         score,
         age_points,
         non_sex_score,
+        annual_stroke_risk_percent: annual_stroke_risk_percent(score),
         recommendation,
         interpretation,
     })
@@ -187,6 +219,10 @@ pub fn build_response(input: &Cha2ds2VascInput) -> Result<CalculationResponse, C
         json!(u8::from(input.sex == Sex::Female)),
     );
     working.insert("recommendation".into(), json!(o.recommendation.slug()));
+    working.insert(
+        "annual_stroke_risk_percent".into(),
+        json!(o.annual_stroke_risk_percent),
+    );
 
     Ok(CalculationResponse {
         calculator: NAME.to_string(),
@@ -413,6 +449,104 @@ mod tests {
         };
         let o = compute(&i).unwrap();
         assert_eq!(o.score, 9);
+    }
+
+    #[test]
+    fn age_boundary_74_vs_75_full_score() {
+        // The age-74/75 boundary raised in COLL-001.3 review: identical 80M-minus-a-birthday
+        // inputs one year apart, checked through the full compute() path (not just
+        // age_points()), since a regression could plausibly land in `non_sex_score` or
+        // `recommendation` derivation without breaking `age_points` in isolation.
+        let seventy_four = compute(&base(74, Sex::Male)).unwrap();
+        assert_eq!(seventy_four.age_points, 1);
+        assert_eq!(seventy_four.score, 1);
+        assert_eq!(seventy_four.recommendation, Recommendation::Consider);
+
+        let seventy_five = compute(&base(75, Sex::Male)).unwrap();
+        assert_eq!(seventy_five.age_points, 2);
+        assert_eq!(seventy_five.score, 2);
+        assert_eq!(seventy_five.recommendation, Recommendation::Offer);
+    }
+
+    #[test]
+    fn friberg_2012_stroke_risk_table() {
+        // Table 3, Friberg 2012 (PMID 22246443): annual ischaemic stroke risk (%) by
+        // score. Pin the full 0-9 vector, including the well-known non-monotonic dip
+        // at score 8 (10.8%, below score 7's 11.2%), so a "helpful" refactor toward a
+        // monotonic formula gets caught immediately.
+        let expected = [0.2, 0.6, 2.2, 3.2, 4.8, 7.2, 9.7, 11.2, 10.8, 12.2];
+        for (score, &risk) in expected.iter().enumerate() {
+            let o = compute(&base_with_score(score as u8)).unwrap();
+            assert_eq!(
+                o.score, score as u8,
+                "fixture for score {score} scored wrong"
+            );
+            assert_eq!(
+                o.annual_stroke_risk_percent, risk,
+                "score {score} should carry a {risk}% annual stroke risk"
+            );
+        }
+    }
+
+    /// One explicit, independently-checkable input fixture per score 0-9, so
+    /// [`friberg_2012_stroke_risk_table`] can iterate the full table. Each arm's point
+    /// total is spelled out in its comment rather than derived, so the fixture itself
+    /// cannot silently drift from the score it claims to produce.
+    fn base_with_score(score: u8) -> Cha2ds2VascInput {
+        let mut i = base(40, Sex::Male);
+        match score {
+            0 => {}
+            1 => i.age = 65, // age 65-74 = 1
+            2 => i.age = 75, // age >=75 = 2
+            3 => {
+                i.age = 75;
+                i.hypertension = true; // 2 + 1
+            }
+            4 => {
+                i.age = 75;
+                i.hypertension = true;
+                i.diabetes = true; // 2 + 1 + 1
+            }
+            5 => {
+                i.age = 75;
+                i.hypertension = true;
+                i.diabetes = true;
+                i.congestive_heart_failure = true; // 2 + 1 + 1 + 1
+            }
+            6 => {
+                i.age = 75;
+                i.hypertension = true;
+                i.diabetes = true;
+                i.congestive_heart_failure = true;
+                i.vascular_disease = true; // 2 + 1 + 1 + 1 + 1
+            }
+            7 => {
+                i.age = 75;
+                i.sex = Sex::Female;
+                i.hypertension = true;
+                i.diabetes = true;
+                i.congestive_heart_failure = true;
+                i.vascular_disease = true; // 2 + 1 + 1 + 1 + 1 + 1
+            }
+            8 => {
+                i.age = 75;
+                i.sex = Sex::Female;
+                i.hypertension = true;
+                i.diabetes = true;
+                i.congestive_heart_failure = true;
+                i.stroke_tia_thromboembolism = true; // 2 + 1 + 1 + 1 + 1 + 2 (no vascular)
+            }
+            _ => {
+                i.age = 75;
+                i.sex = Sex::Female;
+                i.hypertension = true;
+                i.diabetes = true;
+                i.congestive_heart_failure = true;
+                i.vascular_disease = true;
+                i.stroke_tia_thromboembolism = true; // 2 + 1 + 1 + 1 + 1 + 1 + 2 = max 9
+            }
+        }
+        i
     }
 
     #[test]
