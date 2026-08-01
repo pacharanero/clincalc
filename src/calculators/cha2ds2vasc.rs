@@ -31,9 +31,9 @@ pub const REFERENCE: &str = "Lip GYH, Nieuwlaat R, Pisters R, et al. Refining cl
 stroke and thromboembolism in atrial fibrillation using a novel risk factor-based approach: the \
 Euro Heart Survey on Atrial Fibrillation. Chest. 2010;137(2):263-272. Thresholds per NICE NG196.";
 
-/// Secondary citation for the annual stroke-risk-by-score table (see
-/// [`annual_stroke_risk_percent`]), from a larger validation cohort than the
-/// original derivation study.
+/// Secondary citation for the stroke-event-rate-by-score table (see
+/// [`friberg_2012_stroke_rate_per_100_patient_years`]), from a larger
+/// validation cohort than the original derivation study.
 pub const STROKE_RISK_REFERENCE: &str = "Friberg L, Rosenqvist M, Lip GYH. Evaluation of risk stratification schemes for \
 ischaemic stroke and bleeding in 182 678 patients with atrial fibrillation: the Swedish Atrial \
 Fibrillation cohort study. Eur Heart J. 2012;33(12):1500-1510.";
@@ -93,7 +93,7 @@ impl Recommendation {
 }
 
 /// The computed outcome.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Cha2ds2VascOutcome {
     /// Total score (0-9).
     pub score: u8,
@@ -101,9 +101,6 @@ pub struct Cha2ds2VascOutcome {
     pub age_points: u8,
     /// Score excluding the sex point - used to identify "sex-only" low risk.
     pub non_sex_score: u8,
-    /// Annual ischaemic stroke risk (%) for this score, per Friberg 2012
-    /// (see [`STROKE_RISK_REFERENCE`]).
-    pub annual_stroke_risk_percent: f64,
     pub recommendation: Recommendation,
     pub interpretation: String,
 }
@@ -118,13 +115,19 @@ fn age_points(age: u8) -> u8 {
     }
 }
 
-/// Annual ischaemic stroke risk (%) by CHA2DS2-VASc score, from the Swedish
-/// Atrial Fibrillation cohort study (Friberg 2012, PMID 22246443, table 3;
-/// see [`STROKE_RISK_REFERENCE`]). Risk does not rise monotonically at the
-/// top of the range in the source cohort (score 8 is lower than score 7),
-/// which is itself a well-known feature of this table worth preserving
-/// rather than smoothing away.
-fn annual_stroke_risk_percent(score: u8) -> f64 {
+/// Observed ischaemic stroke event rate (per 100 patient-years) by
+/// CHA2DS2-VASc score, from the ~90,490 patients in the Swedish Atrial
+/// Fibrillation cohort who remained off warfarin (Friberg 2012, PMID
+/// 22246443, table 3; see [`STROKE_RISK_REFERENCE`]).
+///
+/// This is a person-time incidence rate in a specific untreated subgroup of
+/// the wider 182,678-patient cohort - not a one-year cumulative risk
+/// prediction for an individual patient. Report it as an epidemiological
+/// reference point alongside the score, not as a personalised risk
+/// percentage. It also does not rise monotonically at the top of the range
+/// in the source cohort (score 8 is lower than score 7), which is a known
+/// feature of this table worth preserving rather than smoothing away.
+pub fn friberg_2012_stroke_rate_per_100_patient_years(score: u8) -> f64 {
     match score {
         0 => 0.2,
         1 => 0.6,
@@ -178,8 +181,7 @@ independent indication: this is low risk and anticoagulation is not recommended 
 HAS-BLED) and patient preference (NICE NG196)."
         ),
         Recommendation::Offer => format!(
-            "Score {score}: offer anticoagulation, taking bleeding risk into account (NICE NG196). \
-Stroke risk rises with the score."
+            "Score {score}: offer anticoagulation, taking bleeding risk into account (NICE NG196)."
         ),
     };
 
@@ -187,7 +189,6 @@ Stroke risk rises with the score."
         score,
         age_points,
         non_sex_score,
-        annual_stroke_risk_percent: annual_stroke_risk_percent(score),
         recommendation,
         interpretation,
     })
@@ -220,8 +221,12 @@ pub fn build_response(input: &Cha2ds2VascInput) -> Result<CalculationResponse, C
     );
     working.insert("recommendation".into(), json!(o.recommendation.slug()));
     working.insert(
-        "annual_stroke_risk_percent".into(),
-        json!(o.annual_stroke_risk_percent),
+        "friberg_2012_stroke_rate_per_100_patient_years".into(),
+        json!(friberg_2012_stroke_rate_per_100_patient_years(o.score)),
+    );
+    working.insert(
+        "friberg_2012_stroke_rate_reference".into(),
+        json!(STROKE_RISK_REFERENCE),
     );
 
     Ok(CalculationResponse {
@@ -470,20 +475,21 @@ mod tests {
 
     #[test]
     fn friberg_2012_stroke_risk_table() {
-        // Table 3, Friberg 2012 (PMID 22246443): annual ischaemic stroke risk (%) by
-        // score. Pin the full 0-9 vector, including the well-known non-monotonic dip
-        // at score 8 (10.8%, below score 7's 11.2%), so a "helpful" refactor toward a
-        // monotonic formula gets caught immediately.
+        // Table 3, Friberg 2012 (PMID 22246443): stroke event rate per 100 patient-years
+        // among the untreated cohort, by score. Pin the full 0-9 vector, including the
+        // well-known non-monotonic dip at score 8 (10.8, below score 7's 11.2), so a
+        // "helpful" refactor toward a monotonic formula gets caught immediately.
         let expected = [0.2, 0.6, 2.2, 3.2, 4.8, 7.2, 9.7, 11.2, 10.8, 12.2];
-        for (score, &risk) in expected.iter().enumerate() {
+        for (score, &rate) in expected.iter().enumerate() {
             let o = compute(&base_with_score(score as u8)).unwrap();
             assert_eq!(
                 o.score, score as u8,
                 "fixture for score {score} scored wrong"
             );
             assert_eq!(
-                o.annual_stroke_risk_percent, risk,
-                "score {score} should carry a {risk}% annual stroke risk"
+                friberg_2012_stroke_rate_per_100_patient_years(o.score),
+                rate,
+                "score {score} should carry a rate of {rate} per 100 patient-years"
             );
         }
     }
