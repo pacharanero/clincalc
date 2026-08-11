@@ -46,7 +46,7 @@ anyhow = { version = "1", optional = true }
 clap = { version = "4.6", features = ["derive"], optional = true }
 clap_complete = { version = "4.6", optional = true }
 axum = { version = "0.8.9", optional = true }
-rmcp = { version = "2.2.0", default-features = false, features = ["server", "transport-io"], optional = true }
+rmcp = { version = "3.1.2", default-features = false, features = ["server", "transport-io"], optional = true }
 tokio = { version = "1", features = ["macros", "net", "rt-multi-thread"], optional = true }
 
 [package.metadata.docs.rs]
