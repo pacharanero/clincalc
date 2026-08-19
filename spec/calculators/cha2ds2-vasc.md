@@ -48,7 +48,7 @@ Friberg 2012 (the Swedish Atrial Fibrillation cohort study) is a larger validati
 | 8 | 10.8 |
 | 9 | 12.2 |
 
-Note the rate is **not monotonic** at the top of the range in this cohort - score 8 (10.8) is lower than score 7 (11.2). This is a genuine feature of the source data, not a transcription error, and is pinned by `friberg_2012_stroke_risk_table` in the test suite so a future refactor cannot "smooth" it into a monotonic curve by mistake.
+Note the rate is **not monotonic** at the top of the range in this cohort - score 8 (10.8) is lower than score 7 (11.2). This is a genuine feature of the source data, not a transcription error, and is pinned by `friberg_2012_stroke_rate_table` in the test suite so a future refactor cannot "smooth" it into a monotonic curve by mistake.
 
 ## Inputs
 
@@ -61,10 +61,10 @@ Each boolean criterion is a clinician-asserted predicate with an explicit includ
 
 Verified 2026-07-28 against MedikQuantis's actual source at commit [`cf5afb9`](https://github.com/laurapiro17/medikquantis/blob/cf5afb993fb900d28542b39ae022df6932e34076/packages/calculators/src/cha2ds2vasc.ts) (`packages/calculators/src/cha2ds2vasc.ts`, MIT-licensed, public repo), not just its published description. Pinned to this commit rather than `main` so the citation stays valid if their file changes later.
 
-- **Point values agree** on every criterion: age 65-74 = 1, age >=75 = 2, female sex = 1, CHF/HTN/DM/vascular disease = 1 each, stroke/TIA/thromboembolism = 2, maximum 9. Confirms the arithmetic half of `COLL-001.1`.
+- **Point values agree on the shared input semantics**: age 65-74 = 1, age >=75 = 2, female sex = 1, CHF/HTN/DM/vascular disease = 1 each, prior stroke/TIA = 2, maximum 9. The additional systemic arterial thromboembolism scope in `clincalc` remains unverified, so `COLL-001.1` is only partially complete.
 - **S2 criterion - point value confirmed, full semantic scope not yet verified**: MedikQuantis exposes and labels this input only as `strokeOrTia`. Both projects agree it is worth 2 points, but whether MedikQuantis's field also captures systemic arterial thromboembolism (as `clincalc`'s `stroke_tia_thromboembolism` explicitly does) hasn't been confirmed from their source alone - that needs either a look at their input validation/UI copy or confirmation from Laura directly. Treat `COLL-001.1` as agreed on point values, still open on this one criterion's exact inclusion boundary.
 - **The female-sex-only edge case is handled identically**: a woman whose only point is the sex point (no other risk factors, age <65) is treated as equivalent to a man scoring 0 - anticoagulation not recommended. Confirms `COLL-001.2`.
-- **The recommendation *thresholds* genuinely diverge, and this is not a bug in either project**: MedikQuantis's `cha2ds2vasc.ts` (a sex-specific scheme, distinct from their separate `cha2ds2va.ts` which implements the newer sex-free ESC 2024 score) puts "score 1 (men) or score 2 (women)" in a moderate/"consider" tier, and "score >=2 (men) or >=3 (women)" in a high/"offer" tier - so "consider" extends to a score of 2 in women. `clincalc` follows NICE NG196, which offers anticoagulation at a score of 2 **or above regardless of sex**, and reserves "consider" only for men scoring 1 - a woman scoring 2 (one risk factor plus the sex point) is "offer", not "consider", under NICE NG196. Both implementations are correct against their respective cited guidelines; this is the open question already on record in `spec/roadmap.md` ("Do we align on the NICE NG196 recommendation wording, or keep locale-specific guidance separate until ENG-001 lands?"), now confirmed as a real rather than hypothetical divergence. No code change follows from this alone - resolving it means picking a guideline-per-locale story, which is `ENG-001` territory.
+- **The recommendation thresholds diverge**: MedikQuantis's `cha2ds2vasc.ts` puts "score 1 (men) or score 2 (women)" in a moderate/"consider" tier, and "score >=2 (men) or >=3 (women)" in a high/"offer" tier. `clincalc` follows NICE NG196, which offers anticoagulation at a score of 2 **or above regardless of sex**, and reserves "consider" only for men scoring 1. The sex-specific MedikQuantis thresholds reflect the pre-2024 CHA2DS2-VASc approach, but its pinned source cites the 2024 ESC guideline, which instead recommends the sex-free CHA2DS2-VA scheme. Its guideline attribution therefore needs clarification before the implementations can be described as correct against their respective cited guidelines. No `clincalc` code change follows from this documentation discrepancy.
 
 ## Test-vector table
 
@@ -87,8 +87,11 @@ Vectors below are implemented as unit tests in [`src/calculators/cha2ds2vasc.rs`
 - Lip GYH, Nieuwlaat R, Pisters R, et al. Refining clinical risk stratification for predicting stroke and thromboembolism in atrial fibrillation using a novel risk factor-based approach: the Euro Heart Survey on Atrial Fibrillation. Chest. 2010;137(2):263-272. <https://doi.org/10.1378/chest.09-1584>
 - Friberg L, Rosenqvist M, Lip GYH. Evaluation of risk stratification schemes for ischaemic stroke and bleeding in 182,678 patients with atrial fibrillation: the Swedish Atrial Fibrillation cohort study. Eur Heart J. 2012;33(12):1500-1510. PMID 22246443.
 - NICE NG196: Atrial fibrillation - diagnosis and management.
+- Van Gelder IC, Rienstra M, Bunting KV, et al. 2024 ESC Guidelines for the management of atrial fibrillation. Eur Heart J. 2024;45(36):3314-3414. <https://doi.org/10.1093/eurheartj/ehae176>
 
 ## Open items
 
 - Inviting the MedikQuantis author to review this spec and contribute her test cases (`COLL-001.5`) is a standing outreach action, not a code change - tracked in `spec/roadmap.md`.
+- Confirm whether MedikQuantis's `strokeOrTia` criterion includes systemic arterial thromboembolism before completing `COLL-001.1`.
+- Resolve the MedikQuantis CHA2DS2-VASc recommendation-threshold citation before describing both implementations as guideline-conformant.
 - A "sister projects" note in `docs/calculators.md` (`COLL-001.6`) is deferred until convergence is confirmed from both sides.

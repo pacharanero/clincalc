@@ -34,7 +34,7 @@ Euro Heart Survey on Atrial Fibrillation. Chest. 2010;137(2):263-272. Thresholds
 /// Secondary citation for the stroke-event-rate-by-score table (see
 /// [`friberg_2012_stroke_rate_per_100_patient_years`]), from a larger
 /// validation cohort than the original derivation study.
-pub const STROKE_RISK_REFERENCE: &str = "Friberg L, Rosenqvist M, Lip GYH. Evaluation of risk stratification schemes for \
+pub const STROKE_RATE_REFERENCE: &str = "Friberg L, Rosenqvist M, Lip GYH. Evaluation of risk stratification schemes for \
 ischaemic stroke and bleeding in 182 678 patients with atrial fibrillation: the Swedish Atrial \
 Fibrillation cohort study. Eur Heart J. 2012;33(12):1500-1510.";
 
@@ -118,7 +118,7 @@ fn age_points(age: u8) -> u8 {
 /// Observed ischaemic stroke event rate (per 100 patient-years) by
 /// CHA2DS2-VASc score, from the ~90,490 patients in the Swedish Atrial
 /// Fibrillation cohort who remained off warfarin (Friberg 2012, PMID
-/// 22246443, table 3; see [`STROKE_RISK_REFERENCE`]).
+/// 22246443, table 3; see [`STROKE_RATE_REFERENCE`]).
 ///
 /// This is a person-time incidence rate in a specific untreated subgroup of
 /// the wider 182,678-patient cohort - not a one-year cumulative risk
@@ -127,18 +127,20 @@ fn age_points(age: u8) -> u8 {
 /// percentage. It also does not rise monotonically at the top of the range
 /// in the source cohort (score 8 is lower than score 7), which is a known
 /// feature of this table worth preserving rather than smoothing away.
-pub fn friberg_2012_stroke_rate_per_100_patient_years(score: u8) -> f64 {
+/// Returns `None` when `score` is outside the valid range 0-9.
+pub fn friberg_2012_stroke_rate_per_100_patient_years(score: u8) -> Option<f64> {
     match score {
-        0 => 0.2,
-        1 => 0.6,
-        2 => 2.2,
-        3 => 3.2,
-        4 => 4.8,
-        5 => 7.2,
-        6 => 9.7,
-        7 => 11.2,
-        8 => 10.8,
-        _ => 12.2,
+        0 => Some(0.2),
+        1 => Some(0.6),
+        2 => Some(2.2),
+        3 => Some(3.2),
+        4 => Some(4.8),
+        5 => Some(7.2),
+        6 => Some(9.7),
+        7 => Some(11.2),
+        8 => Some(10.8),
+        9 => Some(12.2),
+        _ => None,
     }
 }
 
@@ -197,6 +199,8 @@ HAS-BLED) and patient preference (NICE NG196)."
 /// Build the dispatchable [`CalculationResponse`] from typed inputs.
 pub fn build_response(input: &Cha2ds2VascInput) -> Result<CalculationResponse, CalcError> {
     let o = compute(input)?;
+    let stroke_rate = friberg_2012_stroke_rate_per_100_patient_years(o.score)
+        .expect("computed CHA2DS2-VASc score must be in the range 0-9");
 
     let mut working = Map::new();
     working.insert("total_score".into(), json!(o.score));
@@ -222,11 +226,11 @@ pub fn build_response(input: &Cha2ds2VascInput) -> Result<CalculationResponse, C
     working.insert("recommendation".into(), json!(o.recommendation.slug()));
     working.insert(
         "friberg_2012_stroke_rate_per_100_patient_years".into(),
-        json!(friberg_2012_stroke_rate_per_100_patient_years(o.score)),
+        json!(stroke_rate),
     );
     working.insert(
         "friberg_2012_stroke_rate_reference".into(),
-        json!(STROKE_RISK_REFERENCE),
+        json!(STROKE_RATE_REFERENCE),
     );
 
     Ok(CalculationResponse {
@@ -474,7 +478,7 @@ mod tests {
     }
 
     #[test]
-    fn friberg_2012_stroke_risk_table() {
+    fn friberg_2012_stroke_rate_table() {
         // Table 3, Friberg 2012 (PMID 22246443): stroke event rate per 100 patient-years
         // among the untreated cohort, by score. Pin the full 0-9 vector, including the
         // well-known non-monotonic dip at score 8 (10.8, below score 7's 11.2), so a
@@ -488,14 +492,20 @@ mod tests {
             );
             assert_eq!(
                 friberg_2012_stroke_rate_per_100_patient_years(o.score),
-                rate,
+                Some(rate),
                 "score {score} should carry a rate of {rate} per 100 patient-years"
             );
         }
+
+        assert_eq!(friberg_2012_stroke_rate_per_100_patient_years(10), None);
+        assert_eq!(
+            friberg_2012_stroke_rate_per_100_patient_years(u8::MAX),
+            None
+        );
     }
 
     /// One explicit, independently-checkable input fixture per score 0-9, so
-    /// [`friberg_2012_stroke_risk_table`] can iterate the full table. Each arm's point
+    /// [`friberg_2012_stroke_rate_table`] can iterate the full table. Each arm's point
     /// total is spelled out in its comment rather than derived, so the fixture itself
     /// cannot silently drift from the score it claims to produce.
     fn base_with_score(score: u8) -> Cha2ds2VascInput {
@@ -542,7 +552,7 @@ mod tests {
                 i.congestive_heart_failure = true;
                 i.stroke_tia_thromboembolism = true; // 2 + 1 + 1 + 1 + 1 + 2 (no vascular)
             }
-            _ => {
+            9 => {
                 i.age = 75;
                 i.sex = Sex::Female;
                 i.hypertension = true;
@@ -551,6 +561,7 @@ mod tests {
                 i.vascular_disease = true;
                 i.stroke_tia_thromboembolism = true; // 2 + 1 + 1 + 1 + 1 + 1 + 2 = max 9
             }
+            _ => panic!("test fixture score must be in the range 0-9"),
         }
         i
     }
@@ -577,6 +588,14 @@ mod tests {
         let dynamic = Cha2ds2Vasc.calculate(&value).unwrap();
         assert_eq!(dynamic, build_response(&typed).unwrap());
         assert_eq!(dynamic.result, json!(4));
+        assert_eq!(
+            dynamic.working["friberg_2012_stroke_rate_per_100_patient_years"],
+            json!(4.8)
+        );
+        assert_eq!(
+            dynamic.working["friberg_2012_stroke_rate_reference"],
+            json!(STROKE_RATE_REFERENCE)
+        );
     }
 
     #[test]
