@@ -1,5 +1,6 @@
+// SPDX-FileCopyrightText: 2017 ClinRisk Ltd.
 // SPDX-FileCopyrightText: 2026 Marcus Baw and Baw Medical Ltd
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LGPL-3.0-or-later
 
 //! QRISK3-2017 - 10-year cardiovascular disease risk (Hippisley-Cox et al., BMJ 2017).
 //!
@@ -60,16 +61,21 @@ algorithms to estimate future risk of cardiovascular disease: prospective cohort
 /// coefficients here are transcribed verbatim from that source.
 pub const LICENSE: CalculatorLicense = CalculatorLicense {
     license: "LGPL-3.0-or-later - QRISK3-2017 algorithm Copyright 2017 ClinRisk Ltd.",
-    source_url: "https://qrisk.org/src.php",
+    source_url: "https://web.archive.org/web/20240418114046id_/https://qrisk.org/src.php",
 };
 
 /// ClinRisk's required disclaimer, carried alongside every score per the licence
 /// terms. Inaccurate implementations can lead to wrong treatment, so the result
 /// must be checked against the original algorithm at qrisk.org.
-pub const DISCLAIMER: &str = "QRISK3-2017 algorithm Copyright 2017 ClinRisk Ltd., used under the \
-LGPL. ClinRisk Ltd. stress that it is the responsibility of the end user to check that this \
-implementation produces the same results as the original code at https://qrisk.org. Inaccurate \
-implementations of risk scores can lead to wrong patients being given the wrong treatment.";
+pub const DISCLAIMER: &str = "The initial version of this file, to be found at \
+http://svn.clinrisk.co.uk/opensource/qrisk2, faithfully implements QRISK3-2017. ClinRisk Ltd. \
+have released this code under the GNU Lesser General Public License to enable others to implement \
+the algorithm faithfully. However, the nature of the GNU Lesser General Public License is such \
+that we cannot prevent, for example, someone accidentally altering the coefficients, getting the \
+inputs wrong, or just poor programming. ClinRisk Ltd. stress, therefore, that it is the \
+responsibility of the end user to check that the source that they receive produces the same \
+results as the original code found at https://qrisk.org. Inaccurate implementations of risk \
+scores can lead to wrong patients being given the wrong treatment.";
 
 /// Biological sex, selecting the male or female equation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -947,6 +953,9 @@ mod tests {
         let l = Qrisk3.license();
         assert!(l.license.contains("LGPL"));
         assert!(l.license.contains("ClinRisk"));
-        assert!(l.source_url.starts_with("https://qrisk.org"));
+        assert_eq!(
+            l.source_url,
+            "https://web.archive.org/web/20240418114046id_/https://qrisk.org/src.php"
+        );
     }
 }

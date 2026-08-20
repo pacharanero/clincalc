@@ -31,6 +31,13 @@
     "category": "Productivity",
     "shortDescription": "Open clinical calculators",
     "longDescription": "Open, auditable clinical calculators. One Rust scoring engine, identical results across CLI, GUI, and embedded hosts. Designed for soft interoperability - every result is one click to the clipboard.",
+    "license": "AGPL-3.0-or-later AND LGPL-3.0-or-later",
+    "licenseFile": "../../LICENSE",
+    "resources": {
+      "../../LICENSE": "LICENSE",
+      "../../LICENSES/": "LICENSES/",
+      "../../third-party-notices.md": "third-party-notices.md"
+    },
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

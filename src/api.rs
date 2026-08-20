@@ -320,8 +320,8 @@ fn openapi_spec() -> serde_json::Value {
             "version": env!("CARGO_PKG_VERSION"),
             "description": "Open, auditable clinical calculators. One registry-backed API shape drives every calculator; no per-calculator code required.",
             "license": {
-                "name": "AGPL-3.0-or-later",
-                "identifier": "AGPL-3.0-or-later"
+                "name": "AGPL-3.0-or-later AND LGPL-3.0-or-later",
+                "identifier": "AGPL-3.0-or-later AND LGPL-3.0-or-later"
             },
             "contact": {"url": "https://github.com/pacharanero/clincalc"}
         },

@@ -257,14 +257,14 @@ Each calculator must include: a primary peer-reviewed citation; evidence of clin
 
 ## Licensing
 
-- `clincalc`: AGPL-3.0-or-later. Deliberately not available for subsumption into proprietary EHRs; if that service needs to exist, it can be offered as a hosted Calc-API.
-- Clinical algorithms: implement from primary literature; most scores are public-domain methods. Do not copy proprietary implementations (e.g. MDCalc). QRISK3 and QFracture are ported from ClinRisk's LGPL-3.0 source and carry the required disclaimer.
+- Original `clincalc` code: AGPL-3.0-or-later. Deliberately not available for subsumption into proprietary EHRs; if that service needs to exist, it can be offered as a hosted Calc-API.
+- Clinical algorithms: implement from primary literature; most scores are public-domain methods. Do not copy proprietary implementations (e.g. MDCalc). The QRISK3 and QFracture modules are derivative ports of ClinRisk's LGPL-3.0-or-later source, retain that licence, and carry ClinRisk's required disclaimer with every score.
 - RCPCH growth charts: confirm licensing terms with RCPCH before distribution.
 - All calculators cite original publications and validation studies.
 
 ### Per-calculator distribution licence (required)
 
-Distinct from the **code** licence (AGPL-3.0), every calculator must record the terms under which its **clinical algorithm or content** is distributed, plus a URL evidencing those terms, so the basis for shipping each calculator is on record and can be re-verified at any time. This is enforced in code, not by convention:
+Distinct from the licence of original `clincalc` code (AGPL-3.0-or-later), every calculator must record the terms under which its **clinical algorithm or content** is distributed, plus a URL evidencing those terms, so the basis for shipping each calculator is on record and can be re-verified at any time. Third-party-derived modules retain their own licences. This is enforced in code, not by convention:
 
 - The `Calculator` trait requires `fn license(&self) -> CalculatorLicense`, where `CalculatorLicense { license, source_url }` carries the terms (an SPDX id where one applies, otherwise a short description such as "Public domain - no permission required") and a reverifiable URL. A calculator that omits it does not compile.
 - A registry test (`every_calculator_records_its_license`) asserts every registered calculator has a non-empty licence and an `http(s)` source URL, so a new calculator cannot ship without recording its basis.

@@ -123,7 +123,7 @@ Print the algorithm's distribution licence (an SPDX identifier where one applies
 clincalc calc qrisk3 --license
 ```
 
-This is separate from the **code** licence (AGPL-3.0-or-later for the whole project) - it records the basis on which the **clinical algorithm itself** is being shipped.
+This is separate from the licence of the original `clincalc` code (AGPL-3.0-or-later) - it records the basis on which the **clinical algorithm itself** is being shipped. Third-party-derived modules retain their own licences, including LGPL-3.0-or-later for QRISK3 and QFracture.
 
 ### `--format <text|json>`
 

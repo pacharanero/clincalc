@@ -3,7 +3,7 @@ name = "clincalc"
 version = "0.2.2"
 edition = "2024"
 authors = ["Marcus Baw"]
-license = "AGPL-3.0-or-later"
+license = "AGPL-3.0-or-later AND LGPL-3.0-or-later"
 repository = "https://github.com/pacharanero/clincalc"
 homepage = "https://github.com/pacharanero/clincalc"
 description = "Open, auditable clinical calculators: a serde-only scoring engine plus the `clincalc` CLI and loopback REST API in one crate."
@@ -96,9 +96,16 @@ install-updater = false
 tap = "pacharanero/homebrew-tap"
 publish-jobs = ["homebrew"]
 publish-prereleases = false
-# README and LICENSE are auto-detected for archives; the third-party notice must
-# be explicitly included. The MSI sidecars are defined in wix/legal.wxs.
-include = ["third-party-notices.md"]
+# README and the project LICENSE are auto-detected. Include the mixed-licence
+# texts and third-party notice explicitly; MSI sidecars live in wix/legal.wxs.
+include = [
+    "third-party-notices.md",
+    "LICENSES/AGPL-3.0-or-later.txt",
+    "LICENSES/Apache-2.0.txt",
+    "LICENSES/CC-BY-SA-4.0.txt",
+    "LICENSES/LGPL-3.0-or-later.txt",
+    "LICENSES/MIT.txt",
+]
 # We hand-edit release.yml to pin action SHAs, add the workflow_call trigger,
 # and bind publishing jobs to protected environments; tell dist not to error
 # on the resulting drift.

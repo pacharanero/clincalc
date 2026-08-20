@@ -72,6 +72,6 @@ results = clincalc.batch(
 
 ## License
 
-The clincalc Python package is licensed under AGPL-3.0-or-later. Its wheel and source distributions include the full licence text.
+Original clincalc code is licensed under AGPL-3.0-or-later. The QRISK3 and QFracture modules retain ClinRisk's LGPL-3.0-or-later licence. Wheels and source distributions include the applicable licence texts and third-party notices.
 
 The ASRS-v1.1 six-question scorer accepts coded adult responses covering the past six months from the [authorised form](https://license.tov.med.nyu.edu/product/asrs6Qscreener), reports the classic dichotomous and alternative continuous methods separately, and carries the required attribution to New York University and the President and Fellows of Harvard College in every result. Current source and releases from `0.3.0` onward do not distribute questionnaire text or the separately licensed 18-question checklist; legacy `0.2.2` source artifacts did include the checklist and should not be used.

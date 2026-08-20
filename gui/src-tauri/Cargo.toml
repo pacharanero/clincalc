@@ -4,7 +4,7 @@ version = "0.2.2"
 description = "Open clinical calculators - native desktop GUI"
 authors = ["Marcus Baw"]
 edition = "2024"
-license = "AGPL-3.0-or-later"
+license = "AGPL-3.0-or-later AND LGPL-3.0-or-later"
 repository = "https://github.com/pacharanero/clincalc"
 
 # The lib name carries a `_lib` suffix to dodge a Windows-only name-collision

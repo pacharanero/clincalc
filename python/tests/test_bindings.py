@@ -189,11 +189,19 @@ class TestDistributionMetadata:
             for path in files
             if str(path).endswith("licenses/LICENSE-AGPL-3.0-or-later.txt")
         )
+        lgpl_file = next(
+            path
+            for path in files
+            if str(path).endswith("licenses/LICENSE-LGPL-3.0-or-later.txt")
+        )
         notices_file = next(
-            path for path in files if str(path).endswith("licenses/medikquantis-notice.md")
+            path for path in files if str(path).endswith("licenses/third-party-notices.md")
         )
 
         assert license_file.locate().read_bytes() == (repository / "LICENSE").read_bytes()
+        assert lgpl_file.locate().read_bytes() == (
+            repository / "LICENSES/LGPL-3.0-or-later.txt"
+        ).read_bytes()
         assert notices_file.locate().read_bytes() == (
             repository / "third-party-notices.md"
         ).read_bytes()
@@ -204,6 +212,9 @@ class TestDistributionMetadata:
         assert (repository / "python/LICENSE-AGPL-3.0-or-later.txt").read_bytes() == (
             repository / "LICENSE"
         ).read_bytes()
-        assert (repository / "python/medikquantis-notice.md").read_bytes() == (
+        assert (repository / "python/third-party-notices.md").read_bytes() == (
             repository / "third-party-notices.md"
+        ).read_bytes()
+        assert (repository / "python/LICENSE-LGPL-3.0-or-later.txt").read_bytes() == (
+            repository / "LICENSES/LGPL-3.0-or-later.txt"
         ).read_bytes()
