@@ -53,15 +53,7 @@ The template printed by `clincalc calc <name>` has the same shape as the input i
 
 ### Localised output
 
-Human-readable calculator content accepts BCP 47 locale tags through `--locale` or `CLINCALC_LOCALE`. CURB-65 is the first complete English, Spanish, and Catalan calculator bundle:
-
-This support is currently on `main` and will be included in the release after `0.2.2`; the published `0.2.2` binaries remain English-only.
-
-```bash
-clincalc --locale es curb65 --input '{"confusion":false,"urea_mmol_l":9,"respiratory_rate":32,"systolic_bp":110,"diastolic_bp":70,"age":72}'
-```
-
-The command prints the same score and stable working values as English, with the interpretation and output labels in Spanish. Regional tags use BCP 47 lookup, so `--locale es-MX` currently resolves to the reviewed `es` bundle. A calculator that has not completed the requested translation fails clearly instead of returning mixed-language clinical prose.
+Human-readable calculator content accepts BCP 47 locale tags through `--locale` or `CLINCALC_LOCALE`. The locale architecture is in place, but calculators currently advertise English only. Spanish and Catalan CURB-65 adaptations remain withheld until the final recommendation wording has recorded native-speaker clinical review. Requesting an unreviewed locale fails clearly instead of returning mixed-language or unreviewed clinical prose.
 
 ## MCP server
 
@@ -171,7 +163,6 @@ CI enforces all three. Adding a calculator: implement it in `clincalc` (typed in
 - Clinical algorithms are implemented from primary literature (most scores are public-domain methods); QRISK3 and QFracture are ported from ClinRisk's LGPL-3.0 source and carry the required disclaimer. Each calculator records its own distribution licence via `clincalc calc <name> --license`.
 - Clinical content (source references) under CC-BY-SA-4.0.
 - The ASRS-v1.1 six-question scorer is distributed with the rights holders' required attribution and accepts coded adult responses covering the past six months from the [authorised form](https://license.tov.med.nyu.edu/product/asrs6Qscreener). It reports the classic dichotomous and alternative continuous methods separately. Current source and releases from `0.3.0` onward do not distribute questionnaire text or the separately licensed 18-question checklist; legacy `0.2.2` source artifacts did include the checklist and should not be used.
-- Spanish and Catalan CURB-65 wording adapted from the MIT-licensed MedikQuantis catalogues; see [`third-party-notices.md`](third-party-notices.md).
 
 ## Roadmap
 

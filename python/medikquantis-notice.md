@@ -1,13 +1,14 @@
 <!--
 SPDX-FileCopyrightText: 2026 Laura Piñero Roig
+SPDX-FileCopyrightText: 2026 Marcus Baw and Baw Medical Ltd
 SPDX-License-Identifier: MIT
 -->
 
 # Third-party notices
 
-## MedikQuantis translations
+## MedikQuantis translation source
 
-The Spanish and Catalan CURB-65 clinical wording in `src/calculators/curb65.rs` is adapted from the English, Spanish, and Catalan message catalogues in [MedikQuantis](https://github.com/laurapiro17/medikquantis) at revision `70f98eca224612608f6156bd94aa152adcddddd2`.
+Earlier draft Spanish and Catalan CURB-65 wording was adapted from the English, Spanish, and Catalan message catalogues in [MedikQuantis](https://github.com/laurapiro17/medikquantis) at revision `70f98eca224612608f6156bd94aa152adcddddd2`. That adapted wording is not present in the current source or distributed calculator; this notice is retained as provenance while final wording awaits recorded native-speaker clinical review.
 
 Copyright (c) 2026 Laura Piñero Roig
 

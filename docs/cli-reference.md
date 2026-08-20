@@ -28,19 +28,11 @@ clincalc [COMMAND]
 
 ### `--locale <BCP47>`
 
-Select human-readable calculator content with a BCP 47 locale tag. The explicit flag takes precedence over `CLINCALC_LOCALE`; English is the default. Regional tags use RFC 4647 lookup, so `es-MX` resolves to `es` while that is the most specific reviewed Spanish bundle available.
+Select human-readable calculator content with a BCP 47 locale tag. The explicit flag takes precedence over `CLINCALC_LOCALE`; English is the default. Regional tags use RFC 4647 lookup when a reviewed language bundle is available.
 
-Locale support is currently on `main` and will be included in the release after `0.2.2`; the published `0.2.2` binaries remain English-only.
+The locale architecture is implemented, but calculators currently advertise English only. Spanish and Catalan CURB-65 adaptations remain withheld until the final recommendation wording has recorded native-speaker clinical review.
 
-CURB-65 is currently the first calculator with complete English (`en`), Spanish (`es`), and Catalan (`ca`) bundles:
-
-```bash
-clincalc --locale es curb65 --input '{"confusion":false,"urea_mmol_l":9,"respiratory_rate":32,"systolic_bp":110,"diastolic_bp":70,"age":72}'
-CLINCALC_LOCALE=ca clincalc calc curb65 --schema
-clincalc --locale es-MX calc curb65
-```
-
-The locale applies to metadata, schema descriptions, template hints, computed interpretation, and the human text output labels. Input field names, JSON numbers, result values, risk codes, recommendation codes, units, and citations remain stable. A calculation reports the resolved bundle in `working.content_locale`. A calculator that does not advertise the requested locale exits with its supported locale list rather than mixing languages; catalogue entries without that translation remain in English and expose their `supported_locales` in JSON output.
+When a reviewed bundle is available, the locale applies to metadata, schema descriptions, template hints, computed interpretation, and the human text output labels. Input field names, JSON numbers, result values, risk codes, recommendation codes, units, and citations remain stable. A calculation reports the resolved bundle in `working.content_locale`. A calculator that does not advertise the requested locale exits with its supported locale list rather than mixing languages; catalogue entries without that translation remain in English and expose their `supported_locales` in JSON output.
 
 Locale negotiation is currently implemented for catalogue and calculator commands. `clincalc api` and `clincalc mcp` reject the global `--locale` option until their protocol-specific negotiation described in the multilingual roadmap is implemented.
 

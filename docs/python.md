@@ -106,4 +106,4 @@ Unknown calculator names and invalid inputs raise `ValueError`. Validation detai
 
 ## License
 
-The package is AGPL-3.0-or-later, matching the Rust crate. Wheels and source distributions include the full licence text and the MIT notice for the MedikQuantis-derived Spanish and Catalan CURB-65 wording.
+The package is AGPL-3.0-or-later, matching the Rust crate. Wheels and source distributions include the full project licence and the repository's third-party notices.

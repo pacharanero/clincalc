@@ -62,7 +62,7 @@ Status: In-progress
 Adopt BCP 47 locale identifiers, RFC 4647 lookup, complete calculator translation bundles, and MessageFormat-compatible message design per [`multilingual.md`](multilingual.md), without breaking the leaf rule or existing English APIs.
 
 - [ ] **ENG-001.4 Enforce complete translation bundles** - metadata, governed schema prose, and computed prose must reach key parity before a calculator advertises a locale. Fall back the complete calculator representation, never individual strings.
-- [ ] **ENG-001.5 Validate two more MedikQuantis overlaps** - CURB-65 now provides the first attributed English, Spanish, and Catalan implementation; validate two calculators of different shapes with native-speaker review before opening translation batches.
+- [ ] **ENG-001.5 Review CURB-65 and two more MedikQuantis overlaps** - obtain and record native-speaker clinical review of the final adapted English, Spanish, and Catalan CURB-65 wording, then validate two calculators of different shapes before opening translation batches.
 - [ ] **ENG-001.6 Wire locale through remaining surfaces** - CLI `--locale` / `CLINCALC_LOCALE` is implemented; add Python keyword-only `locale`, REST query / `Accept-Language` / `Content-Language` / `Vary`, MCP session configuration, and GUI locale and text direction. All surfaces report the resolved locale.
 - [ ] **ENG-001.7 Write `docs/translating.md`** - contribution, attribution, native/clinical review, key-parity, and stale-source workflow before opening batched translation.
 

@@ -6,7 +6,7 @@
 
 `clincalc` emits human prose in calculator titles, descriptions, input schemas, interpretations, summaries, validation errors, and some `working` values. A credible clinical-calculator project must make the language of that content explicit and support reviewed translations without changing the scoring engine or allowing surfaces to drift.
 
-[MedikQuantis](https://medikquantis.me) demonstrates this with clinician-reviewed Catalan, Spanish, and English content. Its overlapping calculators give `clincalc` a practical source of reviewed translations and a collaborator with whom terminology can be aligned.
+[MedikQuantis](https://medikquantis.me) demonstrates this with Catalan, Spanish, and English content. Its overlapping calculators give `clincalc` a practical translation source and a collaborator with whom terminology and review evidence can be aligned.
 
 ## Constraints
 
@@ -168,8 +168,8 @@ The host resolves one locale for calculator content and UI chrome. Stable result
 1. Add the dependency-free BCP 47 locale foundation: `SupportedLocale`, canonical tags, RFC 4647 lookup, and English fallback.
 2. Add locale-aware `Calculator` companion methods with English defaults, preserving all existing APIs and results.
 3. Define stable message IDs, named argument conventions, and translation completeness tests from a real calculator.
-4. Migrate **CURB-65** first. It is compact but exercises metadata, governed schema descriptions, units, risk bands, variable interpretation text, and ICU guidance. MedikQuantis already has clinician-reviewed English, Spanish, and Catalan CURB-65 content with CI-enforced key parity under the MIT licence.
-5. Attribute imported MedikQuantis translation content to Laura Piñero Roig and retain the MIT notice as required. Review terminology differences against `clincalc`'s primary-source implementation rather than copying scoring logic.
+4. Migrate **CURB-65** first. It is compact but exercises metadata, governed schema descriptions, units, risk bands, variable interpretation text, and ICU guidance. MedikQuantis provides English, Spanish, and Catalan CURB-65 source content with CI-enforced key parity under the MIT licence; clincalc must not advertise adapted bundles until the final wording has recorded native-speaker clinical review.
+5. Attribute imported MedikQuantis translation content to Laura Piñero Roig and retain the MIT notice as required. Review terminology differences and every adapted recommendation against `clincalc`'s primary-source implementation rather than copying scoring logic.
 6. Add two more overlapping calculators of different shapes and have native speakers review all three bundles.
 7. Propagate locale through CLI, Python, REST, MCP, and GUI once the engine pattern is proven.
 8. Write `docs/translating.md` with the contribution, attribution, review, and stale-translation workflow before opening translation batches.
@@ -189,7 +189,7 @@ The host resolves one locale for calculator content and UI chrome. Stable result
 
 The collaboration path is:
 
-- Reuse reviewed translations with attribution while retaining `clincalc`'s independently verified scoring implementation and citations.
+- Reuse source translations with attribution while retaining `clincalc`'s independently verified scoring implementation and citations, then record review of the final adapted clincalc wording before advertising a bundle.
 - Align stable clinical concepts, recommendation codes, tags, and citations where appropriate.
 - Exchange test vectors and terminology review rather than reverse-engineering either scoring implementation.
 - Invite upstream review whenever imported wording is adapted to `clincalc`'s schema or guideline context.
