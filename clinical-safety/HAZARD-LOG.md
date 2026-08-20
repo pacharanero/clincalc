@@ -151,7 +151,7 @@ controls:
   - id: C004
     description: "input_schema() (JSON Schema) declares each input's type, units, and permitted values, exposed via `clincalc calc <name> --schema` and to any MCP/GUI host, so the expected unit is machine-discoverable rather than assumed."
   - id: C005
-    description: "Strongly-typed Input structs (serde::Deserialize) reject wrong-shape input at the boundary; malformed or wrong-type input returns CalcError::InvalidInput rather than being silently coerced."
+    description: "Strongly-typed Input structs (serde::Deserialize with deny_unknown_fields) reject wrong-shape and unknown input at the boundary; malformed, misspelled, or wrong-type input returns CalcError::InvalidInput rather than being silently ignored or coerced. A registry test enforces this for every closed schema."
   - id: C006
     description: "Per-calculator documentation states the expected unit for every numeric input. The governed input-definition system (spec/calculator-input-definitions.md) is the planned single source of truth for what each input means and the unit it carries."
   - id: C007
@@ -239,7 +239,7 @@ controls:
 | C002 | Literature-vector unit tests per calculator; CI (`cargo test`) green before merge |
 | C003 | `license()` mandatory with http(s) evidence URL; registry test rejects calculators lacking it |
 | C004 | `input_schema()` declares type, units, permitted values; exposed via `--schema` and to MCP/GUI hosts |
-| C005 | Typed `Input` structs reject wrong-shape input; `CalcError::InvalidInput` surfaced, no silent coercion |
+| C005 | Typed `Input` structs reject wrong-shape and unknown input; a registry test enforces closed schemas; `CalcError::InvalidInput` surfaced, no silent ignore/coercion |
 | C006 | Per-calculator documentation of expected units; governed input-definition system as planned single source of truth |
 | C007 | Range / plausibility validation in `compute()` returns `CalcError::InvalidInput` for implausible values |
 | C008 | Enum/boolean predicates constrain domain; numeric inputs bounded by schema `minimum`/`maximum` |

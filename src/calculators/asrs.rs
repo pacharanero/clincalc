@@ -39,6 +39,7 @@ const POSITIVE_THRESHOLDS: [u8; ITEM_COUNT] = [2, 2, 2, 3, 3, 3];
 
 /// Six coded responses in official item order.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct AsrsInput {
     pub responses: Vec<u8>,
 }

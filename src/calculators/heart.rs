@@ -135,6 +135,7 @@ impl Troponin {
 
 /// HEART Score inputs. Age is numeric; the three age bands are derived.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct HeartInput {
     /// Clinical suspicion from the history (subjective gestalt).
     pub history: History,

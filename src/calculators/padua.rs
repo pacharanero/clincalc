@@ -46,6 +46,7 @@ const HIGH_RISK_THRESHOLD: u8 = 4;
 
 /// Padua Prediction Score inputs. Age is numeric; the >=70 point is derived.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct PaduaInput {
     /// Age in years.
     pub age: u8,

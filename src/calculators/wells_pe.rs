@@ -43,6 +43,7 @@ pub const LICENSE: CalculatorLicense = CalculatorLicense {
 
 /// Wells PE inputs: seven weighted, clinician-asserted boolean criteria.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct WellsPeInput {
     /// Clinical signs and symptoms of DVT (minimum leg swelling and pain with
     /// palpation of the deep veins). Weighted 3.

@@ -114,6 +114,7 @@ impl Attention {
 
 /// 4AT inputs: the four items.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct FourAtInput {
     /// Item 1: alertness, from observation.
     pub alertness: Alertness,

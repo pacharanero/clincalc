@@ -94,6 +94,7 @@ impl Duration {
 
 /// ABCD2 inputs. Age and blood pressure are numeric; their points are derived.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Abcd2Input {
     /// Age in years (A): scores 1 if >=60.
     pub age: u8,

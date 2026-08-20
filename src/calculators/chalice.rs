@@ -50,6 +50,7 @@ pub const LICENSE: CalculatorLicense = CalculatorLicense {
 /// two age-dependent criteria (the GCS threshold and the bruise/swelling/
 /// laceration criterion).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ChaliceInput {
     /// Age in completed years (0 means under 1 year old).
     pub age_years: u8,

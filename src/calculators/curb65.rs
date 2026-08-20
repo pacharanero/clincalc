@@ -168,6 +168,7 @@ fn translations(locale: SupportedLocale) -> &'static TranslationBundle {
 
 /// CURB-65 inputs. The five scoring criteria are derived from raw observations.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Curb65Input {
     /// New-onset confusion (e.g. AMT <=8 or new disorientation in person, place,
     /// or time). NOT a chronic baseline cognitive impairment.

@@ -303,6 +303,7 @@ impl Medication {
 /// and the two nutrition flags are additive booleans; everything else is a
 /// single-choice enum.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct WaterlowInput {
     pub build: Build,
     pub continence: Continence,

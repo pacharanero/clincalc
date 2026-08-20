@@ -55,6 +55,7 @@ pub enum Sex {
 
 /// CHA2DS2-VASc inputs. Age is numeric; the two age bands are derived.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Cha2ds2VascInput {
     /// Age in years.
     pub age: u8,

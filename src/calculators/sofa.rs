@@ -106,6 +106,7 @@ impl Cardiovascular {
 /// cardiovascular axis is an enum of support levels; respiratory support gates
 /// the two most severe respiratory rows.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct SofaInput {
     /// PaO2/FiO2 ratio in mmHg (the "P/F ratio").
     pub pao2_fio2: f64,

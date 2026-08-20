@@ -46,6 +46,7 @@ pub const MAX_GRADE: u8 = 5;
 
 /// Input: a single MRC breathlessness grade (1-5).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct MrcDyspnoeaInput {
     /// The MRC Dyspnoea Scale grade, an integer from 1 (least) to 5 (most).
     pub grade: u8,

@@ -223,6 +223,27 @@ mod registry_tests {
         }
     }
 
+    /// Policy: a schema that advertises a closed object must reject unknown
+    /// fields at the typed deserialization boundary used by every surface.
+    #[test]
+    fn every_closed_schema_rejects_unknown_fields() {
+        const SENTINEL: &str = "__unexpected_clincalc_field";
+        let input = serde_json::json!({ (SENTINEL): null });
+
+        for calc in all() {
+            if calc.input_schema()["additionalProperties"] != false {
+                continue;
+            }
+
+            let error = calc.calculate(&input).unwrap_err();
+            assert!(
+                matches!(&error, CalcError::InvalidInput(message) if message.contains(SENTINEL)),
+                "{}: closed schema did not reject {SENTINEL}: {error}",
+                calc.name()
+            );
+        }
+    }
+
     /// Translation availability is a stable, duplicate-free subset of the
     /// bundles compiled into the crate, and always includes source English.
     #[test]

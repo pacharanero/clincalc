@@ -52,6 +52,7 @@ pub const QOL_MAX: u8 = 6;
 /// The seven IPSS symptom responses, each 0-5, in canonical AUA-SI order, plus
 /// the optional quality-of-life item.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct IpssInput {
     /// Seven symptom responses (Q1-Q7), each 0-5, over the last month:
     /// Q1 incomplete emptying, Q2 frequency, Q3 intermittency, Q4 urgency,

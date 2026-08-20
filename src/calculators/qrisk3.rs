@@ -145,6 +145,7 @@ impl Smoking {
 
 /// QRISK3 inputs. BMI is derived from height and weight.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Qrisk3Input {
     /// Age in years. QRISK3 is validated for ages 25-84.
     pub age: u8,

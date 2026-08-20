@@ -49,6 +49,7 @@ const SYSTOLIC_BP_THRESHOLD: f64 = 100.0;
 /// qSOFA inputs. The two physiological criteria are numeric; mentation is a
 /// boolean asserting a Glasgow Coma Scale score below 15.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct QsofaInput {
     /// Respiratory rate in breaths per minute. Scores a point at >= 22/min.
     pub respiratory_rate: f64,

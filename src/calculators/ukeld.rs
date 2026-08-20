@@ -65,6 +65,7 @@ pub enum Unit {
 
 /// Inputs to the UKELD score.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct UkeldInput {
     /// International normalised ratio (INR), dimensionless.
     pub inr: f64,

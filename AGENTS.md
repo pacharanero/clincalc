@@ -74,7 +74,7 @@ Before writing or bumping any dependency, fetch the package's official repositor
 ## Adding a calculator
 
 1. Implement it under `src/calculators/<name>.rs`:
-   - A typed `Input` struct (`#[derive(serde::Deserialize)]`).
+   - A typed `Input` struct (`#[derive(serde::Deserialize)]`) with `#[serde(deny_unknown_fields)]` so runtime deserialization enforces the schema's closed input object.
    - A pure `compute()` that returns a typed result.
    - A `build_response()` adapter producing a `CalculationResponse`.
    - A `Calculator` impl with `input_schema()` and `license()` (both required).

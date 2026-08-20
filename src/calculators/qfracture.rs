@@ -194,6 +194,7 @@ impl Alcohol {
 
 /// QFracture-2012 inputs. BMI is derived from height and weight.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct QfractureInput {
     /// Age in years. QFracture-2012 is validated for ages 30-100.
     pub age: u8,

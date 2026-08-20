@@ -14,6 +14,7 @@
 //! The point is transparency, not obstruction: a clinician searching for FRAX
 //! finds out exactly why it is not here and where to turn, rather than silence.
 
+use serde::Deserialize;
 use serde_json::{Map, Value, json};
 
 use crate::calculator::{CalcError, Calculator};
@@ -25,6 +26,10 @@ pub const ADVOCACY: &str = "Clinical decision tools that public healthcare relie
 and free to use. If you agree, consider writing to your MP or elected representative to ask why \
 tools essential to patient care are locked behind proprietary licences, and to support open \
 clinical knowledge. Open alternatives are listed above where they exist.";
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct NoInput {}
 
 /// A calculator that cannot be shipped because it is proprietary or
 /// licence-locked. Computing it returns the reason, the owner, alternatives,
@@ -82,7 +87,13 @@ impl Calculator for ProprietaryCalculator {
         })
     }
 
-    fn calculate(&self, _input: &Value) -> Result<CalculationResponse, CalcError> {
+    fn calculate(&self, input: &Value) -> Result<CalculationResponse, CalcError> {
+        if !input.is_object() {
+            return Err(CalcError::InvalidInput("expected an object".into()));
+        }
+        let _: NoInput = serde_json::from_value(input.clone())
+            .map_err(|error| CalcError::InvalidInput(error.to_string()))?;
+
         let mut working = Map::new();
         working.insert("status".into(), json!("unavailable-proprietary"));
         working.insert("owner".into(), json!(self.owner));
@@ -273,6 +284,17 @@ mod tests {
                 p.name
             );
             assert!(p.source_url.starts_with("http"), "{}: source_url", p.name);
+        }
+    }
+
+    #[test]
+    fn proprietary_stubs_enforce_their_empty_object_schema() {
+        let frax = PROPRIETARY.iter().find(|p| p.name == "frax").unwrap();
+
+        assert!(frax.calculate(&json!({})).is_ok());
+        for invalid in [json!({ "unexpected": true }), json!([]), json!(null)] {
+            let error = frax.calculate(&invalid).unwrap_err();
+            assert!(matches!(error, CalcError::InvalidInput(_)));
         }
     }
 }

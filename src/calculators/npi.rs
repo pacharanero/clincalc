@@ -51,6 +51,7 @@ pub const SIZE_WEIGHT: f64 = 0.2;
 /// `node_stage` and `grade` are the ordinal 1-3 codings, not raw counts; see the
 /// schema `definition` blocks for the mapping.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct NpiInput {
     /// Largest diameter of the invasive tumour, in centimetres.
     pub tumour_size_cm: f64,
