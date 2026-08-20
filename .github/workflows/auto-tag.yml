@@ -22,13 +22,14 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: write
-  id-token: write
+  contents: read
 
 jobs:
   tag:
     name: Detect version bump and create tag
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     outputs:
       tag: ${{ steps.bump.outputs.tag }}
       bumped: ${{ steps.bump.outputs.bumped }}
@@ -72,8 +73,10 @@ jobs:
       - name: Create and push tag
         id: create
         if: steps.bump.outputs.bumped == 'true'
+        env:
+          RELEASE_TAG: ${{ steps.bump.outputs.tag }}
         run: |
-          tag="${{ steps.bump.outputs.tag }}"
+          tag="$RELEASE_TAG"
           if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null 2>&1; then
             echo "Tag $tag already exists on origin - another run won the race."
             echo "created=false" >> "$GITHUB_OUTPUT"
@@ -100,23 +103,30 @@ jobs:
   release:
     needs: tag
     if: needs.tag.outputs.created == 'true'
+    permissions:
+      contents: write
     uses: ./.github/workflows/release.yml
     with:
       tag: ${{ needs.tag.outputs.tag }}
-    secrets: inherit
+    secrets:
+      HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
 
   publish-crates:
     needs: tag
     if: needs.tag.outputs.created == 'true'
+    permissions:
+      contents: read
+      id-token: write
     uses: ./.github/workflows/publish-crates.yml
     with:
       tag: ${{ needs.tag.outputs.tag }}
-    secrets: inherit
 
   publish-python:
     needs: tag
     if: needs.tag.outputs.created == 'true'
+    permissions:
+      contents: read
+      id-token: write
     uses: ./.github/workflows/publish-python.yml
     with:
       tag: ${{ needs.tag.outputs.tag }}
-    secrets: inherit

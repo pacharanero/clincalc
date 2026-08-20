@@ -18,14 +18,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install Rust toolchain (stable, with rustfmt and clippy)
-        uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c # stable
+        uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # v1
         with:
           toolchain: stable
           components: rustfmt, clippy
 
-      - uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
 
       - name: Formatting
         run: cargo fmt --all --check
@@ -45,17 +47,60 @@ jobs:
       - name: Tests (MCP feature)
         run: cargo test --features mcp
 
+  python-package:
+    name: Python package (${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - python-version: "3.9"
+            pandas-version: "2.3.3"
+            pytest-version: "8.4.2"
+          - python-version: "3.13"
+            pandas-version: "3.0.5"
+            pytest-version: "9.1.1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # v1
+        with:
+          toolchain: stable
+      - name: Build wheel
+        working-directory: python
+        run: |
+          python -m pip install "maturin==1.14.1"
+          maturin build --release --locked --out "$RUNNER_TEMP/wheels"
+      - name: Install wheel and test dependencies
+        run: python -m pip install "$RUNNER_TEMP"/wheels/*.whl "pandas==${{ matrix.pandas-version }}" "pytest==${{ matrix.pytest-version }}"
+      - name: Test installed wheel outside the source tree
+        working-directory: ${{ runner.temp }}
+        run: python -m pytest "$GITHUB_WORKSPACE/python/tests"
+      - name: Verify source distribution rebuilds
+        if: matrix.python-version == '3.13'
+        working-directory: python
+        run: |
+          maturin sdist --out "$RUNNER_TEMP/sdist"
+          python -m pip wheel --no-deps "$RUNNER_TEMP"/sdist/*.tar.gz --wheel-dir "$RUNNER_TEMP/sdist-wheel"
+
   audit:
     name: Security audit
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       # Prebuilt binary (seconds) rather than a from-source `cargo install`.
       - name: Install cargo-audit
-        uses: taiki-e/install-action@41049aa56687c35e0afa74eed4f09cec4f9afabf # v2.85.2
+        uses: taiki-e/install-action@5b4d68e2e660441203ab128a23676f1e4faf1532 # v2.86.3
         with:
           tool: cargo-audit
+          fallback: none
 
       # Fails on any RustSec advisory affecting the locked tree, so a vulnerable
       # dependency is caught here rather than waiting on a Dependabot email. A
@@ -63,3 +108,18 @@ jobs:
       # (`[advisories] ignore = ["RUSTSEC-XXXX-NNNN"]`) with a note.
       - name: cargo audit
         run: cargo audit
+
+  workflow-security:
+    name: GitHub Actions security
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: taiki-e/install-action@5b4d68e2e660441203ab128a23676f1e4faf1532 # v2.86.3
+        with:
+          tool: zizmor@1.27.0
+          fallback: none
+      - run: zizmor --strict-collection .
+        env:
+          GH_TOKEN: ${{ github.token }}
