@@ -152,6 +152,27 @@ class TestPandasBatch:
 
         assert round(results.loc[0, "result"], 1) == 22.9
 
+    @pytest.mark.parametrize("mapped", [False, True])
+    def test_batch_preserves_list_valued_inputs(self, mapped):
+        pd = pytest.importorskip("pandas")
+        responses_column = "answers" if mapped else "responses"
+        patients = pd.DataFrame({
+            "age_at_least_18": [True, True],
+            "responses_cover_past_six_months": [True, True],
+            responses_column: [[2, 2, 2, 3, 0, 0], [0, 0, 0, 0, 0, 0]],
+        })
+        input_columns = None
+        if mapped:
+            input_columns = {
+                "age_at_least_18": "age_at_least_18",
+                "responses_cover_past_six_months": "responses_cover_past_six_months",
+                "responses": "answers",
+            }
+
+        results = clincalc.batch("asrs", patients, input_columns=input_columns)
+
+        assert results["result"].tolist() == [4, 0]
+
     def test_batch_rejects_non_dataframe(self):
         pytest.importorskip("pandas")
 
