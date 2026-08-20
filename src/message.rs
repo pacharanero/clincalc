@@ -46,7 +46,9 @@ mod tests {
     fn serialises_stable_id_and_typed_named_arguments() {
         let message = ClinicalMessage::new("curb65.interpretation.high")
             .with_argument("score", 4)
-            .with_argument("mortality_percent", 41.5);
+            .with_argument("mortality_percent", 22.0)
+            .with_argument("critical_care_referral_if_appropriate", true)
+            .with_argument("critical_care_transfer_assessment", true);
 
         assert_eq!(
             serde_json::to_value(message).unwrap(),
@@ -54,7 +56,9 @@ mod tests {
                 "id": "curb65.interpretation.high",
                 "arguments": {
                     "score": 4,
-                    "mortality_percent": 41.5
+                    "mortality_percent": 22.0,
+                    "critical_care_referral_if_appropriate": true,
+                    "critical_care_transfer_assessment": true
                 }
             })
         );

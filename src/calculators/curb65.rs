@@ -3,9 +3,9 @@
 
 //! CURB-65 - severity assessment for community-acquired pneumonia.
 //!
-//! Stratifies 30-day mortality risk and guides the place of care (home vs
-//! hospital vs ICU) in community-acquired pneumonia (Lim et al. Thorax 2003;
-//! BTS/NICE NG138). Each of five criteria scores 1 point, total 0-5.
+//! Stratifies 30-day mortality risk and guides place of care in community-acquired
+//! pneumonia (Lim et al. Thorax 2003; BTS 2009; NICE NG250). Each of five
+//! criteria scores 1 point, total 0-5.
 //!
 //! The caller passes raw observations and the five criteria are derived here, so
 //! the easy-to-misapply thresholds live in one place rather than at every call
@@ -35,7 +35,8 @@ pub const NAME: &str = "curb65";
 /// Primary citation.
 pub const REFERENCE: &str = "Lim WS, van der Eerden MM, Laing R, et al. Defining community acquired pneumonia severity on \
 presentation to hospital: an international derivation and validation study. Thorax. \
-2003;58(5):377-382. Management thresholds per BTS / NICE NG138.";
+2003;58(5):377-382. Mortality groups from Figure 2; place-of-care guidance per \
+NICE NG250, with critical-care transfer assessment per BTS 2009.";
 
 /// Distribution licence: the score is a published clinical method, implemented
 /// here from the primary literature.
@@ -78,7 +79,7 @@ struct TranslationBundle {
 
 const EN: TranslationBundle = TranslationBundle {
     title: "CURB-65 Pneumonia Severity",
-    description: "Severity and 30-day mortality risk in community-acquired pneumonia, guiding place of care (BTS / NICE NG138).",
+    description: "Severity and 30-day mortality risk in community-acquired pneumonia, guiding place of care (BTS 2009 / NICE NG250).",
     confusion_description: "New-onset confusion (e.g. AMT <=8 or new disorientation) - NOT chronic baseline impairment (C)",
     confusion_concept: "Confusion (C)",
     confusion_statement: "New-onset mental confusion, operationalised in the original study as an Abbreviated Mental Test (AMT) score of 8 or less, or new disorientation in person, place, or time.",
@@ -105,7 +106,7 @@ const EN: TranslationBundle = TranslationBundle {
 
 const ES: TranslationBundle = TranslationBundle {
     title: "Gravedad de la neumonía CURB-65",
-    description: "Gravedad y riesgo de mortalidad a 30 días en la neumonía adquirida en la comunidad; orienta el lugar de tratamiento (BTS / NICE NG138).",
+    description: "Gravedad y riesgo de mortalidad a 30 días en la neumonía adquirida en la comunidad; orienta el lugar de tratamiento (BTS 2009 / NICE NG250).",
     confusion_description: "Confusión de nueva aparición (p. ej., AMT <=8 o nueva desorientación); NO deterioro crónico basal (C)",
     confusion_concept: "Confusión (C)",
     confusion_statement: "Confusión mental de nueva aparición, definida en el estudio original como una puntuación de 8 o menos en el Abbreviated Mental Test (AMT), o nueva desorientación en persona, lugar o tiempo.",
@@ -132,7 +133,7 @@ const ES: TranslationBundle = TranslationBundle {
 
 const CA: TranslationBundle = TranslationBundle {
     title: "Gravetat de la pneumònia CURB-65",
-    description: "Gravetat i risc de mortalitat a 30 dies en la pneumònia adquirida a la comunitat; orienta el lloc de tractament (BTS / NICE NG138).",
+    description: "Gravetat i risc de mortalitat a 30 dies en la pneumònia adquirida a la comunitat; orienta el lloc de tractament (BTS 2009 / NICE NG250).",
     confusion_description: "Confusió de nova aparició (p. ex., AMT <=8 o nova desorientació); NO deteriorament crònic basal (C)",
     confusion_concept: "Confusió (C)",
     confusion_statement: "Confusió mental de nova aparició, definida a l'estudi original com una puntuació de 8 o menys a l'Abbreviated Mental Test (AMT), o nova desorientació en persona, lloc o temps.",
@@ -186,11 +187,11 @@ pub struct Curb65Input {
 /// Risk band derived from the total score.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RiskBand {
-    /// Score 0-1: low severity, consider home treatment.
+    /// Score 0-1: low severity, consider home care with safety-netting.
     Low,
-    /// Score 2: intermediate severity, consider hospital assessment.
+    /// Score 2: intermediate severity, consider supported or inpatient care.
     Intermediate,
-    /// Score 3-5: high severity, manage in hospital, consider ICU at 4-5.
+    /// Score 3-5: high severity, inpatient care and critical-care referral if appropriate.
     High,
 }
 
@@ -215,9 +216,9 @@ impl RiskBand {
     /// Stable machine code for the place-of-care recommendation.
     pub fn recommendation_code(self) -> &'static str {
         match self {
-            RiskBand::Low => "curb65.recommendation.outpatient",
-            RiskBand::Intermediate => "curb65.recommendation.hospital-observation",
-            RiskBand::High => "curb65.recommendation.hospital-icu-assessment",
+            RiskBand::Low => "curb65.recommendation.home-with-safety-netting",
+            RiskBand::Intermediate => "curb65.recommendation.supported-or-inpatient-care",
+            RiskBand::High => "curb65.recommendation.inpatient-consider-critical-care",
         }
     }
 }
@@ -234,21 +235,17 @@ pub struct Curb65Outcome {
     pub blood_pressure: bool,
     pub age: bool,
     pub risk_band: RiskBand,
-    /// Approximate 30-day mortality percentage multiplied by ten.
-    pub mortality_tenths_percent: u16,
     pub interpretation: String,
 }
 
-/// Approximate 30-day mortality for each score (Lim et al. Thorax 2003), as
-/// tenths of a percentage point so the clinical value stays locale-neutral.
+/// Approximate 30-day mortality for the management groups in Figure 2 of Lim
+/// et al. (derivation cohort), as tenths of a percentage point: scores 0-1,
+/// score 2, and scores 3-5 respectively.
 fn mortality_tenths_percent(score: u8) -> u16 {
     match score {
-        0 => 7,
-        1 => 32,
-        2 => 130,
-        3 => 170,
-        4 => 415,
-        _ => 570,
+        0 | 1 => 15,
+        2 => 92,
+        _ => 220,
     }
 }
 
@@ -272,46 +269,51 @@ fn render_interpretation(
     let mortality = mortality_text(locale, mortality_tenths);
     match (locale, risk_band, score >= 4) {
         (SupportedLocale::En, RiskBand::Low, _) => format!(
-            "Score {score}: low severity (approx. {mortality} 30-day mortality). Consider home treatment if clinically suitable (BTS / NICE NG138)."
+            "Score {score}: low severity (approx. {mortality} 30-day mortality for scores 0-1 in the Lim derivation group). Consider discharge home or primary care-led services with safety-netting if clinically suitable (NICE NG250)."
         ),
         (SupportedLocale::En, RiskBand::Intermediate, _) => format!(
-            "Score {score}: intermediate severity (approx. {mortality} 30-day mortality). Consider hospital-supervised treatment or a short inpatient stay, with close review (BTS / NICE NG138)."
+            "Score {score}: intermediate severity (approx. {mortality} 30-day mortality in the Lim derivation group). Consider a virtual ward, same-day emergency care, hospital-at-home, or inpatient care (NICE NG250)."
         ),
         (SupportedLocale::En, RiskBand::High, false) => format!(
-            "Score {score}: high severity (approx. {mortality} 30-day mortality). Manage in hospital as severe pneumonia. (BTS / NICE NG138). Where bloods are unavailable, CRB-65 (the urea-free variant) can be used in primary care."
+            "Score {score}: high severity (approx. {mortality} 30-day mortality for scores 3-5 in the Lim derivation group). Provide inpatient care and refer to critical care if appropriate (NICE NG250). Where bloods are unavailable, CRB-65 (the urea-free variant) can be used in primary care."
         ),
         (SupportedLocale::En, RiskBand::High, true) => format!(
-            "Score {score}: high severity (approx. {mortality} 30-day mortality). Manage in hospital as severe pneumonia. At a score of 4-5, assess for intensive care. (BTS / NICE NG138). Where bloods are unavailable, CRB-65 (the urea-free variant) can be used in primary care."
+            "Score {score}: high severity (approx. {mortality} 30-day mortality for scores 3-5 in the Lim derivation group). Provide inpatient care and refer to critical care if appropriate (NICE NG250). At a score of 4-5, specifically assess for transfer to critical care (BTS 2009). Where bloods are unavailable, CRB-65 (the urea-free variant) can be used in primary care."
         ),
         (SupportedLocale::Es, RiskBand::Low, _) => format!(
-            "Puntuación {score}: gravedad baja (mortalidad aproximada a 30 días del {mortality}). Considere el tratamiento domiciliario si es clínicamente adecuado (BTS / NICE NG138)."
+            "Puntuación {score}: gravedad baja (mortalidad aproximada a 30 días del {mortality} para puntuaciones 0-1 en el grupo de derivación de Lim). Considere el alta a domicilio o servicios dirigidos por atención primaria con instrucciones de seguridad si es clínicamente adecuado (NICE NG250)."
         ),
         (SupportedLocale::Es, RiskBand::Intermediate, _) => format!(
-            "Puntuación {score}: gravedad intermedia (mortalidad aproximada a 30 días del {mortality}). Considere tratamiento supervisado en el hospital o una estancia hospitalaria corta, con revisión estrecha (BTS / NICE NG138)."
+            "Puntuación {score}: gravedad intermedia (mortalidad aproximada a 30 días del {mortality} en el grupo de derivación de Lim). Considere una unidad virtual, atención de urgencias el mismo día, hospitalización a domicilio o ingreso hospitalario (NICE NG250)."
         ),
         (SupportedLocale::Es, RiskBand::High, false) => format!(
-            "Puntuación {score}: gravedad alta (mortalidad aproximada a 30 días del {mortality}). Trate en el hospital como neumonía grave (BTS / NICE NG138). Cuando no se dispone de analítica, puede utilizarse CRB-65, la variante sin urea, en atención primaria."
+            "Puntuación {score}: gravedad alta (mortalidad aproximada a 30 días del {mortality} para puntuaciones 3-5 en el grupo de derivación de Lim). Proporcione atención hospitalaria y derive a cuidados intensivos si procede (NICE NG250). Cuando no se dispone de analítica, puede utilizarse CRB-65, la variante sin urea, en atención primaria."
         ),
         (SupportedLocale::Es, RiskBand::High, true) => format!(
-            "Puntuación {score}: gravedad alta (mortalidad aproximada a 30 días del {mortality}). Trate en el hospital como neumonía grave y valore cuidados intensivos con una puntuación de 4-5 (BTS / NICE NG138). Cuando no se dispone de analítica, puede utilizarse CRB-65, la variante sin urea, en atención primaria."
+            "Puntuación {score}: gravedad alta (mortalidad aproximada a 30 días del {mortality} para puntuaciones 3-5 en el grupo de derivación de Lim). Proporcione atención hospitalaria y derive a cuidados intensivos si procede (NICE NG250). Con una puntuación de 4-5, valore específicamente el traslado a cuidados intensivos (BTS 2009). Cuando no se dispone de analítica, puede utilizarse CRB-65, la variante sin urea, en atención primaria."
         ),
         (SupportedLocale::Ca, RiskBand::Low, _) => format!(
-            "Puntuació {score}: gravetat baixa (mortalitat aproximada a 30 dies del {mortality}). Considereu el tractament domiciliari si és clínicament adequat (BTS / NICE NG138)."
+            "Puntuació {score}: gravetat baixa (mortalitat aproximada a 30 dies del {mortality} per a puntuacions 0-1 en el grup de derivació de Lim). Considereu l'alta a domicili o serveis dirigits per atenció primària amb instruccions de seguretat si és clínicament adequat (NICE NG250)."
         ),
         (SupportedLocale::Ca, RiskBand::Intermediate, _) => format!(
-            "Puntuació {score}: gravetat intermèdia (mortalitat aproximada a 30 dies del {mortality}). Considereu tractament supervisat a l'hospital o una estada hospitalària curta, amb revisió estreta (BTS / NICE NG138)."
+            "Puntuació {score}: gravetat intermèdia (mortalitat aproximada a 30 dies del {mortality} en el grup de derivació de Lim). Considereu una unitat virtual, atenció d'urgències el mateix dia, hospitalització a domicili o ingrés hospitalari (NICE NG250)."
         ),
         (SupportedLocale::Ca, RiskBand::High, false) => format!(
-            "Puntuació {score}: gravetat alta (mortalitat aproximada a 30 dies del {mortality}). Tracteu a l'hospital com a pneumònia greu (BTS / NICE NG138). Quan no es disposa d'analítica, es pot utilitzar CRB-65, la variant sense urea, en atenció primària."
+            "Puntuació {score}: gravetat alta (mortalitat aproximada a 30 dies del {mortality} per a puntuacions 3-5 en el grup de derivació de Lim). Proporcioneu atenció hospitalària i deriveu a cures intensives si escau (NICE NG250). Quan no es disposa d'analítica, es pot utilitzar CRB-65, la variant sense urea, en atenció primària."
         ),
         (SupportedLocale::Ca, RiskBand::High, true) => format!(
-            "Puntuació {score}: gravetat alta (mortalitat aproximada a 30 dies del {mortality}). Tracteu a l'hospital com a pneumònia greu i valoreu cures intensives amb una puntuació de 4-5 (BTS / NICE NG138). Quan no es disposa d'analítica, es pot utilitzar CRB-65, la variant sense urea, en atenció primària."
+            "Puntuació {score}: gravetat alta (mortalitat aproximada a 30 dies del {mortality} per a puntuacions 3-5 en el grup de derivació de Lim). Proporcioneu atenció hospitalària i deriveu a cures intensives si escau (NICE NG250). Amb una puntuació de 4-5, valoreu específicament el trasllat a cures intensives (BTS 2009). Quan no es disposa d'analítica, es pot utilitzar CRB-65, la variant sense urea, en atenció primària."
         ),
     }
 }
 
 /// Pure scoring.
 pub fn compute(input: &Curb65Input) -> Result<Curb65Outcome, CalcError> {
+    if input.age > 120 {
+        return Err(CalcError::InvalidInput(
+            "age must be between 0 and 120 years".into(),
+        ));
+    }
     if !input.urea_mmol_l.is_finite()
         || !input.respiratory_rate.is_finite()
         || !input.systolic_bp.is_finite()
@@ -351,12 +353,11 @@ pub fn compute(input: &Curb65Input) -> Result<Curb65Outcome, CalcError> {
         _ => RiskBand::High,
     };
 
-    let mortality_tenths_percent = mortality_tenths_percent(score);
     let interpretation = render_interpretation(
         SupportedLocale::En,
         score,
         risk_band,
-        mortality_tenths_percent,
+        mortality_tenths_percent(score),
     );
 
     Ok(Curb65Outcome {
@@ -367,7 +368,6 @@ pub fn compute(input: &Curb65Input) -> Result<Curb65Outcome, CalcError> {
         blood_pressure,
         age,
         risk_band,
-        mortality_tenths_percent,
         interpretation,
     })
 }
@@ -383,11 +383,13 @@ pub fn build_response_for(
     locale: SupportedLocale,
 ) -> Result<CalculationResponse, CalcError> {
     let o = compute(input)?;
-    let mortality_percent = f64::from(o.mortality_tenths_percent) / 10.0;
+    let mortality_tenths_percent = mortality_tenths_percent(o.score);
+    let mortality_percent = f64::from(mortality_tenths_percent) / 10.0;
     let message = ClinicalMessage::new(o.risk_band.message_id())
         .with_argument("score", o.score)
         .with_argument("mortality_percent", mortality_percent)
-        .with_argument("icu_assessment", o.score >= 4);
+        .with_argument("critical_care_referral_if_appropriate", o.score >= 3)
+        .with_argument("critical_care_transfer_assessment", o.score >= 4);
 
     let mut working = Map::new();
     working.insert("total_score".into(), json!(o.score));
@@ -421,7 +423,7 @@ pub fn build_response_for(
             locale,
             o.score,
             o.risk_band,
-            o.mortality_tenths_percent,
+            mortality_tenths_percent,
         ),
         working,
         reference: REFERENCE.to_string(),
@@ -604,7 +606,7 @@ mod tests {
         let o = compute(&i).unwrap();
         assert_eq!(o.score, 5);
         assert_eq!(o.risk_band, RiskBand::High);
-        assert!(o.interpretation.contains("intensive care"));
+        assert!(o.interpretation.contains("critical care"));
     }
 
     #[test]
@@ -690,6 +692,30 @@ mod tests {
     }
 
     #[test]
+    fn mortality_groups_match_lim_2003_figure_two() {
+        let expected_tenths_percent = [15, 15, 92, 220, 220, 220];
+        for (score, expected) in expected_tenths_percent.into_iter().enumerate() {
+            assert_eq!(mortality_tenths_percent(score as u8), expected);
+        }
+    }
+
+    #[test]
+    fn recommendation_codes_match_ng250_place_of_care_bands() {
+        assert_eq!(
+            RiskBand::Low.recommendation_code(),
+            "curb65.recommendation.home-with-safety-netting"
+        );
+        assert_eq!(
+            RiskBand::Intermediate.recommendation_code(),
+            "curb65.recommendation.supported-or-inpatient-care"
+        );
+        assert_eq!(
+            RiskBand::High.recommendation_code(),
+            "curb65.recommendation.inpatient-consider-critical-care"
+        );
+    }
+
+    #[test]
     fn negative_observation_is_rejected() {
         let mut i = well();
         i.urea_mmol_l = -1.0;
@@ -701,6 +727,18 @@ mod tests {
         let mut i = well();
         i.respiratory_rate = f64::NAN;
         assert!(matches!(compute(&i), Err(CalcError::InvalidInput(_))));
+    }
+
+    #[test]
+    fn age_above_schema_maximum_is_rejected() {
+        let mut i = well();
+        i.age = 121;
+        assert_eq!(
+            compute(&i),
+            Err(CalcError::InvalidInput(
+                "age must be between 0 and 120 years".into()
+            ))
+        );
     }
 
     #[test]
@@ -725,6 +763,19 @@ mod tests {
         assert_eq!(dynamic, build_response(&typed).unwrap());
         // urea + RR + age = 3.
         assert_eq!(dynamic.result, json!(3));
+        assert_eq!(dynamic.working["mortality_30_day_percent"], json!(22.0));
+        assert_eq!(
+            dynamic.working["recommendation_code"],
+            json!("curb65.recommendation.inpatient-consider-critical-care")
+        );
+        assert_eq!(
+            dynamic.working["interpretation_message"]["arguments"]["critical_care_referral_if_appropriate"],
+            json!(true)
+        );
+        assert_eq!(
+            dynamic.working["interpretation_message"]["arguments"]["critical_care_transfer_assessment"],
+            json!(false)
+        );
     }
 
     #[test]
