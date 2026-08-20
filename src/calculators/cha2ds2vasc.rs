@@ -183,8 +183,7 @@ independent indication: this is low risk and anticoagulation is not recommended 
 HAS-BLED) and patient preference (NICE NG196)."
         ),
         Recommendation::Offer => format!(
-            "Score {score}: offer anticoagulation, taking bleeding risk into account (NICE NG196). \
-Stroke risk rises with the score."
+            "Score {score}: offer anticoagulation, taking bleeding risk into account (NICE NG196)."
         ),
     };
 
