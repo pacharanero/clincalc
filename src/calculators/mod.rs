@@ -36,6 +36,7 @@ pub mod child_pugh;
 pub mod ckd_risk;
 pub mod cockcroft_gault;
 pub mod corrected_calcium;
+pub mod corrected_sodium;
 pub mod curb65;
 pub mod das28;
 pub mod egfr;
