@@ -111,6 +111,7 @@ pub fn all() -> Vec<Box<dyn Calculator>> {
         Box::new(calculators::cockcroft_gault::CockcroftGault),
         Box::new(calculators::fena::Fena),
         Box::new(calculators::corrected_calcium::CorrectedCalcium),
+        Box::new(calculators::corrected_sodium::CorrectedSodium),
         Box::new(calculators::anion_gap::AnionGap),
         Box::new(calculators::energy_requirement::EnergyRequirement),
         Box::new(calculators::bmi::Bmi),
