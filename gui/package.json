@@ -1,7 +1,7 @@
 {
   "name": "calc-gui",
   "private": true,
-  "version": "0.2.2",
+  "version": "0.3.0",
   "type": "module",
   "description": "Open clinical calculators - native desktop GUI (Tauri 2 + React + Mantine)",
   "scripts": {
