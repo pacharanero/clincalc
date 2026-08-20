@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='windows-1252'?>
+<!-- SPDX-FileCopyrightText: 2026 Marcus Baw and Baw Medical Ltd -->
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+    <Fragment>
+        <DirectoryRef Id='APPLICATIONFOLDER'>
+            <Component Id='License' Guid='*'>
+                <File Id='LicenseFile' Name='LICENSE' DiskId='1' Source='..\LICENSE' KeyPath='yes'/>
+            </Component>
+            <Component Id='ThirdPartyNotices' Guid='*'>
+                <File Id='ThirdPartyNoticesFile' Name='third-party-notices.md' DiskId='1' Source='..\third-party-notices.md' KeyPath='yes'/>
+            </Component>
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <FeatureRef Id='Binaries'>
+            <ComponentRef Id='License'/>
+            <ComponentRef Id='ThirdPartyNotices'/>
+        </FeatureRef>
+    </Fragment>
+</Wix>

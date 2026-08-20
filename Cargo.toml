@@ -60,6 +60,9 @@ all-features = true
 [package.metadata.wix]
 upgrade-guid = "53C371C7-A0F3-445B-B0D1-567A0DF17F70"
 path-guid = "A1A62FB5-0A76-4664-AF70-91F60BA2EA69"
+# Keep cargo-dist's generated main template managed; this fragment adds the
+# licence and third-party notice as installed sidecars.
+include = ["wix/legal.wxs"]
 license = false
 eula = false
 
@@ -93,6 +96,9 @@ install-updater = false
 tap = "pacharanero/homebrew-tap"
 publish-jobs = ["homebrew"]
 publish-prereleases = false
+# README and LICENSE are auto-detected for archives; the third-party notice must
+# be explicitly included. The MSI sidecars are defined in wix/legal.wxs.
+include = ["third-party-notices.md"]
 # We hand-edit release.yml to pin action SHAs and add the workflow_call trigger
 # for the auto-tag cascade; tell dist not to error on the resulting drift.
 allow-dirty = ["ci"]
