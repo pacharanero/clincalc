@@ -170,7 +170,7 @@ CI enforces all three. Adding a calculator: implement it in `clincalc` (typed in
 - `clincalc`: AGPL-3.0-or-later. This work is deliberately not available for subsumption into proprietary EHRs; if that service needs to exist, it can be offered as a hosted Calc-API.
 - Clinical algorithms are implemented from primary literature (most scores are public-domain methods); QRISK3 and QFracture are ported from ClinRisk's LGPL-3.0 source and carry the required disclaimer. Each calculator records its own distribution licence via `clincalc calc <name> --license`.
 - Clinical content (source references) under CC-BY-SA-4.0.
-- The ASRS-v1.1 six-question scorer is distributed with the rights holders' required attribution and accepts coded responses from the [authorised form](https://license.tov.med.nyu.edu/product/asrs6Qscreener); questionnaire text and the separately licensed 18-question checklist are not distributed.
+- The ASRS-v1.1 six-question scorer is distributed with the rights holders' required attribution and accepts coded adult responses covering the past six months from the [authorised form](https://license.tov.med.nyu.edu/product/asrs6Qscreener). It reports the classic dichotomous and alternative continuous methods separately. Current source and releases from `0.3.0` onward do not distribute questionnaire text or the separately licensed 18-question checklist; legacy `0.2.2` source artifacts did include the checklist and should not be used.
 - Spanish and Catalan CURB-65 wording adapted from the MIT-licensed MedikQuantis catalogues; see [`third-party-notices.md`](third-party-notices.md).
 
 ## Roadmap

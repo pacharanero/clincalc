@@ -45,12 +45,24 @@ class TestCalculate:
 
     def test_asrs_scores_six_coded_responses(self):
         result = clincalc.calculate("asrs", {
+            "age_at_least_18": True,
+            "responses_cover_past_six_months": True,
             "responses": [2, 2, 2, 3, 0, 0],
         })
 
         assert result["result"] == 4
-        assert result["working"]["part_a_screen_result"] == "POSITIVE"
+        assert result["working"]["result_scoring_method"] == "classic_dichotomous"
+        assert result["working"]["classic_dichotomous_screen_result"] == "POSITIVE"
+        assert result["working"]["continuous_total_score"] == 9
         assert "not diagnostic" in result["interpretation"]
+
+    def test_asrs_rejects_out_of_population_administration(self):
+        with pytest.raises(ValueError, match="aged 18 or older"):
+            clincalc.calculate("asrs", {
+                "age_at_least_18": False,
+                "responses_cover_past_six_months": True,
+                "responses": [0, 0, 0, 0, 0, 0],
+            })
 
 
 class TestListCalculators:

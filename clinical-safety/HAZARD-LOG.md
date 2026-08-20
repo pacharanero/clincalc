@@ -37,9 +37,9 @@ hazards:
     date-raised: "2026-07-03"
     date-closed:
   - id: H003
-    description: "Out-of-range or physiologically implausible input accepted and scored"
-    cause: "compute() does not range-check a numeric input; an implausible value (negative age, systolic BP of 900, impossible lab value) is treated as real"
-    effect: "A nonsensical input yields a plausible-looking score instead of an explicit error, masking a data-entry mistake upstream"
+    description: "Out-of-range, physiologically implausible, or out-of-population input accepted and scored"
+    cause: "compute() does not range-check a numeric input or enforce a required administration context; an implausible value (negative age, systolic BP of 900, impossible lab value) or an ineligible patient/recall period is treated as valid"
+    effect: "A nonsensical or out-of-population input yields a plausible-looking score instead of an explicit error, masking a data-entry or administration mistake upstream"
     severity: 3
     likelihood: 3
     risk: medium
@@ -155,7 +155,7 @@ controls:
   - id: C006
     description: "Per-calculator documentation states the expected unit for every numeric input. The governed input-definition system (spec/calculator-input-definitions.md) is the planned single source of truth for what each input means and the unit it carries."
   - id: C007
-    description: "Range / plausibility validation in compute() returns CalcError::InvalidInput for physiologically implausible values rather than scoring them. Each calculator's valid domain is derived from its primary source."
+    description: "Range, eligibility, and administration-context validation in compute() returns CalcError::InvalidInput for physiologically implausible or out-of-population inputs rather than scoring them. Each calculator's valid domain is derived from its primary source; for example, ASRS requires confirmation of adult age and its six-month recall period."
   - id: C008
     description: "Enumerated and boolean predicates constrain the input domain by construction; free numeric inputs are bounded by schema minimum/maximum so out-of-range values are rejectable at the schema layer."
   - id: C009
@@ -224,7 +224,7 @@ controls:
 |---|---|---|---|---|---|---|---|
 | H001 | Incorrect scoring logic vs cited primary source | 2 | 3 | HIGH | C001, C002, C003 | LOW | Open |
 | H002 | Input unit / scale mismatch scored on raw number | 2 | 3 | HIGH | C004, C005, C006 | MEDIUM | Open |
-| H003 | Out-of-range / implausible input accepted and scored | 3 | 3 | MEDIUM | C005, C007, C008 | LOW | Open |
+| H003 | Out-of-range / implausible / out-of-population input accepted and scored | 3 | 3 | MEDIUM | C005, C007, C008 | LOW | Open |
 | H004 | Optional predicate silently defaulted, biasing score | 2 | 3 | HIGH | C009, C010 | MEDIUM | Open |
 | H005 | Wrong calculator selected (identity confusion) | 2 | 4 | MEDIUM | C011, C012 | LOW | Open |
 | H006 | Naked result copied without interpretation / inputs | 3 | 3 | MEDIUM | C013, C014, C015 | MEDIUM | Open |
@@ -241,7 +241,7 @@ controls:
 | C004 | `input_schema()` declares type, units, permitted values; exposed via `--schema` and to MCP/GUI hosts |
 | C005 | Typed `Input` structs reject wrong-shape and unknown input; a registry test enforces closed schemas; `CalcError::InvalidInput` surfaced, no silent ignore/coercion |
 | C006 | Per-calculator documentation of expected units; governed input-definition system as planned single source of truth |
-| C007 | Range / plausibility validation in `compute()` returns `CalcError::InvalidInput` for implausible values |
+| C007 | Range, eligibility, and administration-context validation in `compute()` rejects implausible or out-of-population inputs |
 | C008 | Enum/boolean predicates constrain domain; numeric inputs bounded by schema `minimum`/`maximum` |
 | C009 | Governed input-definition system defines each clinician-asserted predicate; 'not asserted' ≠ 'asserted false' |
 | C010 | Required schema fields; missing required input fails deserialization rather than defaulting |
