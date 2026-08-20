@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry. 64 active calculators that compute a real score, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator, sorted by machine name.
+The full registry. 67 active calculators that compute a real result, plus 11 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
@@ -36,7 +36,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `apache2` | APACHE II | ICU acute physiology, age, and chronic health severity score (0-71). | `intensive-care`, `severity`, `prognostic` |
 | `asa_physical_status` | ASA Physical Status | ASA preoperative physical-status classification, with optional emergency suffix. | `surgery`, `severity` |
 | `ascvd` | ASCVD Pooled Cohort Equations | ACC/AHA 2013 10-year ASCVD risk estimate for US adults aged 40-79. | `primary-care`, `cardiology`, `risk` |
-| `asrs` | ASRS-v1.1 Adult ADHD Screener | 18-item WHO-validated screener for adult ADHD; Part A (items 1–6) is the validated screen. | `primary-care`, `mental-health`, `screening` |
+| `asrs` | ASRS-v1.1 Adult ADHD Screener | Copyright-controlled WHO questionnaire; not bundled because reproduction and noncommercial distribution require permission. | `primary-care`, `mental-health`, `screening`, `proprietary`, `unavailable` |
 | `audit` | AUDIT Alcohol Use Screen | Ten-item WHO alcohol-use screen (0-40); four risk zones from low risk to possible dependence. | `primary-care`, `mental-health`, `screening` |
 | `auditc` | AUDIT-C Alcohol Consumption Screen | Three-item WHO AUDIT consumption subscale (0-12); positive at 4+ (men) or 3+ (women). | `primary-care`, `mental-health`, `screening` |
 | `barthel` | Barthel Index | Activities of daily living score (0-100) from ten functional domains. | `geriatrics`, `severity` |
@@ -44,9 +44,6 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `bmi` | BMI (Body Mass Index) | Body mass index from weight and height, with standard adult category. | `primary-care`, `endocrinology` |
 | `bode` | BODE Index (COPD prognosis) | Multidimensional prognostic index in COPD from BMI, FEV1, mMRC dyspnoea, and six-minute walk distance; predicts ~4-year survival. | `respiratory`, `prognostic` |
 | `body_fat_circumference` | Body Fat % (US Navy Circumference Method) | Estimates body fat percentage from height, waist, neck (and hip for women) using the US Navy / Hodgdon-Beckett regression equations. | `primary-care`, `endocrinology`, `screening` |
-| `max_heart_rate` | Max Heart Rate & Training Zones | Estimates HRmax from age (Tanaka 2001) and derives aerobic training zones; uses Karvonen heart-rate reserve when resting HR is supplied. | `primary-care`, `screening` |
-| `one_rep_max` | One-Rep Max Estimator | Estimates 1RM from a submaximal weight and reps using Epley, Brzycki, or Lombardi. | `primary-care`, `musculoskeletal` |
-| `waist_to_height_ratio` | Waist-to-Height Ratio (WHtR) | Unitless central-adiposity index: waist circumference divided by height. Boundary 0.5 is the "keep your waist to less than half your height" rule. | `primary-care`, `endocrinology`, `screening` |
 | `braden` | Braden Scale (Pressure Ulcer Risk) | Predicts pressure ulcer risk across six subscales (sensory perception, moisture, activity, mobility, nutrition, friction/shear). Score 6-23; lower = higher risk. | `acute-medicine`, `geriatrics`, `screening` |
 | `caprini` | Caprini VTE Risk Score | Peri-operative venous thromboembolism (VTE) risk assessment using weighted risk factors. Score 0=very low to ≥5=high. | `surgery`, `vascular`, `risk` |
 | `cat` | CAT (COPD Assessment Test) | Symptom-burden / health-status measure in COPD (8 items, 0-40; GOLD/NICE NG115). | `respiratory`, `severity`, `proprietary`, `unavailable` |
@@ -83,6 +80,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `heart` | HEART Score (ED Chest Pain) | 6-week MACE risk for emergency department chest pain, guiding discharge versus admission versus early invasive management (Six AJ et al. 2008). | `cardiology`, `emergency`, `risk` |
 | `ipss` | IPSS - International Prostate Symptom Score | Seven-item lower urinary tract symptom score (0-35) for benign prostatic hyperplasia; bands mild 0-7, moderate 8-19, severe 20-35, with an optional quality-of-life item (0-6). | `urology`, `severity` |
 | `lanss` | LANSS (Leeds Assessment of Neuropathic Symptoms and Signs) | Screening for pain of predominantly neuropathic origin (7 items, 0-24; >=12 likely neuropathic). | `neurology`, `screening`, `proprietary`, `unavailable` |
+| `max_heart_rate` | Max Heart Rate & Training Zones | Estimates HRmax from age (Tanaka 2001) and derives aerobic training zones; uses Karvonen heart-rate reserve when resting HR is supplied. | `primary-care`, `screening` |
 | `meld` | MELD Score (original, 2001) | Model for End-Stage Liver Disease: 3-month mortality risk from bilirubin, INR, and creatinine (Kamath 2001). | `hepatology`, `prognostic` |
 | `mmse` | MMSE (Mini-Mental State Examination) | Cognitive screening / dementia monitoring (NICE NG97). | `geriatrics`, `neurology`, `mental-health`, `screening`, `proprietary`, `unavailable` |
 | `mrc_dyspnoea` | MRC Dyspnoea Scale | Grades breathlessness-related disability on the classic MRC 1-5 scale (Fletcher 1959; NICE/BTS UK usage). | `primary-care`, `respiratory` |
@@ -92,6 +90,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `npi` | Nottingham Prognostic Index (NPI) | Prognosis in primary operable breast cancer from invasive tumour size, lymph node stage, and histological grade; reports the prognostic group. | `oncology`, `prognostic` |
 | `ohs` | Oxford Hip Score (OHS) | Patient-reported outcome after hip replacement (NHS England PROMs). | `surgery`, `musculoskeletal`, `proprietary`, `unavailable` |
 | `oks` | Oxford Knee Score (OKS) | Patient-reported outcome after knee replacement (NHS England PROMs). | `surgery`, `musculoskeletal`, `proprietary`, `unavailable` |
+| `one_rep_max` | One-Rep Max Estimator | Estimates 1RM from a submaximal weight and reps using Epley, Brzycki, or Lombardi. | `primary-care`, `musculoskeletal` |
 | `padua` | Padua Prediction Score (VTE risk) | VTE risk in hospitalised medical inpatients, guiding thromboprophylaxis (NICE NG89). | `acute-medicine`, `vascular`, `risk` |
 | `phq9` | PHQ-9 Depression Severity | Nine-item depression severity score (0-27) with standard bands; item 9 flags self-harm risk. | `primary-care`, `mental-health`, `screening` |
 | `qfracture` | QFracture (10-year fracture risk) | 10-year risk of major osteoporotic and hip fracture (QFracture-2012), the open UK alternative to FRAX (NICE CG146/NG6). | `primary-care`, `endocrinology`, `risk` |
@@ -101,6 +100,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `timi` | TIMI Risk Score for UA/NSTEMI | 14-day risk of death, MI, or urgent revascularisation in unstable angina / NSTEMI (Antman et al, JAMA 2000). Not the STEMI score. | `cardiology`, `acute-medicine`, `risk` |
 | `uacr` | uACR (urine albumin-to-creatinine ratio) | Urine albumin-to-creatinine ratio from a measured ratio or raw albumin/creatinine; reports the KDIGO albuminuria category (A1-A3). | `primary-care`, `nephrology` |
 | `ukeld` | UKELD (UK Model for End-Stage Liver Disease) | UK liver-transplant listing score from INR, creatinine, bilirubin, and sodium (Barber 2011); 49 is the listing threshold. | `hepatology`, `prognostic` |
+| `waist_to_height_ratio` | Waist-to-Height Ratio (WHtR) | Unitless central-adiposity index: waist circumference divided by height. Boundary 0.5 is the "keep your waist to less than half your height" rule. | `primary-care`, `endocrinology`, `screening` |
 | `waterlow` | Waterlow Score (Pressure Ulcer Risk) | Bedside pressure-ulcer (pressure-injury) risk assessment: summed weighted categories (10+ at risk, 15+ high, 20+ very high). | `acute-medicine`, `geriatrics`, `screening` |
 | `wells_dvt` | Wells Score (DVT) | Clinical pre-test probability of deep vein thrombosis, guiding ultrasound vs D-dimer (NICE NG158). | `emergency`, `vascular` |
 | `wells_pe` | Wells Score for Pulmonary Embolism | Pretest probability of pulmonary embolism, guiding D-dimer vs CTPA (NICE NG158). | `emergency`, `respiratory`, `vascular` |
@@ -122,7 +122,7 @@ See [Why some calculators are unavailable](how-it-works.md#unavailable-on-princi
 
 ## Wishlist (candidates for future addition)
 
-Calculators below are clinically valuable and on the radar but not yet implemented. Several originate from [MedikQuantis](https://medikquantis.me) (Laura Piró, Barcelona, MIT) - a sibling project we're exploring collaboration with.
+Calculators below are clinically valuable and on the radar but not yet implemented. Several originate from [MedikQuantis](https://medikquantis.me) (Laura Piñero Roig, Barcelona, MIT) - a sibling project we're exploring collaboration with.
 
 Contributions welcome. The shape of the work is documented in [How it works](how-it-works.md#embedding-clincalc-in-a-host), [`AGENTS.md`](https://github.com/pacharanero/clincalc/blob/main/AGENTS.md), and the [`spec/`](https://github.com/pacharanero/clincalc/tree/main/spec) and [`examples/`](https://github.com/pacharanero/clincalc/tree/main/examples) directories.
 
@@ -130,35 +130,21 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 |---|---|---|
 | **StatinMD** (Oxford STRATIFY) | Personalised 1/5/10-year risk of serious statin-induced muscle disorders (rhabdomyolysis / hospitalised myopathy) from 22 routinely-recorded factors (Cai et al, *Lancet Digital Health* 2026). Natural pairing with QRISK3: QRISK3 is the benefit side, StatinMD is the harm side. Licensed for **academic use** via Oxford University Innovation - covered while this project is non-commercial. ([source](https://process.innovation.ox.ac.uk/software/p/25396/stratify---stainmd-risk-calculator---academic-use/1)) | `primary-care`, `cardiology`, `risk` |
 | **NIHSS** | Acute stroke severity standard. | `neurology`, `emergency`, `severity` |
-| **Charlson Comorbidity Index** | Most-cited comorbidity index; 10-year mortality. | `prognostic` |
-| **APACHE II** | Classic ICU severity / mortality. | `intensive-care`, `severity`, `prognostic` |
 | **MELD 3.0** | Updated MELD (we ship the 2001 original). | `hepatology`, `prognostic` |
 | **PERC** | PE rule-out criteria; complements Wells PE. | `emergency`, `respiratory`, `vascular` |
 | **Glasgow-Blatchford** | Upper-GI bleed pre-endoscopy triage. | `emergency` |
-| **Centor / McIsaac** | Sore-throat triage; complements FeverPAIN. | `primary-care`, `emergency`, `infectious-diseases` |
-| **Alvarado** | Acute appendicitis (MANTRELS). | `emergency`, `surgery` |
-| **ASA Physical Status** | Universal pre-op classification. | `surgery` |
 | **NYHA** | Heart-failure functional class. | `cardiology`, `severity` |
-| **CHA₂DS₂-VA** | 2024 ESC sex-free update of CHA₂DS₂-VASc. | `cardiology`, `risk` |
-| **Albumin-corrected calcium** (Payne 1973) | Adjusts total Ca for albumin. | `endocrinology` |
 | **Hyperglycaemia-corrected sodium** (Katz/Hillier) | Expected Na at normoglycaemia (DKA workup). | `endocrinology`, `acute-medicine` |
-| **Anion gap** | Na − (Cl + HCO₃); screens for HAGMA. | `nephrology`, `acute-medicine` |
-| **FENa** | Separates prerenal from intrinsic AKI. | `nephrology` |
 | **PSA density** | PSA / prostate volume; grey-zone PSA. | `urology`, `oncology` |
-| **Braden Scale**, **Norton Scale** | Pressure-ulcer risk; complement Waterlow. | `geriatrics`, `screening` |
-| **Barthel Index** | Activities of daily living. | `geriatrics` |
+| **Norton Scale** | Pressure-ulcer risk; complements the shipped Braden and Waterlow tools. | `geriatrics`, `screening` |
 | **RCRI (Lee)** | Pre-op cardiac risk. | `surgery`, `cardiology`, `risk` |
-| **Caprini** | Peri-op VTE; complements Padua (medical). | `surgery`, `vascular`, `risk` |
 | **Hinchey** | Acute diverticulitis anatomy. | `surgery` |
 | **LRINEC** | Necrotising-fasciitis lab indicator. | `infectious-diseases`, `emergency` |
 | **Pitt Bacteraemia** | BSI severity. | `infectious-diseases`, `severity` |
 | **Modified Duke criteria** | Endocarditis. | `infectious-diseases` |
-| **BASDAI** | Ankylosing spondylitis. | `rheumatology`, `severity` |
 | **PASI**, **SCORAD** | Psoriasis / atopic dermatitis. | `dermatology`, `severity` |
-| **ORBIT**, **EHRA** | Bleeding risk / AF symptoms. | `cardiology` |
+| **ORBIT** | Bleeding risk in atrial fibrillation. | `cardiology`, `risk` |
 | **SCORE2 / SCORE2-OP** | ESC 2021 CV risk (verify licensing). | `cardiology`, `risk` |
-| **ASCVD Pooled Cohort** | ACC/AHA 2013 (US population). | `cardiology`, `risk` |
-| **FINDRISC** | T2DM risk. | `endocrinology`, `risk` |
 | **RCPCH Digital Growth Charts** | UK-WHO + UK90; z-score / centile / SDS; chart rendering. Needs LMS tables + RCPCH licensing terms. | `paediatrics` |
 | **Waist-to-hip ratio (WHR)** | Abdominal-vs-gluteal adiposity distribution; sex-specific metabolic-risk thresholds. | `primary-care`, `endocrinology`, `screening` |
 | **Skinfold body fat % (Jackson-Pollock / Durnin-Womersley)** | Caliper-derived body-fat estimate for training and body-comparison settings. | `primary-care`, `endocrinology`, `screening` |
@@ -167,5 +153,6 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 | **Fat-free mass index (FFMI)** | Fat-free mass normalised to height^2; used in sports medicine and sarcopenia screening. | `primary-care`, `endocrinology`, `screening` |
 | **Skeletal muscle mass index (SMI)** | Appendicular lean mass / height^2; sarcopenia definition (EWGSOP2 / FNIH). | `geriatrics`, `endocrinology`, `screening` |
 | **Protein / macronutrient target** | g/day from weight or LBM + goal (e.g. 1.6-2.2 g/kg for lean-mass retention in a deficit). | `primary-care`, `endocrinology` |
+| **Axial length centile charts (CREAM-Kids)** | Age-, sex-, and region-specific centile charts for axial eye length in children and adolescents (Kneepkens, Lingham, Mackey et al, *JAMA Ophthalmology* 2026; [DOI: 10.1001/jamaophthalmol.2026.2539](https://doi.org/10.1001/jamaophthalmol.2026.2539)). Reusable coefficients/data and their distribution terms must be confirmed before implementation; serial change needs a separately cited model. | `ophthalmology`, `paediatrics`, `screening` |
 
 The multilingual design in [`spec/multilingual.md`](https://github.com/pacharanero/clincalc/blob/main/spec/multilingual.md) is what makes ingesting MedikQuantis's Catalan and Spanish translations practical when these calculators land.

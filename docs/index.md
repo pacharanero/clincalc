@@ -1,6 +1,6 @@
 # clincalc
 
-Open source, community-auditable clinical calculators in a `stdio` CLI and MCP tool, on top of a fast, Rust-based core engine.
+Open source, community-auditable clinical calculators for the command line, Python, and MCP, on top of a fast Rust core engine.
 
 A clinical calculation score is computed in the core Rust library, so the result is identical wherever it appears. Every calculator cites primary literature, is tested against published vectors, and records the licence it is distributed under.
 
@@ -15,7 +15,7 @@ A clinical calculation score is computed in the core Rust library, so the result
     curl -LsSf https://pacharanero.github.io/clincalc/install.sh | sh
     ```
 
-    Release installer proxy. Until the first release is published, use the Cargo source install on the [Install](install.md) page.
+    Installs the latest prebuilt CLI release. Full options are on the [Install](install.md) page.
 
 === "Windows PowerShell"
 
@@ -25,13 +25,21 @@ A clinical calculation score is computed in the core Rust library, so the result
 
     Release installer proxy. Full options on the [Install](install.md) page.
 
-=== "With Cargo (from source)"
+=== "With Cargo"
 
     ```bash
-    cargo install --git https://github.com/pacharanero/clincalc clincalc
+    cargo install clincalc
     ```
 
-    Installs the `clincalc` binary from source. Needs a Rust toolchain (edition 2024).
+    Builds and installs the `clincalc` CLI from crates.io. Needs a Rust toolchain (edition 2024).
+
+=== "Python"
+
+    ```bash
+    python -m pip install clincalc
+    ```
+
+    Installs the Python package for CPython 3.9 or later. See the [Python package](python.md) page for a runnable example and pandas support.
 
 === "From a clone"
 
@@ -75,6 +83,7 @@ That clean, paste-able block - result, interpretation, working, and the citation
 
 - **[Walkthrough](walkthrough.md)** - four calculators, with copy-paste commands and files to pipe in.
 - **[CLI reference](cli-reference.md)** - every mode and flag in one place.
+- **[Python package](python.md)** - install from PyPI, run a calculation, and process pandas DataFrames.
 - **[Calculator catalogue](calculators.md)** - what is available today.
 - **[How it works](how-it-works.md)** - the one-core-many-surfaces design, and embedding `clincalc` in a host.
 
