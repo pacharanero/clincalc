@@ -313,3 +313,192 @@ fn openapi_spec() -> serde_json::Value {
         }
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use axum::body::Body;
+    use axum::http::{Method, Request, StatusCode};
+    use tower::ServiceExt;
+
+    async fn send(
+        router: Router,
+        method: Method,
+        uri: &str,
+        body: Option<&str>,
+    ) -> (StatusCode, serde_json::Value) {
+        let request = match body {
+            Some(json) => Request::builder()
+                .method(method)
+                .uri(uri)
+                .header("content-type", "application/json")
+                .body(Body::from(json.to_string()))
+                .unwrap(),
+            None => Request::builder()
+                .method(method)
+                .uri(uri)
+                .body(Body::empty())
+                .unwrap(),
+        };
+        let response = router.oneshot(request).await.unwrap();
+        let status = response.status();
+        let bytes = axum::body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        let json: serde_json::Value =
+            serde_json::from_slice(&bytes).unwrap_or(serde_json::Value::Null);
+        (status, json)
+    }
+
+    #[tokio::test]
+    async fn list_calculators_returns_all_entries() {
+        let (status, body) = send(router(), Method::GET, "/calculators", None).await;
+        assert_eq!(status, StatusCode::OK);
+        let arr = body.as_array().unwrap();
+        assert_eq!(arr.len(), crate::all().len());
+        let first = &arr[0];
+        assert!(first["name"].is_string());
+        assert!(first["title"].is_string());
+        assert!(first["description"].is_string());
+        assert!(first["license"].is_string());
+        assert!(first["license_source"].is_string());
+        assert!(first["tags"].is_array());
+    }
+
+    #[tokio::test]
+    async fn get_schema_for_known_calculator() {
+        let (status, body) =
+            send(router(), Method::GET, "/calculators/feverpain/schema", None).await;
+        assert_eq!(status, StatusCode::OK);
+        assert_eq!(body["title"], "FeverPainInput");
+        assert!(body["properties"]["fever"]["type"].is_string());
+    }
+
+    #[tokio::test]
+    async fn get_schema_for_unknown_calculator_returns_404() {
+        let (status, body) = send(router(), Method::GET, "/calculators/nope/schema", None).await;
+        assert_eq!(status, StatusCode::NOT_FOUND);
+        assert!(
+            body["error"]
+                .as_str()
+                .unwrap()
+                .contains("unknown calculator: nope")
+        );
+    }
+
+    #[tokio::test]
+    async fn get_template_for_known_calculator() {
+        let (status, body) = send(
+            router(),
+            Method::GET,
+            "/calculators/feverpain/template",
+            None,
+        )
+        .await;
+        assert_eq!(status, StatusCode::OK);
+        assert!(body.is_object());
+        assert!(body["fever"].is_string());
+    }
+
+    #[tokio::test]
+    async fn get_template_for_unknown_calculator_returns_404() {
+        let (status, _body) = send(router(), Method::GET, "/calculators/nope/template", None).await;
+        assert_eq!(status, StatusCode::NOT_FOUND);
+    }
+
+    #[tokio::test]
+    async fn get_license_for_known_calculator() {
+        let (status, body) = send(
+            router(),
+            Method::GET,
+            "/calculators/feverpain/license",
+            None,
+        )
+        .await;
+        assert_eq!(status, StatusCode::OK);
+        assert!(body["license"].is_string());
+        assert!(body["source_url"].as_str().unwrap().starts_with("http"));
+    }
+
+    #[tokio::test]
+    async fn get_license_for_unknown_calculator_returns_404() {
+        let (status, _body) = send(router(), Method::GET, "/calculators/nope/license", None).await;
+        assert_eq!(status, StatusCode::NOT_FOUND);
+    }
+
+    #[tokio::test]
+    async fn compute_valid_input_returns_result() {
+        let input = r#"{"fever":true,"purulence":true,"attend_rapidly":true,"inflamed_tonsils":true,"absence_of_cough":true}"#;
+        let (status, body) = send(
+            router(),
+            Method::POST,
+            "/calculators/feverpain",
+            Some(input),
+        )
+        .await;
+        assert_eq!(status, StatusCode::OK);
+        assert_eq!(body["calculator"], "feverpain");
+        assert_eq!(body["result"], 5);
+        assert!(body["interpretation"].is_string());
+        assert!(body["working"].is_object());
+        assert!(body["reference"].is_string());
+    }
+
+    #[tokio::test]
+    async fn compute_invalid_input_returns_422() {
+        let input = r#"{"fever":"not-a-boolean"}"#;
+        let (status, body) = send(
+            router(),
+            Method::POST,
+            "/calculators/feverpain",
+            Some(input),
+        )
+        .await;
+        assert_eq!(status, StatusCode::UNPROCESSABLE_ENTITY);
+        assert!(body["error"].as_str().unwrap().contains("invalid input"));
+    }
+
+    #[tokio::test]
+    async fn compute_unknown_calculator_returns_404() {
+        let input = r#"{}"#;
+        let (status, body) = send(router(), Method::POST, "/calculators/nope", Some(input)).await;
+        assert_eq!(status, StatusCode::NOT_FOUND);
+        assert!(
+            body["error"]
+                .as_str()
+                .unwrap()
+                .contains("unknown calculator: nope")
+        );
+    }
+
+    #[tokio::test]
+    async fn openapi_spec_has_all_paths_and_schemas() {
+        let (status, body) = send(router(), Method::GET, "/openapi.json", None).await;
+        assert_eq!(status, StatusCode::OK);
+        assert_eq!(body["openapi"], "3.1.0");
+        assert!(body["paths"]["/calculators"]["get"].is_object());
+        assert!(body["paths"]["/calculators/{name}/schema"]["get"].is_object());
+        assert!(body["paths"]["/calculators/{name}/template"]["get"].is_object());
+        assert!(body["paths"]["/calculators/{name}/license"]["get"].is_object());
+        assert!(body["paths"]["/calculators/feverpain"]["post"].is_object());
+        assert!(body["components"]["schemas"]["CalculatorInfo"].is_object());
+        assert!(body["components"]["schemas"]["CalculationResponse"].is_object());
+        assert!(body["components"]["schemas"]["CalculatorLicense"].is_object());
+        assert!(body["components"]["schemas"]["Error"].is_object());
+        assert!(body["components"]["schemas"]["Input_feverpain"].is_object());
+    }
+
+    #[tokio::test]
+    async fn openapi_spec_includes_every_calculator_post_path() {
+        let (status, body) = send(router(), Method::GET, "/openapi.json", None).await;
+        assert_eq!(status, StatusCode::OK);
+        for calc in crate::all() {
+            let path = format!("/calculators/{}", calc.name());
+            assert!(
+                body["paths"].get(&path).is_some(),
+                "openapi spec missing POST path for {}",
+                calc.name()
+            );
+        }
+    }
+}

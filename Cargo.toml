@@ -49,6 +49,11 @@ axum = { version = "0.8.9", optional = true }
 rmcp = { version = "2.2.0", default-features = false, features = ["server", "transport-io"], optional = true }
 tokio = { version = "1", features = ["macros", "net", "rt-multi-thread"], optional = true }
 
+[dev-dependencies]
+# tower is a transitive dependency of axum, declared here so the REST API
+# tests can call `Router::oneshot`. Dev-only; does not affect the leaf.
+tower = "0.5"
+
 [package.metadata.docs.rs]
 all-features = true
 
