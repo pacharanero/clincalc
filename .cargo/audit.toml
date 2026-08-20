@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: 2026 Marcus Baw and Baw Medical Ltd
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+[advisories]
+ignore = [
+    # Tauri 2.11.5's Linux WebKitGTK stack pins unmaintained GTK3/glib 0.18. clincalc does not call glib directly; Tauri upstream states that the issue does not seem to affect Tauri and closed the upgrade request as upstream/not planned: https://github.com/tauri-apps/tauri/issues/12048. Remove this exception when Tauri migrates to glib >=0.20. Reviewed 2026-08-20.
+    "RUSTSEC-2024-0429",
+]

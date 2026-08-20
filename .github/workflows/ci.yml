@@ -133,13 +133,13 @@ jobs:
 
       # Fails on any RustSec advisory affecting the locked tree, so a vulnerable
       # dependency is caught here rather than waiting on a Dependabot email. A
-      # genuinely unfixable transitive advisory can be quarantined in audit.toml
+      # genuinely unfixable transitive advisory can be quarantined in .cargo/audit.toml
       # (`[advisories] ignore = ["RUSTSEC-XXXX-NNNN"]`) with a note.
       - name: Audit every Rust lockfile
         run: |
-          cargo audit
-          cargo audit --file python/Cargo.lock
-          cargo audit --file gui/src-tauri/Cargo.lock
+          cargo audit --deny unsound
+          cargo audit --file python/Cargo.lock --deny unsound
+          cargo audit --file gui/src-tauri/Cargo.lock --deny unsound
 
   workflow-security:
     name: GitHub Actions security
