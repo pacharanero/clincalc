@@ -75,3 +75,5 @@ results = clincalc.batch(
 The clincalc Python package is licensed under AGPL-3.0-or-later. Its wheel and source distributions include the full licence text.
 
 The Spanish and Catalan CURB-65 wording is adapted from Laura Piñero Roig's MIT-licensed MedikQuantis project. The complete attribution and MIT terms are shipped in `medikquantis-notice.md`.
+
+The ASRS-v1.1 six-question scorer accepts coded responses from the [authorised form](https://license.tov.med.nyu.edu/product/asrs6Qscreener) and carries the required attribution to New York University and the President and Fellows of Harvard College in every result. Questionnaire text and the separately licensed 18-question checklist are not distributed.

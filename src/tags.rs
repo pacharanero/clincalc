@@ -54,6 +54,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
         "epds",
         &["primary-care", "mental-health", "perinatal", "screening"],
     ),
+    ("asrs", &["primary-care", "mental-health", "screening"]),
     (
         "amts",
         &["primary-care", "geriatrics", "neurology", "screening"],
@@ -157,7 +158,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ("bode", &["respiratory", "prognostic"]),
     // ---- Paediatrics ----
     ("chalice", &["paediatrics", "emergency"]),
-    // ---- Proprietary / unavailable (the 11 stubs) ----
+    // ---- Proprietary / unavailable (the 10 stubs) ----
     (
         "frax",
         &[
@@ -173,16 +174,6 @@ pub const TAGS: &[(&str, &[&str])] = &[
         &[
             "geriatrics",
             "neurology",
-            "mental-health",
-            "screening",
-            "proprietary",
-            "unavailable",
-        ],
-    ),
-    (
-        "asrs",
-        &[
-            "primary-care",
             "mental-health",
             "screening",
             "proprietary",

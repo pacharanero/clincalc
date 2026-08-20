@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry. 67 active calculators that compute a real result, plus 11 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
+The full registry. 68 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
@@ -36,7 +36,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `apache2` | APACHE II | ICU acute physiology, age, and chronic health severity score (0-71). | `intensive-care`, `severity`, `prognostic` |
 | `asa_physical_status` | ASA Physical Status | ASA preoperative physical-status classification, with optional emergency suffix. | `surgery`, `severity` |
 | `ascvd` | ASCVD Pooled Cohort Equations | ACC/AHA 2013 10-year ASCVD risk estimate for US adults aged 40-79. | `primary-care`, `cardiology`, `risk` |
-| `asrs` | ASRS-v1.1 Adult ADHD Screener | Copyright-controlled WHO questionnaire; not bundled because reproduction and noncommercial distribution require permission. | `primary-care`, `mental-health`, `screening`, `proprietary`, `unavailable` |
+| `asrs` | ASRS-v1.1 Six-Question Adult ADHD Screener | Scores six coded responses from the authorised ASRS-v1.1 form; questionnaire text is not bundled. | `primary-care`, `mental-health`, `screening` |
 | `audit` | AUDIT Alcohol Use Screen | Ten-item WHO alcohol-use screen (0-40); four risk zones from low risk to possible dependence. | `primary-care`, `mental-health`, `screening` |
 | `auditc` | AUDIT-C Alcohol Consumption Screen | Three-item WHO AUDIT consumption subscale (0-12); positive at 4+ (men) or 3+ (women). | `primary-care`, `mental-health`, `screening` |
 | `barthel` | Barthel Index | Activities of daily living score (0-100) from ten functional domains. | `geriatrics`, `severity` |

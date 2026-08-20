@@ -43,12 +43,14 @@ class TestCalculate:
         with pytest.raises(ValueError, match="invalid input"):
             clincalc.calculate("feverpain", {"fever": "not-a-boolean"})
 
-    def test_asrs_is_unavailable_without_reproduction_permission(self):
-        result = clincalc.calculate("asrs", {})
+    def test_asrs_scores_six_coded_responses(self):
+        result = clincalc.calculate("asrs", {
+            "responses": [2, 2, 2, 3, 0, 0],
+        })
 
-        assert result["result"] == "unavailable: proprietary"
-        assert result["working"]["status"] == "unavailable-proprietary"
-        assert "require permission" in result["interpretation"]
+        assert result["result"] == 4
+        assert result["working"]["part_a_screen_result"] == "POSITIVE"
+        assert "not diagnostic" in result["interpretation"]
 
 
 class TestListCalculators:

@@ -24,7 +24,7 @@ struct CalcSummary {
     title: &'static str,
     description: &'static str,
     tags: &'static [&'static str],
-    /// True for the 11 proprietary "unavailable" stubs - the frontend can
+    /// True for the 10 proprietary "unavailable" stubs - the frontend can
     /// render them differently (badged, faded) without having to know which
     /// names are stubs.
     proprietary: bool,
