@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry. 64 active calculators that compute a real score, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator, sorted by machine name.
+The full registry. 65 active calculators that compute a real score, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator, sorted by machine name.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
@@ -59,6 +59,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `child_pugh` | Child-Pugh Score (Cirrhosis Severity) | Severity of chronic liver disease from bilirubin, albumin, INR, ascites, and encephalopathy; reports class A/B/C. | `hepatology`, `severity` |
 | `ckd_risk` | KDIGO CKD risk category (eGFR x ACR heatmap) | Combines the eGFR G-stage and albuminuria A-stage into the KDIGO prognosis risk category (the green/yellow/orange/red heatmap). | `primary-care`, `nephrology`, `risk` |
 | `corrected_calcium` | Albumin-corrected Calcium | Corrects total serum calcium for abnormal albumin using the Payne-style correction. | `primary-care`, `endocrinology` |
+| `corrected_sodium` | Hyperglycaemia-corrected Sodium | Estimates expected serum sodium at normoglycaemia in hyperglycaemia (DKA/HHS workup), using the Katz or Hillier correction factor. | `endocrinology`, `acute-medicine` |
 | `curb65` | CURB-65 Pneumonia Severity | Severity and 30-day mortality risk in community-acquired pneumonia, guiding place of care (BTS / NICE NG138). | `acute-medicine`, `respiratory`, `infectious-diseases`, `severity` |
 | `das28` | DAS28 (Rheumatoid Arthritis Disease Activity) | Disease Activity Score in 28 joints for rheumatoid arthritis, from tender/swollen joint counts, an ESR or CRP marker, and patient global health. | `rheumatology`, `severity` |
 | `cockcroft_gault` | Cockcroft-Gault Creatinine Clearance | Creatinine clearance (CrCl, mL/min) from age, weight, sex, and creatinine. Superseded by CKD-EPI 2021 for CKD staging; retained for renal drug dosing where guidelines cite CrCl. | `primary-care`, `nephrology` |
@@ -141,7 +142,6 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 | **NYHA** | Heart-failure functional class. | `cardiology`, `severity` |
 | **CHA₂DS₂-VA** | 2024 ESC sex-free update of CHA₂DS₂-VASc. | `cardiology`, `risk` |
 | **Albumin-corrected calcium** (Payne 1973) | Adjusts total Ca for albumin. | `endocrinology` |
-| **Hyperglycaemia-corrected sodium** (Katz/Hillier) | Expected Na at normoglycaemia (DKA workup). | `endocrinology`, `acute-medicine` |
 | **Anion gap** | Na − (Cl + HCO₃); screens for HAGMA. | `nephrology`, `acute-medicine` |
 | **FENa** | Separates prerenal from intrinsic AKI. | `nephrology` |
 | **PSA density** | PSA / prostate volume; grey-zone PSA. | `urology`, `oncology` |

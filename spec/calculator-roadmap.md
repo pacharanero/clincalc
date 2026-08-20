@@ -34,7 +34,6 @@ Anthropometric and body-composition measures beyond the shipped BMI, body-fat-ci
 
 - [ ] **CALC-018 Glasgow-Blatchford** - Upper-GI bleed pre-endoscopy triage
 - [ ] **CALC-019 Hinchey** - Acute diverticulitis anatomy
-- [ ] **CALC-020 Hyperglycaemia-corrected sodium** (Katz / Hillier)
 - [ ] **CALC-041 LDL / non-HDL cholesterol** - Friedewald, Martin-Hopkins, and Sampson-NIH LDL estimation from a lipid panel
 - [ ] **CALC-021 LRINEC** - Necrotising fasciitis
 - [ ] **CALC-022 MELD 3.0** - Updated MELD
