@@ -140,6 +140,18 @@ distributing the instrument requires a paid licence.",
         source_url: "https://www.parinc.com/products/MMSE",
     },
     ProprietaryCalculator {
+        name: "asrs",
+        title: "ASRS-v1.1 Adult ADHD Screener",
+        purpose: "Adult ADHD symptom screening with the WHO ASRS-v1.1 questionnaire.",
+        owner: "World Health Organization (WHO; permissions administered by Lenard Adler's team at New York University)",
+        reason: "The ASRS-v1.1 instrument is copyright WHO 2003, all rights reserved. Its published terms require permission to reproduce or translate it, including for noncommercial distribution. No permission has been documented for this project, so the questionnaire and scoring implementation are not distributed.",
+        alternatives: &[
+            "Obtain an authorised ASRS-v1.1 form from the rights holder",
+            "Clinical adult ADHD assessment per NICE NG87",
+        ],
+        source_url: "https://rckessler.scholars.harvard.edu/adult-adhd-self-report-scales-asrs",
+    },
+    ProprietaryCalculator {
         name: "elf",
         title: "ELF (Enhanced Liver Fibrosis test)",
         purpose: "Second-line serum biomarker test for liver fibrosis (NICE NG49).",
@@ -274,5 +286,16 @@ mod tests {
             );
             assert!(p.source_url.starts_with("http"), "{}: source_url", p.name);
         }
+    }
+
+    #[test]
+    fn asrs_is_unavailable_without_reproduction_permission() {
+        let asrs = PROPRIETARY.iter().find(|p| p.name == "asrs").unwrap();
+        let response = asrs.calculate(&json!({})).unwrap();
+
+        assert_eq!(response.result, json!("unavailable: proprietary"));
+        assert_eq!(response.working["status"], json!("unavailable-proprietary"));
+        assert!(response.working["owner"].as_str().unwrap().contains("WHO"));
+        assert!(response.interpretation.contains("require permission"));
     }
 }

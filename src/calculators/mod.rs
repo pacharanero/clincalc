@@ -17,7 +17,6 @@ pub mod anion_gap;
 pub mod apache2;
 pub mod asa_physical_status;
 pub mod ascvd;
-pub mod asrs;
 pub mod audit;
 pub mod auditc;
 pub mod barthel;
