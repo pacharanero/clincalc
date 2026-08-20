@@ -407,4 +407,13 @@ mod tests {
         let typed = build_response(&base).unwrap();
         assert_eq!(dynamic, typed);
     }
+
+    #[test]
+    fn rejects_missing_age() {
+        assert!(
+            Charlson
+                .calculate(&json!({"include_age_adjustment": false}))
+                .is_err()
+        );
+    }
 }

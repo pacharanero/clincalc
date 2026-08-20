@@ -665,4 +665,13 @@ mod tests {
                 .contains("under 1 year")
         );
     }
+
+    #[test]
+    fn rejects_string_for_boolean() {
+        assert!(
+            Chalice
+                .calculate(&json!({"age_years": 5, "loss_of_consciousness_over_5_min": "yes"}))
+                .is_err()
+        );
+    }
 }

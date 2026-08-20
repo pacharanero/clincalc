@@ -299,4 +299,36 @@ mod tests {
         .unwrap();
         assert_eq!(out.score, 0);
     }
+
+    #[test]
+    fn dynamic_calculate_matches_typed() {
+        let typed = BarthelInput {
+            feeding: Feeding::Independent,
+            bathing: Bathing::Independent,
+            grooming: Grooming::Independent,
+            dressing: Dressing::Independent,
+            bowels: BowelsBladder::Continent,
+            bladder: BowelsBladder::Continent,
+            toilet_use: Toilet::Independent,
+            transfers: Transfer::Independent,
+            mobility: Mobility::Independent,
+            stairs: Stairs::Independent,
+        };
+        let value = json!({
+            "feeding": "independent", "bathing": "independent", "grooming": "independent",
+            "dressing": "independent", "bowels": "continent", "bladder": "continent",
+            "toilet_use": "independent", "transfers": "independent",
+            "mobility": "independent", "stairs": "independent"
+        });
+        let dynamic = Barthel.calculate(&value).unwrap();
+        assert_eq!(dynamic, build_response(&typed).unwrap());
+        assert_eq!(dynamic.result, json!(100));
+    }
+
+    #[test]
+    fn rejects_invalid_enum_value() {
+        assert!(Barthel
+            .calculate(&json!({"feeding": "super", "bathing": "dependent", "grooming": "needs_help", "dressing": "dependent", "bowels": "incontinent", "bladder": "incontinent", "toilet_use": "dependent", "transfers": "unable", "mobility": "immobile", "stairs": "unable"}))
+            .is_err());
+    }
 }

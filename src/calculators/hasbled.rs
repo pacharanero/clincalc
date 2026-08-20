@@ -503,4 +503,13 @@ mod tests {
         let def = &schema["properties"]["drugs_antiplatelet_nsaid"]["definition"];
         assert!(def["caveats"].as_str().unwrap().contains("up to 2 points"));
     }
+
+    #[test]
+    fn rejects_string_for_boolean() {
+        assert!(
+            HasBled
+                .calculate(&json!({"hypertension_uncontrolled": "yes"}))
+                .is_err()
+        );
+    }
 }

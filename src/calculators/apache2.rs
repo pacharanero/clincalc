@@ -470,4 +470,28 @@ mod tests {
         i.aa_gradient_mm_hg = Some(360.0);
         assert_eq!(compute(&i).unwrap().acute_physiology_score, 3);
     }
+
+    #[test]
+    fn dynamic_calculate_matches_typed() {
+        let mut i = normal();
+        i.glasgow_coma_scale = 10;
+        i.age = 70;
+        i.chronic_health_status = ChronicHealthStatus::NonoperativeOrEmergencyPostoperative;
+        let value = json!({
+            "temperature_c": 37.0, "mean_arterial_pressure_mm_hg": 90.0, "heart_rate": 80.0,
+            "respiratory_rate": 16.0, "fio2": 0.21, "pao2_mm_hg": 90.0,
+            "arterial_ph": 7.40, "sodium_mmol_l": 140.0, "potassium_mmol_l": 4.0,
+            "creatinine_mg_dl": 1.0, "hematocrit_percent": 40.0, "wbc_10_9_l": 8.0,
+            "glasgow_coma_scale": 10, "age": 70,
+            "chronic_health_status": "nonoperative_or_emergency_postoperative"
+        });
+        let dynamic = Apache2.calculate(&value).unwrap();
+        assert_eq!(dynamic, build_response(&i).unwrap());
+        assert_eq!(dynamic.result, json!(15));
+    }
+
+    #[test]
+    fn rejects_missing_required_field() {
+        assert!(Apache2.calculate(&json!({"temperature_c": 37.0})).is_err());
+    }
 }

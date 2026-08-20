@@ -192,4 +192,26 @@ mod tests {
         .unwrap();
         assert_eq!(round1(out.weekly_units.unwrap()), 15.9);
     }
+
+    #[test]
+    fn dynamic_calculate_matches_typed() {
+        let value = json!({"volume_ml": 568.0, "abv_percent": 5.0});
+        let typed = AlcoholUnitsInput {
+            volume_ml: 568.0,
+            abv_percent: 5.0,
+            servings: None,
+            servings_per_week: None,
+        };
+        let dynamic = AlcoholUnits.calculate(&value).unwrap();
+        assert_eq!(dynamic, build_response(&typed).unwrap());
+    }
+
+    #[test]
+    fn rejects_non_numeric_volume() {
+        assert!(
+            AlcoholUnits
+                .calculate(&json!({"volume_ml": "lots", "abv_percent": 5.0}))
+                .is_err()
+        );
+    }
 }

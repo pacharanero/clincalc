@@ -471,4 +471,9 @@ mod tests {
             json!(LISTING_THRESHOLD)
         );
     }
+
+    #[test]
+    fn rejects_missing_required_field() {
+        assert!(Ukeld.calculate(&json!({"inr": 1.0})).is_err());
+    }
 }

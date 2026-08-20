@@ -491,4 +491,17 @@ mod tests {
         assert_eq!(o.score, 3);
         assert_eq!(o.risk_level, "Moderate");
     }
+
+    #[test]
+    fn dynamic_calculate_matches_typed() {
+        let typed = CapriniInput {
+            age_41_60: true,
+            bmi_over_25: true,
+            ..all_false()
+        };
+        let value = serde_json::to_value(typed).unwrap();
+        let dynamic = Caprini.calculate(&value).unwrap();
+        assert_eq!(dynamic, build_response(&typed).unwrap());
+        assert_eq!(dynamic.result, json!(2));
+    }
 }

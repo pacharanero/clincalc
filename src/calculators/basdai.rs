@@ -150,4 +150,22 @@ mod tests {
             .is_err()
         );
     }
+
+    #[test]
+    fn dynamic_calculate_matches_typed() {
+        let typed = BasdaiInput {
+            fatigue: 4.0,
+            spinal_pain: 5.0,
+            peripheral_joint_pain_swelling: 6.0,
+            enthesitis: 7.0,
+            morning_stiffness_severity: 8.0,
+            morning_stiffness_duration: 6.0,
+        };
+        let value = json!({
+            "fatigue": 4.0, "spinal_pain": 5.0, "peripheral_joint_pain_swelling": 6.0,
+            "enthesitis": 7.0, "morning_stiffness_severity": 8.0, "morning_stiffness_duration": 6.0
+        });
+        let dynamic = Basdai.calculate(&value).unwrap();
+        assert_eq!(dynamic, build_response(&typed).unwrap());
+    }
 }

@@ -390,4 +390,11 @@ mod tests {
         let typed = build_response(&best()).unwrap();
         assert_eq!(dynamic, typed);
     }
+
+    #[test]
+    fn rejects_invalid_enum_value() {
+        assert!(Braden
+            .calculate(&json!({"sensory_perception": "super", "moisture": "rarely_moist", "activity": "walks_frequently", "mobility": "no_limitations", "nutrition": "excellent", "friction_shear": "no_apparent_problem"}))
+            .is_err());
+    }
 }

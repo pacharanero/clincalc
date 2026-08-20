@@ -140,4 +140,44 @@ mod tests {
         .unwrap();
         assert_eq!(out.label, "ASA 3E");
     }
+
+    #[test]
+    fn all_classes_without_emergency() {
+        for class in [
+            AsaClass::Asa1,
+            AsaClass::Asa2,
+            AsaClass::Asa3,
+            AsaClass::Asa4,
+            AsaClass::Asa5,
+            AsaClass::Asa6,
+        ] {
+            let out = compute(&AsaPhysicalStatusInput {
+                asa_class: class,
+                emergency: false,
+            })
+            .unwrap();
+            assert!(!out.label.contains('E'));
+        }
+    }
+
+    #[test]
+    fn dynamic_calculate_matches_typed() {
+        let value = json!({"asa_class": "asa3", "emergency": true});
+        let typed = AsaPhysicalStatusInput {
+            asa_class: AsaClass::Asa3,
+            emergency: true,
+        };
+        let dynamic = AsaPhysicalStatus.calculate(&value).unwrap();
+        assert_eq!(dynamic, build_response(&typed).unwrap());
+        assert_eq!(dynamic.result, json!("ASA 3E"));
+    }
+
+    #[test]
+    fn rejects_invalid_class() {
+        assert!(
+            AsaPhysicalStatus
+                .calculate(&json!({"asa_class": "asa7"}))
+                .is_err()
+        );
+    }
 }
