@@ -17,10 +17,6 @@ on:
   push:
     branches: [main]
 
-concurrency:
-  group: auto-tag-${{ github.ref }}
-  cancel-in-progress: false
-
 permissions:
   contents: read
 
@@ -33,20 +29,43 @@ jobs:
     outputs:
       tag: ${{ steps.bump.outputs.tag }}
       bumped: ${{ steps.bump.outputs.bumped }}
-      created: ${{ steps.create.outputs.created }}
+      ready: ${{ steps.create.outputs.ready }}
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 2
+          fetch-depth: 0
           persist-credentials: false
 
       - name: Detect Cargo.toml version change
         id: bump
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
         run: |
           new=$(grep -m1 '^version = "' Cargo.toml | cut -d'"' -f2)
-          old=$(git show HEAD~1:Cargo.toml 2>/dev/null \
+          before="$BEFORE_SHA"
+          if [[ -z "$before" || "$before" =~ ^0+$ ]]; then
+            before="HEAD~1"
+          fi
+          old=$(git show "$before:Cargo.toml" 2>/dev/null \
                   | grep -m1 '^version = "' | cut -d'"' -f2 || echo "")
+
+          declare -A changed_versions=()
+          while IFS= read -r commit; do
+            current=$(git show "$commit:Cargo.toml" 2>/dev/null \
+                      | grep -m1 '^version = "' | cut -d'"' -f2 || echo "")
+            parent=$(git rev-parse "$commit^1" 2>/dev/null || true)
+            parent_version=$(git show "$parent:Cargo.toml" 2>/dev/null \
+                             | grep -m1 '^version = "' | cut -d'"' -f2 || echo "")
+            if [ -n "$current" ] && [ "$current" != "$parent_version" ]; then
+              changed_versions["$current"]=1
+            fi
+          done < <(git rev-list --full-history --reverse "$before..$GITHUB_SHA" -- Cargo.toml)
+
+          if [ "${#changed_versions[@]}" -gt 1 ]; then
+            echo "A push may contain only one release version change; push release commits separately." >&2
+            exit 1
+          fi
 
           if [ -z "$new" ]; then
             echo "::warning::Could not read version from Cargo.toml"
@@ -60,17 +79,17 @@ jobs:
           fi
 
           tag="v$new"
-          if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null 2>&1; then
-            echo "Tag $tag already exists on origin - assuming a previous run created it."
-            echo "bumped=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
           echo "Cargo.toml: $old -> $new"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "bumped=true" >> "$GITHUB_OUTPUT"
 
-      - name: Create and push tag
+      - name: Verify release metadata
+        if: steps.bump.outputs.bumped == 'true'
+        env:
+          RELEASE_TAG: ${{ steps.bump.outputs.tag }}
+        run: s/check-release-version "$RELEASE_TAG"
+
+      - name: Create or verify tag
         id: create
         if: steps.bump.outputs.bumped == 'true'
         env:
@@ -79,9 +98,29 @@ jobs:
           RELEASE_SHA: ${{ github.sha }}
         run: |
           tag="$RELEASE_TAG"
-          if gh api "/repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" >/dev/null 2>&1; then
-            echo "Tag $tag already exists on origin - another run won the race."
-            echo "created=false" >> "$GITHUB_OUTPUT"
+
+          verify_tag_target() {
+            local ref_json="$1"
+            local object_type object_sha tag_json
+            object_type=$(jq -r '.object.type' <<<"$ref_json")
+            object_sha=$(jq -r '.object.sha' <<<"$ref_json")
+
+            if [ "$object_type" = "tag" ]; then
+              tag_json=$(gh api "/repos/$GITHUB_REPOSITORY/git/tags/$object_sha")
+              object_type=$(jq -r '.object.type' <<<"$tag_json")
+              object_sha=$(jq -r '.object.sha' <<<"$tag_json")
+            fi
+
+            if [ "$object_type" != "commit" ] || [ "$object_sha" != "$RELEASE_SHA" ]; then
+              echo "Tag $tag resolves to $object_type $object_sha, not release commit $RELEASE_SHA." >&2
+              return 1
+            fi
+          }
+
+          if ref_json=$(gh api "/repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" 2>/dev/null); then
+            verify_tag_target "$ref_json"
+            echo "Tag $tag already points to release commit $RELEASE_SHA - continuing recovery."
+            echo "ready=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -95,13 +134,14 @@ jobs:
           if gh api --silent --method POST "/repos/$GITHUB_REPOSITORY/git/refs" \
             -f ref="refs/tags/$tag" \
             -f sha="$tag_object"; then
-            echo "created=true" >> "$GITHUB_OUTPUT"
+            echo "ready=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          if gh api "/repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" >/dev/null 2>&1; then
-            echo "Tag $tag now exists on origin - another run won the race."
-            echo "created=false" >> "$GITHUB_OUTPUT"
+          if ref_json=$(gh api "/repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" 2>/dev/null); then
+            verify_tag_target "$ref_json"
+            echo "Tag $tag was created concurrently at release commit $RELEASE_SHA."
+            echo "ready=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -109,7 +149,7 @@ jobs:
 
   release:
     needs: tag
-    if: needs.tag.outputs.created == 'true'
+    if: needs.tag.outputs.ready == 'true'
     permissions:
       contents: write
     uses: ./.github/workflows/release.yml
@@ -119,7 +159,7 @@ jobs:
   publish-packages:
     name: Publish ${{ matrix.registry }}
     needs: [tag, release]
-    if: needs.tag.outputs.created == 'true'
+    if: needs.tag.outputs.ready == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 125
     strategy:

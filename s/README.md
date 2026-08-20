@@ -78,3 +78,23 @@ One-time repository setup is part of the release trust boundary:
 - Configure the crates.io Trusted Publisher for `publish-crates.yml` with environment `crates-io`.
 - Configure the PyPI Trusted Publisher for `publish-python.yml` with environment `pypi`.
 - Do not give these environments deployment-branch access beyond the paths above. Required reviewers are optional; enabling them deliberately pauses the automatic cascade for approval.
+
+## `s/check-release-version`
+
+Checks that every Rust, npm, package-lock, and Tauri version-bearing manifest matches a release tag:
+
+```bash
+s/check-release-version v0.3.0
+```
+
+The auto-tag, cargo-dist, crates.io, and PyPI workflows run this gate before building or publishing.
+
+## `s/check-github-release`
+
+Checks that a GitHub release is published, contains the installers and metadata, includes every archive named by `sha256.sum`, and that every downloaded archive matches its digest:
+
+```bash
+s/check-github-release v0.3.0
+```
+
+Release and registry workflows run this before publishing packages.

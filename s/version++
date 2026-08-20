@@ -139,6 +139,7 @@ node -e '
 cargo generate-lockfile
 cargo generate-lockfile --manifest-path python/Cargo.toml
 cargo generate-lockfile --manifest-path gui/src-tauri/Cargo.toml
+s/check-release-version "$tag"
 
 if [ "$mode" = "pr" ]; then
   relbranch="release/$tag"
