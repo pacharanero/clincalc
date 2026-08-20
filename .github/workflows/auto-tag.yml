@@ -4,14 +4,14 @@
 name: Auto-tag on version bump
 
 # When a push to main bumps the workspace version in Cargo.toml, create and push
-# the matching `v<version>` tag, then invoke the binary release, crates.io, and
-# PyPI publish workflows with that tag.
+# the matching `v<version>` tag, run the binary/Homebrew release, then dispatch
+# the crates.io and PyPI publishers at that tag.
 #
-# The downstream workflows are invoked via `workflow_call` rather than by relying
-# on the tag push to trigger them, because pushes performed via the default
-# GITHUB_TOKEN do not trigger downstream workflows (GitHub's anti-recursion
-# guard). This is the auto-tag cascade documented in
-# ~/code/house-style/distribution.md.
+# The cargo-dist workflow remains a reusable workflow. Registry publishers are
+# top-level workflow_dispatch runs because Trusted Publishing identifies the
+# top-level workflow, and PyPI does not support OIDC from reusable workflows.
+# Dispatch is an explicit exception to GitHub's GITHUB_TOKEN anti-recursion
+# guard. This is the auto-tag cascade documented in house style.
 
 on:
   push:
@@ -39,7 +39,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 2
-          persist-credentials: true
+          persist-credentials: false
 
       - name: Detect Cargo.toml version change
         id: bump
@@ -74,25 +74,32 @@ jobs:
         id: create
         if: steps.bump.outputs.bumped == 'true'
         env:
+          GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ steps.bump.outputs.tag }}
+          RELEASE_SHA: ${{ github.sha }}
         run: |
           tag="$RELEASE_TAG"
-          if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null 2>&1; then
+          if gh api "/repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" >/dev/null 2>&1; then
             echo "Tag $tag already exists on origin - another run won the race."
             echo "created=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag -a "$tag" -m "Release $tag"
+          tag_object=$(gh api --method POST "/repos/$GITHUB_REPOSITORY/git/tags" \
+            -f tag="$tag" \
+            -f message="Release $tag" \
+            -f object="$RELEASE_SHA" \
+            -f type=commit \
+            --jq .sha)
 
-          if git push origin "refs/tags/$tag"; then
+          if gh api --silent --method POST "/repos/$GITHUB_REPOSITORY/git/refs" \
+            -f ref="refs/tags/$tag" \
+            -f sha="$tag_object"; then
             echo "created=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null 2>&1; then
+          if gh api "/repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" >/dev/null 2>&1; then
             echo "Tag $tag now exists on origin - another run won the race."
             echo "created=false" >> "$GITHUB_OUTPUT"
             exit 0
@@ -108,25 +115,62 @@ jobs:
     uses: ./.github/workflows/release.yml
     with:
       tag: ${{ needs.tag.outputs.tag }}
-    secrets:
-      HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
 
-  publish-crates:
-    needs: tag
+  publish-packages:
+    name: Publish ${{ matrix.registry }}
+    needs: [tag, release]
     if: needs.tag.outputs.created == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 125
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - registry: crates.io
+            workflow: publish-crates.yml
+          - registry: PyPI
+            workflow: publish-python.yml
     permissions:
-      contents: read
-      id-token: write
-    uses: ./.github/workflows/publish-crates.yml
-    with:
-      tag: ${{ needs.tag.outputs.tag }}
+      actions: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PUBLISH_WORKFLOW: ${{ matrix.workflow }}
+      RELEASE_TAG: ${{ needs.tag.outputs.tag }}
+    steps:
+      - name: Dispatch publisher and wait for completion
+        run: |
+          payload=$(jq -n --arg tag "$RELEASE_TAG" \
+            '{ref: $tag, inputs: {tag: $tag}, return_run_details: true}')
+          response=$(gh api --method POST \
+            -H "X-GitHub-Api-Version: 2026-03-10" \
+            "/repos/$GITHUB_REPOSITORY/actions/workflows/$PUBLISH_WORKFLOW/dispatches" \
+            --input - <<<"$payload")
 
-  publish-python:
-    needs: tag
-    if: needs.tag.outputs.created == 'true'
-    permissions:
-      contents: read
-      id-token: write
-    uses: ./.github/workflows/publish-python.yml
-    with:
-      tag: ${{ needs.tag.outputs.tag }}
+          run_url=$(jq -er '.run_url' <<<"$response")
+          html_url=$(jq -er '.html_url' <<<"$response")
+          echo "Publisher run: $html_url"
+
+          for _attempt in $(seq 1 720); do
+            if ! run=$(gh api -H "X-GitHub-Api-Version: 2026-03-10" "$run_url"); then
+              sleep 10
+              continue
+            fi
+
+            status=$(jq -r '.status' <<<"$run")
+            if [ "$status" != "completed" ]; then
+              sleep 10
+              continue
+            fi
+
+            conclusion=$(jq -r '.conclusion' <<<"$run")
+            if [ "$conclusion" = "success" ]; then
+              echo "Publisher completed successfully: $html_url"
+              exit 0
+            fi
+
+            echo "Publisher concluded with $conclusion: $html_url" >&2
+            exit 1
+          done
+
+          echo "Timed out waiting for publisher: $html_url" >&2
+          exit 1

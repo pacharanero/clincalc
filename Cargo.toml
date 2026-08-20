@@ -99,8 +99,9 @@ publish-prereleases = false
 # README and LICENSE are auto-detected for archives; the third-party notice must
 # be explicitly included. The MSI sidecars are defined in wix/legal.wxs.
 include = ["third-party-notices.md"]
-# We hand-edit release.yml to pin action SHAs and add the workflow_call trigger
-# for the auto-tag cascade; tell dist not to error on the resulting drift.
+# We hand-edit release.yml to pin action SHAs, add the workflow_call trigger,
+# and bind publishing jobs to protected environments; tell dist not to error
+# on the resulting drift.
 allow-dirty = ["ci"]
 
 # The profile 'dist' builds release binaries with.

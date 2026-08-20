@@ -48,10 +48,6 @@ on:
         description: "Tag to release, e.g. v0.1.0"
         required: true
         type: string
-    secrets:
-      HOMEBREW_TAP_TOKEN:
-        description: "Token with write access to pacharanero/homebrew-tap"
-        required: true
   workflow_dispatch:
     inputs:
       tag:
@@ -62,6 +58,10 @@ on:
   push:
     tags:
       - "**[0-9]+.[0-9]+.[0-9]+*"
+
+concurrency:
+  group: release-${{ inputs.tag || github.ref }}
+  cancel-in-progress: false
 
 jobs:
   # Run 'dist plan' (or host) to determine what tasks we need to do
@@ -79,6 +79,15 @@ jobs:
           ref: ${{ inputs.tag || github.ref }}
           persist-credentials: false
           submodules: recursive
+      - name: Validate manual release dispatch
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          if [ "$GITHUB_REF" != "refs/tags/$INPUT_TAG" ]; then
+            echo "Dispatch ref $GITHUB_REF does not match refs/tags/$INPUT_TAG" >&2
+            exit 1
+          fi
       - name: Install dist
         # we specify bash to get pipefail; it guards against the `curl` command
         # failing. otherwise `sh` won't catch that `curl` returned non-0
@@ -269,6 +278,9 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       DIST_TAG: ${{ needs.plan.outputs.tag }}
     runs-on: "ubuntu-22.04"
+    environment:
+      name: github-release
+      url: https://github.com/${{ github.repository }}/releases/tag/${{ needs.plan.outputs.tag }}
     permissions:
       contents: write
     outputs:
@@ -353,6 +365,9 @@ jobs:
       - plan
       - host
     runs-on: "ubuntu-22.04"
+    environment:
+      name: homebrew
+      url: https://github.com/pacharanero/homebrew-tap
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       PLAN: ${{ needs.plan.outputs.val }}

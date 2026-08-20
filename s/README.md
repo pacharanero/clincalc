@@ -12,7 +12,7 @@ Runs the local CI gate for the Rust crate:
 s/test
 ```
 
-This checks formatting, clippy with default and MCP features, and tests default, leaf (`--no-default-features`), and MCP builds. Use this before commits that touch Rust code.
+This checks formatting plus clippy and tests across default, leaf (`--no-default-features`), CLI-only, MCP-only, and all-feature builds. Use this before commits that touch Rust code.
 
 ## `s/docs`
 
@@ -68,4 +68,13 @@ s/version++ minor --pr
 s/version++ major --auto-merge
 ```
 
-The script requires a clean `main`, runs the pre-release Rust gate, bumps the Rust crate and GUI version-bearing files, regenerates `CHANGELOG.md`, commits `chore(release): vX.Y.Z`, and lands that commit on `main` directly or via a release PR depending on branch protection. The `auto-tag.yml` workflow then creates the tag and invokes the release and crates.io publish workflows.
+The script requires a clean `main`, runs the pre-release Rust gate, bumps the Rust crate and GUI version-bearing files, regenerates `CHANGELOG.md`, commits `chore(release): vX.Y.Z`, and lands that commit on `main` directly or via a release PR depending on branch protection. The `auto-tag.yml` workflow creates the tag, waits for the cargo-dist binary/Homebrew release, then dispatches and waits for the top-level crates.io and PyPI Trusted Publishing workflows.
+
+One-time repository setup is part of the release trust boundary:
+
+- Protect `main` and `v*` tags according to the repository's clinical-software risk tier.
+- Create `github-release` and `homebrew` environments that allow protected `main` and `v*` tags. Store `HOMEBREW_TAP_TOKEN` only in `homebrew`.
+- Create `crates-io` and `pypi` environments that allow only `v*` tags.
+- Configure the crates.io Trusted Publisher for `publish-crates.yml` with environment `crates-io`.
+- Configure the PyPI Trusted Publisher for `publish-python.yml` with environment `pypi`.
+- Do not give these environments deployment-branch access beyond the paths above. Required reviewers are optional; enabling them deliberately pauses the automatic cascade for approval.

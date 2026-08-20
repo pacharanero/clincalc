@@ -35,8 +35,17 @@ jobs:
       - name: Clippy (default features)
         run: cargo clippy --all-targets -- -D warnings
 
-      - name: Clippy (MCP feature)
-        run: cargo clippy --all-targets --features mcp -- -D warnings
+      - name: Clippy (leaf engine)
+        run: cargo clippy --all-targets --no-default-features -- -D warnings
+
+      - name: Clippy (CLI only)
+        run: cargo clippy --all-targets --no-default-features --features cli -- -D warnings
+
+      - name: Clippy (MCP only)
+        run: cargo clippy --all-targets --no-default-features --features mcp -- -D warnings
+
+      - name: Clippy (all features)
+        run: cargo clippy --all-targets --all-features -- -D warnings
 
       - name: Tests (default features)
         run: cargo test
@@ -44,8 +53,14 @@ jobs:
       - name: Tests (leaf engine)
         run: cargo test --no-default-features
 
-      - name: Tests (MCP feature)
-        run: cargo test --features mcp
+      - name: Tests (CLI only)
+        run: cargo test --no-default-features --features cli
+
+      - name: Tests (MCP only)
+        run: cargo test --no-default-features --features mcp
+
+      - name: Tests (all features)
+        run: cargo test --all-features
 
   python-package:
     name: Python package (${{ matrix.python-version }})
@@ -86,6 +101,15 @@ jobs:
         run: |
           maturin sdist --out "$RUNNER_TEMP/sdist"
           python -m pip wheel --no-deps "$RUNNER_TEMP"/sdist/*.tar.gz --wheel-dir "$RUNNER_TEMP/sdist-wheel"
+
+  reuse:
+    name: REUSE compliance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: fsfe/reuse-action@676e2d560c9a403aa252096d99fcab3e1132b0f5 # v6.0.0
 
   audit:
     name: Security audit
