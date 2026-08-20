@@ -1,6 +1,6 @@
 # Roadmap
 
-Engineering, infrastructure, and product-level work for the `clincalc` project. **This file is the home for everything that is not a new calculator.** The clinical-calculator backlog lives in [`spec/calculator-roadmap.md`](spec/calculator-roadmap.md).
+Engineering, infrastructure, and product-level work for the `clincalc` project. **This file is the home for everything that is not a new calculator.** The clinical-calculator backlog lives in [`calculator-roadmap.md`](calculator-roadmap.md).
 
 Roadmap items have stable identifiers so they can be referred to in conversation, commits, PRs, and release notes. Do not renumber existing IDs just because items are completed or removed.
 
@@ -16,19 +16,9 @@ Completed items are removed from this file rather than kept as a historical chan
 
 ## Distribution & release
 
-### In-progress
-
-- [~] **REL-001 Activate releases** - the pipeline is built and validated (`dist plan` green, workflows lint-clean) but dormant until two repo secrets are set:
-    - `CARGO_REGISTRY_TOKEN` - crates.io API token with publish rights on `clincalc`.
-    - `HOMEBREW_TAP_TOKEN` - PAT with write access to `pacharanero/homebrew-tap`.
-
-    Once set, `s/version++ [patch|minor|major]` cuts a release: it bumps the workspace (and excluded GUI) version, regenerates `CHANGELOG.md` (git-cliff), and lands `chore(release): vX.Y.Z` on `main`. `auto-tag.yml` then tags `vX.Y.Z` and invokes `release.yml` and `publish-crates.yml`. After the first publish, `cargo install clincalc` works without `--git`, and downstream consumers (notably [GitEHR](https://github.com/gitehr/gitehr)) can depend on `clincalc` (with `default-features = false` for the pure engine) from crates.io.
-
-    The docs-site `install.sh` / `install.ps1` proxy scripts are wired into the Pages deploy and will become usable as soon as the first cargo-dist release assets exist.
-
 ### Planned
 
-- [ ] **REL-002 Windows code-signing** - EV cert from Sectigo / SSL.com once procured. The cert covers `sct`, `dsc`, **and** `clincalc` in one purchase; see [`spec/gui.md`](spec/gui.md#windows-code-signing). Until then the GUI installer triggers SmartScreen on first run.
+- [ ] **REL-002 Windows code-signing** - EV cert from Sectigo / SSL.com once procured. The cert covers `sct`, `dsc`, **and** `clincalc` in one purchase; see [`gui.md`](gui.md#windows-code-signing). Until then the GUI installer triggers SmartScreen on first run.
 
 ### Future
 
@@ -39,7 +29,7 @@ Completed items are removed from this file rather than kept as a historical chan
 
 ## Desktop GUI
 
-See the design spec at [`spec/gui.md`](spec/gui.md) and the implementation guide at [`gui/README.md`](gui/README.md).
+See the design spec at [`gui.md`](gui.md) and the implementation guide at [`gui/README.md`](../gui/README.md).
 
 ### Planned
 
@@ -67,21 +57,18 @@ See the design spec at [`spec/gui.md`](spec/gui.md) and the implementation guide
 
 ### ENG-001 Multilingual support
 
-Status: Future
+Status: In-progress
 
-Add a `Locale` enum and `LocalizedString` storage per [`spec/multilingual.md`](spec/multilingual.md) without breaking the leaf rule. Translations stay `&'static str` in-tree, keyed and looked up at compile time.
+Adopt BCP 47 locale identifiers, RFC 4647 lookup, complete calculator translation bundles, and MessageFormat-compatible message design per [`multilingual.md`](multilingual.md), without breaking the leaf rule or existing English APIs.
 
-- [ ] **ENG-001.1 Introduce `clincalc::Locale { En, Es, Ca, ... }`** with `En` as the default fallback.
-- [ ] **ENG-001.2 Add `LocalizedString { en, es, ca }`** and a `.get(locale)` method; strings live in each calculator module.
-- [ ] **ENG-001.3 Extend `Calculator` trait methods** that emit human prose with an optional/defaulted `locale: Locale` parameter: `title`, `description`, `input_schema`, and `calculate`. Machine identifiers (`name`, `working` keys, enum variants) remain English.
-- [ ] **ENG-001.4 Convert `interpretation` strings** from inline `format!` to a structured interpretation object keyed by stable IDs (band, score, recommendation), with localised labels and a small templater. This is less fragile than format-string argument ordering across languages.
-- [ ] **ENG-001.5 Wire `--lang` and `CALC_LANG`** through `clincalc::cli::run` so all surfaces (CLI, MCP, Python, REST API) receive the same locale.
-- [ ] **ENG-001.6 Validate with FeverPAIN** as the first migrated calculator, then translate three calculators with a native speaker before opening the catalogue for batched translation.
-- [ ] **ENG-001.7 Write `docs/translating.md`** contribution path.
+- [ ] **ENG-001.4 Enforce complete translation bundles** - metadata, governed schema prose, and computed prose must reach key parity before a calculator advertises a locale. Fall back the complete calculator representation, never individual strings.
+- [ ] **ENG-001.5 Validate two more MedikQuantis overlaps** - CURB-65 now provides the first attributed English, Spanish, and Catalan implementation; validate two calculators of different shapes with native-speaker review before opening translation batches.
+- [ ] **ENG-001.6 Wire locale through remaining surfaces** - CLI `--locale` / `CLINCALC_LOCALE` is implemented; add Python keyword-only `locale`, REST query / `Accept-Language` / `Content-Language` / `Vary`, MCP session configuration, and GUI locale and text direction. All surfaces report the resolved locale.
+- [ ] **ENG-001.7 Write `docs/translating.md`** - contribution, attribution, native/clinical review, key-parity, and stale-source workflow before opening batched translation.
 
-Open questions for comment:
-- Should the REST API and Python API accept `locale` per-request, or default to a configured locale? Per-request is more flexible but complicates caching.
-- Is a tiny internal Mustache-like templater acceptable, or should we depend on a battle-tested crate behind an optional feature?
+Decisions:
+- Locale is per operation/request, with an immutable configured default at surface boundaries and no process-global engine state.
+- The core does not implement a Mustache-like parser. Initial computed messages use explicit locale-specific Rust renderers; a standards-based renderer may later live behind an optional feature without changing message IDs or arguments.
 
 ### ENG-002 Translation reciprocity with MedikQuantis
 
@@ -91,8 +78,8 @@ Status: Future
 
 - [ ] **ENG-002.1 Align tag taxonomy** with MedikQuantis so calculators are discoverable under the same specialty labels in both projects.
 - [ ] **ENG-002.2 Agree a shared citation shape** (PMID + URL + access date) so either project can ingest the other's metadata.
-- [ ] **ENG-002.3 Write a converter** (one-way or bidirectional) that maps their exported JSON/YAML catalogue to our `LocalizedString` blocks, preserving provenance and licence.
-- [ ] **ENG-002.4 Pull Catalan/Spanish strings** for the 14 overlapping calculators (DAS28, CHA2DS2-VASc, HEART, Wells PE, GRACE, TIMI, qSOFA, SOFA, CURB-65, Child-Pugh, IPSS, HAS-BLED, Wells DVT, CKD-EPI) as the seed translations for ENG-001.
+- [ ] **ENG-002.3 Write a converter** (one-way or bidirectional) that maps their exported JSON catalogue to our structured translation bundles, preserving stable message IDs, provenance, reviewer attribution, and licence.
+- [ ] **ENG-002.4 Pull Catalan/Spanish strings** for CURB-65 first, then the remaining overlapping calculators, as the reviewed seed translations for ENG-001.
 
 Open questions for comment:
 - Do we want a formal data-sharing agreement or is MIT-to-AGPL ingestion already acceptable with attribution?
@@ -205,28 +192,54 @@ Open questions for comment:
 - Should thresholds live in the calculator module or in a central policy file?
 - Is a simple numeric threshold enough, or do we need rule expressions (`(news2 >= 7) OR (red_score == true)`)?
 
+### ENG-010 Generic centile engine
+
+Status: Future
+
+A generic centile-lookup engine for calculators that place a measured value on age/sex/region-specific centile curves, rather than aggregating points into a score. Driven by CALC-053 (CREAM-Kids axial length) and CALC-032 (RCPCH Digital Growth Charts), but designed once for all current and future centile references.
+
+The AGPL-licensed RCPCH `rcpchgrowth-python` library is a useful reference implementation for engine behaviour and test design, but it does not grant blanket rights to its underlying reference datasets. Each LMS table needs an independent provenance and redistribution review; in particular, the UK growth references are subject to MRC licensing rather than the code repository's AGPL terms.
+
+- [ ] **ENG-010.1 Implement the LMS Box-Cox transforms in pure Rust** - measurement to SDS (`z = ((x/M)^L - 1) / (L*S)`, or `log(x/M) / S` when `L == 0`) and the inverse SDS to measurement. No `statrs` or `ndarray` dependency - the strict leaf rule requires a dependency-free error-function approximation for the normal CDF (Abramowitz-Stegun, accurate to ~1e-7).
+- [ ] **ENG-010.2 Implement cubic Lagrange and linear interpolation** of L, M, S independently, matching Tim Cole's LMSGrowth algorithm. Let each reference declare its interpolation strategy (cubic default, linear for WHO per `anthro`/`anthroplus`).
+- [ ] **ENG-010.3 Define a `CentileReference` trait** - each reference dataset supplies its LMS table for a given `(age, sex, parameter)`. The engine handles lookup, interpolation, and the LMS math; the reference handles only data and coverage policy (age range, prematurity correction, overlap disjunctions).
+- [ ] **ENG-010.4 Store approved reference data as JSON** - flat arrays of `{decimal_age, l, m, s}` embedded via `include_str!` at build time, with source, version, and redistribution terms recorded beside each dataset. No runtime file I/O or CSV/XLSX parser belongs in the engine.
+- [ ] **ENG-010.5 Build licensed conformance vectors** - derive vectors from primary publications or fixtures whose code and underlying data terms permit redistribution. Do not copy restricted UK reference tables or treat every RCPCH fixture as automatically reusable.
+- [ ] **ENG-010.6 Build CALC-053 (CREAM-Kids axial length)** only after confirming that reusable coefficients or tables are available and recording their terms. Test against values directly reported by the publication; leave serial-change risk out unless separately specified and validated.
+- [ ] **ENG-010.7 Build CALC-032 (RCPCH Digital Growth Charts)** on the same engine one reference at a time. Verify the terms for WHO, CDC, UK-WHO, and every other dataset independently; UK reference inclusion remains blocked until the required MRC permission is established.
+
+Key lessons from the RCPCH library (avoid these pitfalls):
+- Code licensing and reference-data licensing are separate gates; passing the AGPL code review does not make MRC-controlled tables redistributable.
+- Interpolation method is per-reference, not universal (WHO uses linear, UK-WHO uses cubic).
+- Daily LMS data eliminates interpolation in practice - the engine should support dense tables natively.
+- The +/-3 SD WHO tail correction is directionally asymmetric - applied for measurement to SDS but NOT for SDS to measurement.
+- Prematurity correction is reference-specific - UK-WHO corrects for all gestations lifelong; CDC and WHO stop correcting at 2y.
+- Overlap ages where two sub-references meet are a recurring bug source - the reference trait must handle disjunctions, not the engine.
+
 ---
 
 ## Collaboration & sister projects
 
 ### COLL-001 Converge CHA₂DS₂-VASc with MedikQuantis
 
-Status: Planned
+Status: In-progress
 
 - [ ] **COLL-001.1 Verify point-for-point agreement** with the MedikQuantis implementation:
    - Age 65-74 = 1 point, ≥75 = 2 points.
    - Female sex = 1 point.
    - Congestive heart failure, hypertension, diabetes, vascular disease = 1 point each.
-   - Prior stroke / TIA / systemic arterial thromboembolism = 2 points.
+   - Prior stroke / TIA = 2 points; confirm whether MedikQuantis also includes systemic arterial thromboembolism.
    - Maximum score = 9.
-- [ ] **COLL-001.2 Confirm the female-sex-only edge case** is handled identically: a total score of 1 arising only from female sex is treated as low risk (no anticoagulation), matching NICE NG196. clincalc already encodes this via `non_sex_score`.
-- [ ] **COLL-001.3 Add literature-vector tests** pinning the exact boundary cases Laura raised (age 74 vs 75) and the annual stroke-risk table from Friberg 2012 (PMID 22246443) to `src/calculators/cha2ds2vasc.rs`. Add the risk percentages to `working` so they are visible to both projects.
-- [ ] **COLL-001.4 Create `spec/calculators/cha2ds2-vasc.md`** as a shared source of truth: scoring table, recommendation rules, input definitions, reference, and a test-vector table.
+
+   Partially confirmed 2026-07-28 against MedikQuantis's actual `cha2ds2vasc.ts` source (not just its description, pinned at commit `cf5afb9`). Point values agree for the shared input semantics, but whether MedikQuantis's `strokeOrTia` field also captures systemic arterial thromboembolism has not been confirmed. See "Cross-project verification" in `spec/calculators/cha2ds2-vasc.md`, which also documents a recommendation-threshold divergence and a citation mismatch in the MedikQuantis source.
+- [x] **COLL-001.2 Confirm the female-sex-only edge case** is handled identically: a total score of 1 arising only from female sex is treated as low risk (no anticoagulation), matching NICE NG196. clincalc already encodes this via `non_sex_score`. Confirmed identical in MedikQuantis's source 2026-07-28.
+- [x] **COLL-001.3 Add literature-vector tests** pinning the exact boundary cases Laura raised (age 74 vs 75) and the untreated-cohort stroke event rates per 100 patient-years from Friberg 2012 (PMID 22246443) to `src/calculators/cha2ds2vasc.rs`. Add the rate and its reference to `working` so they are visible to both projects.
+- [x] **COLL-001.4 Create `spec/calculators/cha2ds2-vasc.md`** as a shared source of truth: scoring table, recommendation rules, input definitions, reference, and a test-vector table.
 - [ ] **COLL-001.5 Invite Laura to review the spec** and contribute her MedikQuantis test cases in whatever format is easiest for her to share.
 - [ ] **COLL-001.6 Surface the collaboration** by adding a "sister projects" note to `docs/calculators.md` linking to MedikQuantis once converged.
 
 Open questions for comment:
-- Should the risk table be part of the public `CalculationResponse` result or only in `working`?
+- Should the event-rate table be part of the public `CalculationResponse` result or only in `working`?
 - Do we align on the NICE NG196 recommendation wording, or keep locale-specific guidance separate until ENG-001 lands?
 
 ### COLL-002 Invite MedikQuantis author into the clincalc team
@@ -235,7 +248,7 @@ Status: Future
 
 - [ ] **COLL-002.1 Propose deeper collaboration** after COLL-001 succeeds: Laura moves her calculator implementations to clincalc and uses its Rust engine + her own front-end, rather than duplicating scoring logic.
 - [ ] **COLL-002.2 Offer co-maintainership** of clincalc and credit for the Catalan/Spanish translation seed data (ENG-002).
-- [ ] **COLL-002.3 Migrate overlapping translations** for the 14 shared calculators into clincalc's `LocalizedString` format once ENG-001 lands.
+- [ ] **COLL-002.3 Migrate overlapping translations** into clincalc's structured translation bundles once ENG-001 establishes the CURB-65 pattern.
 - [ ] **COLL-002.4 Keep MedikQuantis running** as a sibling consumer / demonstrator until the transition is seamless.
 
 Open questions for comment:
@@ -246,6 +259,6 @@ Open questions for comment:
 
 ## Calculator backlog
 
-See [`spec/calculator-roadmap.md`](spec/calculator-roadmap.md).
+See [`calculator-roadmap.md`](calculator-roadmap.md).
 
 The live calculator counts and remaining candidates are maintained in [`docs/calculators.md`](../docs/calculators.md) and [`spec/calculator-roadmap.md`](calculator-roadmap.md), respectively.
