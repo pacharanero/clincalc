@@ -37,9 +37,9 @@ The implementation distinguishes two concepts:
 
 `SupportedLocale` is a `#[non_exhaustive]` Rust enum because the compiled set is finite and benefits from exhaustive handling inside the crate. It is not used as the public wire syntax: its serialised form is the canonical BCP 47 tag.
 
-### HTTP language negotiation
+### Planned HTTP language negotiation
 
-The REST surface follows RFC 9110:
+The REST surface will follow RFC 9110 when locale propagation reaches it:
 
 - Explicit `?locale=<tag>` takes precedence.
 - `Accept-Language` is used when no explicit locale is supplied.
@@ -122,7 +122,7 @@ Each migrated calculator separates:
 
 - Stable clinical facts: score, thresholds met, risk-band code, recommendation code, rates, and quantities.
 - Stable message identity: for example `curb65.interpretation.high`.
-- Named message arguments: for example `score`, `mortality_percent`, and `icu_assessment`.
+- Named message arguments: for example `score`, `mortality_percent`, `critical_care_referral_if_appropriate`, and `critical_care_transfer_assessment`.
 - Localised display prose rendered from those facts.
 
 Existing English fields remain compatible during incremental migration. New stable code fields are added before any existing display value is localised or retired.
@@ -153,7 +153,7 @@ There is no module-global `set_locale()`. A future immutable client object may h
 
 ### REST API
 
-REST uses the explicit-query/header/configured-default precedence described above. Locale is resolved independently for each request, making concurrent multi-user use deterministic and safe.
+REST locale propagation is not implemented yet. Its planned contract is the explicit-query/header/configured-default precedence described above, resolved independently for each request so concurrent multi-user use remains deterministic and safe.
 
 ### MCP
 

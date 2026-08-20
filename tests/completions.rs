@@ -419,4 +419,13 @@ fn locale_precedence_schema_and_unsupported_errors_are_clear() {
     assert!(!output.status.success());
     let error = String::from_utf8(output.stderr).expect("error is utf8");
     assert!(error.contains("unsupported locale `not_a_locale`"));
+
+    let output = Command::new(&bin)
+        .args(["--locale", "not_a_locale", "version"])
+        .env_remove("CLINCALC_LOCALE")
+        .output()
+        .expect("run non-localised command with invalid explicit locale");
+    assert!(!output.status.success());
+    let error = String::from_utf8(output.stderr).expect("error is utf8");
+    assert!(error.contains("unsupported locale `not_a_locale`"));
 }

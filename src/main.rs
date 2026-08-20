@@ -44,7 +44,12 @@ struct ApiCommand {
 )]
 struct Cli {
     /// Locale for human-readable calculator content, as a BCP 47 tag.
-    #[arg(long, global = true, value_name = "BCP47")]
+    #[arg(
+        long,
+        global = true,
+        value_name = "BCP47",
+        value_parser = validate_locale_argument
+    )]
     locale: Option<String>,
 
     #[command(subcommand)]
@@ -149,11 +154,26 @@ fn main() -> anyhow::Result<()> {
 fn reject_surface_locale(locale: Option<&str>, command: &str) -> Result<()> {
     if locale.is_some() {
         Err(anyhow!(
-            "--locale is not yet supported for `clincalc {command}`; configure that surface's locale independently"
+            "--locale is not yet supported for `clincalc {command}`"
         ))
     } else {
         Ok(())
     }
+}
+
+fn validate_locale_argument(value: &str) -> Result<String, String> {
+    clincalc::lookup_locale(value, clincalc::COMPILED_LOCALES)
+        .map(|_| value.to_owned())
+        .ok_or_else(|| {
+            format!(
+                "unsupported locale `{value}`; available locales: {}",
+                clincalc::COMPILED_LOCALES
+                    .iter()
+                    .map(ToString::to_string)
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            )
+        })
 }
 
 /// Preserve the historical calculator shorthand while exposing real top-level

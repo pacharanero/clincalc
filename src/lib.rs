@@ -284,6 +284,10 @@ mod registry_tests {
         // Passing an undeclared bundle to a default implementation falls back
         // the whole representation to English rather than mixing languages.
         assert_eq!(calc.title_for(SupportedLocale::Es), calc.title());
+        assert_eq!(
+            calc.input_template_for(SupportedLocale::Es),
+            calc.input_template()
+        );
         let spanish_fallback = calc.calculate_for(&input, SupportedLocale::Es).unwrap();
         assert_eq!(spanish_fallback.working["content_locale"], "en");
         let mut fallback_without_locale = spanish_fallback;

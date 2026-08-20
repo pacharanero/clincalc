@@ -114,7 +114,12 @@ pub trait Calculator {
 
     /// A fillable input template with placeholders in a resolved locale.
     fn input_template_for(&self, locale: SupportedLocale) -> Value {
-        crate::template::template_from_schema_for(&self.input_schema_for(locale), locale)
+        let resolved = if self.supported_locales().contains(&locale) {
+            locale
+        } else {
+            SupportedLocale::En
+        };
+        crate::template::template_from_schema_for(&self.input_schema_for(resolved), resolved)
     }
 
     /// Complete locale bundles available for this calculator.
