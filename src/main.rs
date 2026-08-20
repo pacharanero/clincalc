@@ -43,6 +43,15 @@ struct ApiCommand {
     after_long_help = "Examples:\n  clincalc list\n  clincalc ls --tag cardiology\n  clincalc calc feverpain\n  clincalc calc feverpain --input examples/feverpain.json\n  clincalc tags\n  clincalc completions install\n\nCompatibility: `clincalc <name>` is shorthand for `clincalc calc <name>`."
 )]
 struct Cli {
+    /// Locale for human-readable calculator content, as a BCP 47 tag.
+    #[arg(
+        long,
+        global = true,
+        value_name = "BCP47",
+        value_parser = validate_locale_argument
+    )]
+    locale: Option<String>,
+
     #[command(subcommand)]
     command: Option<Commands>,
 }
@@ -116,32 +125,82 @@ fn main() -> anyhow::Result<()> {
     }
 
     let cli = Cli::parse_from(normalized_args());
+    let locale = cli.locale.as_deref();
     match cli.command {
-        None => clincalc::cli::run_list(ListCommand {
-            tag: Vec::new(),
-            tags: false,
-            format: Default::default(),
-        }),
-        Some(Commands::List(cmd)) => clincalc::cli::run_list(cmd),
-        Some(Commands::Calc(cmd)) => clincalc::cli::run(*cmd),
+        None => clincalc::cli::run_list_with_locale(
+            ListCommand {
+                tag: Vec::new(),
+                tags: false,
+                format: Default::default(),
+            },
+            clincalc::cli::resolve_cli_locale(locale)?,
+        ),
+        Some(Commands::List(cmd)) => {
+            clincalc::cli::run_list_with_locale(cmd, clincalc::cli::resolve_cli_locale(locale)?)
+        }
+        Some(Commands::Calc(cmd)) => {
+            clincalc::cli::run_with_locale(*cmd, clincalc::cli::resolve_cli_locale(locale)?)
+        }
         Some(Commands::Tags(cmd)) => clincalc::cli::run_tags(cmd),
         Some(Commands::Version(cmd)) => clincalc::cli::run_version(cmd),
         Some(Commands::Completions(args)) => run_completions(args),
-        Some(Commands::Mcp) => run_mcp(),
-        Some(Commands::Api(cmd)) => run_api(cmd),
+        Some(Commands::Mcp) => reject_surface_locale(locale, "mcp").and_then(|()| run_mcp()),
+        Some(Commands::Api(cmd)) => {
+            reject_surface_locale(locale, "api").and_then(|()| run_api(cmd))
+        }
     }
+}
+
+fn reject_surface_locale(locale: Option<&str>, command: &str) -> Result<()> {
+    if locale.is_some() {
+        Err(anyhow!(
+            "--locale is not yet supported for `clincalc {command}`"
+        ))
+    } else {
+        Ok(())
+    }
+}
+
+fn validate_locale_argument(value: &str) -> Result<String, String> {
+    clincalc::lookup_locale(value, clincalc::COMPILED_LOCALES)
+        .map(|_| value.to_owned())
+        .ok_or_else(|| {
+            format!(
+                "unsupported locale `{value}`; available locales: {}",
+                clincalc::COMPILED_LOCALES
+                    .iter()
+                    .map(ToString::to_string)
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            )
+        })
 }
 
 /// Preserve the historical calculator shorthand while exposing real top-level
 /// subcommands to clap, help output, and completions.
 fn normalized_args() -> Vec<OsString> {
-    let mut args: Vec<OsString> = env::args_os().collect();
-    let Some(first) = args.get(1).cloned() else {
+    normalize_args(env::args_os().collect())
+}
+
+fn normalize_args(mut args: Vec<OsString>) -> Vec<OsString> {
+    let mut command_index = 1;
+    while let Some(arg) = args.get(command_index) {
+        let value = arg.to_string_lossy();
+        if value == "--locale" {
+            command_index += 2;
+        } else if value.starts_with("--locale=") {
+            command_index += 1;
+        } else {
+            break;
+        }
+    }
+
+    let Some(first) = args.get(command_index).cloned() else {
         return args;
     };
 
     if first == OsStr::new("--tags") {
-        args[1] = OsString::from("tags");
+        args[command_index] = OsString::from("tags");
         return args;
     }
 
@@ -149,7 +208,7 @@ fn normalized_args() -> Vec<OsString> {
         return args;
     }
 
-    args.insert(1, OsString::from("calc"));
+    args.insert(command_index, OsString::from("calc"));
     args
 }
 
@@ -323,5 +382,39 @@ unsafe fn libc_signal_default_sigpipe() {
     const SIG_DFL: usize = 0;
     unsafe {
         signal(SIGPIPE, SIG_DFL);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::normalize_args;
+    use std::ffi::OsString;
+
+    fn args(values: &[&str]) -> Vec<OsString> {
+        values.iter().map(OsString::from).collect()
+    }
+
+    #[test]
+    fn shorthand_is_inserted_after_a_locale_flag() {
+        assert_eq!(
+            normalize_args(args(&[
+                "clincalc", "--locale", "es", "curb65", "--input", "{}"
+            ])),
+            args(&[
+                "clincalc", "--locale", "es", "calc", "curb65", "--input", "{}"
+            ])
+        );
+        assert_eq!(
+            normalize_args(args(&["clincalc", "--locale=ca", "curb65"])),
+            args(&["clincalc", "--locale=ca", "calc", "curb65"])
+        );
+    }
+
+    #[test]
+    fn real_commands_remain_unchanged_after_a_locale_flag() {
+        assert_eq!(
+            normalize_args(args(&["clincalc", "--locale", "es", "list"])),
+            args(&["clincalc", "--locale", "es", "list"])
+        );
     }
 }

@@ -39,6 +39,7 @@ pub const CASE_THRESHOLD: u16 = 10;
 /// The seven GAD-7 responses, each 0 (Not at all) - 3 (Nearly every day), in
 /// question order Q1-Q7.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Gad7Input {
     pub responses: Vec<u8>,
 }

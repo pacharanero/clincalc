@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: 2026 Marcus Baw and Baw Medical Ltd
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+
+allow_draft=false
+if [ "${1:-}" = "--allow-draft" ]; then
+  allow_draft=true
+  shift
+fi
+tag="${1:-}"
+if [ "$#" -ne 1 ] || [[ ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
+  echo "Usage: s/check-github-release [--allow-draft] vX.Y.Z" >&2
+  exit 2
+fi
+for command in gh jq sha256sum; do
+  if ! command -v "$command" >/dev/null 2>&1; then
+    echo "$command is required to check GitHub release assets." >&2
+    exit 1
+  fi
+done
+
+repo="${GITHUB_REPOSITORY:-pacharanero/clincalc}"
+release=$(gh release view "$tag" --repo "$repo" --json isDraft,assets)
+if [ "$allow_draft" = false ] && ! jq -e '.isDraft == false' <<<"$release" >/dev/null; then
+  echo "GitHub release $tag is still a draft." >&2
+  exit 1
+fi
+
+has_asset() {
+  jq -e --arg name "$1" 'any(.assets[]; .name == $name)' <<<"$release" >/dev/null
+}
+
+for required in clincalc-installer.sh clincalc-installer.ps1 clincalc.rb dist-manifest.json sha256.sum; do
+  if ! has_asset "$required"; then
+    echo "GitHub release $tag is missing $required." >&2
+    exit 1
+  fi
+done
+
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+gh release download "$tag" --repo "$repo" --pattern sha256.sum --dir "$tmp"
+
+declare -A checksum_assets=()
+while read -r checksum asset; do
+  if [ -z "$checksum" ] && [ -z "$asset" ]; then
+    continue
+  fi
+  asset="${asset#\*}"
+  if [[ ! "$checksum" =~ ^[0-9a-f]{64}$ ]] || [ -z "$asset" ] || [ "$asset" != "$(basename "$asset")" ]; then
+    echo "Invalid entry in $tag sha256.sum: $checksum $asset" >&2
+    exit 1
+  fi
+  if ! has_asset "$asset" || ! has_asset "${asset}.sha256"; then
+    echo "GitHub release $tag is missing $asset or ${asset}.sha256." >&2
+    exit 1
+  fi
+  checksum_assets["$asset"]="$checksum"
+  gh release download "$tag" --repo "$repo" --pattern "$asset" --dir "$tmp"
+  gh release download "$tag" --repo "$repo" --pattern "${asset}.sha256" --dir "$tmp"
+  sidecar_records=$(awk 'NF { count++ } END { print count + 0 }' "$tmp/${asset}.sha256")
+  read -r sidecar_checksum sidecar_asset < "$tmp/${asset}.sha256"
+  sidecar_asset="${sidecar_asset#\*}"
+  if [ "$sidecar_records" -ne 1 ] || [ "$sidecar_checksum" != "$checksum" ] || [ "$sidecar_asset" != "$asset" ]; then
+    echo "GitHub release $tag has a mismatched ${asset}.sha256 sidecar." >&2
+    exit 1
+  fi
+done < "$tmp/sha256.sum"
+
+expected_archives=(
+  clincalc-aarch64-apple-darwin.tar.xz
+  clincalc-aarch64-unknown-linux-gnu.tar.xz
+  clincalc-x86_64-apple-darwin.tar.xz
+  clincalc-x86_64-pc-windows-msvc.msi
+  clincalc-x86_64-pc-windows-msvc.zip
+  clincalc-x86_64-unknown-linux-gnu.tar.xz
+  source.tar.gz
+)
+for expected in "${expected_archives[@]}"; do
+  if [ -z "${checksum_assets[$expected]:-}" ]; then
+    echo "GitHub release $tag checksum manifest does not cover $expected." >&2
+    exit 1
+  fi
+done
+
+(
+  cd "$tmp"
+  sha256sum --check --strict sha256.sum
+  for sidecar in ./*.sha256; do
+    sha256sum --check --strict "$sidecar"
+  done
+)
+
+if [ "$allow_draft" = true ]; then
+  echo "GitHub release $tag assets are complete."
+else
+  echo "GitHub release $tag is published and complete."
+fi

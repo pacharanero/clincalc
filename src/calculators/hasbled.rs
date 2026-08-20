@@ -48,6 +48,7 @@ pub const HIGH_RISK_CUTOFF: u8 = 3;
 /// HAS-BLED inputs. Every criterion is a clinician-asserted boolean, scoring 1
 /// point each; "A" and "D" each split into two independently-scored criteria.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct HasBledInput {
     /// Hypertension (H): UNCONTROLLED, systolic BP >160 mmHg.
     pub hypertension_uncontrolled: bool,
@@ -502,5 +503,14 @@ mod tests {
         let schema = HasBled.input_schema();
         let def = &schema["properties"]["drugs_antiplatelet_nsaid"]["definition"];
         assert!(def["caveats"].as_str().unwrap().contains("up to 2 points"));
+    }
+
+    #[test]
+    fn rejects_string_for_boolean() {
+        assert!(
+            HasBled
+                .calculate(&json!({"hypertension_uncontrolled": "yes"}))
+                .is_err()
+        );
     }
 }

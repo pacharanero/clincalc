@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 [build-system]
-requires = ["maturin>=1.0,<2.0"]
+requires = ["maturin>=1.14.1,<2.0"]
 build-backend = "maturin"
 
 [project]
@@ -10,7 +10,12 @@ name = "clincalc"
 dynamic = ["version"]
 description = "Open, auditable clinical calculators - Python bindings for the clincalc Rust engine"
 authors = [{name = "Marcus Baw", email = "marcus@bawmedical.co.uk"}]
-license = {text = "AGPL-3.0-or-later"}
+license = "AGPL-3.0-or-later AND LGPL-3.0-or-later"
+license-files = [
+    "LICENSE-AGPL-3.0-or-later.txt",
+    "LICENSE-LGPL-3.0-or-later.txt",
+    "third-party-notices.md",
+]
 requires-python = ">=3.9"
 readme = "README.md"
 keywords = ["clinical", "medical", "calculator", "healthcare", "scoring"]
@@ -18,7 +23,6 @@ classifiers = [
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",
     "Topic :: Scientific/Engineering :: Medical Science Apps.",
-    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
 ]
 
 [project.optional-dependencies]

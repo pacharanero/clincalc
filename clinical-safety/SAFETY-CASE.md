@@ -130,7 +130,7 @@ Evidence:
 Evidence:
 
 - `input_schema()` (JSON Schema) declares each input's type, units, and permitted values, exposed via `clincalc calc <name> --schema` and to MCP/GUI hosts, so expected units are machine-discoverable (**C004**, addressing **H002**).
-- Strongly-typed `Input` structs reject wrong-shape input and return `CalcError::InvalidInput` rather than silently coercing; range/plausibility checks reject implausible values instead of scoring them (**C005, C007, C008**, addressing **H002, H003**).
+- Strongly-typed `Input` structs reject wrong-shape, unknown, and misspelled input and return `CalcError::InvalidInput` rather than silently ignoring or coercing it; a registry policy test enforces every closed schema, and range, eligibility, and administration-context checks reject implausible or out-of-population values instead of scoring them, including the ASRS adult and six-month recall assertions and CURB-65's adult age floor (**C005, C007, C008**, addressing **H002, H003**).
 - Required inputs fail deserialization if missing rather than defaulting to a scored value; the governed input-definition system defines each clinician-asserted predicate so "not asserted" is not collapsed into "asserted false" (**C009, C010**, addressing **H004**).
 
 ### G1.4 - Results are never presented as a naked number by the engine

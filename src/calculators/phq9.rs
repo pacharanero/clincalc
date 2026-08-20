@@ -43,6 +43,7 @@ pub const SELF_HARM_ITEM: usize = 8;
 /// The nine PHQ-9 responses, each 0 (Not at all) - 3 (Nearly every day), in
 /// question order Q1-Q9.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Phq9Input {
     pub responses: Vec<u8>,
 }

@@ -4,6 +4,90 @@ All notable changes to `calc` are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-08-20
+
+### Added
+
+- **calc**: Converge CHA2DS2-VASc scoring with MedikQuantis (COLL-001) ([#30](https://github.com/pacharanero/clincalc/issues/30)) ([d2b6041](https://github.com/pacharanero/clincalc/commit/d2b604119b8a2b8e915b39ba44e643801d6e8ce4))
+
+- **locale**: Add BCP 47 locale support and CURB-65 translations ([3a01ba9](https://github.com/pacharanero/clincalc/commit/3a01ba9475b685d570818a0c386511b98659e820))
+
+- **calc**: Add CHA2DS2-VASc event rates ([238cb6c](https://github.com/pacharanero/clincalc/commit/238cb6c4804fb35e098a7fe1d96f70d856ee52ab))
+
+- **calc**: Add GCS (Glasgow Coma Scale) ([#26](https://github.com/pacharanero/clincalc/issues/26)) ([a99f26a](https://github.com/pacharanero/clincalc/commit/a99f26a08805c08a02cc76717dcd385a9b33cbe1))
+
+### Dependencies
+
+- **deps**: Resolve GUI unsoundness audit ([c36feff](https://github.com/pacharanero/clincalc/commit/c36feff447046e5b497490e010df725d9b1cc80c))
+
+- **deps**: Update vulnerable frontend transitive dependencies ([aad9fba](https://github.com/pacharanero/clincalc/commit/aad9fbad96268f498141dd60fe1bf878abf062ea))
+
+- **deps**: Bump taiki-e/install-action from 2.85.10 to 2.85.13 ([#45](https://github.com/pacharanero/clincalc/issues/45)) ([5e5fd13](https://github.com/pacharanero/clincalc/commit/5e5fd13aebf3a58703d85856fc71bb08b6402cb4))
+
+- **deps**: Bump dtolnay/rust-toolchain ([#38](https://github.com/pacharanero/clincalc/issues/38)) ([7f5aad8](https://github.com/pacharanero/clincalc/commit/7f5aad857e117d231e963de8e42a26f263e7ff84))
+
+- **deps**: Bump Swatinem/rust-cache from 2.9.1 to 2.9.2 ([#40](https://github.com/pacharanero/clincalc/issues/40)) ([bb2e43d](https://github.com/pacharanero/clincalc/commit/bb2e43d990044759ef51a14efc09e8ac6e93ee23))
+
+- **deps**: Bump clap_complete from 4.6.8 to 4.6.9 ([#41](https://github.com/pacharanero/clincalc/issues/41)) ([0d3ed2a](https://github.com/pacharanero/clincalc/commit/0d3ed2acdff91cfb5fadffa087a7afb06f76a73d))
+
+- **deps**: Bump clap from 4.6.5 to 4.6.6 ([#42](https://github.com/pacharanero/clincalc/issues/42)) ([9a4213d](https://github.com/pacharanero/clincalc/commit/9a4213d0e53c270cb76977edc09de123e86979bf))
+
+- **deps**: Bump taiki-e/install-action from 2.85.5 to 2.85.10 ([#43](https://github.com/pacharanero/clincalc/issues/43)) ([9833361](https://github.com/pacharanero/clincalc/commit/9833361f0112dd0e3dd806bba55edb8f222d8379))
+
+- **deps**: Bump clap from 4.6.4 to 4.6.5 ([#37](https://github.com/pacharanero/clincalc/issues/37)) ([46db830](https://github.com/pacharanero/clincalc/commit/46db8305acd1093628ec929d3aa219ad4dcc845d))
+
+- **deps**: Bump pypa/gh-action-pypi-publish from 1.14.1 to 1.14.2 ([#34](https://github.com/pacharanero/clincalc/issues/34)) ([ca94a08](https://github.com/pacharanero/clincalc/commit/ca94a08315f0ab9c5e73545416d5515f78a58122))
+
+- **deps**: Bump taiki-e/install-action from 2.85.2 to 2.85.5 ([#35](https://github.com/pacharanero/clincalc/issues/35)) ([05c4f5a](https://github.com/pacharanero/clincalc/commit/05c4f5acc8d87aeb4a37a75835d02a26ae34a5b9))
+
+- **deps**: Bump clap_complete from 4.6.7 to 4.6.8 ([#31](https://github.com/pacharanero/clincalc/issues/31)) ([ee1ae45](https://github.com/pacharanero/clincalc/commit/ee1ae45cbc14b61c5e1731ceab4fa5241a2319af))
+
+- **deps**: Bump taiki-e/install-action from 2.83.4 to 2.85.2 ([#29](https://github.com/pacharanero/clincalc/issues/29)) ([238523e](https://github.com/pacharanero/clincalc/commit/238523e9c3f99524a7a0846ae01e356507293350))
+
+- **deps**: Bump PyO3/maturin-action ([#28](https://github.com/pacharanero/clincalc/issues/28)) ([096f2b2](https://github.com/pacharanero/clincalc/commit/096f2b28fcc7cf4dd33aa1ecc42fd5dece9ea167))
+
+- **deps**: Bump actions/checkout from 7.0.0 to 7.0.1 ([#27](https://github.com/pacharanero/clincalc/issues/27)) ([d9e5b16](https://github.com/pacharanero/clincalc/commit/d9e5b1692e24be94662e0573ddac90978f6afd2f))
+
+- **deps**: Bump actions/setup-python from 6.3.0 to 7.0.0 ([#21](https://github.com/pacharanero/clincalc/issues/21)) ([89f10bb](https://github.com/pacharanero/clincalc/commit/89f10bb45358f6d487b73f8310a7585f36929a7d))
+
+- **deps**: Bump dtolnay/rust-toolchain ([#16](https://github.com/pacharanero/clincalc/issues/16)) ([7eccbfd](https://github.com/pacharanero/clincalc/commit/7eccbfdb599ddc0c205afd222b4b5d90fdb46805))
+
+- **deps**: Bump taiki-e/install-action from 2.82.7 to 2.83.4 ([#20](https://github.com/pacharanero/clincalc/issues/20)) ([6432942](https://github.com/pacharanero/clincalc/commit/643294212ca90c6439bfd0d9e34bc5a181112d01))
+
+- **deps**: Bump clap from 4.6.3 to 4.6.4 ([#25](https://github.com/pacharanero/clincalc/issues/25)) ([387454c](https://github.com/pacharanero/clincalc/commit/387454c1800b16262c5a6a86422ed386505a85b3))
+
+### Documentation
+
+- **roadmap**: Plan centile lookup support ([0178e90](https://github.com/pacharanero/clincalc/commit/0178e900152dbec9cfe00ad597e1ee814ac95078))
+
+- Update published install and Python guidance ([b7803cf](https://github.com/pacharanero/clincalc/commit/b7803cf69fc35249b08489b9763057b661197c5d))
+
+### Fixed
+
+- **licensing**: Preserve ClinRisk distribution terms ([f253129](https://github.com/pacharanero/clincalc/commit/f253129303cf252ced715185292c57edb08e07c0))
+
+- **python**: Preserve structured batch inputs ([4ab8099](https://github.com/pacharanero/clincalc/commit/4ab80995ff85950cbb53693de24c080815e0f43d))
+
+- **curb65**: Enforce adult reviewed content ([6268d4a](https://github.com/pacharanero/clincalc/commit/6268d4a00254950818a648e5d498149d6bd99e79))
+
+- **asrs**: Qualify eligibility and scoring methods ([422794e](https://github.com/pacharanero/clincalc/commit/422794eec45842d5c58fe4ac7db346c2f4a37143))
+
+- **inputs**: Enforce closed calculator schemas ([edc9a6c](https://github.com/pacharanero/clincalc/commit/edc9a6c38d35ebab0ac04b0c2376a55f7e672f78))
+
+- **release**: Sync MSI package description ([ce2b205](https://github.com/pacharanero/clincalc/commit/ce2b205ae2e9b06669fc9d0334cacaebbdbb085e))
+
+- **asrs**: Restore permitted six-question scorer ([9cd4c69](https://github.com/pacharanero/clincalc/commit/9cd4c6943a31b9a00ba5ef07fc880d346ac1feb2))
+
+- **locale**: Keep unsupported representations in English ([f58a967](https://github.com/pacharanero/clincalc/commit/f58a96732e643e1c6e212eb9d3125b44ef767613))
+
+- **api**: Return structured JSON request errors ([fd6651a](https://github.com/pacharanero/clincalc/commit/fd6651aa5bb1a894ddcb419be6d1a13244f3c6f8))
+
+- **curb65**: Correct mortality and care guidance ([379a327](https://github.com/pacharanero/clincalc/commit/379a327f7bed94ea15290c3e3dabb17cdfd73000))
+
+- **release**: Ship legal notices in distributions ([f4d0c25](https://github.com/pacharanero/clincalc/commit/f4d0c25bbddb33c416297975f392f18c0f1f3ed7))
+
+- **licensing**: Remove restricted ASRS content ([cffd2fe](https://github.com/pacharanero/clincalc/commit/cffd2fe2154f886149de094475adb36480d77605))
+
 ## [0.2.2] - 2026-07-21
 
 ### Added

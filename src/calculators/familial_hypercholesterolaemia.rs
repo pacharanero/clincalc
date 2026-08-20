@@ -417,4 +417,11 @@ mod tests {
         let typed = build_response(&b).unwrap();
         assert_eq!(dynamic, typed);
     }
+
+    #[test]
+    fn rejects_invalid_enum_value() {
+        assert!(FamilialHypercholesterolaemia
+            .calculate(&json!({"simon_broome_cholesterol": "very_high", "tendon_xanthomata": false, "pathogenic_mutation": false, "family_history_premature_chd_or_raised_cholesterol": false, "dlcn_family_history": "none", "premature_coronary_disease": false, "premature_cerebrovascular_disease": false, "arcus_cornealis_under_45": false, "dlcn_ldl": "below4_0", "causative_mutation_confirmed": false}))
+            .is_err());
+    }
 }

@@ -2,17 +2,22 @@
 # SPDX-FileCopyrightText: 2026 Marcus Baw and Baw Medical Ltd
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-# The full local gate: fmt + clippy + tests, mirroring .github/workflows/ci.yml
-# so a green run here means a green run there. It checks the default CLI build,
-# the serde-only leaf engine, and the optional MCP feature. `s/version++` runs
-# this before cutting a release; run it directly during development too.
+# The local Rust gate: fmt + clippy + tests across the default CLI build, the
+# serde-only leaf engine, CLI-only, MCP-only, and all-feature combinations.
+# CI additionally checks Python packaging, licensing, dependencies, and workflow
+# security. `s/version++` runs this before cutting a release.
 
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
 
 cargo fmt --all --check
 cargo clippy --all-targets -- -D warnings
-cargo clippy --all-targets --features mcp -- -D warnings
+cargo clippy --all-targets --no-default-features -- -D warnings
+cargo clippy --all-targets --no-default-features --features cli -- -D warnings
+cargo clippy --all-targets --no-default-features --features mcp -- -D warnings
+cargo clippy --all-targets --all-features -- -D warnings
 cargo test
 cargo test --no-default-features
-cargo test --features mcp
+cargo test --no-default-features --features cli
+cargo test --no-default-features --features mcp
+cargo test --all-features

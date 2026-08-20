@@ -158,4 +158,20 @@ mod tests {
             BmiCategory::ObesityClass1
         );
     }
+
+    #[test]
+    fn dynamic_calculate_matches_typed() {
+        let typed = BmiInput {
+            weight_kg: 70.0,
+            height_cm: 175.0,
+        };
+        let value = json!({"weight_kg": 70.0, "height_cm": 175.0});
+        let dynamic = Bmi.calculate(&value).unwrap();
+        assert_eq!(dynamic, build_response(&typed).unwrap());
+    }
+
+    #[test]
+    fn rejects_missing_height() {
+        assert!(Bmi.calculate(&json!({"weight_kg": 70.0})).is_err());
+    }
 }

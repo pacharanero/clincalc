@@ -64,6 +64,7 @@ pub enum CreatinineUnit {
 /// GRACE inputs: four physiology numbers, the creatinine unit, the Killip class,
 /// and three binary admission findings.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct GraceInput {
     /// Age in years.
     pub age: u16,

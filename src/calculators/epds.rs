@@ -67,6 +67,7 @@ pub const REVERSE_SCORED_ITEMS: [u8; 7] = [3, 5, 6, 7, 8, 9, 10];
 /// question order Q1-Q10. See the module docs: items 3 and 5-10 are
 /// reverse-scored on the form and must be oriented before being passed here.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct EpdsInput {
     pub responses: Vec<u8>,
 }

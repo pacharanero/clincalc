@@ -3,9 +3,9 @@
 
 //! CURB-65 - severity assessment for community-acquired pneumonia.
 //!
-//! Stratifies 30-day mortality risk and guides the place of care (home vs
-//! hospital vs ICU) in community-acquired pneumonia (Lim et al. Thorax 2003;
-//! BTS/NICE NG138). Each of five criteria scores 1 point, total 0-5.
+//! Stratifies 30-day mortality risk and guides place of care in adults with
+//! community-acquired pneumonia (Lim et al. Thorax 2003; BTS 2009; NICE NG250). Each of five
+//! criteria scores 1 point, total 0-5.
 //!
 //! The caller passes raw observations and the five criteria are derived here, so
 //! the easy-to-misapply thresholds live in one place rather than at every call
@@ -25,6 +25,7 @@ use serde_json::{Map, Value, json};
 
 use crate::calculator::{CalcError, Calculator};
 use crate::license::CalculatorLicense;
+use crate::message::ClinicalMessage;
 use crate::response::CalculationResponse;
 
 /// Machine name.
@@ -33,7 +34,8 @@ pub const NAME: &str = "curb65";
 /// Primary citation.
 pub const REFERENCE: &str = "Lim WS, van der Eerden MM, Laing R, et al. Defining community acquired pneumonia severity on \
 presentation to hospital: an international derivation and validation study. Thorax. \
-2003;58(5):377-382. Management thresholds per BTS / NICE NG138.";
+2003;58(5):377-382. Mortality groups from Figure 2; place-of-care guidance per \
+NICE NG250, with critical-care transfer assessment per BTS 2009.";
 
 /// Distribution licence: the score is a published clinical method, implemented
 /// here from the primary literature.
@@ -42,8 +44,57 @@ pub const LICENSE: CalculatorLicense = CalculatorLicense {
     source_url: "https://doi.org/10.1136/thorax.58.5.377",
 };
 
+struct TranslationBundle {
+    title: &'static str,
+    description: &'static str,
+    confusion_description: &'static str,
+    confusion_concept: &'static str,
+    confusion_statement: &'static str,
+    confusion_includes: [&'static str; 3],
+    confusion_excludes: [&'static str; 1],
+    urea_description: &'static str,
+    urea_concept: &'static str,
+    urea_statement: &'static str,
+    urea_caveats: &'static str,
+    respiratory_rate_description: &'static str,
+    systolic_bp_description: &'static str,
+    diastolic_bp_description: &'static str,
+    blood_pressure_concept: &'static str,
+    blood_pressure_statement: &'static str,
+    blood_pressure_caveats: &'static str,
+    age_description: &'static str,
+}
+
+const EN: TranslationBundle = TranslationBundle {
+    title: "CURB-65 Pneumonia Severity",
+    description: "Severity and 30-day mortality risk in adults with community-acquired pneumonia, guiding place of care (BTS 2009 / NICE NG250).",
+    confusion_description: "New-onset confusion (e.g. AMT <=8 or new disorientation) - NOT chronic baseline impairment (C)",
+    confusion_concept: "Confusion (C)",
+    confusion_statement: "New-onset mental confusion, operationalised in the original study as an Abbreviated Mental Test (AMT) score of 8 or less, or new disorientation in person, place, or time.",
+    confusion_includes: [
+        "AMT <=8 measured at presentation",
+        "New disorientation in person, place, or time",
+        "Acute confusion / delirium new since baseline",
+    ],
+    confusion_excludes: [
+        "A patient's chronic, pre-existing cognitive impairment or established dementia at their usual baseline does NOT count - the confusion must be NEW",
+    ],
+    urea_description: "Serum urea in mmol/L; scores 1 when > 7 mmol/L (U)",
+    urea_concept: "Urea (U)",
+    urea_statement: "Serum urea greater than 7 mmol/L scores 1 point.",
+    urea_caveats: "UNIT TRAP: the threshold is 7 mmol/L. The original paper's equivalent is blood urea nitrogen (BUN) > 19 mg/dL. These are different scales (urea mmol/L vs BUN mg/dL): supply this value in mmol/L. Passing a mg/dL figure here would score almost everyone.",
+    respiratory_rate_description: "Respiratory rate in breaths/min; scores 1 when >= 30 (R)",
+    systolic_bp_description: "Systolic BP in mmHg; the BP point scores when systolic < 90 OR diastolic <= 60 (B)",
+    diastolic_bp_description: "Diastolic BP in mmHg; the BP point scores when systolic < 90 OR diastolic <= 60 (B)",
+    blood_pressure_concept: "Blood pressure (B)",
+    blood_pressure_statement: "A single point for low blood pressure: systolic < 90 mmHg OR diastolic <= 60 mmHg.",
+    blood_pressure_caveats: "EITHER limb scores the one point (they are not separate points). Note the thresholds differ: systolic is strictly < 90, diastolic is <= 60.",
+    age_description: "Adult age in years (18-120); scores 1 when >= 65 (65)",
+};
+
 /// CURB-65 inputs. The five scoring criteria are derived from raw observations.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Curb65Input {
     /// New-onset confusion (e.g. AMT <=8 or new disorientation in person, place,
     /// or time). NOT a chronic baseline cognitive impairment.
@@ -56,27 +107,45 @@ pub struct Curb65Input {
     pub systolic_bp: f64,
     /// Diastolic blood pressure in mmHg. Scores (with systolic) when <= 60.
     pub diastolic_bp: f64,
-    /// Age in years. Scores a point when >= 65.
+    /// Adult age in years (18-120). Scores a point when >= 65.
     pub age: u8,
 }
 
 /// Risk band derived from the total score.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RiskBand {
-    /// Score 0-1: low severity, consider home treatment.
+    /// Score 0-1: low severity, consider home care with safety-netting.
     Low,
-    /// Score 2: intermediate severity, consider hospital assessment.
+    /// Score 2: intermediate severity, consider supported or inpatient care.
     Intermediate,
-    /// Score 3-5: high severity, manage in hospital, consider ICU at 4-5.
+    /// Score 3-5: high severity, inpatient care and critical-care referral if appropriate.
     High,
 }
 
 impl RiskBand {
-    fn slug(self) -> &'static str {
+    pub fn slug(self) -> &'static str {
         match self {
             RiskBand::Low => "low",
             RiskBand::Intermediate => "intermediate",
             RiskBand::High => "high",
+        }
+    }
+
+    /// Stable semantic ID for the complete interpretation message.
+    pub fn message_id(self) -> &'static str {
+        match self {
+            RiskBand::Low => "curb65.interpretation.low",
+            RiskBand::Intermediate => "curb65.interpretation.intermediate",
+            RiskBand::High => "curb65.interpretation.high",
+        }
+    }
+
+    /// Stable machine code for the place-of-care recommendation.
+    pub fn recommendation_code(self) -> &'static str {
+        match self {
+            RiskBand::Low => "curb65.recommendation.home-with-safety-netting",
+            RiskBand::Intermediate => "curb65.recommendation.supported-or-inpatient-care",
+            RiskBand::High => "curb65.recommendation.inpatient-consider-critical-care",
         }
     }
 }
@@ -96,21 +165,51 @@ pub struct Curb65Outcome {
     pub interpretation: String,
 }
 
-/// Approximate 30-day mortality for each score (Lim et al. Thorax 2003), as a
-/// percentage string for the interpretation text.
-fn mortality_pct(score: u8) -> &'static str {
+/// Approximate 30-day mortality for the management groups in Figure 2 of Lim
+/// et al. (derivation cohort), as tenths of a percentage point: scores 0-1,
+/// score 2, and scores 3-5 respectively.
+fn mortality_tenths_percent(score: u8) -> u16 {
     match score {
-        0 => "0.7%",
-        1 => "3.2%",
-        2 => "13%",
-        3 => "17%",
-        4 => "41.5%",
-        _ => "57%",
+        0 | 1 => 15,
+        2 => 92,
+        _ => 220,
+    }
+}
+
+fn mortality_text(tenths: u16) -> String {
+    let whole = tenths / 10;
+    let decimal = tenths % 10;
+    match decimal {
+        0 => format!("{whole}%"),
+        _ => format!("{whole}.{decimal}%"),
+    }
+}
+
+fn render_interpretation(score: u8, risk_band: RiskBand, mortality_tenths: u16) -> String {
+    let mortality = mortality_text(mortality_tenths);
+    match (risk_band, score >= 4) {
+        (RiskBand::Low, _) => format!(
+            "Score {score}: low severity (approx. {mortality} 30-day mortality for scores 0-1 in the Lim derivation group). Consider discharge home or primary care-led services with safety-netting if clinically suitable (NICE NG250)."
+        ),
+        (RiskBand::Intermediate, _) => format!(
+            "Score {score}: intermediate severity (approx. {mortality} 30-day mortality in the Lim derivation group). Consider a virtual ward, same-day emergency care, hospital-at-home, or inpatient care (NICE NG250)."
+        ),
+        (RiskBand::High, false) => format!(
+            "Score {score}: high severity (approx. {mortality} 30-day mortality for scores 3-5 in the Lim derivation group). Provide inpatient care and refer to critical care if appropriate (NICE NG250). Where bloods are unavailable, CRB-65 (the urea-free variant) can be used in primary care."
+        ),
+        (RiskBand::High, true) => format!(
+            "Score {score}: high severity (approx. {mortality} 30-day mortality for scores 3-5 in the Lim derivation group). Provide inpatient care and refer to critical care if appropriate (NICE NG250). At a score of 4-5, specifically assess for transfer to critical care (BTS 2009). Where bloods are unavailable, CRB-65 (the urea-free variant) can be used in primary care."
+        ),
     }
 }
 
 /// Pure scoring.
 pub fn compute(input: &Curb65Input) -> Result<Curb65Outcome, CalcError> {
+    if !(18..=120).contains(&input.age) {
+        return Err(CalcError::InvalidInput(
+            "age must be between 18 and 120 years; CURB-65 is an adult score".into(),
+        ));
+    }
     if !input.urea_mmol_l.is_finite()
         || !input.respiratory_rate.is_finite()
         || !input.systolic_bp.is_finite()
@@ -150,29 +249,7 @@ pub fn compute(input: &Curb65Input) -> Result<Curb65Outcome, CalcError> {
         _ => RiskBand::High,
     };
 
-    let mortality = mortality_pct(score);
-    let interpretation = match risk_band {
-        RiskBand::Low => format!(
-            "Score {score}: low severity (approx. {mortality} 30-day mortality). Consider home \
-treatment if clinically suitable (BTS / NICE NG138)."
-        ),
-        RiskBand::Intermediate => format!(
-            "Score {score}: intermediate severity (approx. {mortality} 30-day mortality). Consider \
-hospital-supervised treatment or a short inpatient stay, with close review (BTS / NICE NG138)."
-        ),
-        RiskBand::High => {
-            let icu = if score >= 4 {
-                " At a score of 4-5, assess for intensive care."
-            } else {
-                ""
-            };
-            format!(
-                "Score {score}: high severity (approx. {mortality} 30-day mortality). Manage in \
-hospital as severe pneumonia.{icu} (BTS / NICE NG138). Where bloods are unavailable, CRB-65 (the \
-urea-free variant) can be used in primary care."
-            )
-        }
-    };
+    let interpretation = render_interpretation(score, risk_band, mortality_tenths_percent(score));
 
     Ok(Curb65Outcome {
         score,
@@ -189,6 +266,13 @@ urea-free variant) can be used in primary care."
 /// Build the dispatchable [`CalculationResponse`] from typed inputs.
 pub fn build_response(input: &Curb65Input) -> Result<CalculationResponse, CalcError> {
     let o = compute(input)?;
+    let mortality_tenths_percent = mortality_tenths_percent(o.score);
+    let mortality_percent = f64::from(mortality_tenths_percent) / 10.0;
+    let message = ClinicalMessage::new(o.risk_band.message_id())
+        .with_argument("score", o.score)
+        .with_argument("mortality_percent", mortality_percent)
+        .with_argument("critical_care_referral_if_appropriate", o.score >= 3)
+        .with_argument("critical_care_transfer_assessment", o.score >= 4);
 
     let mut working = Map::new();
     working.insert("total_score".into(), json!(o.score));
@@ -204,13 +288,100 @@ pub fn build_response(input: &Curb65Input) -> Result<CalculationResponse, CalcEr
     );
     working.insert("age_ge_65".into(), json!(u8::from(o.age)));
     working.insert("risk_band".into(), json!(o.risk_band.slug()));
-
+    working.insert(
+        "recommendation_code".into(),
+        json!(o.risk_band.recommendation_code()),
+    );
+    working.insert("mortality_30_day_percent".into(), json!(mortality_percent));
+    working.insert(
+        "interpretation_message".into(),
+        serde_json::to_value(message).expect("ClinicalMessage is serializable"),
+    );
     Ok(CalculationResponse {
         calculator: NAME.to_string(),
         result: json!(o.score),
-        interpretation: o.interpretation,
+        interpretation: render_interpretation(o.score, o.risk_band, mortality_tenths_percent),
         working,
         reference: REFERENCE.to_string(),
+    })
+}
+
+fn input_schema() -> Value {
+    let text = &EN;
+    json!({
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "Curb65Input",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+            "confusion", "urea_mmol_l", "respiratory_rate",
+            "systolic_bp", "diastolic_bp", "age"
+        ],
+        "properties": {
+            "confusion": {
+                "type": "boolean",
+                "description": text.confusion_description,
+                "definition": {
+                    "concept": text.confusion_concept,
+                    "statement": text.confusion_statement,
+                    "includes": text.confusion_includes,
+                    "excludes": text.confusion_excludes,
+                    "snomedEcl": "<< 40917007 |Clouded consciousness (finding)| OR << 130987000 |Acute confusion (finding)|",
+                    "source": { "citation": "Lim WS et al. Thorax. 2003;58(5):377-382.", "url": "https://doi.org/10.1136/thorax.58.5.377" },
+                    "status": "draft"
+                }
+            },
+            "urea_mmol_l": {
+                "type": "number",
+                "minimum": 0,
+                "description": text.urea_description,
+                "definition": {
+                    "concept": text.urea_concept,
+                    "statement": text.urea_statement,
+                    "caveats": text.urea_caveats,
+                    "snomedEcl": "<< 35591007 |Serum urea level - finding|",
+                    "source": { "citation": "Lim WS et al. Thorax. 2003;58(5):377-382.", "url": "https://doi.org/10.1136/thorax.58.5.377" },
+                    "status": "draft"
+                }
+            },
+            "respiratory_rate": {
+                "type": "number",
+                "minimum": 0,
+                "description": text.respiratory_rate_description
+            },
+            "systolic_bp": {
+                "type": "number",
+                "minimum": 0,
+                "description": text.systolic_bp_description,
+                "definition": {
+                    "concept": text.blood_pressure_concept,
+                    "statement": text.blood_pressure_statement,
+                    "caveats": text.blood_pressure_caveats,
+                    "snomedEcl": "<< 45007003 |Low blood pressure (disorder)|",
+                    "source": { "citation": "Lim WS et al. Thorax. 2003;58(5):377-382.", "url": "https://doi.org/10.1136/thorax.58.5.377" },
+                    "status": "draft"
+                }
+            },
+            "diastolic_bp": {
+                "type": "number",
+                "minimum": 0,
+                "description": text.diastolic_bp_description,
+                "definition": {
+                    "concept": text.blood_pressure_concept,
+                    "statement": text.blood_pressure_statement,
+                    "caveats": text.blood_pressure_caveats,
+                    "snomedEcl": "<< 45007003 |Low blood pressure (disorder)|",
+                    "source": { "citation": "Lim WS et al. Thorax. 2003;58(5):377-382.", "url": "https://doi.org/10.1136/thorax.58.5.377" },
+                    "status": "draft"
+                }
+            },
+            "age": {
+                "type": "integer",
+                "minimum": 18,
+                "maximum": 120,
+                "description": text.age_description
+            }
+        }
     })
 }
 
@@ -223,12 +394,11 @@ impl Calculator for Curb65 {
     }
 
     fn title(&self) -> &'static str {
-        "CURB-65 Pneumonia Severity"
+        EN.title
     }
 
     fn description(&self) -> &'static str {
-        "Severity and 30-day mortality risk in community-acquired pneumonia, guiding place of care \
-(BTS / NICE NG138)."
+        EN.description
     }
 
     fn reference(&self) -> &'static str {
@@ -240,81 +410,7 @@ impl Calculator for Curb65 {
     }
 
     fn input_schema(&self) -> Value {
-        json!({
-            "$schema": "https://json-schema.org/draft/2020-12/schema",
-            "title": "Curb65Input",
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-                "confusion", "urea_mmol_l", "respiratory_rate",
-                "systolic_bp", "diastolic_bp", "age"
-            ],
-            "properties": {
-                "confusion": {
-                    "type": "boolean",
-                    "description": "New-onset confusion (e.g. AMT <=8 or new disorientation) - NOT chronic baseline impairment (C)",
-                    "definition": {
-                        "concept": "Confusion (C)",
-                        "statement": "New-onset mental confusion, operationalised in the original study as an Abbreviated Mental Test (AMT) score of 8 or less, or new disorientation in person, place, or time.",
-                        "includes": ["AMT <=8 measured at presentation", "New disorientation in person, place, or time", "Acute confusion / delirium new since baseline"],
-                        "excludes": ["A patient's chronic, pre-existing cognitive impairment or established dementia at their usual baseline does NOT count - the confusion must be NEW"],
-                        "snomedEcl": "<< 40917007 |Clouded consciousness (finding)| OR << 130987000 |Acute confusion (finding)|",
-                        "source": { "citation": "Lim WS et al. Thorax. 2003;58(5):377-382.", "url": "https://doi.org/10.1136/thorax.58.5.377" },
-                        "status": "draft"
-                    }
-                },
-                "urea_mmol_l": {
-                    "type": "number",
-                    "minimum": 0,
-                    "description": "Serum urea in mmol/L; scores 1 when > 7 mmol/L (U)",
-                    "definition": {
-                        "concept": "Urea (U)",
-                        "statement": "Serum urea greater than 7 mmol/L scores 1 point.",
-                        "caveats": "UNIT TRAP: the threshold is 7 mmol/L. The original paper's equivalent is blood urea nitrogen (BUN) > 19 mg/dL. These are different scales (urea mmol/L vs BUN mg/dL): supply this value in mmol/L. Passing a mg/dL figure here would score almost everyone.",
-                        "snomedEcl": "<< 35591007 |Serum urea level - finding|",
-                        "source": { "citation": "Lim WS et al. Thorax. 2003;58(5):377-382.", "url": "https://doi.org/10.1136/thorax.58.5.377" },
-                        "status": "draft"
-                    }
-                },
-                "respiratory_rate": {
-                    "type": "number",
-                    "minimum": 0,
-                    "description": "Respiratory rate in breaths/min; scores 1 when >= 30 (R)"
-                },
-                "systolic_bp": {
-                    "type": "number",
-                    "minimum": 0,
-                    "description": "Systolic BP in mmHg; the BP point scores when systolic < 90 OR diastolic <= 60 (B)",
-                    "definition": {
-                        "concept": "Blood pressure (B)",
-                        "statement": "A single point for low blood pressure: systolic < 90 mmHg OR diastolic <= 60 mmHg.",
-                        "caveats": "EITHER limb scores the one point (they are not separate points). Note the thresholds differ: systolic is strictly < 90, diastolic is <= 60.",
-                        "snomedEcl": "<< 45007003 |Low blood pressure (disorder)|",
-                        "source": { "citation": "Lim WS et al. Thorax. 2003;58(5):377-382.", "url": "https://doi.org/10.1136/thorax.58.5.377" },
-                        "status": "draft"
-                    }
-                },
-                "diastolic_bp": {
-                    "type": "number",
-                    "minimum": 0,
-                    "description": "Diastolic BP in mmHg; the BP point scores when systolic < 90 OR diastolic <= 60 (B)",
-                    "definition": {
-                        "concept": "Blood pressure (B)",
-                        "statement": "A single point for low blood pressure: systolic < 90 mmHg OR diastolic <= 60 mmHg.",
-                        "caveats": "EITHER limb scores the one point (they are not separate points). Note the thresholds differ: systolic is strictly < 90, diastolic is <= 60.",
-                        "snomedEcl": "<< 45007003 |Low blood pressure (disorder)|",
-                        "source": { "citation": "Lim WS et al. Thorax. 2003;58(5):377-382.", "url": "https://doi.org/10.1136/thorax.58.5.377" },
-                        "status": "draft"
-                    }
-                },
-                "age": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 120,
-                    "description": "Age in years; scores 1 when >= 65 (65)"
-                }
-            }
-        })
+        input_schema()
     }
 
     fn calculate(&self, input: &Value) -> Result<CalculationResponse, CalcError> {
@@ -360,7 +456,7 @@ mod tests {
         let o = compute(&i).unwrap();
         assert_eq!(o.score, 5);
         assert_eq!(o.risk_band, RiskBand::High);
-        assert!(o.interpretation.contains("intensive care"));
+        assert!(o.interpretation.contains("critical care"));
     }
 
     #[test]
@@ -446,6 +542,30 @@ mod tests {
     }
 
     #[test]
+    fn mortality_groups_match_lim_2003_figure_two() {
+        let expected_tenths_percent = [15, 15, 92, 220, 220, 220];
+        for (score, expected) in expected_tenths_percent.into_iter().enumerate() {
+            assert_eq!(mortality_tenths_percent(score as u8), expected);
+        }
+    }
+
+    #[test]
+    fn recommendation_codes_match_ng250_place_of_care_bands() {
+        assert_eq!(
+            RiskBand::Low.recommendation_code(),
+            "curb65.recommendation.home-with-safety-netting"
+        );
+        assert_eq!(
+            RiskBand::Intermediate.recommendation_code(),
+            "curb65.recommendation.supported-or-inpatient-care"
+        );
+        assert_eq!(
+            RiskBand::High.recommendation_code(),
+            "curb65.recommendation.inpatient-consider-critical-care"
+        );
+    }
+
+    #[test]
     fn negative_observation_is_rejected() {
         let mut i = well();
         i.urea_mmol_l = -1.0;
@@ -457,6 +577,35 @@ mod tests {
         let mut i = well();
         i.respiratory_rate = f64::NAN;
         assert!(matches!(compute(&i), Err(CalcError::InvalidInput(_))));
+    }
+
+    #[test]
+    fn ages_outside_the_adult_domain_are_rejected() {
+        let mut i = well();
+        for age in [0, 17, 121] {
+            i.age = age;
+            assert_eq!(
+                compute(&i),
+                Err(CalcError::InvalidInput(
+                    "age must be between 18 and 120 years; CURB-65 is an adult score".into()
+                ))
+            );
+        }
+
+        assert_eq!(Curb65.input_schema()["properties"]["age"]["minimum"], 18);
+
+        let dynamic = json!({
+            "confusion": false,
+            "urea_mmol_l": 5.0,
+            "respiratory_rate": 16.0,
+            "systolic_bp": 120.0,
+            "diastolic_bp": 80.0,
+            "age": 17
+        });
+        assert!(matches!(
+            Curb65.calculate(&dynamic),
+            Err(CalcError::InvalidInput(_))
+        ));
     }
 
     #[test]
@@ -481,6 +630,19 @@ mod tests {
         assert_eq!(dynamic, build_response(&typed).unwrap());
         // urea + RR + age = 3.
         assert_eq!(dynamic.result, json!(3));
+        assert_eq!(dynamic.working["mortality_30_day_percent"], json!(22.0));
+        assert_eq!(
+            dynamic.working["recommendation_code"],
+            json!("curb65.recommendation.inpatient-consider-critical-care")
+        );
+        assert_eq!(
+            dynamic.working["interpretation_message"]["arguments"]["critical_care_referral_if_appropriate"],
+            json!(true)
+        );
+        assert_eq!(
+            dynamic.working["interpretation_message"]["arguments"]["critical_care_transfer_assessment"],
+            json!(false)
+        );
     }
 
     #[test]
@@ -498,5 +660,18 @@ mod tests {
         let schema = Curb65.input_schema();
         let excludes = &schema["properties"]["confusion"]["definition"]["excludes"];
         assert!(excludes[0].as_str().unwrap().contains("NEW"));
+    }
+
+    #[test]
+    fn unreviewed_translations_are_not_advertised() {
+        assert_eq!(Curb65.supported_locales(), crate::locale::ENGLISH_ONLY);
+        assert_eq!(
+            Curb65.title_for(crate::locale::SupportedLocale::Es),
+            Curb65.title()
+        );
+        assert_eq!(
+            Curb65.input_schema_for(crate::locale::SupportedLocale::Ca),
+            Curb65.input_schema()
+        );
     }
 }

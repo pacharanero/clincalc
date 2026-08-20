@@ -14,6 +14,8 @@
 
 use serde_json::{Map, Value};
 
+use crate::SupportedLocale;
+
 /// Build a fillable input template from a JSON Schema object.
 ///
 /// Each property becomes a key whose placeholder describes the expected value.
@@ -26,6 +28,11 @@ use serde_json::{Map, Value};
 /// path rather than a confusing union of mutually-exclusive fields. The other
 /// alternatives are still discoverable via `clincalc calc <name> --schema`.
 pub fn template_from_schema(schema: &Value) -> Value {
+    template_from_schema_for(schema, SupportedLocale::En)
+}
+
+/// Build a fillable input template with locale-aware human type hints.
+pub fn template_from_schema_for(schema: &Value, locale: SupportedLocale) -> Value {
     let Some(props) = schema.get("properties").and_then(Value::as_object) else {
         return Value::Object(Map::new());
     };
@@ -51,21 +58,21 @@ pub fn template_from_schema(schema: &Value) -> Value {
         {
             continue;
         }
-        out.insert(key.clone(), placeholder(prop));
+        out.insert(key.clone(), placeholder(prop, locale));
     }
     Value::Object(out)
 }
 
-fn placeholder(prop: &Value) -> Value {
+fn placeholder(prop: &Value, locale: SupportedLocale) -> Value {
     // Nested object: recurse so the template mirrors the structure.
     if prop.get("type").and_then(Value::as_str) == Some("object") {
-        return template_from_schema(prop);
+        return template_from_schema_for(prop, locale);
     }
     let desc = prop
         .get("description")
         .and_then(Value::as_str)
         .unwrap_or("");
-    let kind = type_hint(prop);
+    let kind = type_hint(prop, locale);
     let text = if desc.is_empty() {
         format!("<{kind}>")
     } else {
@@ -74,7 +81,7 @@ fn placeholder(prop: &Value) -> Value {
     Value::String(text)
 }
 
-fn type_hint(prop: &Value) -> String {
+fn type_hint(prop: &Value, locale: SupportedLocale) -> String {
     // Enumerated values take priority - they are the most useful hint. For
     // string enums the variants are unambiguous; for integer / number enums
     // we lead with the JSON type so the reader knows to write `1` not `"1"`.
@@ -82,19 +89,27 @@ fn type_hint(prop: &Value) -> String {
         let opts: Vec<String> = values.iter().map(render_scalar).collect();
         let joined = opts.join("|");
         return match prop.get("type").and_then(Value::as_str) {
-            Some("integer") => format!("integer, one of: {joined}"),
-            Some("number") => format!("number, one of: {joined}"),
-            _ => format!("one of: {joined}"),
+            Some("integer") => format!(
+                "{}, {}: {joined}",
+                words(locale).integer,
+                words(locale).one_of
+            ),
+            Some("number") => format!(
+                "{}, {}: {joined}",
+                words(locale).number,
+                words(locale).one_of
+            ),
+            _ => format!("{}: {joined}", words(locale).one_of),
         };
     }
     match prop.get("type").and_then(Value::as_str) {
-        Some("boolean") => "boolean".to_string(),
-        Some("integer") => with_range("integer", prop),
-        Some("number") => with_range("number", prop),
-        Some("string") => "string".to_string(),
-        Some("array") => array_hint(prop),
+        Some("boolean") => words(locale).boolean.to_string(),
+        Some("integer") => with_range(words(locale).integer, prop),
+        Some("number") => with_range(words(locale).number, prop),
+        Some("string") => words(locale).string.to_string(),
+        Some("array") => array_hint(prop, locale),
         Some(other) => other.to_string(),
-        None => "value".to_string(),
+        None => words(locale).value.to_string(),
     }
 }
 
@@ -109,16 +124,66 @@ fn with_range(base: &str, prop: &Value) -> String {
     }
 }
 
-fn array_hint(prop: &Value) -> String {
+fn array_hint(prop: &Value, locale: SupportedLocale) -> String {
     let item_kind = prop
         .get("items")
-        .map(type_hint)
-        .unwrap_or_else(|| "value".to_string());
+        .map(|items| type_hint(items, locale))
+        .unwrap_or_else(|| words(locale).value.to_string());
     let min = prop.get("minItems").and_then(Value::as_u64);
     let max = prop.get("maxItems").and_then(Value::as_u64);
     match (min, max) {
-        (Some(n), Some(m)) if n == m => format!("array of {item_kind} ({n} items)"),
-        _ => format!("array of {item_kind}"),
+        (Some(n), Some(m)) if n == m => format!(
+            "{} {item_kind} ({n} {})",
+            words(locale).array_of,
+            words(locale).items
+        ),
+        _ => format!("{} {item_kind}", words(locale).array_of),
+    }
+}
+
+struct TemplateWords {
+    boolean: &'static str,
+    integer: &'static str,
+    number: &'static str,
+    string: &'static str,
+    value: &'static str,
+    one_of: &'static str,
+    array_of: &'static str,
+    items: &'static str,
+}
+
+fn words(locale: SupportedLocale) -> TemplateWords {
+    match locale {
+        SupportedLocale::En => TemplateWords {
+            boolean: "boolean",
+            integer: "integer",
+            number: "number",
+            string: "string",
+            value: "value",
+            one_of: "one of",
+            array_of: "array of",
+            items: "items",
+        },
+        SupportedLocale::Es => TemplateWords {
+            boolean: "booleano",
+            integer: "entero",
+            number: "número",
+            string: "cadena",
+            value: "valor",
+            one_of: "una opción de",
+            array_of: "lista de",
+            items: "elementos",
+        },
+        SupportedLocale::Ca => TemplateWords {
+            boolean: "booleà",
+            integer: "enter",
+            number: "número",
+            string: "cadena",
+            value: "valor",
+            one_of: "una opció de",
+            array_of: "llista de",
+            items: "elements",
+        },
     }
 }
 
@@ -144,6 +209,24 @@ mod tests {
         });
         let t = template_from_schema(&schema);
         assert_eq!(t["fever"], json!("<boolean> Fever in the last 24 hours"));
+    }
+
+    #[test]
+    fn type_hints_follow_the_resolved_locale() {
+        let schema = json!({
+            "type": "object",
+            "properties": {
+                "confusion": {
+                    "type": "boolean",
+                    "description": "Confusión de nueva aparición"
+                }
+            }
+        });
+
+        assert_eq!(
+            template_from_schema_for(&schema, SupportedLocale::Es)["confusion"],
+            json!("<booleano> Confusión de nueva aparición")
+        );
     }
 
     #[test]

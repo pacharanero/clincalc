@@ -265,6 +265,7 @@ impl WeightOfIntervention {
 
 /// EuroSCORE II inputs.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct EuroScore2Input {
     /// Age in years. The model's age term is `1` for any age <= 60 and rises by
     /// one per year thereafter; this encoding is applied internally.

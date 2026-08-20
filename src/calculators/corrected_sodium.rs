@@ -79,9 +79,10 @@ pub fn compute(input: &CorrectedSodiumInput) -> Result<CorrectedSodiumOutcome, C
         GlucoseUnit::MgDl => input.glucose,
         GlucoseUnit::MmolL => input.glucose * MGDL_PER_MMOL_GLUCOSE,
     };
-    if !(18.0..=2500.0).contains(&glucose_mgdl) {
+    if !(NORMAL_GLUCOSE_MGDL..=2500.0).contains(&glucose_mgdl) {
         return Err(CalcError::InvalidInput(
-            "glucose must be between 18 and 2500 mg/dL (or equivalent)".into(),
+            "hyperglycaemia correction requires glucose between 100 and 2500 mg/dL (or equivalent)"
+                .into(),
         ));
     }
 
@@ -99,9 +100,10 @@ pub fn compute(input: &CorrectedSodiumInput) -> Result<CorrectedSodiumOutcome, C
     let interpretation = format!(
         "Corrected sodium is {:.1} mmol/L using the {method_name} correction. This estimates \
          what sodium would read once glucose normalises; a corrected value still low suggests \
-         true (non-hyperglycaemic) hyponatraemia. Hillier's factor is empirically more accurate \
-         at markedly elevated glucose (Katz tends to underestimate the true rise above roughly \
-         400 mg/dL / 22 mmol/L).",
+         true (non-hyperglycaemic) hyponatraemia. Hillier found that 1.6 worked well up to 400 \
+         mg/dL, 4.0 fitted better above 400 mg/dL, and 2.4 was the better overall linear estimate; \
+         this calculator's Hillier method uses that overall 2.4 factor rather than the nonlinear \
+         4.0 factor.",
         corrected_sodium
     );
 
@@ -171,10 +173,20 @@ impl Calculator for CorrectedSodium {
             "required": ["sodium", "glucose", "glucose_unit", "method"],
             "properties": {
                 "sodium": { "type": "number", "minimum": 80, "maximum": 200, "description": "Measured serum sodium, mmol/L" },
-                "glucose": { "type": "number", "exclusiveMinimum": 0, "description": "Serum glucose" },
+                "glucose": { "type": "number", "description": "Serum glucose: 100-2500 mg/dL or 5.55-138.76 mmol/L; this correction is not valid below normoglycaemia" },
                 "glucose_unit": { "type": "string", "enum": ["mmol/L", "mg/dL"] },
                 "method": { "type": "string", "enum": ["katz", "hillier"], "description": "Correction factor: Katz (1.6, 1973) or Hillier (2.4, 1999)" }
-            }
+            },
+            "allOf": [
+                {
+                    "if": { "properties": { "glucose_unit": { "const": "mg/dL" } }, "required": ["glucose_unit"] },
+                    "then": { "properties": { "glucose": { "minimum": 100, "maximum": 2500 } } }
+                },
+                {
+                    "if": { "properties": { "glucose_unit": { "const": "mmol/L" } }, "required": ["glucose_unit"] },
+                    "then": { "properties": { "glucose": { "minimum": 5.550621669626999, "maximum": 138.76554174067496 } } }
+                }
+            ]
         })
     }
     fn calculate(&self, input: &Value) -> Result<CalculationResponse, CalcError> {
@@ -268,5 +280,41 @@ mod tests {
         })
         .unwrap_err();
         assert!(matches!(err, CalcError::InvalidInput(_)));
+    }
+
+    #[test]
+    fn rejects_glucose_below_normoglycaemia() {
+        let err = compute(&CorrectedSodiumInput {
+            sodium: 135.0,
+            glucose: 99.0,
+            glucose_unit: GlucoseUnit::MgDl,
+            method: CorrectionMethod::Katz,
+        })
+        .unwrap_err();
+        assert!(matches!(err, CalcError::InvalidInput(_)));
+    }
+
+    #[test]
+    fn dynamic_calculate_matches_typed_and_rejects_unknown_fields() {
+        let typed = CorrectedSodiumInput {
+            sodium: 130.0,
+            glucose: 600.0,
+            glucose_unit: GlucoseUnit::MgDl,
+            method: CorrectionMethod::Hillier,
+        };
+        let value = json!({
+            "sodium": 130.0,
+            "glucose": 600.0,
+            "glucose_unit": "mg/dL",
+            "method": "hillier"
+        });
+        assert_eq!(
+            CorrectedSodium.calculate(&value).unwrap(),
+            build_response(&typed).unwrap()
+        );
+
+        let mut unknown = value;
+        unknown["unexpected"] = json!(true);
+        assert!(CorrectedSodium.calculate(&unknown).is_err());
     }
 }

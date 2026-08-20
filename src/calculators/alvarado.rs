@@ -205,4 +205,33 @@ mod tests {
         .unwrap();
         assert_eq!(out.score, 4);
     }
+
+    #[test]
+    fn dynamic_calculate_matches_typed() {
+        let value = json!({
+            "migration_to_rlq": true, "anorexia": true, "nausea_or_vomiting": true,
+            "rlq_tenderness": true, "rebound_tenderness": true, "fever": true,
+            "leukocytosis": true, "left_shift": true
+        });
+        let typed = AlvaradoInput {
+            migration_to_rlq: true,
+            anorexia: true,
+            nausea_or_vomiting: true,
+            rlq_tenderness: true,
+            rebound_tenderness: true,
+            fever: true,
+            leukocytosis: true,
+            left_shift: true,
+        };
+        let dynamic = Alvarado.calculate(&value).unwrap();
+        assert_eq!(dynamic, build_response(&typed).unwrap());
+        assert_eq!(dynamic.result, json!(10));
+    }
+
+    #[test]
+    fn rejects_string_for_boolean() {
+        assert!(Alvarado
+            .calculate(&json!({"migration_to_rlq": "yes", "anorexia": false, "nausea_or_vomiting": false, "rlq_tenderness": false, "rebound_tenderness": false, "fever": false, "leukocytosis": false, "left_shift": false}))
+            .is_err());
+    }
 }

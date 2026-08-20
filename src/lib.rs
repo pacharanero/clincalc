@@ -8,8 +8,8 @@
 //!
 //! ## Feature flags
 //!
-//! - `default = ["cli"]` builds the standalone `clincalc` binary and exposes the
-//!   reusable [`cli`] module.
+//! - `default = ["cli", "rest-api"]` builds the standalone `clincalc` binary,
+//!   exposes the reusable [`cli`] module, and enables `clincalc api`.
 //! - `mcp` adds the optional local stdio MCP server used by `clincalc mcp`. It
 //!   pulls in the MCP SDK and async runtime behind the feature gate.
 //! - `default-features = false` builds only the leaf engine: calculators,
@@ -63,6 +63,8 @@
 pub mod calculator;
 pub mod calculators;
 pub mod license;
+pub mod locale;
+pub mod message;
 pub mod proprietary;
 pub mod response;
 pub mod tags;
@@ -83,6 +85,10 @@ pub mod api;
 
 pub use calculator::{CalcError, Calculator};
 pub use license::CalculatorLicense;
+pub use locale::{
+    COMPILED_LOCALES, ENGLISH_ONLY, SupportedLocale, UnsupportedLocale, lookup_locale,
+};
+pub use message::ClinicalMessage;
 pub use proprietary::ProprietaryCalculator;
 pub use response::CalculationResponse;
 pub use tags::{all_tags, for_name as tags_for_name};
@@ -216,5 +222,99 @@ mod registry_tests {
                 calc.name()
             );
         }
+    }
+
+    /// Policy: a schema that advertises a closed object must reject unknown
+    /// fields at the typed deserialization boundary used by every surface.
+    #[test]
+    fn every_closed_schema_rejects_unknown_fields() {
+        const SENTINEL: &str = "__unexpected_clincalc_field";
+        let input = serde_json::json!({ (SENTINEL): null });
+
+        for calc in all() {
+            if calc.input_schema()["additionalProperties"] != false {
+                continue;
+            }
+
+            let error = calc.calculate(&input).unwrap_err();
+            assert!(
+                matches!(&error, CalcError::InvalidInput(message) if message.contains(SENTINEL)),
+                "{}: closed schema did not reject {SENTINEL}: {error}",
+                calc.name()
+            );
+        }
+    }
+
+    /// Translation availability is a stable, duplicate-free subset of the
+    /// bundles compiled into the crate, and always includes source English.
+    #[test]
+    fn every_calculator_has_valid_locale_coverage() {
+        for calc in all() {
+            let locales = calc.supported_locales();
+            assert!(
+                locales.contains(&SupportedLocale::En),
+                "{}: supported locales must include source English",
+                calc.name()
+            );
+            for (index, locale) in locales.iter().enumerate() {
+                assert!(
+                    COMPILED_LOCALES.contains(locale),
+                    "{}: locale {locale} is not compiled into clincalc",
+                    calc.name()
+                );
+                assert!(
+                    !locales[..index].contains(locale),
+                    "{}: locale {locale} is listed more than once",
+                    calc.name()
+                );
+            }
+        }
+    }
+
+    /// Locale-aware companion methods must preserve the complete English
+    /// contract until a calculator opts into a reviewed translation bundle.
+    #[test]
+    fn locale_defaults_preserve_the_english_contract() {
+        let calc = get("feverpain").unwrap();
+        let input = serde_json::json!({
+            "fever": true,
+            "purulence": true,
+            "attend_rapidly": true,
+            "inflamed_tonsils": false,
+            "absence_of_cough": false
+        });
+
+        assert_eq!(calc.supported_locales(), ENGLISH_ONLY);
+        assert_eq!(calc.title_for(SupportedLocale::En), calc.title());
+        assert_eq!(
+            calc.description_for(SupportedLocale::En),
+            calc.description()
+        );
+        assert_eq!(
+            calc.input_schema_for(SupportedLocale::En),
+            calc.input_schema()
+        );
+        assert_eq!(
+            calc.input_template_for(SupportedLocale::En),
+            calc.input_template()
+        );
+        let english = calc.calculate_for(&input, SupportedLocale::En).unwrap();
+        assert_eq!(english.working["content_locale"], "en");
+        let mut english_without_locale = english;
+        english_without_locale.working.remove("content_locale");
+        assert_eq!(english_without_locale, calc.calculate(&input).unwrap());
+
+        // Passing an undeclared bundle to a default implementation falls back
+        // the whole representation to English rather than mixing languages.
+        assert_eq!(calc.title_for(SupportedLocale::Es), calc.title());
+        assert_eq!(
+            calc.input_template_for(SupportedLocale::Es),
+            calc.input_template()
+        );
+        let spanish_fallback = calc.calculate_for(&input, SupportedLocale::Es).unwrap();
+        assert_eq!(spanish_fallback.working["content_locale"], "en");
+        let mut fallback_without_locale = spanish_fallback;
+        fallback_without_locale.working.remove("content_locale");
+        assert_eq!(fallback_without_locale, calc.calculate(&input).unwrap());
     }
 }

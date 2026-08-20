@@ -1,0 +1,91 @@
+# SPDX-FileCopyrightText: 2026 Marcus Baw and Baw Medical Ltd
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+version = 1
+
+# Fallback for project code, configuration, generated manifests, and assets
+# that cannot reliably carry an inline header. Existing in-file metadata wins.
+[[annotations]]
+path = [
+    ".github/**",
+    ".gitignore",
+    "Cargo.lock",
+    "Cargo.toml",
+    "cliff.toml",
+    "clincalc-web/**/*.css",
+    "clincalc-web/**/*.html",
+    "clincalc-web/**/*.js",
+    "clincalc-web/**/*.sh",
+    "docs/**/*.css",
+    "gui/index.html",
+    "gui/package-lock.json",
+    "gui/package.json",
+    "gui/src/**/*.css",
+    "gui/src/**/*.d.ts",
+    "gui/src-tauri/Cargo.lock",
+    "gui/src-tauri/Cargo.toml",
+    "gui/src-tauri/build.rs",
+    "gui/src-tauri/capabilities/*.json",
+    "gui/src-tauri/tauri.conf.json",
+    "gui/tsconfig.json",
+    "gui/tsconfig.node.json",
+    "gui/vite.config.ts",
+    "mkdocs.yml",
+    "python/.gitignore",
+    "python/Cargo.lock",
+    "requirements.txt",
+    "s/docs",
+]
+precedence = "closest"
+SPDX-FileCopyrightText = "2026 Marcus Baw and Baw Medical Ltd"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
+
+# Written documentation and clinical content use the repository's content
+# licence. Existing SPDX identifiers are retained by closest precedence.
+[[annotations]]
+path = [
+    "AGENTS.md",
+    "CHANGELOG.md",
+    "CLAUDE.md",
+    "README.md",
+    "clincalc-web/README.md",
+    "clinical-safety/**/*.md",
+    "docs/**/*.md",
+    "examples/**",
+    "gui/README.md",
+    "python/README.md",
+    "regulatory/**/*.md",
+    "s/README.md",
+    "spec/**/*.md",
+]
+precedence = "closest"
+SPDX-FileCopyrightText = "2026 Marcus Baw and Baw Medical Ltd"
+SPDX-License-Identifier = "CC-BY-SA-4.0"
+
+# The project logo is a colour-adjusted copy of Pictogrammers' Apache-licensed
+# Material Design Icons function-variant glyph, authored by Michael Richins.
+[[annotations]]
+path = [
+    "docs/assets/logo.svg",
+    "gui/public/logo.svg",
+    "gui/src-tauri/icons/128x128.png",
+    "gui/src-tauri/icons/128x128@2x.png",
+    "gui/src-tauri/icons/32x32.png",
+    "gui/src-tauri/icons/icon.icns",
+    "gui/src-tauri/icons/icon.ico",
+    "gui/src-tauri/icons/icon.svg",
+]
+precedence = "override"
+SPDX-FileCopyrightText = [
+    "Michael Richins and Pictogrammers contributors",
+    "2026 Marcus Baw and Baw Medical Ltd",
+]
+SPDX-License-Identifier = "Apache-2.0"
+
+# cargo-dist generates this template from cargo-wix and verifies it has not
+# drifted. The adjacent legal.wxs fragment is project-authored and has headers.
+[[annotations]]
+path = "wix/main.wxs"
+precedence = "override"
+SPDX-FileCopyrightText = "2017 Christopher R. Field"
+SPDX-License-Identifier = "Apache-2.0"

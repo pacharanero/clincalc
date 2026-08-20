@@ -71,6 +71,7 @@ pub enum Unit {
 
 /// Inputs to the original MELD score.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct MeldInput {
     /// Total serum bilirubin, in the unit given by `bilirubin_unit`.
     pub bilirubin: f64,

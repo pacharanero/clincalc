@@ -4,14 +4,16 @@ Python bindings for the [clincalc](https://github.com/pacharanero/clincalc) Rust
 
 ## Install
 
+`clincalc` supports CPython 3.9 and later.
+
 ```bash
-pip install clincalc
+python -m pip install clincalc
 ```
 
 With pandas support for batch computation:
 
 ```bash
-pip install clincalc[pandas]
+python -m pip install "clincalc[pandas]"
 ```
 
 ## Quick start
@@ -19,13 +21,14 @@ pip install clincalc[pandas]
 ```python
 import clincalc
 
-# Discover available calculators
-print([c["name"] for c in clincalc.list_calculators()])
-
 # Calculate BMI
 result = clincalc.calculate("bmi", {"weight_kg": 70, "height_cm": 175})
-print(result["result"])           # 22.857142857...
-print(result["interpretation"])   # "normal"
+assert result["result"] == 22.9
+print(result["calculator"], result["result"])
+# bmi 22.9
+
+# Discover available calculators
+print([c["name"] for c in clincalc.list_calculators()])
 
 # Inspect a calculator's input schema
 print(clincalc.get_schema("egfr"))
@@ -33,6 +36,14 @@ print(clincalc.get_schema("egfr"))
 # Get a fillable input template
 print(clincalc.get_template("egfr"))
 ```
+
+You can verify the installation directly from a terminal:
+
+```bash
+python -c "import clincalc; result = clincalc.calculate('bmi', {'weight_kg': 70, 'height_cm': 175}); print(result['result'])"
+```
+
+The command prints `22.9`.
 
 ## Pandas batch helper
 
@@ -61,4 +72,6 @@ results = clincalc.batch(
 
 ## License
 
-AGPL-3.0-or-later.
+Original clincalc code is licensed under AGPL-3.0-or-later. The QRISK3 and QFracture modules retain ClinRisk's LGPL-3.0-or-later licence. Wheels and source distributions include the applicable licence texts and third-party notices.
+
+The ASRS-v1.1 six-question scorer accepts coded adult responses covering the past six months from the [authorised form](https://license.tov.med.nyu.edu/product/asrs6Qscreener), reports the classic dichotomous and alternative continuous methods separately, and carries the required attribution to New York University and the President and Fellows of Harvard College in every result. Current source and releases from `0.3.0` onward do not distribute questionnaire text or the separately licensed 18-question checklist; legacy `0.2.2` source artifacts did include the checklist and should not be used.

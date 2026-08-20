@@ -42,6 +42,7 @@ pub const LICENSE: CalculatorLicense = CalculatorLicense {
 
 /// TIMI UA/NSTEMI inputs. Age is numeric; the ">=65" point is derived.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct TimiInput {
     /// Age in years (>=65 scores 1 point).
     pub age: u8,
@@ -428,11 +429,9 @@ mod tests {
             "positive_biomarker": false,
             "unexpected": true
         });
-        // serde rejects unknown fields only when deny_unknown is set; here the
-        // struct simply ignores extras, so this must still parse. Confirm it
-        // does not error and produces a valid score (age 70 -> 1 point).
-        let resp = Timi.calculate(&value).unwrap();
-        assert_eq!(resp.result, json!(1));
+        let err = Timi.calculate(&value).unwrap_err();
+        assert!(matches!(err, CalcError::InvalidInput(_)));
+        assert!(err.to_string().contains("unexpected"));
     }
 
     #[test]

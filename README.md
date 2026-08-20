@@ -1,6 +1,6 @@
 # clincalc - open clinical calculators
 
-Open source, community-auditable clinical calculators. One Rust crate is the scoring engine; every surface - CLI, MCP tool, REST API, desktop GUI, web UI, and embeddable Rust library - is driven from that single source of truth.
+Open source, community-auditable clinical calculators. One Rust crate is the scoring engine; every surface - CLI, Python package, MCP tool, REST API, desktop GUI, web UI, and embeddable Rust library - is driven from that single source of truth.
 
 A score is computed once, in the core library, and the result is identical wherever it appears. Every calculator cites primary literature, is tested against published vectors, and records the licence it is distributed under.
 
@@ -14,7 +14,7 @@ Clinicians need clinical digital tools to provide good care, but the incentives 
 
 ## Install and use the `clincalc` CLI
 
-After the first GitHub Release is published, the docs site hosts cargo-dist installer proxies:
+Install the latest prebuilt release through the docs-site installer proxy:
 
 ```bash
 curl -LsSf https://pacharanero.github.io/clincalc/install.sh | sh
@@ -24,10 +24,10 @@ curl -LsSf https://pacharanero.github.io/clincalc/install.sh | sh
 powershell -ExecutionPolicy Bypass -c "irm https://pacharanero.github.io/clincalc/install.ps1 | iex"
 ```
 
-Until then, install from source:
+Or install the CLI with Cargo:
 
 ```bash
-cargo install --git https://github.com/pacharanero/clincalc clincalc
+cargo install clincalc
 ```
 
 There are no per-calculator flags. Every calculator is driven the same way - ask for a template, fill it in, pass it back:
@@ -49,14 +49,18 @@ curb65 = 4
 High severity ... consider hospital admission and assessment for intensive care.
 ```
 
-The template printed by `clincalc calc <name>` has the same shape as the input it expects, so it is a clean round-trip. `clincalc <name>` remains supported as shorthand for `clincalc calc <name>`. Output, schema, and template are JSON on stdout; hints go to stderr.
+The template printed by `clincalc calc <name>` has the same shape as the input it expects, so it is a clean round-trip. `clincalc <name>` remains supported as shorthand for `clincalc calc <name>`. Schemas and templates are JSON; computed results are readable text by default and JSON with `--format json`. Output goes to stdout and hints go to stderr.
+
+### Localised output
+
+Human-readable calculator content accepts BCP 47 locale tags through `--locale` or `CLINCALC_LOCALE`. The locale architecture is in place, but calculators currently advertise English only. Spanish and Catalan CURB-65 adaptations remain withheld until the final recommendation wording has recorded native-speaker clinical review. Requesting an unreviewed locale fails clearly instead of returning mixed-language or unreviewed clinical prose.
 
 ## MCP server
 
 `clincalc` can also run as a local stdio MCP server when installed with the optional `mcp` feature:
 
 ```bash
-cargo install --git https://github.com/pacharanero/clincalc clincalc --features mcp
+cargo install clincalc --features mcp
 clincalc mcp
 ```
 
@@ -64,20 +68,32 @@ The MCP server exposes every calculator as a typed tool named `clincalc_<name>` 
 
 ## Python package
 
-Install from PyPI after the first release:
+The Python package requires CPython 3.9 or later. Install it from [PyPI](https://pypi.org/project/clincalc/):
 
 ```bash
-pip install clincalc
+python -m pip install clincalc
 ```
+
+Then run a calculation. Inputs and outputs are ordinary Python dictionaries:
 
 ```python
 import clincalc
 
 result = clincalc.calculate("bmi", {"weight_kg": 70, "height_cm": 175})
-print(result["result"], result["interpretation"])
+assert result["result"] == 22.9
+print(result["calculator"], result["result"])
+# bmi 22.9
+```
 
-# Batch over a pandas DataFrame
+For batch calculation over pandas DataFrames, install the optional extra:
+
+```bash
+python -m pip install "clincalc[pandas]"
+```
+
+```python
 import pandas as pd
+
 results = clincalc.batch("bmi", pd.DataFrame({"weight_kg": [70], "height_cm": [175]}))
 ```
 
@@ -85,7 +101,7 @@ See [`docs/python.md`](docs/python.md) for the full API and pandas helpers.
 
 ## The library
 
-The full UK-focused 50-tool roadmap (`spec/calculator-roadmap.md`) is implemented across five tiers, from QRISK3, PHQ-9, GAD-7, eGFR and FIB-4 through NEWS2, CURB-65, the Wells scores, CHA2DS2-VASc and HAS-BLED, to DAS28, SOFA, MELD, CHALICE and Gleason. Run `clincalc list` for the current set.
+The registry currently contains 68 active calculators, from QRISK3, PHQ-9, GAD-7, eGFR and FIB-4 through NEWS2, CURB-65, the Wells scores, CHA2DS2-VASc, DAS28, SOFA, MELD, CHALICE and Gleason. Run `clincalc list` for the authoritative current set.
 
 ### Proprietary tools are named, not hidden
 
@@ -106,10 +122,10 @@ The dependency arrows all point **into** the core, which never depends on anythi
 |---|---|---|
 | **Rust library** | Shipped | `clincalc = { default-features = false }` - pure leaf, only `serde` + `serde_json`. Embeddable in any Rust program. |
 | **Human CLI** | Shipped | `clincalc calc`, `clincalc list`, readable output with copy-paste text summary. |
-| **Programmatic / stdio CLI** | Shipped | `--json` flag, JSON stdin input - usable by any process that can exec a subprocess. |
+| **Programmatic / stdio CLI** | Shipped | `--format json`, JSON stdin input - usable by any process that can exec a subprocess. |
 | **MCP server** | Shipped | `clincalc mcp` (optional `mcp` feature) - each calculator as a typed MCP tool for LLM hosts. |
 | **Desktop GUI** | Planned | Tauri desktop app; see `spec/gui.md`. Calls the Rust engine natively - no HTTP round-trip. |
-| **REST API** | Shipped | Optional `rest-api` feature - `clincalc api` starts an axum server with `GET /calculators`, per-calculator `POST`, and `GET /openapi.json`. |
+| **REST API** | Shipped | Default-enabled `rest-api` feature - `clincalc api` starts an axum server with `GET /calculators`, per-calculator `POST`, and `GET /openapi.json`. |
 | **Web UI** | Planned | `clincalc-web` single-file HTML; see `spec/roadmap.md`. |
 | **Python FFI** | Shipped | `pip install clincalc`; `clincalc.calculate("egfr", {...})` and `clincalc.batch("egfr", df)`. Implemented in `python/` as a separate `pyo3` crate so the core stays leaf-clean. |
 
@@ -118,7 +134,7 @@ The concrete Rust structure:
 - **`clincalc`** (this crate) - the scoring engine. With `default-features = false` it is a strict leaf: only `serde` and `serde_json`, no async runtime, no host dependency.
 - The default **`cli` feature** adds the `clincalc` binary and the reusable `clincalc::cli` module. A host CLI (e.g. GitEHR's `gitehr calc`) calls this module directly.
 - The optional **`mcp` feature** adds `clincalc mcp`, a local stdio MCP server. Each calculator in `clincalc::all()` becomes a typed MCP tool automatically.
-- The optional **`rest-api` feature** follows the same optional-feature pattern as `mcp`: `clincalc api` starts an axum server with an auto-generated OpenAPI spec.
+- The default-enabled **`rest-api` feature** follows the same feature-gated pattern as `mcp`: `clincalc api` starts an axum server with an auto-generated OpenAPI spec.
 - The **`clincalc` Python package** (`python/`) follows the same optional-dependency pattern, giving data-science workflows access to every calculator via PyPI without touching the Rust crate's dependency graph.
 
 Adding a calculator to `clincalc::all()` surfaces it everywhere - CLI, MCP, REST API, GUI, web - with no per-surface code.
@@ -143,9 +159,10 @@ CI enforces all three. Adding a calculator: implement it in `clincalc` (typed in
 
 ## Licensing
 
-- `clincalc`: AGPL-3.0-or-later. This work is deliberately not available for subsumption into proprietary EHRs; if that service needs to exist, it can be offered as a hosted Calc-API.
-- Clinical algorithms are implemented from primary literature (most scores are public-domain methods); QRISK3 and QFracture are ported from ClinRisk's LGPL-3.0 source and carry the required disclaimer. Each calculator records its own distribution licence via `clincalc calc <name> --license`.
+- Original `clincalc` code: AGPL-3.0-or-later. This work is deliberately not available for subsumption into proprietary EHRs; if that service needs to exist, it can be offered as a hosted Calc-API.
+- Clinical algorithms are implemented from primary literature (most scores are public-domain methods). The QRISK3 and QFracture modules are derivative ports of ClinRisk's LGPL-3.0-or-later source, retain that licence, and carry ClinRisk's required disclaimer with every score. Each calculator records its own distribution licence via `clincalc calc <name> --license`.
 - Clinical content (source references) under CC-BY-SA-4.0.
+- The ASRS-v1.1 six-question scorer is distributed with the rights holders' required attribution and accepts coded adult responses covering the past six months from the [authorised form](https://license.tov.med.nyu.edu/product/asrs6Qscreener). It reports the classic dichotomous and alternative continuous methods separately. Current source and releases from `0.3.0` onward do not distribute questionnaire text or the separately licensed 18-question checklist; legacy `0.2.2` source artifacts did include the checklist and should not be used.
 
 ## Roadmap
 

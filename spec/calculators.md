@@ -241,7 +241,7 @@ The authoring workflow is intentionally repository-native: start with `AGENTS.md
 
 ## Calculator library roadmap
 
-Open calculator work is tracked by stable ID in [`spec/calculator-roadmap.md`](calculator-roadmap.md). Completed calculators are removed from the roadmap and listed in the deployed catalogue at [`docs/calculators.md`](../docs/calculators.md), currently 54 active calculators plus 10 intentional "named but unavailable" stubs (licence-locked or proprietary).
+Open calculator work is tracked by stable ID in [`spec/calculator-roadmap.md`](calculator-roadmap.md). Completed calculators are removed from the roadmap and listed in the deployed catalogue at [`docs/calculators.md`](../docs/calculators.md), currently 68 active calculators plus 10 intentional "named but unavailable" stubs (licence-locked or proprietary).
 
 ### RCPCH Digital Growth Charts
 
@@ -257,20 +257,20 @@ Each calculator must include: a primary peer-reviewed citation; evidence of clin
 
 ## Licensing
 
-- `clincalc`: AGPL-3.0-or-later. Deliberately not available for subsumption into proprietary EHRs; if that service needs to exist, it can be offered as a hosted Calc-API.
-- Clinical algorithms: implement from primary literature; most scores are public-domain methods. Do not copy proprietary implementations (e.g. MDCalc). QRISK3 and QFracture are ported from ClinRisk's LGPL-3.0 source and carry the required disclaimer.
+- Original `clincalc` code: AGPL-3.0-or-later. Deliberately not available for subsumption into proprietary EHRs; if that service needs to exist, it can be offered as a hosted Calc-API.
+- Clinical algorithms: implement from primary literature; most scores are public-domain methods. Do not copy proprietary implementations (e.g. MDCalc). The QRISK3 and QFracture modules are derivative ports of ClinRisk's LGPL-3.0-or-later source, retain that licence, and carry ClinRisk's required disclaimer with every score.
 - RCPCH growth charts: confirm licensing terms with RCPCH before distribution.
 - All calculators cite original publications and validation studies.
 
 ### Per-calculator distribution licence (required)
 
-Distinct from the **code** licence (AGPL-3.0), every calculator must record the terms under which its **clinical algorithm or content** is distributed, plus a URL evidencing those terms, so the basis for shipping each calculator is on record and can be re-verified at any time. This is enforced in code, not by convention:
+Distinct from the licence of original `clincalc` code (AGPL-3.0-or-later), every calculator must record the terms under which its **clinical algorithm or content** is distributed, plus a URL evidencing those terms, so the basis for shipping each calculator is on record and can be re-verified at any time. Third-party-derived modules retain their own licences. This is enforced in code, not by convention:
 
 - The `Calculator` trait requires `fn license(&self) -> CalculatorLicense`, where `CalculatorLicense { license, source_url }` carries the terms (an SPDX id where one applies, otherwise a short description such as "Public domain - no permission required") and a reverifiable URL. A calculator that omits it does not compile.
 - A registry test (`every_calculator_records_its_license`) asserts every registered calculator has a non-empty licence and an `http(s)` source URL, so a new calculator cannot ship without recording its basis.
 - The licence is surfaced for evidencing via `clincalc calc <name> --license` and in `clincalc list --format json` (`license`, `license_source`). When a host records calculator results, the licence should travel with the recorded result as provenance.
 
-Most scores are pure published methods (algorithms are generally not subject to copyright), implemented from the primary literature and citing the publication as their source. Some instruments carry an explicit grant: PHQ-9 and GAD-7 are public domain (Pfizer, 2010); the ASRS is copyright WHO / NYU / Harvard and free to use with citation. Where terms are proprietary or unclear (e.g. FRAX, MMSE, MUST, CAT, ACQ, ELF, CFS, LANSS, OHS, OKS), the calculator is listed as a stub that returns an `unavailable` response, names the owner, and points at an open alternative where one exists - the gap is a first-class object, not silently hidden.
+Most scores are pure published methods (algorithms are generally not subject to copyright), implemented from the primary literature and citing the publication as their source. Some instruments carry an explicit grant: PHQ-9 and GAD-7 are public domain (Pfizer, 2010), while the ASRS-v1.1 six-question screener permits clinical, non-clinical, and commercial electronic use with attribution and no other modification. The ASRS adapter requires confirmation that the respondent is at least 18 and the coded responses cover the past six months, reports the classic dichotomous and alternative continuous scoring methods separately, does not reproduce the questionnaire, and excludes the separately licensed 18-question checklist. Where terms are proprietary, restricted, or unclear (e.g. FRAX, MMSE, MUST, CAT, ACQ, ELF, CFS, LANSS, OHS, OKS), the calculator is listed as a stub that returns an `unavailable` response, names the owner, and points at an open alternative where one exists - the gap is a first-class object, not silently hidden.
 
 ---
 

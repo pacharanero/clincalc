@@ -63,6 +63,9 @@ def batch(name: str, df: object, *, input_columns: dict[str, str] | None = None)
     records: list[dict[str, Any]] = df.to_dict(orient="records")
     outputs: list[dict[str, Any]] = []
 
+    def is_present(value: Any) -> bool:
+        return not pd.api.types.is_scalar(value) or bool(pd.notna(value))
+
     mapping = input_columns or {}
     for raw in records:
         # Apply column-name mapping and drop missing values so the Rust
@@ -70,10 +73,10 @@ def batch(name: str, df: object, *, input_columns: dict[str, str] | None = None)
         input_row: dict[str, Any] = {
             calc_field: raw[df_col]
             for calc_field, df_col in mapping.items()
-            if df_col in raw and pd.notna(raw[df_col])
+            if df_col in raw and is_present(raw[df_col])
         }
         if not mapping:
-            input_row = {k: v for k, v in raw.items() if pd.notna(v)}
+            input_row = {k: v for k, v in raw.items() if is_present(v)}
 
         response = calculate(name, input_row)
         response["_input_index"] = len(outputs)

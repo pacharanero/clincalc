@@ -86,6 +86,7 @@ pub enum Encephalopathy {
 /// Child-Pugh inputs. Bilirubin and albumin are numeric with an explicit unit;
 /// ascites and encephalopathy are graded categories.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ChildPughInput {
     /// Total bilirubin, in the unit given by `bilirubin_unit`.
     pub bilirubin: f64,

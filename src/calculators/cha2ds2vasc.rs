@@ -55,6 +55,7 @@ pub enum Sex {
 
 /// CHA2DS2-VASc inputs. Age is numeric; the two age bands are derived.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Cha2ds2VascInput {
     /// Age in years.
     pub age: u8,
@@ -462,10 +463,8 @@ mod tests {
 
     #[test]
     fn age_boundary_74_vs_75_full_score() {
-        // The age-74/75 boundary raised in COLL-001.3 review: identical 80M-minus-a-birthday
-        // inputs one year apart, checked through the full compute() path (not just
-        // age_points()), since a regression could plausibly land in `non_sex_score` or
-        // `recommendation` derivation without breaking `age_points` in isolation.
+        // Check the collaboration boundary through the full scoring path, not
+        // only the age helper, so recommendation regressions are also caught.
         let seventy_four = compute(&base(74, Sex::Male)).unwrap();
         assert_eq!(seventy_four.age_points, 1);
         assert_eq!(seventy_four.score, 1);
@@ -479,10 +478,8 @@ mod tests {
 
     #[test]
     fn friberg_2012_stroke_rate_table() {
-        // Table 3, Friberg 2012 (PMID 22246443): stroke event rate per 100 patient-years
-        // among the untreated cohort, by score. Pin the full 0-9 vector, including the
-        // well-known non-monotonic dip at score 8 (10.8, below score 7's 11.2), so a
-        // "helpful" refactor toward a monotonic formula gets caught immediately.
+        // Table 3, Friberg 2012 (PMID 22246443): stroke event rate per 100
+        // patient-years among the untreated cohort, including its score-8 dip.
         let expected = [0.2, 0.6, 2.2, 3.2, 4.8, 7.2, 9.7, 11.2, 10.8, 12.2];
         for (score, &rate) in expected.iter().enumerate() {
             let o = compute(&base_with_score(score as u8)).unwrap();
@@ -504,10 +501,7 @@ mod tests {
         );
     }
 
-    /// One explicit, independently-checkable input fixture per score 0-9, so
-    /// [`friberg_2012_stroke_rate_table`] can iterate the full table. Each arm's point
-    /// total is spelled out in its comment rather than derived, so the fixture itself
-    /// cannot silently drift from the score it claims to produce.
+    /// One explicit input fixture per valid score for the Friberg vector.
     fn base_with_score(score: u8) -> Cha2ds2VascInput {
         let mut i = base(40, Sex::Male);
         match score {
@@ -550,7 +544,7 @@ mod tests {
                 i.hypertension = true;
                 i.diabetes = true;
                 i.congestive_heart_failure = true;
-                i.stroke_tia_thromboembolism = true; // 2 + 1 + 1 + 1 + 1 + 2 (no vascular)
+                i.stroke_tia_thromboembolism = true; // 2 + 1 + 1 + 1 + 1 + 2
             }
             9 => {
                 i.age = 75;
@@ -559,7 +553,7 @@ mod tests {
                 i.diabetes = true;
                 i.congestive_heart_failure = true;
                 i.vascular_disease = true;
-                i.stroke_tia_thromboembolism = true; // 2 + 1 + 1 + 1 + 1 + 1 + 2 = max 9
+                i.stroke_tia_thromboembolism = true; // maximum 9
             }
             _ => panic!("test fixture score must be in the range 0-9"),
         }
@@ -614,6 +608,15 @@ mod tests {
         assert!(
             ecl.contains("MINUS"),
             "vascular ECL must exclude the venous hierarchy"
+        );
+    }
+
+    #[test]
+    fn rejects_string_for_integer_age() {
+        assert!(
+            Cha2ds2Vasc
+                .calculate(&json!({"age": "old", "sex": "male"}))
+                .is_err()
         );
     }
 }

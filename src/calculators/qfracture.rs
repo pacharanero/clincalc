@@ -1,5 +1,6 @@
+// SPDX-FileCopyrightText: 2012 ClinRisk Ltd.
 // SPDX-FileCopyrightText: 2026 Marcus Baw and Baw Medical Ltd
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: LGPL-3.0-or-later
 
 //! QFracture-2012 - 10-year risk of osteoporotic and hip fracture (Hippisley-Cox & Coupland, BMJ 2009/2012).
 //!
@@ -74,15 +75,19 @@ cohort study. BMJ. 2012;344:e3427. doi:10.1136/bmj.e3427. Open UK alternative to
 /// the coefficients here are transcribed verbatim from that source.
 pub const LICENSE: CalculatorLicense = CalculatorLicense {
     license: "LGPL-3.0-or-later - QFracture-2012 algorithm Copyright 2012 ClinRisk Ltd.",
-    source_url: "https://qfracture.org/src.php",
+    source_url: "https://github.com/nhsland/clinrisk-modules/blob/8145002092a54cb3b37d4e2631b228921fa6f9a7/qFracture/Readme.txt",
 };
 
 /// ClinRisk's required disclaimer, carried alongside every score per the licence
 /// terms. Inaccurate implementations can lead to wrong treatment, so the result
-/// must be checked against the original algorithm at qfracture.org.
-pub const DISCLAIMER: &str = "QFracture-2012 algorithm Copyright 2012 ClinRisk Ltd., used under the \
-LGPL. ClinRisk Ltd. stress that it is the responsibility of the end user to check that this \
-implementation produces the same results as the original code at https://qfracture.org. Inaccurate \
+/// must be checked against ClinRisk's original algorithm.
+pub const DISCLAIMER: &str = "The initial version of this file, to be found at \
+http://svn.clinrisk.co.uk/qfracture, faithfully implements QFracture-2012. We have released this \
+code under the GNU Lesser General Public License to enable others to implement the algorithm \
+faithfully. However, the nature of the GNU Lesser General Public License is such that we cannot \
+prevent, for example, someone altering the coefficients. We stress, therefore, that it is the \
+responsibility of the end user to check that the source that they receive produces the same \
+results as the original code posted at http://svn.clinrisk.co.uk/qfracture. Inaccurate \
 implementations of risk scores can lead to wrong patients being given the wrong treatment.";
 
 /// Biological sex, selecting the male or female equation.
@@ -194,6 +199,7 @@ impl Alcohol {
 
 /// QFracture-2012 inputs. BMI is derived from height and weight.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct QfractureInput {
     /// Age in years. QFracture-2012 is validated for ages 30-100.
     pub age: u8,
@@ -1206,11 +1212,11 @@ mod tests {
             r.working["disclaimer"]
                 .as_str()
                 .unwrap()
-                .contains("ClinRisk")
+                .contains("Inaccurate implementations of risk scores")
         );
         assert!(r.working.contains_key("osteoporotic_fracture_percent"));
         assert!(r.working.contains_key("hip_fracture_percent"));
-        assert!(r.interpretation.contains("qfracture.org"));
+        assert!(r.interpretation.contains("svn.clinrisk.co.uk/qfracture"));
     }
 
     #[test]
@@ -1248,6 +1254,9 @@ mod tests {
         let l = Qfracture.license();
         assert!(l.license.contains("LGPL"));
         assert!(l.license.contains("ClinRisk"));
-        assert!(l.source_url.starts_with("https://qfracture.org"));
+        assert_eq!(
+            l.source_url,
+            "https://github.com/nhsland/clinrisk-modules/blob/8145002092a54cb3b37d4e2631b228921fa6f9a7/qFracture/Readme.txt"
+        );
     }
 }

@@ -43,6 +43,7 @@ pub const MAX_MMRC: u8 = 4;
 
 /// BODE index inputs. All four domains are required.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct BodeInput {
     /// Body-mass index, kg/m^2 (B).
     pub bmi: f64,
