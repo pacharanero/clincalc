@@ -1,136 +1,197 @@
 <!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
 
-# Multilingual readiness
+# Multilingual architecture
 
 ## Why this is in scope
 
-`clincalc` today emits English-only strings: titles, descriptions, interpretations, references, and the human-readable hints inside the working map. Other open calculator projects (notably [MedikQuantis](https://medikquantis.me) - Catalan, Spanish, English by native speakers) demonstrate that a credible clinical-calculator project in 2026 is multilingual from day one.
+`clincalc` emits human prose in calculator titles, descriptions, input schemas, interpretations, summaries, validation errors, and some `working` values. A credible clinical-calculator project must make the language of that content explicit and support reviewed translations without changing the scoring engine or allowing surfaces to drift.
 
-This document is design-only. No code in this repo speaks any language but English today. The goal is to **freeze a design that does not paint us into a corner**, so we can adopt languages incrementally without breaking the engine or any host.
+[MedikQuantis](https://medikquantis.me) demonstrates this with clinician-reviewed Catalan, Spanish, and English content. Its overlapping calculators give `clincalc` a practical source of reviewed translations and a collaborator with whom terminology can be aligned.
 
-## Constraints (non-negotiable)
+## Constraints
 
-- **The leaf rule still holds.** No new always-on dependencies in `clincalc` (the engine stays `serde` + `serde_json`). No I/O, no global state, no clock.
-- **Machine-stable identifiers stay English.** Calculator `name()` (the CLI subcommand and MCP tool name), the keys inside the `working` map, the keys in `input_schema()`, and every enum variant are stable English slugs. They are part of the contract, not human prose.
-- **The result schema does not gain a `lang` field.** A response is a response; the locale used to produce it is the responsibility of the caller / host.
-- **Translations are versioned with the source.** A translation that drifts behind the English source is worse than no translation, so every translatable string carries a stable key and translations live in-tree with their literature citation context.
+- **The leaf rule still holds.** With `default-features = false`, the engine depends only on `serde` and `serde_json`. It does not acquire an internationalisation runtime, locale database, I/O, global state, or a clock.
+- **Scoring remains locale-neutral.** Locale never changes thresholds, clinical precision, numeric JSON values, input interpretation, or units.
+- **Machine identifiers remain stable.** Calculator names, schema property names, enum values, tags, message IDs, and `working` keys are English ASCII slugs and are never translated.
+- **References remain unchanged.** A primary literature citation is the same in every language.
+- **Translations are versioned with the calculator.** They live in-tree beside their clinical context, source attribution, and tests.
+- **No mixed-language clinical response.** A calculator advertises a locale only when its metadata, schema prose, and computed prose form a complete reviewed bundle. Otherwise the complete representation falls back to English.
+- **No process-global locale.** Locale is explicit per operation, with immutable defaults available at surface boundaries for convenience.
 
-## What is translatable
+## Standards
 
-Three layers, treated separately:
+### Locale identifiers
 
-1. **Calculator metadata** - `title()`, `description()`. Short, stable. Easy.
-2. **Computed prose** - the `interpretation` field of `CalculationResponse`, and any human-readable strings that the calculator emits into `working` (banding labels, recommendations). Variable, depends on inputs. Hardest.
-3. **Schema descriptions** - the `description` on each input property in `input_schema()`. Drives the CLI placeholder hints. Mid-effort.
+Public surfaces use [BCP 47](https://www.rfc-editor.org/info/bcp47/) language tags, defined by RFC 5646 and RFC 4647. Examples include `en`, `en-GB`, `es`, `es-MX`, `ca`, and `sr-Latn`.
 
-The `reference` field (primary citation) is **not** translated - a literature citation is the same in every language.
+- Tags use hyphens, not underscores.
+- Comparisons are ASCII case-insensitive.
+- Emitted tags use conventional casing: lower-case language, title-case script, upper-case region.
+- RFC 4647 lookup selects one supported translation bundle by progressively truncating a requested tag. For example, `es-MX` can resolve to `es` when no Mexican Spanish bundle exists.
+- The leaf crate does not claim full BCP 47 validity or Unicode CLDR canonicalisation. Those operations require versioned IANA or CLDR data and belong in a surface or optional internationalisation layer.
 
-## Design
+The implementation distinguishes two concepts:
 
-### Locale type
+1. **Requested locale** - a BCP 47 string supplied by a caller or protocol, such as `es-MX`.
+2. **Supported locale** - the canonical tag of a complete bundle compiled into a calculator, such as `es`.
 
-```rust
-pub enum Locale {
-    En,    // default
-    Es,    // Spanish
-    Ca,    // Catalan
-    // ...further locales added on demand
-}
-```
+`SupportedLocale` is a `#[non_exhaustive]` Rust enum because the compiled set is finite and benefits from exhaustive handling inside the crate. It is not used as the public wire syntax: its serialised form is the canonical BCP 47 tag.
 
-`En` is always the source language and the fallback. Any string missing in another locale falls back to `En` rather than failing. Locales are an enum (not a free-form string) so the compiler enumerates them and missing-locale handling is a `match` exhaustiveness problem.
+### HTTP language negotiation
 
-### Storage
+The REST surface follows RFC 9110:
 
-Every translatable string is keyed and looked up at compile time. The natural shape:
+- Explicit `?locale=<tag>` takes precedence.
+- `Accept-Language` is used when no explicit locale is supplied.
+- A configured server default is used when the request expresses no preference.
+- English is the final application fallback.
+- Localised responses return `Content-Language` with the locale actually used.
+- Responses negotiated through `Accept-Language` return `Vary: Accept-Language` when cacheable.
+- An explicitly requested unsupported locale fails clearly rather than silently changing language.
 
-```rust
-pub struct LocalizedString {
-    pub en: &'static str,
-    pub es: Option<&'static str>,
-    pub ca: Option<&'static str>,
-}
+The OpenAPI document remains canonical English. Localised calculator schemas are obtained from the calculator schema endpoint rather than generating a different OpenAPI contract for every locale.
 
-impl LocalizedString {
-    pub fn get(&self, locale: Locale) -> &'static str {
-        match locale {
-            Locale::En => self.en,
-            Locale::Es => self.es.unwrap_or(self.en),
-            Locale::Ca => self.ca.unwrap_or(self.en),
-        }
-    }
-}
-```
+### Messages and formatting
 
-The strings live in the calculator's own module, alongside the literature they were translated from. They are `&'static str`, so the binary stays self-contained and there is no runtime translation file to ship.
+Message design follows the concepts standardised by [Unicode MessageFormat](https://www.unicode.org/reports/tr35/tr35-messageFormat.html):
 
-### Trait shape
+- Stable semantic message IDs, not English source text as keys.
+- Named variables, never positional arguments.
+- Numbers remain numbers until human presentation.
+- Complete sentences are translated; translated fragments are not concatenated.
+- Message variables and their types are validated consistently across locale bundles.
+- Right-to-left text, plural selection, grammatical gender, and locale-specific number formatting are not required in the first translation, but the data model must not preclude them.
 
-The current `Calculator` methods (`title`, `description`, `interpretation` strings produced inside `calculate`) all return `&'static str`. The minimal change adds a locale to the methods that produce human prose:
+The leaf crate does not implement a general template parser. Initial calculators use explicit locale-specific Rust rendering functions with compile-time `format!` strings and named captures. This lets real translations establish the required message model without creating a proprietary Mustache-like language. A mature MessageFormat/CLDR renderer can later live behind an optional feature or in a companion layer without changing stable message IDs and arguments.
+
+### Numbers and units
+
+- JSON inputs and structured results use locale-independent numbers, never strings such as `"1,23"`.
+- Clinical rounding is specified by the calculator, not by the locale.
+- Locale can eventually change decimal separators, grouping, digit shapes, spacing, and display labels only at the human-rendering boundary.
+- Units remain explicit and are never inferred from language or region.
+- If machine-interoperable unit codes are introduced, prefer UCUM; CLDR display names are presentation, not unit semantics.
+
+## Translatable content
+
+Three calculator layers are translated together before a locale is advertised:
+
+1. **Metadata** - title and description.
+2. **Schema prose** - property descriptions and the human-readable fields inside governed input definitions (`concept`, `statement`, `includes`, `excludes`, and `caveats`). Property names, enum values, source citations, URLs, SNOMED ECL, and status values remain stable.
+3. **Computed prose** - interpretation, recommendation labels, summaries, and any human-readable display values.
+
+CLI chrome, REST errors, MCP server instructions, Python error messages, and GUI controls are surface translations. They use the same resolved locale but are not part of a calculator's clinical translation bundle.
+
+## Engine API
+
+Rust has no default function parameters. Adding a locale parameter to every existing trait method would break every calculator, downstream implementation, and caller. Locale support therefore enters through additive companion methods while the existing methods remain English compatibility APIs:
 
 ```rust
 pub trait Calculator {
-    fn name(&self) -> &'static str;                          // unchanged - stable identifier
-    fn title(&self, locale: Locale) -> &'static str;         // localised
-    fn description(&self, locale: Locale) -> &'static str;   // localised
-    fn reference(&self) -> &'static str;                     // unchanged
-    fn license(&self) -> CalculatorLicense;                  // unchanged
-    fn input_schema(&self, locale: Locale) -> Value;         // schema strings localised
-    fn calculate(&self, input: &Value, locale: Locale)
-        -> Result<CalculationResponse, CalcError>;
+    fn name(&self) -> &'static str;
+
+    fn title(&self) -> &'static str;
+    fn title_for(&self, locale: SupportedLocale) -> &'static str;
+
+    fn description(&self) -> &'static str;
+    fn description_for(&self, locale: SupportedLocale) -> &'static str;
+
+    fn input_schema(&self) -> Value;
+    fn input_schema_for(&self, locale: SupportedLocale) -> Value;
+
+    fn calculate(&self, input: &Value) -> Result<CalculationResponse, CalcError>;
+    fn calculate_for(
+        &self,
+        input: &Value,
+        locale: SupportedLocale,
+    ) -> Result<CalculationResponse, CalcError>;
+
+    fn supported_locales(&self) -> &'static [SupportedLocale];
 }
 ```
 
-A default `Locale::En` keeps every existing call site working while host code is migrated.
+Default companion methods delegate to the existing English methods. A calculator overrides them only after adding a complete reviewed bundle. The typed `compute()` API remains locale-neutral.
 
-### Computed prose (the hard bit)
+The English compatibility method `calculate()` retains its existing response contract. Every `calculate_for()` response reports the canonical bundle actually used in `working.content_locale`; an English-only calculator therefore reports `en` even when a direct engine caller requests another compiled locale. Surface boundaries must still validate explicit requests according to their protocol: the CLI rejects a locale the selected calculator does not advertise, while future HTTP localisation will also return `Content-Language`. Silent fallback without reporting the resolved locale is not acceptable because persisted clinical prose needs language provenance.
 
-A calculator's `interpretation` string typically interpolates the computed values: `"NEWS2 7 (high). Emergency response: ..."`. Today these are built with `format!` inline. The two paths:
+## Structured interpretation
 
-1. **Format strings per locale.** Each interpretation has a `LocalizedString` template with positional arguments. Cheap but fragile - argument order has to match across translations.
-2. **Structured interpretation.** `interpretation` becomes a struct keyed by stable IDs (band, score, recommendation) with localised labels and a small Mustache-style templater. Larger upfront cost; less drift over time.
+Several current calculators mix display prose into typed outcomes, string-valued results, or the `working` map. Translation must not change values that consumers may treat as machine codes.
 
-Recommendation: **option 2** when translations land, with option 1 acceptable as an interim. The `working` map already gives the structured surface a host can render in its own way; adding band labels there is a small step.
+Each migrated calculator separates:
 
-### CLI surface
+- Stable clinical facts: score, thresholds met, risk-band code, recommendation code, rates, and quantities.
+- Stable message identity: for example `curb65.interpretation.high`.
+- Named message arguments: for example `score`, `mortality_percent`, and `icu_assessment`.
+- Localised display prose rendered from those facts.
+
+Existing English fields remain compatible during incremental migration. New stable code fields are added before any existing display value is localised or retired.
+
+## Surface policy
+
+### CLI
 
 ```bash
-clincalc --lang es feverpain --input examples/feverpain.json
-clincalc --lang ca list
+clincalc --locale es curb65 --input examples/curb65.json
+clincalc --locale ca list
 ```
 
-`--lang` defaults to `en`. Invalid locales fail loudly at the CLI boundary. The locale is also accepted via `CALC_LANG=es` for environments where flags are awkward.
+Precedence is `--locale`, then `CLINCALC_LOCALE`, then `en`. Invalid or explicitly unsupported locale requests fail with the supported locales. The CLI resolves the requested BCP 47 tag before calling the engine.
 
-### MCP surface
+### Python
 
-The host passes a locale to `clincalc::cli::run`, set from the LLM's session preference or from a tool-call argument. No engine change beyond the new trait shape.
+Locale is an optional keyword-only argument on every prose-producing operation:
 
-## What we are NOT designing today
+```python
+clincalc.calculate("curb65", inputs, locale="es")
+clincalc.list_calculators(locale="ca")
+clincalc.get_schema("curb65", locale="es")
+clincalc.batch("curb65", frame, locale="ca")
+```
 
-- **Right-to-left scripts** (Arabic, Hebrew). Possible later but adds layout concerns no current consumer needs.
-- **Pluralisation rules** (`one apple` / `2 apples`). Mostly handled by emitting numbers separately from labels in `working`.
-- **Inflected agreement** (Spanish gender, Catalan number). Where this matters, the structured-interpretation path supports it via stable label IDs whose translations choose the right form. Format-string templates do not.
-- **Locale-specific units.** Out of scope. `--input` is units-explicit (`creatinine_unit: "mg/dL"|"umol/L"`); the locale never decides the unit.
+There is no module-global `set_locale()`. A future immutable client object may hold a default locale for repeated calls while still allowing per-call overrides.
 
-## Rollout plan
+### REST API
 
-When this is picked up:
+REST uses the explicit-query/header/configured-default precedence described above. Locale is resolved independently for each request, making concurrent multi-user use deterministic and safe.
 
-1. Add `Locale` to `clincalc` (zero-cost while only `En` exists).
-2. Migrate `Calculator` trait to take `Locale` (default to `En` everywhere, no behaviour change).
-3. Pick **one** calculator (FeverPAIN: small, NICE-cited) as the migration pattern.
-4. Translate three calculators to validate the design with a native speaker.
-5. Document the contribution path for translators in `docs/translating.md`.
-6. Open the catalogue for translation in batches.
+### MCP
 
-Until step 1 lands, contributors continue to write English-only calculators - the future locale parameter will gain a default, not a constraint.
+Locale is configured for the MCP server/session and can be overridden by host context. It is not inserted into each calculator's input schema, because locale is representation metadata rather than a clinical input and calculator schemas reject additional properties.
+
+### GUI and web
+
+The host resolves one locale for calculator content and UI chrome. Stable result and recommendation codes drive logic and styling; translated labels are never used as control-flow values. HTML declares the resolved BCP 47 language and sets text direction when right-to-left locales are introduced.
+
+## Rollout
+
+1. Add the dependency-free BCP 47 locale foundation: `SupportedLocale`, canonical tags, RFC 4647 lookup, and English fallback.
+2. Add locale-aware `Calculator` companion methods with English defaults, preserving all existing APIs and results.
+3. Define stable message IDs, named argument conventions, and translation completeness tests from a real calculator.
+4. Migrate **CURB-65** first. It is compact but exercises metadata, governed schema descriptions, units, risk bands, variable interpretation text, and ICU guidance. MedikQuantis already has clinician-reviewed English, Spanish, and Catalan CURB-65 content with CI-enforced key parity under the MIT licence.
+5. Attribute imported MedikQuantis translation content to Laura Piñero Roig and retain the MIT notice as required. Review terminology differences against `clincalc`'s primary-source implementation rather than copying scoring logic.
+6. Add two more overlapping calculators of different shapes and have native speakers review all three bundles.
+7. Propagate locale through CLI, Python, REST, MCP, and GUI once the engine pattern is proven.
+8. Write `docs/translating.md` with the contribution, attribution, review, and stale-translation workflow before opening translation batches.
+
+## Translation quality gates
+
+- Locale-key parity is a blocking registry test.
+- A calculator cannot advertise a locale with any missing clinical message or schema description.
+- Every translation records its source, translator/reviewer attribution, and source-text revision.
+- Numeric results and stable machine fields are identical across locales.
+- Tests cover exact locale lookup, regional fallback, unsupported requests, whole-response English fallback, and every translated risk band.
+- Translation changes receive clinical review where wording could change a recommendation or safety meaning.
 
 ## Collaboration with MedikQuantis
 
-[MedikQuantis](https://medikquantis.me) (Laura Piró, Barcelona; MIT licensed; Catalan, Spanish, English) already ships a multilingual calculator suite. Possible directions:
+[MedikQuantis](https://medikquantis.me) is an MIT-licensed multilingual calculator suite maintained by Laura Piñero Roig. It has Catalan, Spanish, and English message catalogues with a CI parity check, and many calculators overlap with `clincalc`.
 
-- **Shared taxonomy** - agree on tag names so a calculator in one project is discoverable under the same specialty in the other.
-- **Translation reciprocity** - their Catalan/Spanish strings for the calculators we both ship (DAS28, CHA2DS2-VASc, HEART, Wells PE, GRACE, TIMI, qSOFA, SOFA, CURB-65, Child-Pugh, IPSS, HAS-BLED, Wells DVT, CKD-EPI) are exactly the strings we would need.
-- **Citation alignment** - their schema exposes PMID per score; ours exposes a citation string. A shared `references` shape would let either project ingest the other's metadata.
+The collaboration path is:
 
-This file documents the design that makes that practical.
+- Reuse reviewed translations with attribution while retaining `clincalc`'s independently verified scoring implementation and citations.
+- Align stable clinical concepts, recommendation codes, tags, and citations where appropriate.
+- Exchange test vectors and terminology review rather than reverse-engineering either scoring implementation.
+- Invite upstream review whenever imported wording is adapted to `clincalc`'s schema or guideline context.
+
+This design keeps one scoring engine authoritative while making translated clinical prose explicit, complete, attributable, and reproducible across every surface.

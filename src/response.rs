@@ -20,7 +20,9 @@ pub struct CalculationResponse {
     pub result: Value,
     /// Human-readable clinical interpretation.
     pub interpretation: String,
-    /// Step-by-step breakdown of how the result was reached.
+    /// Step-by-step breakdown of how the result was reached. Locale-aware
+    /// calculations also reserve `content_locale` for the canonical BCP 47
+    /// bundle tag actually used to render the response.
     #[serde(default, skip_serializing_if = "Map::is_empty")]
     pub working: Map<String, Value>,
     /// Primary citation / guideline reference.

@@ -330,3 +330,93 @@ fn energy_requirement_activity_presets_inject_factor() {
     let stderr = String::from_utf8(output.stderr).expect("stderr is utf8");
     assert!(stderr.contains("only supported for energy_requirement"));
 }
+
+#[test]
+fn curb65_is_localised_from_flag_region_and_environment() {
+    let bin = clincalc_bin();
+    let input = r#"{"confusion":false,"urea_mmol_l":9,"respiratory_rate":32,"systolic_bp":110,"diastolic_bp":70,"age":72}"#;
+
+    let output = Command::new(&bin)
+        .args(["--locale", "es", "curb65", "--input", input])
+        .env_remove("CLINCALC_LOCALE")
+        .output()
+        .expect("run Spanish CURB-65 with shorthand");
+    assert!(output.status.success());
+    let text = String::from_utf8(output.stdout).expect("Spanish output is utf8");
+    assert!(text.contains("Puntuación 3: gravedad alta"));
+    assert!(text.contains("Desglose:"));
+    assert!(text.contains("Referencia:"));
+
+    let output = Command::new(&bin)
+        .args(["calc", "curb65", "--locale", "es-MX", "--input", input])
+        .env_remove("CLINCALC_LOCALE")
+        .output()
+        .expect("run regional Spanish CURB-65");
+    assert!(output.status.success());
+    let text = String::from_utf8(output.stdout).expect("regional output is utf8");
+    assert!(text.contains("Puntuación 3: gravedad alta"));
+
+    let output = Command::new(&bin)
+        .args(["calc", "curb65", "--input", input, "--format", "json"])
+        .env("CLINCALC_LOCALE", "ca")
+        .output()
+        .expect("run Catalan CURB-65 from environment");
+    assert!(output.status.success());
+    let response: serde_json::Value =
+        serde_json::from_slice(&output.stdout).expect("Catalan output is json");
+    assert!(
+        response["interpretation"]
+            .as_str()
+            .unwrap()
+            .contains("Puntuació 3: gravetat alta")
+    );
+    assert_eq!(response["working"]["content_locale"], "ca");
+}
+
+#[test]
+fn locale_precedence_schema_and_unsupported_errors_are_clear() {
+    let bin = clincalc_bin();
+
+    let output = Command::new(&bin)
+        .args(["--locale", "es", "calc", "curb65", "--schema"])
+        .env("CLINCALC_LOCALE", "not-a-locale")
+        .output()
+        .expect("explicit locale overrides environment");
+    assert!(output.status.success());
+    let schema: serde_json::Value =
+        serde_json::from_slice(&output.stdout).expect("schema output is json");
+    assert!(
+        schema["properties"]["confusion"]["description"]
+            .as_str()
+            .unwrap()
+            .contains("Confusión")
+    );
+
+    let output = Command::new(&bin)
+        .args(["--locale", "ca", "calc", "curb65"])
+        .env_remove("CLINCALC_LOCALE")
+        .output()
+        .expect("run Catalan template");
+    assert!(output.status.success());
+    let template = String::from_utf8(output.stdout).expect("template output is utf8");
+    assert!(template.contains("<booleà> Confusió de nova aparició"));
+
+    let output = Command::new(&bin)
+        .args(["--locale", "es", "calc", "bmi"])
+        .env_remove("CLINCALC_LOCALE")
+        .output()
+        .expect("run unsupported calculator locale");
+    assert!(!output.status.success());
+    let error = String::from_utf8(output.stderr).expect("error is utf8");
+    assert!(error.contains("calculator `bmi` is not available in locale `es`"));
+    assert!(error.contains("supported locales: en"));
+
+    let output = Command::new(&bin)
+        .arg("list")
+        .env("CLINCALC_LOCALE", "not_a_locale")
+        .output()
+        .expect("run invalid environment locale");
+    assert!(!output.status.success());
+    let error = String::from_utf8(output.stderr).expect("error is utf8");
+    assert!(error.contains("unsupported locale `not_a_locale`"));
+}
