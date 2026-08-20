@@ -32,7 +32,7 @@ export default defineConfig({
   // dev only.
   build: {
     target: "es2022",
-    minify: !process.env.TAURI_DEBUG ? "esbuild" : false,
+    minify: !process.env.TAURI_DEBUG ? "oxc" : false,
     sourcemap: !!process.env.TAURI_DEBUG,
   },
 });
