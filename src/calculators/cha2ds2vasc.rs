@@ -31,6 +31,13 @@ pub const REFERENCE: &str = "Lip GYH, Nieuwlaat R, Pisters R, et al. Refining cl
 stroke and thromboembolism in atrial fibrillation using a novel risk factor-based approach: the \
 Euro Heart Survey on Atrial Fibrillation. Chest. 2010;137(2):263-272. Thresholds per NICE NG196.";
 
+/// Secondary citation for the stroke-event-rate-by-score table (see
+/// [`friberg_2012_stroke_rate_per_100_patient_years`]), from a larger
+/// validation cohort than the original derivation study.
+pub const STROKE_RATE_REFERENCE: &str = "Friberg L, Rosenqvist M, Lip GYH. Evaluation of risk stratification schemes for \
+ischaemic stroke and bleeding in 182 678 patients with atrial fibrillation: the Swedish Atrial \
+Fibrillation cohort study. Eur Heart J. 2012;33(12):1500-1510.";
+
 /// Distribution licence: the score is a published clinical method, implemented
 /// here from the primary literature.
 pub const LICENSE: CalculatorLicense = CalculatorLicense {
@@ -108,6 +115,35 @@ fn age_points(age: u8) -> u8 {
     }
 }
 
+/// Observed ischaemic stroke event rate (per 100 patient-years) by
+/// CHA2DS2-VASc score, from the ~90,490 patients in the Swedish Atrial
+/// Fibrillation cohort who remained off warfarin (Friberg 2012, PMID
+/// 22246443, table 3; see [`STROKE_RATE_REFERENCE`]).
+///
+/// This is a person-time incidence rate in a specific untreated subgroup of
+/// the wider 182,678-patient cohort - not a one-year cumulative risk
+/// prediction for an individual patient. Report it as an epidemiological
+/// reference point alongside the score, not as a personalised risk
+/// percentage. It also does not rise monotonically at the top of the range
+/// in the source cohort (score 8 is lower than score 7), which is a known
+/// feature of this table worth preserving rather than smoothing away.
+/// Returns `None` when `score` is outside the valid range 0-9.
+pub fn friberg_2012_stroke_rate_per_100_patient_years(score: u8) -> Option<f64> {
+    match score {
+        0 => Some(0.2),
+        1 => Some(0.6),
+        2 => Some(2.2),
+        3 => Some(3.2),
+        4 => Some(4.8),
+        5 => Some(7.2),
+        6 => Some(9.7),
+        7 => Some(11.2),
+        8 => Some(10.8),
+        9 => Some(12.2),
+        _ => None,
+    }
+}
+
 /// Pure scoring.
 pub fn compute(input: &Cha2ds2VascInput) -> Result<Cha2ds2VascOutcome, CalcError> {
     let age_points = age_points(input.age);
@@ -164,6 +200,8 @@ Stroke risk rises with the score."
 /// Build the dispatchable [`CalculationResponse`] from typed inputs.
 pub fn build_response(input: &Cha2ds2VascInput) -> Result<CalculationResponse, CalcError> {
     let o = compute(input)?;
+    let stroke_rate = friberg_2012_stroke_rate_per_100_patient_years(o.score)
+        .expect("computed CHA2DS2-VASc score must be in the range 0-9");
 
     let mut working = Map::new();
     working.insert("total_score".into(), json!(o.score));
@@ -187,6 +225,14 @@ pub fn build_response(input: &Cha2ds2VascInput) -> Result<CalculationResponse, C
         json!(u8::from(input.sex == Sex::Female)),
     );
     working.insert("recommendation".into(), json!(o.recommendation.slug()));
+    working.insert(
+        "friberg_2012_stroke_rate_per_100_patient_years".into(),
+        json!(stroke_rate),
+    );
+    working.insert(
+        "friberg_2012_stroke_rate_reference".into(),
+        json!(STROKE_RATE_REFERENCE),
+    );
 
     Ok(CalculationResponse {
         calculator: NAME.to_string(),
@@ -416,6 +462,105 @@ mod tests {
     }
 
     #[test]
+    fn age_boundary_74_vs_75_full_score() {
+        // Check the collaboration boundary through the full scoring path, not
+        // only the age helper, so recommendation regressions are also caught.
+        let seventy_four = compute(&base(74, Sex::Male)).unwrap();
+        assert_eq!(seventy_four.age_points, 1);
+        assert_eq!(seventy_four.score, 1);
+        assert_eq!(seventy_four.recommendation, Recommendation::Consider);
+
+        let seventy_five = compute(&base(75, Sex::Male)).unwrap();
+        assert_eq!(seventy_five.age_points, 2);
+        assert_eq!(seventy_five.score, 2);
+        assert_eq!(seventy_five.recommendation, Recommendation::Offer);
+    }
+
+    #[test]
+    fn friberg_2012_stroke_rate_table() {
+        // Table 3, Friberg 2012 (PMID 22246443): stroke event rate per 100
+        // patient-years among the untreated cohort, including its score-8 dip.
+        let expected = [0.2, 0.6, 2.2, 3.2, 4.8, 7.2, 9.7, 11.2, 10.8, 12.2];
+        for (score, &rate) in expected.iter().enumerate() {
+            let o = compute(&base_with_score(score as u8)).unwrap();
+            assert_eq!(
+                o.score, score as u8,
+                "fixture for score {score} scored wrong"
+            );
+            assert_eq!(
+                friberg_2012_stroke_rate_per_100_patient_years(o.score),
+                Some(rate),
+                "score {score} should carry a rate of {rate} per 100 patient-years"
+            );
+        }
+
+        assert_eq!(friberg_2012_stroke_rate_per_100_patient_years(10), None);
+        assert_eq!(
+            friberg_2012_stroke_rate_per_100_patient_years(u8::MAX),
+            None
+        );
+    }
+
+    /// One explicit input fixture per valid score for the Friberg vector.
+    fn base_with_score(score: u8) -> Cha2ds2VascInput {
+        let mut i = base(40, Sex::Male);
+        match score {
+            0 => {}
+            1 => i.age = 65, // age 65-74 = 1
+            2 => i.age = 75, // age >=75 = 2
+            3 => {
+                i.age = 75;
+                i.hypertension = true; // 2 + 1
+            }
+            4 => {
+                i.age = 75;
+                i.hypertension = true;
+                i.diabetes = true; // 2 + 1 + 1
+            }
+            5 => {
+                i.age = 75;
+                i.hypertension = true;
+                i.diabetes = true;
+                i.congestive_heart_failure = true; // 2 + 1 + 1 + 1
+            }
+            6 => {
+                i.age = 75;
+                i.hypertension = true;
+                i.diabetes = true;
+                i.congestive_heart_failure = true;
+                i.vascular_disease = true; // 2 + 1 + 1 + 1 + 1
+            }
+            7 => {
+                i.age = 75;
+                i.sex = Sex::Female;
+                i.hypertension = true;
+                i.diabetes = true;
+                i.congestive_heart_failure = true;
+                i.vascular_disease = true; // 2 + 1 + 1 + 1 + 1 + 1
+            }
+            8 => {
+                i.age = 75;
+                i.sex = Sex::Female;
+                i.hypertension = true;
+                i.diabetes = true;
+                i.congestive_heart_failure = true;
+                i.stroke_tia_thromboembolism = true; // 2 + 1 + 1 + 1 + 1 + 2
+            }
+            9 => {
+                i.age = 75;
+                i.sex = Sex::Female;
+                i.hypertension = true;
+                i.diabetes = true;
+                i.congestive_heart_failure = true;
+                i.vascular_disease = true;
+                i.stroke_tia_thromboembolism = true; // maximum 9
+            }
+            _ => panic!("test fixture score must be in the range 0-9"),
+        }
+        i
+    }
+
+    #[test]
     fn vascular_disease_contributes_one() {
         let mut i = base(60, Sex::Male);
         i.vascular_disease = true;
@@ -437,6 +582,14 @@ mod tests {
         let dynamic = Cha2ds2Vasc.calculate(&value).unwrap();
         assert_eq!(dynamic, build_response(&typed).unwrap());
         assert_eq!(dynamic.result, json!(4));
+        assert_eq!(
+            dynamic.working["friberg_2012_stroke_rate_per_100_patient_years"],
+            json!(4.8)
+        );
+        assert_eq!(
+            dynamic.working["friberg_2012_stroke_rate_reference"],
+            json!(STROKE_RATE_REFERENCE)
+        );
     }
 
     #[test]
@@ -455,6 +608,15 @@ mod tests {
         assert!(
             ecl.contains("MINUS"),
             "vascular ECL must exclude the venous hierarchy"
+        );
+    }
+
+    #[test]
+    fn rejects_string_for_integer_age() {
+        assert!(
+            Cha2ds2Vasc
+                .calculate(&json!({"age": "old", "sex": "male"}))
+                .is_err()
         );
     }
 }
