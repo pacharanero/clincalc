@@ -14,7 +14,7 @@
 
 use axum::{
     Json, Router,
-    extract::Path,
+    extract::{Path, rejection::JsonRejection},
     http::StatusCode,
     routing::{get, post},
 };
@@ -47,6 +47,13 @@ fn not_found(name: &str) -> (StatusCode, Json<serde_json::Value>) {
     )
 }
 
+fn invalid_json(rejection: JsonRejection) -> (StatusCode, Json<serde_json::Value>) {
+    (
+        rejection.status(),
+        Json(serde_json::json!({"error": rejection.body_text()})),
+    )
+}
+
 async fn list_calculators() -> Json<serde_json::Value> {
     let items: Vec<serde_json::Value> = crate::all()
         .iter()
@@ -56,6 +63,7 @@ async fn list_calculators() -> Json<serde_json::Value> {
                 "name": c.name(),
                 "title": c.title(),
                 "description": c.description(),
+                "supported_locales": c.supported_locales(),
                 "license": lic.license,
                 "license_source": lic.source_url,
                 "tags": c.tags(),
@@ -85,9 +93,10 @@ async fn get_license(Path(name): Path<String>) -> ApiResult<serde_json::Value> {
 
 async fn compute(
     Path(name): Path<String>,
-    Json(input): Json<serde_json::Value>,
+    payload: Result<Json<serde_json::Value>, JsonRejection>,
 ) -> ApiResult<serde_json::Value> {
     let calc = crate::get(&name).ok_or_else(|| not_found(&name))?;
+    let Json(input) = payload.map_err(invalid_json)?;
     match calc.calculate(&input) {
         Ok(response) => Ok(Json(serde_json::to_value(response).unwrap())),
         Err(e) => Err((
@@ -110,11 +119,12 @@ fn openapi_spec() -> serde_json::Value {
         "CalculatorInfo".to_string(),
         serde_json::json!({
             "type": "object",
-            "required": ["name", "title", "description", "license", "license_source", "tags"],
+            "required": ["name", "title", "description", "supported_locales", "license", "license_source", "tags"],
             "properties": {
                 "name": {"type": "string"},
                 "title": {"type": "string"},
                 "description": {"type": "string"},
+                "supported_locales": {"type": "array", "items": {"type": "string"}},
                 "license": {"type": "string"},
                 "license_source": {"type": "string", "format": "uri"},
                 "tags": {"type": "array", "items": {"type": "string"}}
@@ -285,6 +295,14 @@ fn openapi_spec() -> serde_json::Value {
                             }
                         },
                         "404": error_404.clone(),
+                        "400": {
+                            "description": "Malformed JSON request body",
+                            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}
+                        },
+                        "415": {
+                            "description": "Request body is not application/json",
+                            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}
+                        },
                         "422": {
                             "description": "Invalid or incomplete input",
                             "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}
@@ -340,6 +358,13 @@ mod tests {
                 .body(Body::empty())
                 .unwrap(),
         };
+        send_request(router, request).await
+    }
+
+    async fn send_request(
+        router: Router,
+        request: Request<Body>,
+    ) -> (StatusCode, serde_json::Value) {
         let response = router.oneshot(request).await.unwrap();
         let status = response.status();
         let bytes = axum::body::to_bytes(response.into_body(), usize::MAX)
@@ -360,6 +385,7 @@ mod tests {
         assert!(first["name"].is_string());
         assert!(first["title"].is_string());
         assert!(first["description"].is_string());
+        assert!(first["supported_locales"].is_array());
         assert!(first["license"].is_string());
         assert!(first["license_source"].is_string());
         assert!(first["tags"].is_array());
@@ -459,6 +485,31 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn malformed_json_returns_json_400() {
+        let request = Request::builder()
+            .method(Method::POST)
+            .uri("/calculators/feverpain")
+            .header("content-type", "application/json")
+            .body(Body::from("{"))
+            .unwrap();
+        let (status, body) = send_request(router(), request).await;
+        assert_eq!(status, StatusCode::BAD_REQUEST);
+        assert!(body["error"].as_str().unwrap().contains("Failed to parse"));
+    }
+
+    #[tokio::test]
+    async fn missing_json_content_type_returns_json_415() {
+        let request = Request::builder()
+            .method(Method::POST)
+            .uri("/calculators/feverpain")
+            .body(Body::from("{}"))
+            .unwrap();
+        let (status, body) = send_request(router(), request).await;
+        assert_eq!(status, StatusCode::UNSUPPORTED_MEDIA_TYPE);
+        assert!(body["error"].as_str().unwrap().contains("Content-Type"));
+    }
+
+    #[tokio::test]
     async fn compute_unknown_calculator_returns_404() {
         let input = r#"{}"#;
         let (status, body) = send(router(), Method::POST, "/calculators/nope", Some(input)).await;
@@ -486,6 +537,8 @@ mod tests {
         assert!(body["components"]["schemas"]["CalculatorLicense"].is_object());
         assert!(body["components"]["schemas"]["Error"].is_object());
         assert!(body["components"]["schemas"]["Input_feverpain"].is_object());
+        assert!(body["paths"]["/calculators/feverpain"]["post"]["responses"]["400"].is_object());
+        assert!(body["paths"]["/calculators/feverpain"]["post"]["responses"]["415"].is_object());
     }
 
     #[tokio::test]

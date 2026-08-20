@@ -6,7 +6,7 @@ authors = ["Marcus Baw"]
 license = "AGPL-3.0-or-later"
 repository = "https://github.com/pacharanero/clincalc"
 homepage = "https://github.com/pacharanero/clincalc"
-description = "Open, auditable clinical calculators: a pure scoring engine plus the `clincalc` CLI in one crate. The engine is a serde-only leaf (build with default-features = false); the default `cli` feature adds the `clincalc` binary."
+description = "Open, auditable clinical calculators: a serde-only scoring engine plus the `clincalc` CLI and loopback REST API in one crate."
 readme = "README.md"
 documentation = "https://docs.rs/clincalc"
 keywords = ["clinical", "medical", "calculator", "scoring", "healthcare"]
@@ -52,7 +52,7 @@ tokio = { version = "1", features = ["macros", "net", "rt-multi-thread"], option
 [dev-dependencies]
 # tower is a transitive dependency of axum, declared here so the REST API
 # tests can call `Router::oneshot`. Dev-only; does not affect the leaf.
-tower = "0.5"
+tower = { version = "0.5.3", features = ["util"] }
 
 [package.metadata.docs.rs]
 all-features = true
