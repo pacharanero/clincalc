@@ -65,6 +65,7 @@ nav:
   - Calculator catalogue: calculators.md
   - API reference: https://docs.rs/clincalc/latest/clincalc/
   - How it works: how-it-works.md
+  - Contributing a translation: translating.md
 
 markdown_extensions:
   - admonition
