@@ -33,7 +33,13 @@ __all__ = [
 ]
 
 
-def batch(name: str, df: object, *, input_columns: dict[str, str] | None = None) -> object:
+def batch(
+    name: str,
+    df: object,
+    *,
+    input_columns: dict[str, str] | None = None,
+    locale: str | None = None,
+) -> object:
     """Apply a calculator to every row of a pandas DataFrame.
 
     Convenience re-export of :func:`clincalc.pandas.batch`. Requires the
@@ -49,6 +55,9 @@ def batch(name: str, df: object, *, input_columns: dict[str, str] | None = None)
     input_columns:
         Optional ``{calculator_field: df_column}`` mapping when the DataFrame
         column names differ from the calculator's field names.
+    locale:
+        BCP 47 language tag (e.g. ``"es"``) applied to every row. Defaults to
+        English; see :func:`clincalc.pandas.batch` for fallback behaviour.
 
     Returns
     -------
@@ -57,4 +66,4 @@ def batch(name: str, df: object, *, input_columns: dict[str, str] | None = None)
     """
     from clincalc.pandas import batch as _batch
 
-    return _batch(name, df, input_columns=input_columns)
+    return _batch(name, df, input_columns=input_columns, locale=locale)
