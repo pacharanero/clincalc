@@ -23,7 +23,13 @@ def _has_pandas() -> bool:
     return True
 
 
-def batch(name: str, df: object, *, input_columns: dict[str, str] | None = None) -> object:
+def batch(
+    name: str,
+    df: object,
+    *,
+    input_columns: dict[str, str] | None = None,
+    locale: str | None = None,
+) -> object:
     """Apply a calculator to every row of a pandas DataFrame.
 
     Parameters
@@ -36,6 +42,10 @@ def batch(name: str, df: object, *, input_columns: dict[str, str] | None = None)
         Optional ``{calculator_field: df_column}`` mapping when the DataFrame
         column names differ from the calculator's field names. Use this when
         a DataFrame column is named differently from the Rust input schema.
+    locale:
+        BCP 47 language tag (e.g. ``"es"``) applied to every row. Defaults to
+        English; calculators without a reviewed translation for the resolved
+        locale fall back to English, reported per-row in ``working.content_locale``.
 
     Returns
     -------
@@ -78,7 +88,7 @@ def batch(name: str, df: object, *, input_columns: dict[str, str] | None = None)
         if not mapping:
             input_row = {k: v for k, v in raw.items() if is_present(v)}
 
-        response = calculate(name, input_row)
+        response = calculate(name, input_row, locale=locale)
         response["_input_index"] = len(outputs)
         outputs.append(response)
 

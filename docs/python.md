@@ -100,6 +100,17 @@ results = clincalc.batch(
 
 Rows with missing values are sent only with the fields that are present, so the engine raises the same validation error it would raise for a missing field in the CLI.
 
+## Locale
+
+`calculate()`, `list_calculators()`, `get_schema()`, `get_template()`, and `batch()` all accept a keyword-only `locale` argument: a BCP 47 language tag such as `"es"` or `"es-MX"`.
+
+```python
+result = clincalc.calculate("curb65", inputs, locale="es")
+print(result["working"]["content_locale"])  # the locale actually used
+```
+
+An unsupported tag raises `ValueError`. A recognised tag with no reviewed translation for that calculator falls back to English rather than mixing languages - `working["content_locale"]` always reports the locale actually used, so a caller can tell fallback apart from a genuine translation. See [`spec/multilingual.md`](../spec/multilingual.md) for the full locale design and [`docs/translating.md`](translating.md) for how to add a translation.
+
 ## Error handling
 
 Unknown calculator names and invalid inputs raise `ValueError`. Validation detail comes from the same Rust engine, but each surface may add its own context, so callers should rely on the exception type rather than exact cross-surface wording.

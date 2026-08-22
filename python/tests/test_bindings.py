@@ -65,6 +65,42 @@ class TestCalculate:
             })
 
 
+class TestCalculateLocale:
+    """No calculator ships a reviewed non-English bundle yet (ENG-001.4/1.5
+    in spec/roadmap.md), so every resolved locale still falls back to
+    English prose. These tests cover the resolution and reporting contract
+    (ENG-001.6), not translated output, which has nothing to assert yet."""
+
+    def test_default_locale_is_english(self):
+        result = clincalc.calculate("bmi", {"weight_kg": 70, "height_cm": 175})
+        assert result["working"]["content_locale"] == "en"
+
+    def test_recognised_locale_without_translation_falls_back_to_english(self):
+        result = clincalc.calculate(
+            "bmi", {"weight_kg": 70, "height_cm": 175}, locale="es"
+        )
+        assert result["working"]["content_locale"] == "en"
+
+    def test_region_variant_resolves_via_rfc4647_lookup(self):
+        # es-MX has no compiled bundle of its own; it resolves to "es" (a
+        # compiled bundle) rather than being rejected, then falls back to
+        # English pending calculator translations, same as "es" above.
+        result = clincalc.calculate(
+            "bmi", {"weight_kg": 70, "height_cm": 175}, locale="es-MX"
+        )
+        assert result["working"]["content_locale"] == "en"
+
+    def test_unsupported_locale_raises_value_error(self):
+        with pytest.raises(ValueError, match="unsupported locale"):
+            clincalc.calculate(
+                "bmi", {"weight_kg": 70, "height_cm": 175}, locale="not-a-locale"
+            )
+
+    def test_locale_is_keyword_only(self):
+        with pytest.raises(TypeError):
+            clincalc.calculate("bmi", {"weight_kg": 70, "height_cm": 175}, "es")
+
+
 class TestListCalculators:
     def test_returns_nonempty_list(self):
         calcs = clincalc.list_calculators()
@@ -85,6 +121,16 @@ class TestListCalculators:
         names = [c["name"] for c in clincalc.list_calculators()]
         assert "feverpain" in names
 
+    def test_locale_kwarg_is_accepted_and_falls_back_to_english_titles(self):
+        # No calculator ships a reviewed Spanish bundle yet, so titles are
+        # unchanged; this covers that the kwarg is wired, not translated.
+        calcs = clincalc.list_calculators(locale="es")
+        assert len(calcs) == 79
+
+    def test_unsupported_locale_raises_value_error(self):
+        with pytest.raises(ValueError, match="unsupported locale"):
+            clincalc.list_calculators(locale="not-a-locale")
+
 
 class TestGetSchema:
     def test_returns_schema_dict(self):
@@ -98,6 +144,14 @@ class TestGetSchema:
         with pytest.raises(ValueError, match="unknown calculator: nope"):
             clincalc.get_schema("nope")
 
+    def test_locale_kwarg_is_accepted(self):
+        schema = clincalc.get_schema("feverpain", locale="es")
+        assert schema["title"] == "FeverPainInput"
+
+    def test_unsupported_locale_raises_value_error(self):
+        with pytest.raises(ValueError, match="unsupported locale"):
+            clincalc.get_schema("feverpain", locale="not-a-locale")
+
 
 class TestGetTemplate:
     def test_returns_template_dict(self):
@@ -109,6 +163,14 @@ class TestGetTemplate:
     def test_unknown_calculator_raises_value_error(self):
         with pytest.raises(ValueError, match="unknown calculator: nope"):
             clincalc.get_template("nope")
+
+    def test_locale_kwarg_is_accepted(self):
+        template = clincalc.get_template("feverpain", locale="es")
+        assert "fever" in template
+
+    def test_unsupported_locale_raises_value_error(self):
+        with pytest.raises(ValueError, match="unsupported locale"):
+            clincalc.get_template("feverpain", locale="not-a-locale")
 
 
 class TestRoundTrip:
@@ -128,6 +190,27 @@ class TestRoundTrip:
 
 
 class TestPandasBatch:
+    def test_batch_passes_locale_through_to_each_row(self):
+        pd = pytest.importorskip("pandas")
+        patients = pd.DataFrame({
+            "weight_kg": [70, 90],
+            "height_cm": [175, 180],
+        })
+
+        results = clincalc.batch("bmi", patients, locale="es")
+
+        # No calculator ships a reviewed Spanish bundle yet (ENG-001.4/1.5),
+        # so every row falls back to English - this covers that `locale` is
+        # wired through per-row, not translated output.
+        assert results["working.content_locale"].tolist() == ["en", "en"]
+
+    def test_batch_rejects_unsupported_locale(self):
+        pd = pytest.importorskip("pandas")
+        patients = pd.DataFrame({"weight_kg": [70], "height_cm": [175]})
+
+        with pytest.raises(ValueError, match="unsupported locale"):
+            clincalc.batch("bmi", patients, locale="not-a-locale")
+
     def test_batch_calculates_each_row(self):
         pd = pytest.importorskip("pandas")
         patients = pd.DataFrame({
