@@ -71,8 +71,14 @@ class TestCalculateLocale:
     English prose. These tests cover the resolution and reporting contract
     (ENG-001.6), not translated output, which has nothing to assert yet."""
 
-    def test_default_locale_is_english(self):
+    def test_omitted_locale_preserves_existing_response_contract(self):
         result = clincalc.calculate("bmi", {"weight_kg": 70, "height_cm": 175})
+        assert "content_locale" not in result["working"]
+
+    def test_explicit_english_reports_content_locale(self):
+        result = clincalc.calculate(
+            "bmi", {"weight_kg": 70, "height_cm": 175}, locale="en"
+        )
         assert result["working"]["content_locale"] == "en"
 
     def test_recognised_locale_without_translation_falls_back_to_english(self):
@@ -113,6 +119,7 @@ class TestListCalculators:
             assert "name" in c
             assert "title" in c
             assert "description" in c
+            assert "supported_locales" in c
             assert "license" in c
             assert "license_source" in c
             assert "tags" in c
@@ -121,11 +128,18 @@ class TestListCalculators:
         names = [c["name"] for c in clincalc.list_calculators()]
         assert "feverpain" in names
 
-    def test_locale_kwarg_is_accepted_and_falls_back_to_english_titles(self):
-        # No calculator ships a reviewed Spanish bundle yet, so titles are
-        # unchanged; this covers that the kwarg is wired, not translated.
+    def test_locale_reports_fallback_and_supported_locales(self):
         calcs = clincalc.list_calculators(locale="es")
-        assert len(calcs) == 79
+        bmi = next(calc for calc in calcs if calc["name"] == "bmi")
+        assert bmi["content_locale"] == "en"
+        assert bmi["supported_locales"] == ["en"]
+
+    def test_omitted_locale_preserves_catalogue_provenance_shape(self):
+        bmi = next(
+            calc for calc in clincalc.list_calculators() if calc["name"] == "bmi"
+        )
+        assert "content_locale" not in bmi
+        assert bmi["supported_locales"] == ["en"]
 
     def test_unsupported_locale_raises_value_error(self):
         with pytest.raises(ValueError, match="unsupported locale"):
@@ -146,7 +160,7 @@ class TestGetSchema:
 
     def test_locale_kwarg_is_accepted(self):
         schema = clincalc.get_schema("feverpain", locale="es")
-        assert schema["title"] == "FeverPainInput"
+        assert schema == clincalc.get_schema("feverpain")
 
     def test_unsupported_locale_raises_value_error(self):
         with pytest.raises(ValueError, match="unsupported locale"):
@@ -166,7 +180,7 @@ class TestGetTemplate:
 
     def test_locale_kwarg_is_accepted(self):
         template = clincalc.get_template("feverpain", locale="es")
-        assert "fever" in template
+        assert template == clincalc.get_template("feverpain")
 
     def test_unsupported_locale_raises_value_error(self):
         with pytest.raises(ValueError, match="unsupported locale"):
