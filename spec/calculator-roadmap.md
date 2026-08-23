@@ -44,7 +44,6 @@ Anthropometric and body-composition measures beyond the shipped BMI, body-fat-ci
 - [ ] **CALC-026 NYHA** - Heart-failure functional class
 - [ ] **CALC-027 ORBIT** - Bleeding risk in AF (DOAC era)
 - [ ] **CALC-028 PASI** - Psoriasis Area and Severity Index
-- [ ] **CALC-029 PERC** - PE rule-out criteria
 - [ ] **CALC-030 Pitt Bacteraemia** - BSI severity
 - [ ] **CALC-044 Protein / macronutrient target** - g/day from weight or LBM + goal (e.g. 1.6-2.2 g/kg for lean-mass retention in a deficit)
 - [ ] **CALC-031 PSA density** - PSA / prostate volume

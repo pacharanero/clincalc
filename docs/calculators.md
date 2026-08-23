@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry. 64 active calculators that compute a real score, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator, sorted by machine name.
+The full registry. 65 active calculators that compute a real score, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator, sorted by machine name.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
@@ -93,6 +93,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `ohs` | Oxford Hip Score (OHS) | Patient-reported outcome after hip replacement (NHS England PROMs). | `surgery`, `musculoskeletal`, `proprietary`, `unavailable` |
 | `oks` | Oxford Knee Score (OKS) | Patient-reported outcome after knee replacement (NHS England PROMs). | `surgery`, `musculoskeletal`, `proprietary`, `unavailable` |
 | `padua` | Padua Prediction Score (VTE risk) | VTE risk in hospitalised medical inpatients, guiding thromboprophylaxis (NICE NG89). | `acute-medicine`, `vascular`, `risk` |
+| `perc` | PERC Rule (PE Rule-out Criteria) | 8-item rule-out checklist for suspected pulmonary embolism, used only in patients already judged low pretest probability; PERC-negative (all 8 absent) needs no further testing. | `emergency`, `respiratory`, `vascular` |
 | `phq9` | PHQ-9 Depression Severity | Nine-item depression severity score (0-27) with standard bands; item 9 flags self-harm risk. | `primary-care`, `mental-health`, `screening` |
 | `qfracture` | QFracture (10-year fracture risk) | 10-year risk of major osteoporotic and hip fracture (QFracture-2012), the open UK alternative to FRAX (NICE CG146/NG6). | `primary-care`, `endocrinology`, `risk` |
 | `qrisk3` | QRISK3 (10-year cardiovascular risk) | 10-year risk of heart attack or stroke (QRISK3-2017), the UK standard for primary CVD risk assessment (NICE NG238). | `primary-care`, `cardiology`, `risk` |
@@ -133,7 +134,6 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 | **Charlson Comorbidity Index** | Most-cited comorbidity index; 10-year mortality. | `prognostic` |
 | **APACHE II** | Classic ICU severity / mortality. | `intensive-care`, `severity`, `prognostic` |
 | **MELD 3.0** | Updated MELD (we ship the 2001 original). | `hepatology`, `prognostic` |
-| **PERC** | PE rule-out criteria; complements Wells PE. | `emergency`, `respiratory`, `vascular` |
 | **Glasgow-Blatchford** | Upper-GI bleed pre-endoscopy triage. | `emergency` |
 | **Centor / McIsaac** | Sore-throat triage; complements FeverPAIN. | `primary-care`, `emergency`, `infectious-diseases` |
 | **Alvarado** | Acute appendicitis (MANTRELS). | `emergency`, `surgery` |

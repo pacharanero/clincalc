@@ -78,6 +78,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
     // ---- Vascular / thrombosis ----
     ("wells_dvt", &["emergency", "vascular"]),
     ("wells_pe", &["emergency", "respiratory", "vascular"]),
+    ("perc", &["emergency", "respiratory", "vascular"]),
     ("padua", &["acute-medicine", "vascular", "risk"]),
     (
         "caprini",
