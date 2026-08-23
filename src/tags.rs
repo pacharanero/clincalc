@@ -116,6 +116,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ("cockcroft_gault", &["primary-care", "nephrology"]),
     ("fena", &["acute-medicine", "nephrology"]),
     ("corrected_calcium", &["primary-care", "endocrinology"]),
+    ("corrected_sodium", &["endocrinology", "acute-medicine"]),
     ("anion_gap", &["acute-medicine", "nephrology"]),
     ("energy_requirement", &["primary-care", "endocrinology"]),
     ("bmi", &["primary-care", "endocrinology", "screening"]),

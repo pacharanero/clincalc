@@ -88,6 +88,7 @@ impl Sex {
 /// The three AUDIT-C responses, each 0-4, in question order Q1-Q3, plus the
 /// patient sex used to select the validated positive cut-point.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct AuditCInput {
     /// Q1-Q3 responses, each 0-4 (see [`input_schema`](AuditC::input_schema)).
     pub responses: Vec<u8>,

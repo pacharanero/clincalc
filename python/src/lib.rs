@@ -9,6 +9,39 @@
 
 use pyo3::prelude::*;
 
+use clincalc::{COMPILED_LOCALES, SupportedLocale, lookup_locale};
+
+/// Resolve a caller-supplied BCP 47 tag against the compiled locale bundles.
+///
+/// Mirrors the CLI's `explicit > CLINCALC_LOCALE > en` resolution
+/// (`resolve_cli_locale` in `src/cli.rs`), minus the environment-variable
+/// fallback: Python callers pass `locale` explicitly per call.
+fn resolve_locale(locale: Option<&str>) -> PyResult<SupportedLocale> {
+    let requested = locale.unwrap_or("en");
+    lookup_locale(requested, COMPILED_LOCALES).ok_or_else(|| {
+        let available = COMPILED_LOCALES
+            .iter()
+            .map(ToString::to_string)
+            .collect::<Vec<_>>()
+            .join(", ");
+        PyErr::new::<pyo3::exceptions::PyValueError, _>(format!(
+            "unsupported locale `{requested}`; available locales: {available}"
+        ))
+    })
+}
+
+/// Resolve a compiled locale to a complete bundle advertised by one calculator.
+fn resolve_calculator_locale(
+    calc: &dyn clincalc::Calculator,
+    requested: SupportedLocale,
+) -> SupportedLocale {
+    if calc.supported_locales().contains(&requested) {
+        requested
+    } else {
+        SupportedLocale::En
+    }
+}
+
 /// Compute a clinical calculator result.
 ///
 /// Parameters
@@ -19,6 +52,12 @@ use pyo3::prelude::*;
 /// input : dict
 ///     Input values matching the calculator's schema. Call
 ///     :func:`get_template` for a fillable example.
+/// locale : str, optional
+///     BCP 47 language tag (e.g. ``"es"``, ``"es-MX"``). Defaults to
+///     English. Calculators without a reviewed translation for the
+///     resolved locale fall back to English. When this argument is supplied,
+///     ``result["working"]`` reports the ``content_locale`` actually used.
+///     Omitting it preserves the original English response contract.
 ///
 /// Returns
 /// -------
@@ -29,9 +68,16 @@ use pyo3::prelude::*;
 /// Raises
 /// ------
 /// ValueError
-///     If the calculator name is unknown or the input fails validation.
+///     If the calculator name is unknown, the input fails validation, or
+///     ``locale`` is not one of the compiled locale bundles.
 #[pyfunction]
-fn calculate(py: Python<'_>, name: &str, input: &Bound<'_, PyAny>) -> PyResult<Py<PyAny>> {
+#[pyo3(signature = (name, input, *, locale=None))]
+fn calculate(
+    py: Python<'_>,
+    name: &str,
+    input: &Bound<'_, PyAny>,
+    locale: Option<&str>,
+) -> PyResult<Py<PyAny>> {
     let json_mod = py.import("json")?;
     let json_str: String = json_mod.call_method1("dumps", (input,))?.extract()?;
     let input_val: serde_json::Value = serde_json::from_str(&json_str)
@@ -43,8 +89,17 @@ fn calculate(py: Python<'_>, name: &str, input: &Bound<'_, PyAny>) -> PyResult<P
         ))
     })?;
 
-    let response = calc
-        .calculate(&input_val)
+    let calculation = match locale {
+        Some(requested) => {
+            let requested = resolve_locale(Some(requested))?;
+            calc.calculate_for(
+                &input_val,
+                resolve_calculator_locale(calc.as_ref(), requested),
+            )
+        }
+        None => calc.calculate(&input_val),
+    };
+    let response = calculation
         .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("{e}")))?;
 
     let resp_str = serde_json::to_string(&response)
@@ -55,26 +110,49 @@ fn calculate(py: Python<'_>, name: &str, input: &Bound<'_, PyAny>) -> PyResult<P
 
 /// List all available calculators.
 ///
+/// Parameters
+/// ----------
+/// locale : str, optional
+///     BCP 47 language tag for ``title``/``description``. Defaults to
+///     English; calculators without a reviewed translation fall back to
+///     English.
+///
 /// Returns
 /// -------
 /// list[dict]
-///     Each dict has keys: ``name``, ``title``, ``description``, ``license``,
-///     ``license_source``, ``tags``.
+///     Each dict has keys: ``name``, ``title``, ``description``,
+///     ``supported_locales``, ``license``, ``license_source``, and ``tags``.
+///     When ``locale`` is supplied, each dict also reports the
+///     ``content_locale`` actually used for its prose.
+///
+/// Raises
+/// ------
+/// ValueError
+///     If ``locale`` is not one of the compiled locale bundles.
 #[pyfunction]
-fn list_calculators(py: Python<'_>) -> PyResult<Py<PyAny>> {
+#[pyo3(signature = (*, locale=None))]
+fn list_calculators(py: Python<'_>, locale: Option<&str>) -> PyResult<Py<PyAny>> {
+    let resolved_locale = resolve_locale(locale)?;
+
     let calcs = clincalc::all();
     let items: Vec<serde_json::Value> = calcs
         .iter()
         .map(|c| {
             let lic = c.license();
-            serde_json::json!({
+            let content_locale = resolve_calculator_locale(c.as_ref(), resolved_locale);
+            let mut item = serde_json::json!({
                 "name": c.name(),
-                "title": c.title(),
-                "description": c.description(),
+                "title": c.title_for(content_locale),
+                "description": c.description_for(content_locale),
+                "supported_locales": c.supported_locales(),
                 "license": lic.license,
                 "license_source": lic.source_url,
                 "tags": c.tags(),
-            })
+            });
+            if locale.is_some() {
+                item["content_locale"] = serde_json::json!(content_locale);
+            }
+            item
         })
         .collect();
     let json_str = serde_json::to_string(&items).unwrap();
@@ -88,18 +166,30 @@ fn list_calculators(py: Python<'_>) -> PyResult<Py<PyAny>> {
 /// ----------
 /// name : str
 ///     Calculator machine name.
+/// locale : str, optional
+///     BCP 47 language tag for schema prose. Defaults to English;
+///     calculators without a reviewed translation fall back to English.
 ///
 /// Returns
 /// -------
 /// dict
 ///     JSON Schema object describing the required input fields.
+///
+/// Raises
+/// ------
+/// ValueError
+///     If the calculator name is unknown or ``locale`` is not one of the
+///     compiled locale bundles.
 #[pyfunction]
-fn get_schema(py: Python<'_>, name: &str) -> PyResult<Py<PyAny>> {
+#[pyo3(signature = (name, *, locale=None))]
+fn get_schema(py: Python<'_>, name: &str, locale: Option<&str>) -> PyResult<Py<PyAny>> {
+    let requested_locale = resolve_locale(locale)?;
     let calc = clincalc::get(name).ok_or_else(|| {
         PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("unknown calculator: {name}"))
     })?;
+    let resolved_locale = resolve_calculator_locale(calc.as_ref(), requested_locale);
     let json_mod = py.import("json")?;
-    let schema_str = serde_json::to_string(&calc.input_schema()).unwrap();
+    let schema_str = serde_json::to_string(&calc.input_schema_for(resolved_locale)).unwrap();
     Ok(json_mod.call_method1("loads", (schema_str,))?.unbind())
 }
 
@@ -109,19 +199,31 @@ fn get_schema(py: Python<'_>, name: &str) -> PyResult<Py<PyAny>> {
 /// ----------
 /// name : str
 ///     Calculator machine name.
+/// locale : str, optional
+///     BCP 47 language tag for placeholder prose. Defaults to English;
+///     calculators without a reviewed translation fall back to English.
 ///
 /// Returns
 /// -------
 /// dict
 ///     Template dict with placeholder values; fill in and pass to
 ///     :func:`calculate`.
+///
+/// Raises
+/// ------
+/// ValueError
+///     If the calculator name is unknown or ``locale`` is not one of the
+///     compiled locale bundles.
 #[pyfunction]
-fn get_template(py: Python<'_>, name: &str) -> PyResult<Py<PyAny>> {
+#[pyo3(signature = (name, *, locale=None))]
+fn get_template(py: Python<'_>, name: &str, locale: Option<&str>) -> PyResult<Py<PyAny>> {
+    let requested_locale = resolve_locale(locale)?;
     let calc = clincalc::get(name).ok_or_else(|| {
         PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("unknown calculator: {name}"))
     })?;
+    let resolved_locale = resolve_calculator_locale(calc.as_ref(), requested_locale);
     let json_mod = py.import("json")?;
-    let template_str = serde_json::to_string(&calc.input_template()).unwrap();
+    let template_str = serde_json::to_string(&calc.input_template_for(resolved_locale)).unwrap();
     Ok(json_mod.call_method1("loads", (template_str,))?.unbind())
 }
 

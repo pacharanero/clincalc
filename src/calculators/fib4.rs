@@ -39,6 +39,7 @@ pub const LOW_CUTOFF_65_PLUS: f64 = 2.0;
 
 /// Inputs to the FIB-4 index.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Fib4Input {
     /// Age in years.
     pub age: u8,

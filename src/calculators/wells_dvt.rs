@@ -43,6 +43,7 @@ pub const LICENSE: CalculatorLicense = CalculatorLicense {
 
 /// Wells DVT inputs: ten clinician-asserted boolean criteria.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct WellsDvtInput {
     /// Active cancer: treatment ongoing or within the last 6 months, or palliative.
     pub active_cancer: bool,

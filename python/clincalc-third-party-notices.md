@@ -1,0 +1,143 @@
+<!--
+SPDX-FileCopyrightText: 2026 Marcus Baw and Baw Medical Ltd
+SPDX-License-Identifier: CC-BY-SA-4.0
+-->
+
+# Third-party notices
+
+This distribution contains third-party-derived clinical modules and runtime dependencies. The complete corresponding source is available from the [clincalc repository](https://github.com/pacharanero/clincalc). Full licence texts are distributed in `LICENSES/`.
+
+## ClinRisk algorithms
+
+The QRISK3 and QFracture modules are derivative ports of source released by ClinRisk Ltd. under LGPL-3.0-or-later. Those modules retain that licence rather than the AGPL-3.0-or-later licence used by original clincalc code.
+
+### QRISK3-2017
+
+Copyright 2017 ClinRisk Ltd.
+
+Source and licence evidence: <https://web.archive.org/web/20240418114046id_/https://qrisk.org/src.php>
+
+QRISK3-2017 is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+QRISK3-2017 is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+ClinRisk's additional terms require the following disclaimer to be held together with any generated risk score. If the score is displayed, the disclaimer must be displayed or otherwise made easily accessible, for example by a prominent link alongside it:
+
+> The initial version of this file, to be found at http://svn.clinrisk.co.uk/opensource/qrisk2, faithfully implements QRISK3-2017. ClinRisk Ltd. have released this code under the GNU Lesser General Public License to enable others to implement the algorithm faithfully. However, the nature of the GNU Lesser General Public License is such that we cannot prevent, for example, someone accidentally altering the coefficients, getting the inputs wrong, or just poor programming. ClinRisk Ltd. stress, therefore, that it is the responsibility of the end user to check that the source that they receive produces the same results as the original code found at https://qrisk.org. Inaccurate implementations of risk scores can lead to wrong patients being given the wrong treatment.
+
+### QFracture-2012
+
+Copyright 2012 ClinRisk Ltd.
+
+Source and licence evidence: <https://github.com/nhsland/clinrisk-modules/blob/8145002092a54cb3b37d4e2631b228921fa6f9a7/qFracture/Readme.txt>
+
+QFracture-2012 is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+QFracture-2012 is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+ClinRisk's additional terms require the following disclaimer to be displayed alongside any generated risk score:
+
+> The initial version of this file, to be found at http://svn.clinrisk.co.uk/qfracture, faithfully implements QFracture-2012. We have released this code under the GNU Lesser General Public License to enable others to implement the algorithm faithfully. However, the nature of the GNU Lesser General Public License is such that we cannot prevent, for example, someone altering the coefficients. We stress, therefore, that it is the responsibility of the end user to check that the source that they receive produces the same results as the original code posted at http://svn.clinrisk.co.uk/qfracture. Inaccurate implementations of risk scores can lead to wrong patients being given the wrong treatment.
+
+## ASRS-v1.1 six-question screener
+
+The 6-question Adult Self-Report Scale-Version1.1 (ASRS-V1.1) Screener is a subset of the 18-question Adult ADHD Self-Report Scale-Version1.1 (Adult ASRSV1.1) Symptom Checklist. Copyright New York University and the President and Fellows of Harvard College.
+
+clincalc accepts coded responses from an authorised form and does not reproduce questionnaire text.
+
+## Runtime dependency notices
+
+The distributed binaries include open-source runtime dependencies under their respective licences. The following notices are reproduced because the dependencies contain specifically attributed or derived material in addition to their main package licence.
+
+### matchit 0.8.4 - httprouter-derived material
+
+BSD 3-Clause License
+
+Copyright (c) 2013, Julien Schmidt
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+### atomic-waker 1.1.2 and futures-lite 2.6.1 - Tokio-derived material
+
+Copyright (c) 2016 Alex Crichton
+Copyright (c) 2017 The Tokio Authors
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+
+The same material is alternatively available under the MIT licence:
+
+Copyright (c) 2016 Alex Crichton
+Copyright (c) 2017 The Tokio Authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+### tracing-core 0.1.36 - spin-derived material
+
+Copyright (c) 2014 Mathijs van de Nes
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+### parking 2.2.1 - Rust-derived material
+
+Copyright 2014-2020 The Rust Project Developers
+
+Licensed under the Apache License, Version 2.0 or the MIT licence, at your option. All files in the project carrying such notice may not be copied, modified, or distributed except according to those terms.
+
+### utf8_iter 1.0.4 - Rust-derived material
+
+Copyright Mozilla Foundation
+
+The implementation for `Utf8CharIndices` was adapted from the `CharIndices` implementation of the Rust standard library at revision `ab32548539ec38a939c1b58599249f3b54130026`. For full authorship information, see <https://thanks.rust-lang.org>. The material is available under Apache-2.0 or MIT, at your option.
+
+### rustix 1.1.4 and linux-raw-sys 0.12.1
+
+Copyrights are retained by their contributors. Some files include code derived from Rust's `libstd`; see the source comments for details. The packages are available under Apache-2.0 WITH LLVM-exception, Apache-2.0, or MIT, at your option.
+
+### regex-syntax 0.8.11 - Unicode data
+
+Copyright © 1991-2018 Unicode, Inc. All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of the Unicode data files and any associated documentation or Unicode software and any associated documentation to deal in them without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, and/or sell copies, and to permit persons to whom they are furnished to do so, provided that either this copyright and permission notice appear with all copies or appear in associated documentation.
+
+THE DATA FILES AND SOFTWARE ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF THIRD PARTY RIGHTS. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR HOLDERS INCLUDED IN THIS NOTICE BE LIABLE FOR ANY CLAIM, OR ANY SPECIAL INDIRECT OR CONSEQUENTIAL DAMAGES, OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THE DATA FILES OR SOFTWARE.
+
+Except as contained in this notice, the name of a copyright holder shall not be used in advertising or otherwise to promote the sale, use or other dealings in these Data Files or Software without prior written authorization of the copyright holder.
+
+### option-ext 0.2.0
+
+`option-ext` is distributed under MPL-2.0. Its exact corresponding source is available from <https://crates.io/api/v1/crates/option-ext/0.2.0/download> (Cargo.lock checksum `04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d`), and the full licence accompanies that source.
+
+### glib 0.18.5 and the gtk-rs project
+
+The gtk-rs Project is licensed under the MIT licence. Copyrights are retained by the gtk-rs contributors; no copyright assignment is required to contribute. For full authorship information, see the version-control history. The project provides interoperability with GNOME libraries but does not distribute any parts of them. Distributing compiled libraries and executables that link to those libraries may be subject to the GNU LGPL or other licences; check each GNOME library's licence.
+
+## MedikQuantis translation source
+
+Earlier draft Spanish and Catalan CURB-65 wording was adapted from the English, Spanish, and Catalan message catalogues in [MedikQuantis](https://github.com/laurapiro17/medikquantis) at revision `70f98eca224612608f6156bd94aa152adcddddd2`. That adapted wording is not present in the current source or distributed calculator; this notice is retained as provenance while final wording awaits recorded native-speaker clinical review.
+
+Copyright (c) 2026 Laura Piñero Roig
+
+MIT License
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

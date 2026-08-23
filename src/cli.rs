@@ -49,7 +49,7 @@ use std::path::{Path, PathBuf};
 use anyhow::{Result, anyhow};
 use clap::{Args, ValueEnum, ValueHint};
 
-use crate::{CalculationResponse, Calculator};
+use crate::{COMPILED_LOCALES, CalculationResponse, Calculator, SupportedLocale, lookup_locale};
 
 const CALCULATOR_ALIASES: &[(&str, &str)] = &[
     ("bmr", "energy_requirement"),
@@ -275,6 +275,11 @@ pub struct VersionCommand {
 
 /// Dispatch a parsed [`CalcCommand`].
 pub fn run(cmd: CalcCommand) -> Result<()> {
+    run_with_locale(cmd, resolve_cli_locale(None)?)
+}
+
+/// Dispatch a parsed [`CalcCommand`] with an already resolved locale.
+pub fn run_with_locale(cmd: CalcCommand, locale: SupportedLocale) -> Result<()> {
     // `--tags` lists every known tag (with calculator counts) and exits.
     if cmd.tags {
         return print_tags(cmd.format);
@@ -282,13 +287,14 @@ pub fn run(cmd: CalcCommand) -> Result<()> {
 
     // No name (or legacy `list` / `ls`) means: show the catalogue (optionally filtered by --tag).
     let name = match cmd.name.as_deref() {
-        None | Some("list") | Some("ls") => return print_list(cmd.format, &cmd.tag),
+        None | Some("list") | Some("ls") => return print_list(cmd.format, &cmd.tag, locale),
         Some(n) => n,
     };
 
     let canonical_name = canonical_calculator_name(name);
     let calc =
         crate::get(canonical_name).ok_or_else(|| anyhow!(unknown_calculator_message(name)))?;
+    ensure_calculator_locale(calc.as_ref(), locale)?;
 
     if has_energy_only_flags(&cmd) && calc.name() != "energy_requirement" {
         return Err(anyhow!(
@@ -298,7 +304,10 @@ pub fn run(cmd: CalcCommand) -> Result<()> {
 
     // `--schema` prints the formal contract, regardless of everything else.
     if cmd.schema {
-        println!("{}", serde_json::to_string_pretty(&calc.input_schema())?);
+        println!(
+            "{}",
+            serde_json::to_string_pretty(&calc.input_schema_for(locale))?
+        );
         return Ok(());
     }
 
@@ -318,8 +327,8 @@ pub fn run(cmd: CalcCommand) -> Result<()> {
         // No input: print a fillable template and explain how to pass it back,
         // unless human flags or interactive mode provide an input object.
         None if !has_input_intent(&cmd) => {
-            let schema = calc.input_schema();
-            let template = calc.input_template();
+            let schema = calc.input_schema_for(locale);
+            let template = calc.input_template_for(locale);
             // A calculator with no inputs (today: every proprietary "unavailable"
             // stub) has nothing to fill in - printing `{}` and a "fill it in"
             // hint just hides the real content. Compute it directly so the
@@ -327,9 +336,9 @@ pub fn run(cmd: CalcCommand) -> Result<()> {
             // explanation and the open alternative).
             if template.as_object().is_some_and(serde_json::Map::is_empty) {
                 let response = calc
-                    .calculate(&serde_json::json!({}))
+                    .calculate_for(&serde_json::json!({}), locale)
                     .map_err(|e| anyhow!("{e}"))?;
-                return emit(&response, cmd.format);
+                return emit(&response, cmd.format, locale);
             }
             println!("{}", serde_json::to_string_pretty(&template)?);
             // If the schema has `oneOf` alternatives, the template shows only
@@ -354,7 +363,7 @@ pub fn run(cmd: CalcCommand) -> Result<()> {
         // Input supplied or built from human-friendly flags: validate (via the
         // calculator's typed deserialization) and compute.
         maybe_src => {
-            let schema = calc.input_schema();
+            let schema = calc.input_schema_for(locale);
             let mut input = match maybe_src {
                 Some(src) => read_input(src)?,
                 None if cmd.interactive => read_interactive_input(&schema)?,
@@ -366,13 +375,50 @@ pub fn run(cmd: CalcCommand) -> Result<()> {
             apply_body_fat_derivation(&mut input, &cmd, &mut cli_working)?;
             apply_goal_adjustment(&mut input, &cmd, &mut cli_working)?;
             apply_activity_preset(&mut input, cmd.activity, &mut cli_working)?;
-            let mut response = calc.calculate(&input).map_err(|e| anyhow!("{e}"))?;
+            let mut response = calc
+                .calculate_for(&input, locale)
+                .map_err(|e| anyhow!("{e}"))?;
             for (key, value) in cli_working {
                 response.working.insert(key, value);
             }
-            emit(&response, cmd.format)
+            emit(&response, cmd.format, locale)
         }
     }
+}
+
+/// Resolve the CLI locale with `explicit > CLINCALC_LOCALE > en` precedence.
+pub fn resolve_cli_locale(explicit: Option<&str>) -> Result<SupportedLocale> {
+    let environment = std::env::var("CLINCALC_LOCALE").ok();
+    resolve_requested_locale(explicit.or(environment.as_deref()).unwrap_or("en"))
+}
+
+fn resolve_requested_locale(requested: &str) -> Result<SupportedLocale> {
+    lookup_locale(requested, COMPILED_LOCALES).ok_or_else(|| {
+        anyhow!(
+            "unsupported locale `{requested}`; available locales: {}",
+            locale_list(COMPILED_LOCALES)
+        )
+    })
+}
+
+fn ensure_calculator_locale(calc: &dyn Calculator, locale: SupportedLocale) -> Result<()> {
+    if calc.supported_locales().contains(&locale) {
+        Ok(())
+    } else {
+        Err(anyhow!(
+            "calculator `{}` is not available in locale `{locale}`; supported locales: {}",
+            calc.name(),
+            locale_list(calc.supported_locales())
+        ))
+    }
+}
+
+fn locale_list(locales: &[SupportedLocale]) -> String {
+    locales
+        .iter()
+        .map(ToString::to_string)
+        .collect::<Vec<_>>()
+        .join(", ")
 }
 
 /// Resolve an `--input` argument to a JSON value.
@@ -879,10 +925,15 @@ fn home_dir() -> Option<PathBuf> {
 
 /// Run `clincalc list` / `clincalc ls`.
 pub fn run_list(cmd: ListCommand) -> Result<()> {
+    run_list_with_locale(cmd, resolve_cli_locale(None)?)
+}
+
+/// Run `clincalc list` / `clincalc ls` with an already resolved locale.
+pub fn run_list_with_locale(cmd: ListCommand, locale: SupportedLocale) -> Result<()> {
     if cmd.tags {
         print_tags(cmd.format)
     } else {
-        print_list(cmd.format, &cmd.tag)
+        print_list(cmd.format, &cmd.tag, locale)
     }
 }
 
@@ -995,7 +1046,11 @@ fn levenshtein(a: &str, b: &str) -> usize {
     prev[b.len()]
 }
 
-fn print_list(format: OutputFormat, required_tags: &[String]) -> Result<()> {
+fn print_list(
+    format: OutputFormat,
+    required_tags: &[String],
+    locale: SupportedLocale,
+) -> Result<()> {
     // A calculator passes the filter only if it carries every requested tag
     // (AND semantics, so the filter narrows as more --tag flags are added).
     let passes = |c: &dyn Calculator| -> bool {
@@ -1015,8 +1070,9 @@ fn print_list(format: OutputFormat, required_tags: &[String]) -> Result<()> {
                     let lic = c.license();
                     serde_json::json!({
                         "name": c.name(),
-                        "title": c.title(),
-                        "description": c.description(),
+                        "title": c.title_for(locale),
+                        "description": c.description_for(locale),
+                        "supported_locales": c.supported_locales(),
                         "license": lic.license,
                         "license_source": lic.source_url,
                         "tags": c.tags(),
@@ -1037,7 +1093,7 @@ fn print_list(format: OutputFormat, required_tags: &[String]) -> Result<()> {
                 println!(
                     "{:<20}  {:<48}  [{}]{}",
                     c.name(),
-                    c.title(),
+                    c.title_for(locale),
                     c.tags().join(", "),
                     alias_note
                 );
@@ -1075,16 +1131,20 @@ fn print_tags(format: OutputFormat) -> Result<()> {
     Ok(())
 }
 
-fn emit(response: &CalculationResponse, format: OutputFormat) -> Result<()> {
+fn emit(
+    response: &CalculationResponse,
+    format: OutputFormat,
+    locale: SupportedLocale,
+) -> Result<()> {
     match format {
         OutputFormat::Json => println!("{}", serde_json::to_string_pretty(response)?),
-        OutputFormat::Text => println!("{}", render_text(response)),
+        OutputFormat::Text => println!("{}", render_text(response, locale)),
     }
     Ok(())
 }
 
 /// Render a result as a clinician-facing text block.
-fn render_text(r: &CalculationResponse) -> String {
+fn render_text(r: &CalculationResponse, locale: SupportedLocale) -> String {
     let mut out = String::new();
     out.push_str(&format!(
         "{} = {}{}\n\n",
@@ -1094,7 +1154,11 @@ fn render_text(r: &CalculationResponse) -> String {
     ));
     out.push_str(&r.interpretation);
     if !r.working.is_empty() {
-        out.push_str("\n\nWorking:");
+        out.push_str(match locale {
+            SupportedLocale::En => "\n\nWorking:",
+            SupportedLocale::Es => "\n\nDesglose:",
+            SupportedLocale::Ca => "\n\nDesglossament:",
+        });
         for (k, v) in &r.working {
             if k == "result_label" {
                 continue;
@@ -1102,7 +1166,12 @@ fn render_text(r: &CalculationResponse) -> String {
             out.push_str(&format!("\n  {k}: {}", value_to_string(v)));
         }
     }
-    out.push_str(&format!("\n\nReference: {}", r.reference));
+    let reference_label = match locale {
+        SupportedLocale::En => "Reference",
+        SupportedLocale::Es => "Referencia",
+        SupportedLocale::Ca => "Referència",
+    };
+    out.push_str(&format!("\n\n{reference_label}: {}", r.reference));
     out
 }
 

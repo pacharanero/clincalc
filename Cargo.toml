@@ -1,12 +1,12 @@
 [package]
 name = "clincalc"
-version = "0.2.2"
+version = "0.3.0"
 edition = "2024"
 authors = ["Marcus Baw"]
-license = "AGPL-3.0-or-later"
+license = "AGPL-3.0-or-later AND LGPL-3.0-or-later"
 repository = "https://github.com/pacharanero/clincalc"
 homepage = "https://github.com/pacharanero/clincalc"
-description = "Open, auditable clinical calculators: a pure scoring engine plus the `clincalc` CLI in one crate. The engine is a serde-only leaf (build with default-features = false); the default `cli` feature adds the `clincalc` binary."
+description = "Open, auditable clinical calculators: a serde-only scoring engine plus the `clincalc` CLI and loopback REST API in one crate."
 readme = "README.md"
 documentation = "https://docs.rs/clincalc"
 keywords = ["clinical", "medical", "calculator", "scoring", "healthcare"]
@@ -49,12 +49,20 @@ axum = { version = "0.8.9", optional = true }
 rmcp = { version = "2.2.0", default-features = false, features = ["server", "transport-io"], optional = true }
 tokio = { version = "1", features = ["macros", "net", "rt-multi-thread"], optional = true }
 
+[dev-dependencies]
+# tower is a transitive dependency of axum, declared here so the REST API
+# tests can call `Router::oneshot`. Dev-only; does not affect the leaf.
+tower = { version = "0.5.3", features = ["util"] }
+
 [package.metadata.docs.rs]
 all-features = true
 
 [package.metadata.wix]
 upgrade-guid = "53C371C7-A0F3-445B-B0D1-567A0DF17F70"
 path-guid = "A1A62FB5-0A76-4664-AF70-91F60BA2EA69"
+# Keep cargo-dist's generated main template managed; this fragment adds the
+# licence and third-party notice as installed sidecars.
+include = ["wix/legal.wxs"]
 license = false
 eula = false
 
@@ -88,8 +96,19 @@ install-updater = false
 tap = "pacharanero/homebrew-tap"
 publish-jobs = ["homebrew"]
 publish-prereleases = false
-# We hand-edit release.yml to pin action SHAs and add the workflow_call trigger
-# for the auto-tag cascade; tell dist not to error on the resulting drift.
+# README and the project LICENSE are auto-detected. Include the mixed-licence
+# texts and third-party notice explicitly; MSI sidecars live in wix/legal.wxs.
+include = [
+    "third-party-notices.md",
+    "LICENSES/AGPL-3.0-or-later.txt",
+    "LICENSES/Apache-2.0.txt",
+    "LICENSES/CC-BY-SA-4.0.txt",
+    "LICENSES/LGPL-3.0-or-later.txt",
+    "LICENSES/MIT.txt",
+]
+# We hand-edit release.yml to pin action SHAs, add the workflow_call trigger,
+# and bind publishing jobs to protected environments; tell dist not to error
+# on the resulting drift.
 allow-dirty = ["ci"]
 
 # The profile 'dist' builds release binaries with.

@@ -6,6 +6,7 @@
 use serde_json::Value;
 
 use crate::license::CalculatorLicense;
+use crate::locale::{ENGLISH_ONLY, SupportedLocale};
 use crate::response::CalculationResponse;
 
 /// Something went wrong turning inputs into a result.
@@ -36,10 +37,27 @@ pub trait Calculator {
     fn name(&self) -> &'static str;
 
     /// Human-readable title, e.g. `"FeverPAIN Score"`.
+    ///
+    /// This compatibility method always returns the English source text. New
+    /// surfaces should resolve a locale and call [`title_for`](Self::title_for).
     fn title(&self) -> &'static str;
 
+    /// Human-readable title in a resolved locale.
+    ///
+    /// Calculators without a complete translation inherit the English title.
+    fn title_for(&self, _locale: SupportedLocale) -> &'static str {
+        self.title()
+    }
+
     /// One-line description of what the calculator does.
+    ///
+    /// This compatibility method always returns the English source text.
     fn description(&self) -> &'static str;
+
+    /// One-line description in a resolved locale.
+    fn description_for(&self, _locale: SupportedLocale) -> &'static str {
+        self.description()
+    }
 
     /// Primary citation / guideline reference.
     fn reference(&self) -> &'static str;
@@ -58,8 +76,31 @@ pub trait Calculator {
     /// work out the required inputs without parsing prose help.
     fn input_schema(&self) -> Value;
 
+    /// JSON Schema with human-readable annotations in a resolved locale.
+    fn input_schema_for(&self, _locale: SupportedLocale) -> Value {
+        self.input_schema()
+    }
+
     /// Compute a result from JSON inputs.
     fn calculate(&self, input: &Value) -> Result<CalculationResponse, CalcError>;
+
+    /// Compute a result whose human-readable prose uses a resolved locale.
+    ///
+    /// The default falls back the complete response to English. Implement this
+    /// only when the calculator declares that locale in
+    /// [`supported_locales`](Self::supported_locales).
+    fn calculate_for(
+        &self,
+        input: &Value,
+        _locale: SupportedLocale,
+    ) -> Result<CalculationResponse, CalcError> {
+        let mut response = self.calculate(input)?;
+        response.working.insert(
+            "content_locale".into(),
+            Value::String(SupportedLocale::En.as_bcp47().into()),
+        );
+        Ok(response)
+    }
 
     /// A fillable input template derived from [`input_schema`](Self::input_schema).
     ///
@@ -69,6 +110,25 @@ pub trait Calculator {
     /// drift from the real contract.
     fn input_template(&self) -> Value {
         crate::template::template_from_schema(&self.input_schema())
+    }
+
+    /// A fillable input template with placeholders in a resolved locale.
+    fn input_template_for(&self, locale: SupportedLocale) -> Value {
+        let resolved = if self.supported_locales().contains(&locale) {
+            locale
+        } else {
+            SupportedLocale::En
+        };
+        crate::template::template_from_schema_for(&self.input_schema_for(resolved), resolved)
+    }
+
+    /// Complete locale bundles available for this calculator.
+    ///
+    /// A locale is listed only when all of the calculator's metadata, schema
+    /// prose, and computed prose have been translated and reviewed. This avoids
+    /// silently mixing languages within one clinical response.
+    fn supported_locales(&self) -> &'static [SupportedLocale] {
+        ENGLISH_ONLY
     }
 
     /// Tags categorising this calculator: specialty (where it is used) and

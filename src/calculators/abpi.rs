@@ -45,6 +45,7 @@ https://www.nice.org.uk/guidance/cg147";
 
 /// Inputs: four systolic pressures in mmHg.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct AbpiInput {
     /// Highest ankle systolic pressure measured in the right leg (mmHg).
     /// Conventionally the higher of dorsalis pedis and posterior tibial.

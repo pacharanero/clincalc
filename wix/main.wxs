@@ -69,7 +69,7 @@
 
         <Package Id='*'
             Keywords='Installer'
-            Description='Open, auditable clinical calculators: a pure scoring engine plus the `clincalc` CLI in one crate. The engine is a serde-only leaf (build with default-features = false); the default `cli` feature adds the `clincalc` binary.'
+            Description='Open, auditable clinical calculators: a serde-only scoring engine plus the `clincalc` CLI and loopback REST API in one crate.'
             Manufacturer='Marcus Baw'
             InstallerVersion='450'
             Languages='1033'

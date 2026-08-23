@@ -15,7 +15,7 @@
 
 name: Release
 permissions:
-  "contents": "write"
+  contents: read
 
 # This task will run whenever you push a git tag that looks like a version
 # like "1.0.0", "v0.1.0-prerelease.1", "my-app/0.1.0", "releases/v1.0.0", etc.
@@ -59,6 +59,10 @@ on:
     tags:
       - "**[0-9]+.[0-9]+.[0-9]+*"
 
+concurrency:
+  group: release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
 jobs:
   # Run 'dist plan' (or host) to determine what tasks we need to do
   plan:
@@ -66,7 +70,6 @@ jobs:
     outputs:
       val: ${{ steps.plan.outputs.manifest }}
       tag: ${{ inputs.tag || (!github.event.pull_request && github.ref_name) || '' }}
-      tag-flag: ${{ (inputs.tag && format('--tag={0}', inputs.tag)) || (!github.event.pull_request && format('--tag={0}', github.ref_name)) || '' }}
       publishing: ${{ inputs.tag != '' || !github.event.pull_request }}
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -76,6 +79,25 @@ jobs:
           ref: ${{ inputs.tag || github.ref }}
           persist-credentials: false
           submodules: recursive
+      - name: Validate manual release dispatch
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          if [ "$GITHUB_REF" != "refs/tags/$INPUT_TAG" ]; then
+            echo "Dispatch ref $GITHUB_REF does not match refs/tags/$INPUT_TAG" >&2
+            exit 1
+          fi
+      - name: Verify release metadata
+        env:
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          tag="$RELEASE_TAG"
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            version=$(awk -F'"' '/^version[[:space:]]*=/ {print $2; exit}' Cargo.toml)
+            tag="v$version"
+          fi
+          s/check-release-version "$tag"
       - name: Install dist
         # we specify bash to get pipefail; it guards against the `curl` command
         # failing. otherwise `sh` won't catch that `curl` returned non-0
@@ -92,8 +114,17 @@ jobs:
       # (PRs run on the *source* but secrets are usually on the *target* -- that's *good*
       # but also really annoying to build CI around when it needs secrets to work right.)
       - id: plan
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+          REF_NAME: ${{ github.ref_name }}
         run: |
-          dist ${{ (inputs.tag && format('host --steps=create --tag={0}', inputs.tag)) || (!github.event.pull_request && format('host --steps=create --tag={0}', github.ref_name)) || 'plan' }} --output-format=json > plan-dist-manifest.json
+          if [[ -n "$INPUT_TAG" ]]; then
+            dist host --steps=create --tag="$INPUT_TAG" --output-format=json > plan-dist-manifest.json
+          elif [[ "$GITHUB_EVENT_NAME" != "pull_request" ]]; then
+            dist host --steps=create --tag="$REF_NAME" --output-format=json > plan-dist-manifest.json
+          else
+            dist plan --output-format=json > plan-dist-manifest.json
+          fi
           echo "dist ran successfully"
           cat plan-dist-manifest.json
           echo "manifest=$(jq -c "." plan-dist-manifest.json)" >> "$GITHUB_OUTPUT"
@@ -124,10 +155,11 @@ jobs:
       # - N "local" tasks that build each platform's binaries and platform-specific installers
       matrix: ${{ fromJson(needs.plan.outputs.val).ci.github.artifacts_matrix }}
     runs-on: ${{ matrix.runner }}
-    container: ${{ matrix.container && matrix.container.image || null }}
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       BUILD_MANIFEST_NAME: target/distrib/${{ join(matrix.targets, '-') }}-dist-manifest.json
+      DIST_TAG: ${{ needs.plan.outputs.tag }}
+      DIST_TARGETS: ${{ join(matrix.targets, ',') }}
     steps:
       - name: enable windows longpaths
         run: |
@@ -144,8 +176,16 @@ jobs:
             curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
             echo "$HOME/.cargo/bin" >> $GITHUB_PATH
           fi
-      - name: Install dist
-        run: ${{ matrix.install_dist.run }}
+      # Keep generated plan values out of shell execution. The cargo-dist version
+      # is pinned in Cargo.toml and these commands match its generated installers.
+      - name: Install dist (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: "curl --proto '=https' --tlsv1.2 -LsSf https://github.com/axodotdev/cargo-dist/releases/download/v0.31.0/cargo-dist-installer.sh | sh"
+      - name: Install dist (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: irm https://github.com/axodotdev/cargo-dist/releases/download/v0.31.0/cargo-dist-installer.ps1 | iex
       # Get the dist-manifest
       - name: Fetch local artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -153,13 +193,15 @@ jobs:
           pattern: artifacts-*
           path: target/distrib/
           merge-multiple: true
-      - name: Install dependencies
-        run: |
-          ${{ matrix.packages_install }}
       - name: Build artifacts
+        shell: bash
         run: |
           # Actually do builds and make zips and whatnot
-          dist build ${{ needs.plan.outputs.tag-flag }} --print=linkage --output-format=json ${{ matrix.dist_args }} > dist-manifest.json
+          tag_args=()
+          if [[ -n "$DIST_TAG" ]]; then
+            tag_args+=(--tag="$DIST_TAG")
+          fi
+          dist build "${tag_args[@]}" --print=linkage --output-format=json --artifacts=local --target="$DIST_TARGETS" > dist-manifest.json
           echo "dist ran successfully"
       - id: cargo-dist
         name: Post-build
@@ -191,6 +233,7 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       BUILD_MANIFEST_NAME: target/distrib/global-dist-manifest.json
+      DIST_TAG: ${{ needs.plan.outputs.tag }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -213,7 +256,11 @@ jobs:
       - id: cargo-dist
         shell: bash
         run: |
-          dist build ${{ needs.plan.outputs.tag-flag }} --output-format=json "--artifacts=global" > dist-manifest.json
+          tag_args=()
+          if [[ -n "$DIST_TAG" ]]; then
+            tag_args+=(--tag="$DIST_TAG")
+          fi
+          dist build "${tag_args[@]}" --output-format=json --artifacts=global > dist-manifest.json
           echo "dist ran successfully"
 
           # Parse out what we just built and upload it to scratch storage
@@ -239,7 +286,13 @@ jobs:
     if: ${{ always() && needs.plan.result == 'success' && needs.plan.outputs.publishing == 'true' && (needs.build-global-artifacts.result == 'skipped' || needs.build-global-artifacts.result == 'success') && (needs.build-local-artifacts.result == 'skipped' || needs.build-local-artifacts.result == 'success') }}
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      DIST_TAG: ${{ needs.plan.outputs.tag }}
     runs-on: "ubuntu-22.04"
+    environment:
+      name: github-release
+      url: https://github.com/${{ github.repository }}/releases/tag/${{ needs.plan.outputs.tag }}
+    permissions:
+      contents: write
     outputs:
       val: ${{ steps.host.outputs.manifest }}
     steps:
@@ -264,7 +317,11 @@ jobs:
       - id: host
         shell: bash
         run: |
-          dist host ${{ needs.plan.outputs.tag-flag }} --steps=upload --steps=release --output-format=json > dist-manifest.json
+          tag_args=()
+          if [[ -n "$DIST_TAG" ]]; then
+            tag_args+=(--tag="$DIST_TAG")
+          fi
+          dist host "${tag_args[@]}" --steps=upload --steps=release --output-format=json > dist-manifest.json
           echo "artifacts uploaded and released successfully"
           cat dist-manifest.json
           echo "manifest=$(jq -c "." dist-manifest.json)" >> "$GITHUB_OUTPUT"
@@ -287,36 +344,89 @@ jobs:
           rm -f artifacts/*-dist-manifest.json
       - name: Create GitHub Release
         env:
-          PRERELEASE_FLAG: "${{ fromJson(steps.host.outputs.manifest).announcement_is_prerelease && '--prerelease' || '' }}"
+          PRERELEASE: "${{ fromJson(steps.host.outputs.manifest).announcement_is_prerelease }}"
           ANNOUNCEMENT_TITLE: "${{ fromJson(steps.host.outputs.manifest).announcement_title }}"
           ANNOUNCEMENT_BODY: "${{ fromJson(steps.host.outputs.manifest).announcement_github_body }}"
           RELEASE_COMMIT: "${{ github.sha }}"
+          RELEASE_TAG: ${{ needs.plan.outputs.tag }}
         run: |
           # Write and read notes from a file to avoid quoting breaking things
-          echo "$ANNOUNCEMENT_BODY" > $RUNNER_TEMP/notes.txt
+          echo "$ANNOUNCEMENT_BODY" > "$RUNNER_TEMP/notes.txt"
 
-          tag="${{ needs.plan.outputs.tag }}"
+          tag="$RELEASE_TAG"
+          publish_release() {
+            gh release edit "$tag" \
+              --target "$RELEASE_COMMIT" \
+              --title "$ANNOUNCEMENT_TITLE" \
+              --notes-file "$RUNNER_TEMP/notes.txt" \
+              --draft=false \
+              --prerelease="$PRERELEASE"
+          }
+
+          complete_draft_release() {
+            gh release upload "$tag" artifacts/* --clobber
+            s/check-github-release --allow-draft "$tag"
+            publish_release
+          }
+
+          handle_existing_release() {
+            local release_json
+            release_json=$(gh release view "$tag" --json isDraft)
+            if jq -e '.isDraft == true' <<<"$release_json" >/dev/null; then
+              echo "Completing existing draft GitHub Release $tag."
+              complete_draft_release
+              return
+            fi
+            if s/check-github-release "$tag"; then
+              echo "GitHub Release $tag is already complete - leaving its published assets unchanged."
+              return
+            fi
+            echo "Published GitHub Release $tag failed validation; refusing to replace immutable release assets." >&2
+            return 1
+          }
+
           if gh release view "$tag" >/dev/null 2>&1; then
-            echo "GitHub Release $tag already exists - treating as success."
+            handle_existing_release
             exit 0
           fi
 
-          if gh release create "$tag" --target "$RELEASE_COMMIT" $PRERELEASE_FLAG --title "$ANNOUNCEMENT_TITLE" --notes-file "$RUNNER_TEMP/notes.txt" artifacts/*; then
+          release_args=(
+            --target "$RELEASE_COMMIT"
+            --title "$ANNOUNCEMENT_TITLE"
+            --notes-file "$RUNNER_TEMP/notes.txt"
+            --draft
+          )
+          if [ "$PRERELEASE" = "true" ]; then
+            release_args+=(--prerelease)
+          fi
+
+          if gh release create "$tag" "${release_args[@]}" artifacts/*; then
+            s/check-github-release --allow-draft "$tag"
+            publish_release
             exit 0
           fi
 
           if gh release view "$tag" >/dev/null 2>&1; then
-            echo "GitHub Release $tag was created by another run - treating as success."
+            handle_existing_release
             exit 0
           fi
 
           exit 1
+
+      - name: Verify published release assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ needs.plan.outputs.tag }}
+        run: s/check-github-release "$RELEASE_TAG"
 
   publish-homebrew-formula:
     needs:
       - plan
       - host
     runs-on: "ubuntu-22.04"
+    environment:
+      name: homebrew
+      url: https://github.com/pacharanero/homebrew-tap
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       PLAN: ${{ needs.plan.outputs.val }}
@@ -342,21 +452,68 @@ jobs:
         run: |
           git config --global user.name "${GITHUB_USER}"
           git config --global user.email "${GITHUB_EMAIL}"
+          generated_formula=""
 
           for release in $(echo "$PLAN" | jq --compact-output '.releases[] | select([.artifacts[] | endswith(".rb")] | any)'); do
             filename=$(echo "$release" | jq '.artifacts[] | select(endswith(".rb"))' --raw-output)
             name=$(echo "$filename" | sed "s/\.rb$//")
             version=$(echo "$release" | jq .app_version --raw-output)
 
+            current_version=$(git show "HEAD:Formula/${filename}" 2>/dev/null \
+              | sed -n 's/^  version "\([^"]*\)"/\1/p' || true)
+            if [ -n "$current_version" ] && dpkg --compare-versions "$current_version" ge "$version"; then
+              git restore "Formula/${filename}"
+              echo "Formula/${filename} is already at ${current_version}; refusing to replace it with ${version}."
+              continue
+            fi
+
             export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
             brew update
             # We avoid reformatting user-provided data such as the app description and homepage.
             brew style --except-cops FormulaAudit/Homepage,FormulaAudit/Desc,FormulaAuditStrict --fix "Formula/${filename}" || true
+            generated_formula="$RUNNER_TEMP/${filename}"
+            cp "Formula/${filename}" "$generated_formula"
 
             git add "Formula/${filename}"
+            if git diff --cached --quiet -- "Formula/${filename}"; then
+              echo "Formula/${filename} already contains ${name} ${version}."
+              continue
+            fi
             git commit -m "${name} ${version}"
           done
-          git push
+
+          if git push; then
+            exit 0
+          fi
+          if [ -z "$generated_formula" ]; then
+            echo "Homebrew push failed and no generated formula is available for retry." >&2
+            exit 1
+          fi
+
+          tap_branch="main"
+          for _attempt in $(seq 1 5); do
+            git fetch origin "$tap_branch"
+            remote_version=$(git show "FETCH_HEAD:Formula/${filename}" 2>/dev/null \
+              | sed -n 's/^  version "\([^"]*\)"/\1/p' || true)
+            if [ -n "$remote_version" ] && dpkg --compare-versions "$remote_version" ge "$version"; then
+              echo "Formula/${filename} is already at ${remote_version} on the tap; no update is needed."
+              exit 0
+            fi
+
+            git switch --detach FETCH_HEAD
+            cp "$generated_formula" "Formula/${filename}"
+            git add "Formula/${filename}"
+            if git diff --cached --quiet -- "Formula/${filename}"; then
+              exit 0
+            fi
+            git commit -m "${name} ${version}"
+            if git push origin "HEAD:${tap_branch}"; then
+              exit 0
+            fi
+          done
+
+          echo "Homebrew tap changed repeatedly while publishing ${name} ${version}." >&2
+          exit 1
 
   announce:
     needs:

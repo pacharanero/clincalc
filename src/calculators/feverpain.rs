@@ -31,6 +31,7 @@ Little P, Hobbs FR, Moore M, et al. Health Technol Assess. 2014;18(6):1-102.";
 
 /// The five FeverPAIN criteria, each worth one point.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct FeverPainInput {
     /// **F** — Fever in the last 24 hours.
     pub fever: bool,

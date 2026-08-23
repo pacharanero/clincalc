@@ -78,6 +78,7 @@ impl Marker {
 
 /// Inputs to the DAS28 index.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Das28Input {
     /// Tender 28-joint count (0-28).
     pub tender_joint_count: u8,

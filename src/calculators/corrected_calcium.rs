@@ -188,4 +188,26 @@ mod tests {
         .unwrap();
         assert_eq!((out.corrected_calcium * 10.0).round() / 10.0, 8.8);
     }
+
+    #[test]
+    fn dynamic_calculate_matches_typed() {
+        let typed = CorrectedCalciumInput {
+            calcium: 2.0,
+            calcium_unit: CalciumUnit::MmolL,
+            albumin: 30.0,
+            albumin_unit: AlbuminUnit::GL,
+        };
+        let value = json!({"calcium": 2.0, "calcium_unit": "mmol/L", "albumin": 30.0, "albumin_unit": "g/L"});
+        let dynamic = CorrectedCalcium.calculate(&value).unwrap();
+        assert_eq!(dynamic, build_response(&typed).unwrap());
+    }
+
+    #[test]
+    fn rejects_missing_required_field() {
+        assert!(
+            CorrectedCalcium
+                .calculate(&json!({"calcium": 2.0, "calcium_unit": "mmol/L"}))
+                .is_err()
+        );
+    }
 }

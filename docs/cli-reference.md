@@ -1,6 +1,6 @@
 # CLI reference
 
-Every command and flag the `clincalc` binary supports, in one place. There are no per-calculator flags - the same surface drives all 53 active calculators and 10 proprietary/unavailable stubs.
+Every command and flag the `clincalc` binary supports, in one place. There are no per-calculator flags - the same registry-backed surface drives every active calculator and proprietary/unavailable stub.
 
 ```text
 clincalc [COMMAND]
@@ -20,10 +20,21 @@ clincalc [COMMAND]
 | `clincalc version` | Print version information; add `--format json` for a structured object. |
 | `clincalc completions install` | Install shell completions for the current user. |
 | `clincalc mcp` | Start the local stdio MCP server when compiled with `--features mcp`. |
+| `clincalc api` | Start the REST API when compiled with the default-enabled `rest-api` feature. |
 
 `clincalc <name>` remains supported as shorthand for `clincalc calc <name>`, so existing scripts continue to work. Common aliases such as `bmr`, `rmr`, `ree`, and `tdee` resolve to `energy_requirement`; `ckd-epi` / `ckdepi` resolve to `egfr`. `clincalc list` shows aliases, and unknown calculator names include a small "did you mean" hint when there is a close match. Computing always requires an explicit `--input`, so template mode never blocks waiting on stdin.
 
 ## Options
+
+### `--locale <BCP47>`
+
+Select human-readable calculator content with a BCP 47 locale tag. The explicit flag takes precedence over `CLINCALC_LOCALE`; English is the default. Regional tags use RFC 4647 lookup when a reviewed language bundle is available.
+
+The locale architecture is implemented, but calculators currently advertise English only. Spanish and Catalan CURB-65 adaptations remain withheld until the final recommendation wording has recorded native-speaker clinical review.
+
+When a reviewed bundle is available, the locale applies to metadata, schema descriptions, template hints, computed interpretation, and the human text output labels. Input field names, JSON numbers, result values, risk codes, recommendation codes, units, and citations remain stable. A calculation reports the resolved bundle in `working.content_locale`. A calculator that does not advertise the requested locale exits with its supported locale list rather than mixing languages; catalogue entries without that translation remain in English and expose their `supported_locales` in JSON output.
+
+Locale negotiation is currently implemented for catalogue and calculator commands. `clincalc api` and `clincalc mcp` reject the global `--locale` option until their protocol-specific negotiation described in the multilingual roadmap is implemented.
 
 ### `--input <JSON|FILE|->`
 
@@ -112,7 +123,7 @@ Print the algorithm's distribution licence (an SPDX identifier where one applies
 clincalc calc qrisk3 --license
 ```
 
-This is separate from the **code** licence (AGPL-3.0-or-later for the whole project) - it records the basis on which the **clinical algorithm itself** is being shipped.
+This is separate from the licence of the original `clincalc` code (AGPL-3.0-or-later) - it records the basis on which the **clinical algorithm itself** is being shipped. Third-party-derived modules retain their own licences, including LGPL-3.0-or-later for QRISK3 and QFracture.
 
 ### `--format <text|json>`
 
@@ -144,6 +155,16 @@ clincalc mcp
 The MCP server exposes every calculator from `clincalc::all()` as a tool named `clincalc_<name>`. Each tool's input schema is the calculator's own JSON Schema, and calls return the same structured `CalculationResponse` as `clincalc calc <name> --input ... --format json`.
 
 A binary compiled without the `mcp` feature reserves the command and prints a targeted reinstall hint instead of treating `mcp` as an unknown calculator. See [MCP server](mcp.md) for host configuration and safety notes.
+
+## REST API
+
+`clincalc api` starts the default-enabled HTTP surface on `127.0.0.1:8080`. Override the bind address with `--host` and `--port`:
+
+```bash
+clincalc api --host 127.0.0.1 --port 8080
+```
+
+The API exposes `GET /calculators`, calculator schema/template/licence routes, `POST /calculators/{name}`, and `GET /openapi.json`. It currently serves canonical English content; locale query/header negotiation remains tracked in the multilingual roadmap.
 
 ## Shell completions
 
@@ -187,6 +208,7 @@ Every computed result, regardless of calculator, has the same JSON shape:
 - `result` - the primary computed value. A number for most scores, a short string for categorical results.
 - `interpretation` - the clinician-facing summary line(s).
 - `working` - every intermediate value the score depends on, so the result is auditable without re-running.
+- `working.content_locale` - present on locale-aware calculations; the canonical BCP 47 bundle used for human-readable content.
 - `reference` - the primary citation.
 
 ## Exit codes

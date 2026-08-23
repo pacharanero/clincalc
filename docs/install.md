@@ -1,10 +1,26 @@
 # Install
 
-`clincalc` is a single self-contained binary - no runtime dependencies, no network access, no configuration. Pick whichever route suits you.
+The `clincalc` CLI is a single self-contained binary with no runtime dependencies, network access, or configuration. A Python package is also available from PyPI. Pick whichever route suits you.
+
+## Python package
+
+For CPython 3.9 or later:
+
+```bash
+python -m pip install clincalc
+```
+
+Verify it with a real BMI calculation:
+
+```bash
+python -c "import clincalc; result = clincalc.calculate('bmi', {'weight_kg': 70, 'height_cm': 175}); print(result['result'])"
+```
+
+This prints `22.9`. See [Python package](python.md) for discovery, input schemas, result fields, and pandas batch calculation.
 
 ## Release installers
 
-Once the first GitHub Release has been cut, the docs site hosts short installer proxies that fetch cargo-dist's latest signed release installer:
+The docs site hosts short installer proxies that fetch cargo-dist's latest release installer:
 
 === "Linux / macOS"
 
@@ -24,12 +40,12 @@ Once the first GitHub Release has been cut, the docs site hosts short installer 
 
 The short URLs proxy to cargo-dist's real installer assets on the [latest GitHub Release](https://github.com/pacharanero/clincalc/releases/latest). If you need to pin a version or audit the installer first, fetch the release asset directly from GitHub.
 
-## With Cargo (from source)
+## With Cargo
 
-The route that works before the first release, and the easiest route for contributors:
+Install the published crate from crates.io:
 
 ```bash
-cargo install --git https://github.com/pacharanero/clincalc clincalc
+cargo install clincalc
 ```
 
 This builds and installs the `clincalc` binary into `~/.cargo/bin`. You need a Rust toolchain with edition 2024 support ([rustup](https://rustup.rs) is the easy way). The package is named `clincalc`; the installed binary is also `clincalc`.
@@ -58,18 +74,15 @@ A clone also gives you [`examples/`](https://github.com/pacharanero/clincalc/tre
 ```console
 $ clincalc list
 feverpain     FeverPAIN Score
-asrs          ASRS-v1.1 Adult ADHD Screener
-phq9          PHQ-9 Depression Severity
-gad7          GAD-7 Anxiety Severity
+centor        Centor / McIsaac Score (Strep Pharyngitis)
+alvarado      Alvarado Score (Appendicitis)
 ...
 ```
 
 If you see the catalogue, you are ready. Head to the [Walkthrough](walkthrough.md).
 
-!!! note "Distribution status"
-    The release pipeline and installer proxies are in place, but the first publish is still waiting on repository secrets for crates.io and the Homebrew tap. Until the first release exists, install from source with Cargo.
-
 ## Requirements
 
-- A Rust toolchain (edition 2024) - install via [rustup](https://rustup.rs).
-- Nothing else at runtime: `clincalc` reads JSON in and writes JSON or text out.
+- Python package: CPython 3.9 or later; no Rust toolchain is needed when a wheel is available for your platform.
+- CLI via release installer: no runtime dependencies.
+- CLI via Cargo: a Rust toolchain with edition 2024 support, installable via [rustup](https://rustup.rs).

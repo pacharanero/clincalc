@@ -50,6 +50,7 @@ pub const LICENSE: CalculatorLicense = CalculatorLicense {
 /// two age-dependent criteria (the GCS threshold and the bruise/swelling/
 /// laceration criterion).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ChaliceInput {
     /// Age in completed years (0 means under 1 year old).
     pub age_years: u8,
@@ -663,6 +664,15 @@ mod tests {
                 .as_str()
                 .unwrap()
                 .contains("under 1 year")
+        );
+    }
+
+    #[test]
+    fn rejects_string_for_boolean() {
+        assert!(
+            Chalice
+                .calculate(&json!({"age_years": 5, "loss_of_consciousness_over_5_min": "yes"}))
+                .is_err()
         );
     }
 }

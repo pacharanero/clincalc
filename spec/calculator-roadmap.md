@@ -34,7 +34,6 @@ Anthropometric and body-composition measures beyond the shipped BMI, body-fat-ci
 
 - [ ] **CALC-018 Glasgow-Blatchford** - Upper-GI bleed pre-endoscopy triage
 - [ ] **CALC-019 Hinchey** - Acute diverticulitis anatomy
-- [ ] **CALC-020 Hyperglycaemia-corrected sodium** (Katz / Hillier)
 - [ ] **CALC-041 LDL / non-HDL cholesterol** - Friedewald, Martin-Hopkins, and Sampson-NIH LDL estimation from a lipid panel
 - [ ] **CALC-021 LRINEC** - Necrotising fasciitis
 - [ ] **CALC-022 MELD 3.0** - Updated MELD
@@ -59,3 +58,4 @@ Anthropometric and body-composition measures beyond the shipped BMI, body-fat-ci
 - [ ] **CALC-050 Relative fat mass (RFM)** - simplified sex-specific height/waist equation validated against DXA
 - [ ] **CALC-051 Fat-free mass index (FFMI)** - fat-free mass normalised to height^2; used in sports medicine and sarcopenia screening
 - [ ] **CALC-052 Skeletal muscle mass index (SMI)** - appendicular lean mass / height^2; sarcopenia definition (EWGSOP2 / FNIH)
+- [ ] **CALC-053 Axial length centile charts (CREAM-Kids)** - age-, sex-, and region-specific centile charts for axial eye length in children and adolescents, from the CREAM-Kids Consortium (Kneepkens, Lingham, Mackey et al, *JAMA Ophthalmology* 2026). Reusable coefficients or tables and their distribution terms must be confirmed before implementation. Do not infer a serial rate-of-change risk model unless a primary source specifies and validates one. Shared centile-engine work is tracked only under ENG-010 in [`roadmap.md`](roadmap.md#eng-010-generic-centile-engine).

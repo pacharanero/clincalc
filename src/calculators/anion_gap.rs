@@ -177,4 +177,28 @@ mod tests {
         .unwrap();
         assert_eq!(out.albumin_corrected_anion_gap.unwrap(), 17.0);
     }
+
+    #[test]
+    fn dynamic_calculate_matches_typed() {
+        let value =
+            json!({"sodium_mmol_l": 140.0, "chloride_mmol_l": 104.0, "bicarbonate_mmol_l": 24.0});
+        let typed = AnionGapInput {
+            sodium_mmol_l: 140.0,
+            chloride_mmol_l: 104.0,
+            bicarbonate_mmol_l: 24.0,
+            potassium_mmol_l: None,
+            albumin_g_l: None,
+        };
+        let dynamic = AnionGap.calculate(&value).unwrap();
+        assert_eq!(dynamic, build_response(&typed).unwrap());
+    }
+
+    #[test]
+    fn rejects_missing_required_field() {
+        assert!(
+            AnionGap
+                .calculate(&json!({"sodium_mmol_l": 140.0, "chloride_mmol_l": 104.0}))
+                .is_err()
+        );
+    }
 }

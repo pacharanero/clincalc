@@ -272,4 +272,32 @@ mod tests {
         .risk_percent;
         assert!(high > low);
     }
+
+    #[test]
+    fn dynamic_calculate_matches_typed() {
+        let typed = AscvdInput {
+            age: 55,
+            sex: Sex::Male,
+            race: Race::White,
+            total_cholesterol_mg_dl: 213.0,
+            hdl_cholesterol_mg_dl: 50.0,
+            systolic_bp_mm_hg: 120.0,
+            treated_bp: false,
+            current_smoker: false,
+            diabetes: false,
+        };
+        let value = json!({
+            "age": 55, "sex": "male", "race": "white",
+            "total_cholesterol_mg_dl": 213.0, "hdl_cholesterol_mg_dl": 50.0,
+            "systolic_bp_mm_hg": 120.0, "treated_bp": false,
+            "current_smoker": false, "diabetes": false
+        });
+        let dynamic = Ascvd.calculate(&value).unwrap();
+        assert_eq!(dynamic, build_response(&typed).unwrap());
+    }
+
+    #[test]
+    fn rejects_missing_required_field() {
+        assert!(Ascvd.calculate(&json!({"age": 55, "sex": "male"})).is_err());
+    }
 }

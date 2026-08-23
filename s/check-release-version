@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: 2026 Marcus Baw and Baw Medical Ltd
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+
+tag="${1:-}"
+if [ "$#" -ne 1 ] || [[ ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
+  echo "Usage: s/check-release-version vX.Y.Z" >&2
+  exit 2
+fi
+if ! command -v jq >/dev/null 2>&1; then
+  echo "jq is required to check JSON package versions." >&2
+  exit 1
+fi
+
+expected="${tag#v}"
+failed=false
+
+cargo_version() {
+  awk -F'"' '/^version[[:space:]]*=/ {print $2; exit}' "$1"
+}
+
+lock_version() {
+  local lock_file="$1"
+  local package="$2"
+  awk -v wanted="$package" '
+    /^\[\[package\]\]$/ { matched = 0 }
+    $0 == "name = \"" wanted "\"" { matched = 1; next }
+    matched && /^version = "/ {
+      gsub(/^version = "|"$/, "")
+      print
+      exit
+    }
+  ' "$lock_file"
+}
+
+check_version() {
+  local source="$1"
+  local actual="$2"
+  if [ "$actual" != "$expected" ]; then
+    echo "$source has version $actual; expected $expected from $tag" >&2
+    failed=true
+  fi
+}
+
+check_version "Cargo.toml" "$(cargo_version Cargo.toml)"
+check_version "python/Cargo.toml" "$(cargo_version python/Cargo.toml)"
+check_version "gui/src-tauri/Cargo.toml" "$(cargo_version gui/src-tauri/Cargo.toml)"
+check_version "gui/package.json" "$(jq -er '.version' gui/package.json)"
+check_version "gui/package-lock.json" "$(jq -er '.version' gui/package-lock.json)"
+check_version "gui/package-lock.json root package" "$(jq -er '.packages[""].version' gui/package-lock.json)"
+check_version "gui/src-tauri/tauri.conf.json" "$(jq -er '.version' gui/src-tauri/tauri.conf.json)"
+check_version "Cargo.lock clincalc package" "$(lock_version Cargo.lock clincalc)"
+check_version "python/Cargo.lock clincalc package" "$(lock_version python/Cargo.lock clincalc)"
+check_version "python/Cargo.lock clincalc-py package" "$(lock_version python/Cargo.lock clincalc-py)"
+check_version "gui/src-tauri/Cargo.lock clincalc package" "$(lock_version gui/src-tauri/Cargo.lock clincalc)"
+check_version "gui/src-tauri/Cargo.lock calc-gui package" "$(lock_version gui/src-tauri/Cargo.lock calc-gui)"
+
+if [ "$failed" = true ]; then
+  exit 1
+fi
+
+echo "All release metadata matches $tag."

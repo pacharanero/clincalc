@@ -56,6 +56,7 @@ pub const PATTERN_MAX: u8 = 5;
 
 /// Inputs to the Gleason grading: the two most prevalent architectural patterns.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct GleasonInput {
     /// Primary (most prevalent) Gleason pattern, 1-5.
     pub primary_pattern: u8,

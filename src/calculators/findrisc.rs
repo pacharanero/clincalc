@@ -366,4 +366,11 @@ mod tests {
         let typed = build_response(&b).unwrap();
         assert_eq!(dynamic, typed);
     }
+
+    #[test]
+    fn rejects_invalid_sex() {
+        assert!(Findrisc
+            .calculate(&json!({"sex": "other", "age": 40, "bmi": 22.0, "waist_cm": 85.0, "physically_active": true, "daily_vegetables_fruit": true, "antihypertensive_medication": false, "high_blood_glucose_history": false, "family_history": "none"}))
+            .is_err());
+    }
 }

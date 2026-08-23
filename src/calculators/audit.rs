@@ -41,6 +41,7 @@ pub const ITEM_COUNT: usize = 10;
 /// The ten AUDIT responses, in question order Q1-Q10. Items 1-8 range 0-4;
 /// items 9-10 take only 0, 2, or 4.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct AuditInput {
     pub responses: Vec<u8>,
 }

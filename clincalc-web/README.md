@@ -5,7 +5,7 @@ Clinicians need access to clinical digital tools to provide good care. Yet the c
 This repository contains a collection of **standalone single-file clinical calculators** that are:
 
 - **Open source** — anyone can view, use, modify, and share the code
-- **Free to use** — no paywalls, no licenses, no restrictions
+- **Openly licensed code** — project code can be used and shared under its licence; restricted clinical instruments are not bundled
 - **Easy to deploy** — each calculator is a single HTML file that can be opened directly
 - **Context-aware** — they can detect if they're running inside a compatible EHR and dispatch results accordingly
 - **Clippable** — results can be easily copied to the clipboard for use in other applications

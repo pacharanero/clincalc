@@ -54,6 +54,7 @@ pub enum CreatinineUnit {
 
 /// Inputs to the CKD-EPI 2021 creatinine equation.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct EgfrInput {
     /// Age in years (the equation is validated in adults, 18+).
     pub age: u8,

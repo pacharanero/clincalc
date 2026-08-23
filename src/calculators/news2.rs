@@ -65,6 +65,7 @@ pub enum Consciousness {
 
 /// NEWS2 inputs. All physiology numeric except the two enums and the oxygen flag.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct News2Input {
     /// Respiratory rate, breaths per minute.
     pub respiratory_rate: u16,

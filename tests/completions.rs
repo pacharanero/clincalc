@@ -330,3 +330,64 @@ fn energy_requirement_activity_presets_inject_factor() {
     let stderr = String::from_utf8(output.stderr).expect("stderr is utf8");
     assert!(stderr.contains("only supported for energy_requirement"));
 }
+
+#[test]
+fn curb65_unreviewed_locales_are_rejected() {
+    let bin = clincalc_bin();
+    let input = r#"{"confusion":false,"urea_mmol_l":9,"respiratory_rate":32,"systolic_bp":110,"diastolic_bp":70,"age":72}"#;
+
+    for locale in ["es", "ca", "es-MX"] {
+        let output = Command::new(&bin)
+            .args(["--locale", locale, "curb65", "--input", input])
+            .env_remove("CLINCALC_LOCALE")
+            .output()
+            .expect("run CURB-65 with an unreviewed locale");
+        assert!(!output.status.success(), "locale: {locale}");
+        let error = String::from_utf8(output.stderr).expect("error is utf8");
+        assert!(error.contains("calculator `curb65` is not available"));
+        assert!(error.contains("supported locales: en"));
+    }
+}
+
+#[test]
+fn locale_precedence_and_unsupported_errors_are_clear() {
+    let bin = clincalc_bin();
+
+    let output = Command::new(&bin)
+        .args(["--locale", "en", "calc", "curb65", "--schema"])
+        .env("CLINCALC_LOCALE", "not-a-locale")
+        .output()
+        .expect("explicit locale overrides environment");
+    assert!(output.status.success());
+    let schema: serde_json::Value =
+        serde_json::from_slice(&output.stdout).expect("schema output is json");
+    assert_eq!(schema["properties"]["age"]["minimum"], 18);
+
+    let output = Command::new(&bin)
+        .args(["--locale", "es", "calc", "bmi"])
+        .env_remove("CLINCALC_LOCALE")
+        .output()
+        .expect("run unsupported calculator locale");
+    assert!(!output.status.success());
+    let error = String::from_utf8(output.stderr).expect("error is utf8");
+    assert!(error.contains("calculator `bmi` is not available in locale `es`"));
+    assert!(error.contains("supported locales: en"));
+
+    let output = Command::new(&bin)
+        .arg("list")
+        .env("CLINCALC_LOCALE", "not_a_locale")
+        .output()
+        .expect("run invalid environment locale");
+    assert!(!output.status.success());
+    let error = String::from_utf8(output.stderr).expect("error is utf8");
+    assert!(error.contains("unsupported locale `not_a_locale`"));
+
+    let output = Command::new(&bin)
+        .args(["--locale", "not_a_locale", "version"])
+        .env_remove("CLINCALC_LOCALE")
+        .output()
+        .expect("run non-localised command with invalid explicit locale");
+    assert!(!output.status.success());
+    let error = String::from_utf8(output.stderr).expect("error is utf8");
+    assert!(error.contains("unsupported locale `not_a_locale`"));
+}
