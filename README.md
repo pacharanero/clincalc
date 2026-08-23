@@ -101,7 +101,7 @@ See [`docs/python.md`](docs/python.md) for the full API and pandas helpers.
 
 ## The library
 
-The registry currently contains 68 active calculators, from QRISK3, PHQ-9, GAD-7, eGFR and FIB-4 through NEWS2, CURB-65, the Wells scores, CHA2DS2-VASc, DAS28, SOFA, MELD, CHALICE and Gleason. Run `clincalc list` for the authoritative current set.
+The registry includes calculators from QRISK3, PHQ-9, GAD-7, eGFR and FIB-4 through NEWS2, CURB-65, the Wells scores, CHA2DS2-VASc, DAS28, SOFA, MELD, CHALICE and Gleason. Run `clincalc list` for the authoritative current set.
 
 ### Proprietary tools are named, not hidden
 

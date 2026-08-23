@@ -240,4 +240,3 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 
 - **calc-core,calc-cli**: Templates round-trip for every calculator ([53120ce](https://github.com/pacharanero/clincalc/commit/53120ce86b14e6cf095f51adced7b7bbc37155df))
 
-

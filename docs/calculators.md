@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry. 69 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
+The full registry. 70 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
@@ -93,6 +93,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `oks` | Oxford Knee Score (OKS) | Patient-reported outcome after knee replacement (NHS England PROMs). | `surgery`, `musculoskeletal`, `proprietary`, `unavailable` |
 | `one_rep_max` | One-Rep Max Estimator | Estimates 1RM from a submaximal weight and reps using Epley, Brzycki, or Lombardi. | `primary-care`, `musculoskeletal` |
 | `padua` | Padua Prediction Score (VTE risk) | VTE risk in hospitalised medical inpatients, guiding thromboprophylaxis (NICE NG89). | `acute-medicine`, `vascular`, `risk` |
+| `perc` | PERC Rule (PE Rule-out Criteria) | Eight-item block rule for stable adult emergency-department outpatients with suspected pulmonary embolism and clinician gestalt below 15%; PERC-negative can avoid further PE-specific testing. | `emergency`, `respiratory`, `vascular` |
 | `phq9` | PHQ-9 Depression Severity | Nine-item depression severity score (0-27) with standard bands; item 9 flags self-harm risk. | `primary-care`, `mental-health`, `screening` |
 | `qfracture` | QFracture (10-year fracture risk) | 10-year risk of major osteoporotic and hip fracture (QFracture-2012), the open UK alternative to FRAX (NICE CG146/NG6). | `primary-care`, `endocrinology`, `risk` |
 | `qrisk3` | QRISK3 (10-year cardiovascular risk) | 10-year risk of heart attack or stroke (QRISK3-2017), the UK standard for primary CVD risk assessment (NICE NG238). | `primary-care`, `cardiology`, `risk` |
@@ -132,7 +133,6 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 | **StatinMD** (Oxford STRATIFY) | Personalised 1/5/10-year risk of serious statin-induced muscle disorders (rhabdomyolysis / hospitalised myopathy) from 22 routinely-recorded factors (Cai et al, *Lancet Digital Health* 2026). Natural pairing with QRISK3: QRISK3 is the benefit side, StatinMD is the harm side. Licensed for **academic use** via Oxford University Innovation - covered while this project is non-commercial. ([source](https://process.innovation.ox.ac.uk/software/p/25396/stratify---stainmd-risk-calculator---academic-use/1)) | `primary-care`, `cardiology`, `risk` |
 | **NIHSS** | Acute stroke severity standard. | `neurology`, `emergency`, `severity` |
 | **MELD 3.0** | Updated MELD (we ship the 2001 original). | `hepatology`, `prognostic` |
-| **PERC** | PE rule-out criteria; complements Wells PE. | `emergency`, `respiratory`, `vascular` |
 | **Glasgow-Blatchford** | Upper-GI bleed pre-endoscopy triage. | `emergency` |
 | **NYHA** | Heart-failure functional class. | `cardiology`, `severity` |
 | **PSA density** | PSA / prostate volume; grey-zone PSA. | `urology`, `oncology` |

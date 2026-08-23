@@ -155,7 +155,7 @@ controls:
   - id: C006
     description: "Per-calculator documentation states the expected unit for every numeric input. The governed input-definition system (spec/calculator-input-definitions.md) is the planned single source of truth for what each input means and the unit it carries."
   - id: C007
-    description: "Range, eligibility, and administration-context validation in compute() returns CalcError::InvalidInput for physiologically implausible or out-of-population inputs rather than scoring them. Each calculator's valid domain is derived from its primary source; for example, ASRS requires confirmation of adult age and its six-month recall period, and CURB-65 rejects ages below 18."
+    description: "Range, eligibility, and administration-context validation in compute() returns CalcError::InvalidInput for physiologically implausible or out-of-population inputs rather than scoring them. Each calculator's valid domain is derived from its primary source; for example, ASRS requires confirmation of adult age and its six-month recall period, CURB-65 rejects ages below 18, and PERC requires confirmation of clinician gestalt below 15%."
   - id: C008
     description: "Enumerated and boolean predicates constrain the input domain by construction; free numeric inputs are bounded by schema minimum/maximum so out-of-range values are rejectable at the schema layer."
   - id: C009
@@ -197,7 +197,7 @@ controls:
 | **Status** | DRAFT |
 | **Version** | 0.1.0 |
 | **Created Date** | 2026-07-03 |
-| **Last Modified** | 2026-07-03 |
+| **Last Modified** | 2026-08-23 |
 | **Review Cycle** | Monthly (hazard logs are *living* documents) |
 | **Next Review Date** | 2026-08-03 |
 | **Owner** | Marcus Baw, Maintainer / Product Owner (Baw Medical Ltd) |

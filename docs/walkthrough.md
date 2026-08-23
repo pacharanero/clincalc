@@ -5,7 +5,7 @@ Four real calculators, end to end, in the order you'd actually meet them. Every 
 If you haven't installed `clincalc` yet, head to [Install](install.md) first - it takes one line.
 
 !!! tip "How to read this page"
-    Each section follows the same shape: **discover** the calculator, **ask** it for a template, **fill** the template, **compute**. Once you've done it once, you've done all 68 active calculators.
+    Each section follows the same shape: **discover** the calculator, **ask** it for a template, **fill** the template, **compute**. Once you've done it once, you can use every active calculator.
 
 ## Before you start
 
@@ -241,6 +241,6 @@ The point is to make the *gap* a first-class object. Where an open alternative e
 
 ## Next steps
 
-- Browse the full [Calculator catalogue](calculators.md) - 68 active calculators plus 10 named-but-unavailable.
+- Browse the full [Calculator catalogue](calculators.md).
 - Read the [CLI reference](cli-reference.md) for every mode, flag, and exit code in one place.
 - See [How it works](how-it-works.md) for the one-core-many-surfaces design and embedding `clincalc` in your own host.

@@ -65,6 +65,7 @@ pub mod nhfs;
 pub mod npi;
 pub mod one_rep_max;
 pub mod padua;
+pub mod perc;
 pub mod phq9;
 pub mod qfracture;
 pub mod qrisk3;
