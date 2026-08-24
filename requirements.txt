@@ -1,4 +1,4 @@
 # Documentation site generator (https://zensical.org), a Material-for-MkDocs
 # successor. Used only to build/preview docs/ - it is not a runtime dependency
 # of the `clincalc` CLI or engine. Pinned for reproducible builds; bump deliberately.
-zensical==0.0.55
+zensical==0.0.57
