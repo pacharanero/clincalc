@@ -224,14 +224,14 @@ Key lessons from the RCPCH library (avoid these pitfalls):
 
 Status: In-progress
 
-- [ ] **COLL-001.1 Verify point-for-point agreement** with the MedikQuantis implementation:
+- [x] **COLL-001.1 Verify point-for-point agreement** with the MedikQuantis implementation:
    - Age 65-74 = 1 point, ≥75 = 2 points.
    - Female sex = 1 point.
    - Congestive heart failure, hypertension, diabetes, vascular disease = 1 point each.
    - Prior stroke / TIA = 2 points; confirm whether MedikQuantis also includes systemic arterial thromboembolism.
    - Maximum score = 9.
 
-   Partially confirmed 2026-07-28 against MedikQuantis's actual `cha2ds2vasc.ts` source (not just its description, pinned at commit `cf5afb9`). Point values agree for the shared input semantics, but whether MedikQuantis's `strokeOrTia` field also captures systemic arterial thromboembolism has not been confirmed. See "Cross-project verification" in `spec/calculators/cha2ds2-vasc.md`, which also documents a recommendation-threshold divergence and a citation mismatch in the MedikQuantis source.
+   Confirmed 2026-07-28 (point values) and 2026-08-24 (S2 scope) against MedikQuantis's actual `cha2ds2vasc.ts` source and its `en`/`es` UI copy (not just its description, pinned at commit `cf5afb9`). Point values agree for the shared input semantics. MedikQuantis's `strokeOrTia` field is labelled "Prior stroke or TIA" / "Ictus o AIT previo" with no other description, confirming it does not extend to systemic arterial thromboembolism the way `clincalc`'s `stroke_tia_thromboembolism` does - a semantic-scope divergence, not a scoring disagreement. See "Cross-project verification" in `spec/calculators/cha2ds2-vasc.md`, which also documents a recommendation-threshold divergence and a citation mismatch in the MedikQuantis source (both still open).
 - [x] **COLL-001.2 Confirm the female-sex-only edge case** is handled identically: a total score of 1 arising only from female sex is treated as low risk (no anticoagulation), matching NICE NG196. clincalc already encodes this via `non_sex_score`. Confirmed identical in MedikQuantis's source 2026-07-28.
 - [x] **COLL-001.3 Add literature-vector tests** pinning the exact boundary cases Laura raised (age 74 vs 75) and the untreated-cohort stroke event rates per 100 patient-years from Friberg 2012 (PMID 22246443) to `src/calculators/cha2ds2vasc.rs`. Add the rate and its reference to `working` so they are visible to both projects.
 - [x] **COLL-001.4 Create `spec/calculators/cha2ds2-vasc.md`** as a shared source of truth: scoring table, recommendation rules, input definitions, reference, and a test-vector table.
