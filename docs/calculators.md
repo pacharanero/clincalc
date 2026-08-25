@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry. 70 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
+The full registry. 71 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
@@ -103,6 +103,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `uacr` | uACR (urine albumin-to-creatinine ratio) | Urine albumin-to-creatinine ratio from a measured ratio or raw albumin/creatinine; reports the KDIGO albuminuria category (A1-A3). | `primary-care`, `nephrology` |
 | `ukeld` | UKELD (UK Model for End-Stage Liver Disease) | UK liver-transplant listing score from INR, creatinine, bilirubin, and sodium (Barber 2011); 49 is the listing threshold. | `hepatology`, `prognostic` |
 | `waist_to_height_ratio` | Waist-to-Height Ratio (WHtR) | Unitless central-adiposity index: waist circumference divided by height. Boundary 0.5 is the "keep your waist to less than half your height" rule. | `primary-care`, `endocrinology`, `screening` |
+| `waist_to_hip_ratio` | Waist-to-Hip Ratio (WHR) | Adult waist circumference divided by hip circumference, compared with commonly WHO-attributed cut-offs (>= 0.90 men, >= 0.85 women); the WHO report cautions that cut-offs are not universal. | `primary-care`, `endocrinology`, `screening` |
 | `waterlow` | Waterlow Score (Pressure Ulcer Risk) | Bedside pressure-ulcer (pressure-injury) risk assessment: summed weighted categories (10+ at risk, 15+ high, 20+ very high). | `acute-medicine`, `geriatrics`, `screening` |
 | `wells_dvt` | Wells Score (DVT) | Clinical pre-test probability of deep vein thrombosis, guiding ultrasound vs D-dimer (NICE NG158). | `emergency`, `vascular` |
 | `wells_pe` | Wells Score for Pulmonary Embolism | Pretest probability of pulmonary embolism, guiding D-dimer vs CTPA (NICE NG158). | `emergency`, `respiratory`, `vascular` |
@@ -146,7 +147,6 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 | **ORBIT** | Bleeding risk in atrial fibrillation. | `cardiology`, `risk` |
 | **SCORE2 / SCORE2-OP** | ESC 2021 CV risk (verify licensing). | `cardiology`, `risk` |
 | **RCPCH Digital Growth Charts** | UK-WHO + UK90; z-score / centile / SDS; chart rendering. Needs LMS tables + RCPCH licensing terms. | `paediatrics` |
-| **Waist-to-hip ratio (WHR)** | Abdominal-vs-gluteal adiposity distribution; sex-specific metabolic-risk thresholds. | `primary-care`, `endocrinology`, `screening` |
 | **Skinfold body fat % (Jackson-Pollock / Durnin-Womersley)** | Caliper-derived body-fat estimate for training and body-comparison settings. | `primary-care`, `endocrinology`, `screening` |
 | **Body adiposity index (BAI)** | %BF proxy from height and hip circumference; population-specific (Hispanic-origin calibration). | `primary-care`, `endocrinology`, `screening` |
 | **Relative fat mass (RFM)** | Simplified sex-specific height/waist equation validated against DXA. | `primary-care`, `endocrinology`, `screening` |

@@ -117,6 +117,7 @@ pub fn all() -> Vec<Box<dyn Calculator>> {
         Box::new(calculators::bmi::Bmi),
         Box::new(calculators::body_fat_circumference::BodyFatCircumference),
         Box::new(calculators::waist_to_height_ratio::WaistToHeightRatio),
+        Box::new(calculators::waist_to_hip_ratio::WaistToHipRatio),
         Box::new(calculators::max_heart_rate::MaxHeartRate),
         Box::new(calculators::one_rep_max::OneRepMax),
         Box::new(calculators::fib4::Fib4),

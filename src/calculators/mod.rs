@@ -75,6 +75,7 @@ pub mod timi;
 pub mod uacr;
 pub mod ukeld;
 pub mod waist_to_height_ratio;
+pub mod waist_to_hip_ratio;
 pub mod waterlow;
 pub mod wells_dvt;
 pub mod wells_pe;
