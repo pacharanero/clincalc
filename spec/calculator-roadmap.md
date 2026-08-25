@@ -52,7 +52,6 @@ Anthropometric and body-composition measures beyond the shipped BMI, body-fat-ci
 - [ ] **CALC-035 SCORE2 / SCORE2-OP** - ESC 2021 CV risk (verify licensing)
 - [ ] **CALC-036 StatinMD** (Oxford STRATIFY) - personalised 1/5/10-year risk of serious statin-induced muscle disorders; natural pairing with QRISK3 (benefit vs harm). Academic licence via Oxford University Innovation (Cai et al, *Lancet Digital Health* 2026; [licence page](https://process.innovation.ox.ac.uk/software/p/25396/stratify---stainmd-risk-calculator---academic-use/1))
 - [ ] **CALC-046 Wilks / DOTS** - bodyweight-adjusted strength score
-- [ ] **CALC-047 Waist-to-hip ratio (WHR)** - abdominal-vs-gluteal adiposity distribution; sex-specific metabolic-risk thresholds
 - [ ] **CALC-048 Skinfold body fat % (Jackson-Pollock / Durnin-Womersley)** - caliper-derived body-fat estimate for training and body-comparison settings
 - [ ] **CALC-049 Body adiposity index (BAI)** - %BF proxy from height and hip circumference; population-specific (Hispanic-origin calibration)
 - [ ] **CALC-050 Relative fat mass (RFM)** - simplified sex-specific height/waist equation validated against DXA

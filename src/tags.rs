@@ -128,6 +128,10 @@ pub const TAGS: &[(&str, &[&str])] = &[
         "waist_to_height_ratio",
         &["primary-care", "endocrinology", "screening"],
     ),
+    (
+        "waist_to_hip_ratio",
+        &["primary-care", "endocrinology", "screening"],
+    ),
     ("max_heart_rate", &["primary-care", "screening"]),
     ("one_rep_max", &["primary-care", "musculoskeletal"]),
     ("findrisc", &["primary-care", "endocrinology", "screening"]),
