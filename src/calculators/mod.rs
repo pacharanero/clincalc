@@ -70,6 +70,7 @@ pub mod phq9;
 pub mod qfracture;
 pub mod qrisk3;
 pub mod qsofa;
+pub mod relative_fat_mass;
 pub mod sofa;
 pub mod timi;
 pub mod uacr;

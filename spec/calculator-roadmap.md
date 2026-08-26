@@ -30,7 +30,7 @@ _Nothing currently committed to build. Promote from [Future](#future) when sched
 
 Calculators worth shipping, under consideration. Largely surfaced from sibling open-source projects (notably [MedikQuantis](https://medikquantis.me), MIT licensed). Clinical context for each lives in the [docs catalogue wishlist](../docs/calculators.md#wishlist-candidates-for-future-addition).
 
-Anthropometric and body-composition measures beyond the shipped BMI, body-fat-circumference, WHtR, 1RM, and training-zone calculators are grouped under CALC-046..052. They range from simple tape-measure proxies (WHR, RFM, BAI) to lab/field methods for body composition (skinfolds, FFMI, SMI) and strength tools (Wilks/DOTS).
+Shipped anthropometric and body-composition measures include BMI, body-fat circumference, WHtR, WHR, RFM, 1RM, and training zones. Remaining candidates under CALC-046..052 range from tape-measure proxies (BAI) to lab or field methods for body composition (skinfolds, FFMI, SMI) and strength tools (Wilks/DOTS).
 
 - [ ] **CALC-018 Glasgow-Blatchford** - Upper-GI bleed pre-endoscopy triage
 - [ ] **CALC-019 Hinchey** - Acute diverticulitis anatomy
@@ -54,7 +54,6 @@ Anthropometric and body-composition measures beyond the shipped BMI, body-fat-ci
 - [ ] **CALC-046 Wilks / DOTS** - bodyweight-adjusted strength score
 - [ ] **CALC-048 Skinfold body fat % (Jackson-Pollock / Durnin-Womersley)** - caliper-derived body-fat estimate for training and body-comparison settings
 - [ ] **CALC-049 Body adiposity index (BAI)** - %BF proxy from height and hip circumference; population-specific (Hispanic-origin calibration)
-- [ ] **CALC-050 Relative fat mass (RFM)** - simplified sex-specific height/waist equation validated against DXA
 - [ ] **CALC-051 Fat-free mass index (FFMI)** - fat-free mass normalised to height^2; used in sports medicine and sarcopenia screening
 - [ ] **CALC-052 Skeletal muscle mass index (SMI)** - appendicular lean mass / height^2; sarcopenia definition (EWGSOP2 / FNIH)
 - [ ] **CALC-053 Axial length centile charts (CREAM-Kids)** - age-, sex-, and region-specific centile charts for axial eye length in children and adolescents, from the CREAM-Kids Consortium (Kneepkens, Lingham, Mackey et al, *JAMA Ophthalmology* 2026). Reusable coefficients or tables and their distribution terms must be confirmed before implementation. Do not infer a serial rate-of-change risk model unless a primary source specifies and validates one. Shared centile-engine work is tracked only under ENG-010 in [`roadmap.md`](roadmap.md#eng-010-generic-centile-engine).
