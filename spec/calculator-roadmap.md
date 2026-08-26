@@ -30,7 +30,7 @@ _Nothing currently committed to build. Promote from [Future](#future) when sched
 
 Calculators worth shipping, under consideration. Largely surfaced from sibling open-source projects (notably [MedikQuantis](https://medikquantis.me), MIT licensed). Clinical context for each lives in the [docs catalogue wishlist](../docs/calculators.md#wishlist-candidates-for-future-addition).
 
-Anthropometric and body-composition measures beyond the shipped BMI, body-fat-circumference, WHtR, 1RM, and training-zone calculators are grouped under CALC-046..052. They range from simple tape-measure proxies (WHR, RFM, BAI) to lab/field methods for body composition (skinfolds, FFMI, SMI) and strength tools (Wilks/DOTS).
+Shipped anthropometric and body-composition measures include BMI, body-fat circumference, WHtR, WHR, RFM, 1RM, and training zones. Remaining candidates under CALC-046..052 range from tape-measure proxies (BAI) to lab or field methods for body composition (skinfolds, FFMI, SMI) and strength tools (Wilks/DOTS).
 
 - [ ] **CALC-018 Glasgow-Blatchford** - Upper-GI bleed pre-endoscopy triage
 - [ ] **CALC-019 Hinchey** - Acute diverticulitis anatomy
