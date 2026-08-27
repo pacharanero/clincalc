@@ -108,6 +108,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `waterlow` | Waterlow Score (Pressure Ulcer Risk) | Bedside pressure-ulcer (pressure-injury) risk assessment: summed weighted categories (10+ at risk, 15+ high, 20+ very high). | `acute-medicine`, `geriatrics`, `screening` |
 | `wells_dvt` | Wells Score (DVT) | Clinical pre-test probability of deep vein thrombosis, guiding ultrasound vs D-dimer (NICE NG158). | `emergency`, `vascular` |
 | `wells_pe` | Wells Score for Pulmonary Embolism | Pretest probability of pulmonary embolism, guiding D-dimer vs CTPA (NICE NG158). | `emergency`, `respiratory`, `vascular` |
+| `wilks` | Wilks Score | Bodyweight- and sex-adjusted powerlifting score from a lifted weight or competition total, using the 1994-2019 IPF-era Wilks coefficient. | `primary-care`, `musculoskeletal` |
 
 ## Unavailable on principle
 
