@@ -30,7 +30,7 @@ _Nothing currently committed to build. Promote from [Future](#future) when sched
 
 Calculators worth shipping, under consideration. Largely surfaced from sibling open-source projects (notably [MedikQuantis](https://medikquantis.me), MIT licensed). Clinical context for each lives in the [docs catalogue wishlist](../docs/calculators.md#wishlist-candidates-for-future-addition).
 
-Shipped anthropometric and body-composition measures include BMI, body-fat circumference, WHtR, WHR, RFM, 1RM, and training zones. Remaining candidates under CALC-046..052 range from tape-measure proxies (BAI) to lab or field methods for body composition (skinfolds, FFMI, SMI) and strength tools (Wilks/DOTS).
+Shipped anthropometric and body-composition measures include BMI, body-fat circumference, WHtR, WHR, RFM, 1RM, training zones, and the Wilks score. Remaining candidates range from tape-measure proxies (BAI) to lab or field methods for body composition (skinfolds, FFMI, SMI) and the alternative DOTS strength score.
 
 - [ ] **CALC-018 Glasgow-Blatchford** - Upper-GI bleed pre-endoscopy triage
 - [ ] **CALC-019 Hinchey** - Acute diverticulitis anatomy
@@ -51,7 +51,7 @@ Shipped anthropometric and body-composition measures include BMI, body-fat circu
 - [ ] **CALC-034 SCORAD** - Atopic dermatitis severity
 - [ ] **CALC-035 SCORE2 / SCORE2-OP** - ESC 2021 CV risk (verify licensing)
 - [ ] **CALC-036 StatinMD** (Oxford STRATIFY) - personalised 1/5/10-year risk of serious statin-induced muscle disorders; natural pairing with QRISK3 (benefit vs harm). Academic licence via Oxford University Innovation (Cai et al, *Lancet Digital Health* 2026; [licence page](https://process.innovation.ox.ac.uk/software/p/25396/stratify---stainmd-risk-calculator---academic-use/1))
-- [ ] **CALC-046 Wilks / DOTS** - bodyweight-adjusted strength score
+- [ ] **CALC-046 DOTS** - alternative bodyweight-adjusted strength score to the shipped Wilks calculator; needs DOTS's polynomial coefficients confirmed against a citable primary source or official federation technical documentation, not just secondary calculator sites, before implementation
 - [ ] **CALC-048 Skinfold body fat % (Jackson-Pollock / Durnin-Womersley)** - caliper-derived body-fat estimate for training and body-comparison settings
 - [ ] **CALC-049 Body adiposity index (BAI)** - %BF proxy from height and hip circumference; population-specific (Hispanic-origin calibration)
 - [ ] **CALC-051 Fat-free mass index (FFMI)** - fat-free mass normalised to height^2; used in sports medicine and sarcopenia screening

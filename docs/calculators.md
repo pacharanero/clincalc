@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry. 72 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
+The full registry. 73 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
@@ -108,6 +108,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `waterlow` | Waterlow Score (Pressure Ulcer Risk) | Bedside pressure-ulcer (pressure-injury) risk assessment: summed weighted categories (10+ at risk, 15+ high, 20+ very high). | `acute-medicine`, `geriatrics`, `screening` |
 | `wells_dvt` | Wells Score (DVT) | Clinical pre-test probability of deep vein thrombosis, guiding ultrasound vs D-dimer (NICE NG158). | `emergency`, `vascular` |
 | `wells_pe` | Wells Score for Pulmonary Embolism | Pretest probability of pulmonary embolism, guiding D-dimer vs CTPA (NICE NG158). | `emergency`, `respiratory`, `vascular` |
+| `wilks` | Wilks Score | Historical bodyweight-adjusted powerlifting score for bench press or three-lift total using the IPF-era Wilks coefficient; the IPF replaced Wilks with IPF Points in 2019. | `musculoskeletal` |
 
 ## Unavailable on principle
 

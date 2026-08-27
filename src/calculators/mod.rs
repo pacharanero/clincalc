@@ -80,3 +80,4 @@ pub mod waist_to_hip_ratio;
 pub mod waterlow;
 pub mod wells_dvt;
 pub mod wells_pe;
+pub mod wilks;
