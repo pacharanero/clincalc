@@ -3,24 +3,24 @@
 
 //! Wilks coefficient - bodyweight-adjusted powerlifting score.
 //!
-//! Scales a lifted weight (a single lift or a competition total) by a
-//! sex-specific quintic-polynomial function of bodyweight, so that lifters of
-//! different bodyweights and sexes can be compared on one scale. Used by the
-//! International Powerlifting Federation from 1994 to 2019, and still widely
-//! used alongside its successors (DOTS, IPF GL Points).
+//! Scales a bench press or three-lift competition total by a sex-specific
+//! quintic-polynomial function of bodyweight. The International Powerlifting
+//! Federation (IPF) used Wilks before replacing it with IPF Points in 2019;
+//! IPF GL Points replaced IPF Points in 2020.
 //!
 //! `coefficient = 500 / (a + b*x + c*x^2 + d*x^3 + e*x^4 + f*x^5)`, where `x`
 //! is bodyweight in kilograms. `score = coefficient * lifted_kg`.
 //!
-//! The published coefficient tables cover bodyweights from 40 kg up to 205 kg
-//! (men) and 150 kg (women); outside that range the quintic is not validated
-//! and can behave non-monotonically, so this calculator rejects bodyweights
-//! outside the published range rather than extrapolate.
+//! The published coefficient tables start at 40 kg. The historical coefficient
+//! remains constant above 205 kg for men and 150 kg for women, so this
+//! calculator applies those ceilings rather than extrapolating the polynomial.
 //!
 //! Coefficients as tabulated by Robert Wilks (Australia) and reproduced at
 //! <https://www.europowerlifting.org/fileadmin/data/wilks_formula/Wilksformula_01.pdf>;
-//! independently verified here against the published lookup tables at
-//! bodyweights 69.3 kg (men) and 100.0 kg (men and women).
+//! verified here against the published lookup tables at bodyweights 69.3 kg
+//! (men) and 100.0 kg (men and women). The IPF adopted coefficients tabulated
+//! to four decimal places, so the rounded coefficient is used to calculate the
+//! score.
 //!
 //! Reference: Vanderburgh PM, Batterham AM. Validation of the Wilks
 //! powerlifting formula. Med Sci Sports Exerc. 1999;31(12):1869-1875.
@@ -35,11 +35,11 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "wilks";
 
-pub const REFERENCE: &str = "Vanderburgh PM, Batterham AM. Validation of the Wilks powerlifting formula. Med Sci Sports Exerc. 1999;31(12):1869-1875. doi:10.1097/00005768-199912000-00027. Coefficients as tabulated by Robert Wilks (Australia); used by the International Powerlifting Federation 1994-2019.";
+pub const REFERENCE: &str = "Wilks R. Wilks Formula coefficient table. European Powerlifting Federation. https://www.europowerlifting.org/fileadmin/data/wilks_formula/Wilksformula_01.pdf. Vanderburgh PM, Batterham AM. Validation of the Wilks powerlifting formula. Med Sci Sports Exerc. 1999;31(12):1869-1875. doi:10.1097/00005768-199912000-00027. Marksteiner J. IPF Points - Proposed Replacement for Wilks Coefficients. International Powerlifting Federation, 2018. https://www.powerlifting.sport/fileadmin/ipf/data/ipf-formula/IPF_Points_Proposal.pdf.";
 
 pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain formula - historically the International Powerlifting Federation's official scoring coefficient",
-    source_url: "https://doi.org/10.1097/00005768-199912000-00027",
+    license: "Public-domain mathematical formula - coefficients published by the European Powerlifting Federation",
+    source_url: "https://www.europowerlifting.org/fileadmin/data/wilks_formula/Wilksformula_01.pdf",
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -49,27 +49,38 @@ pub enum Sex {
     Female,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum LiftType {
+    BenchPress,
+    ThreeLiftTotal,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct WilksInput {
     pub sex: Sex,
+    /// Validated powerlifting application of the coefficient.
+    pub lift_type: LiftType,
     /// Bodyweight in kilograms.
     pub bodyweight_kg: f64,
-    /// Weight lifted in kilograms - a single lift or a summed competition total.
+    /// Bench press or summed squat, bench press, and deadlift total in kilograms.
     pub lifted_kg: f64,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct WilksOutcome {
+    pub coefficient_bodyweight_kg: f64,
+    pub coefficient_was_capped: bool,
     pub coefficient: f64,
     pub score: f64,
     pub interpretation: String,
 }
 
-fn bodyweight_range(sex: Sex) -> (f64, f64) {
+fn maximum_coefficient_bodyweight(sex: Sex) -> f64 {
     match sex {
-        Sex::Male => (40.0, 205.0),
-        Sex::Female => (40.0, 150.0),
+        Sex::Male => 205.0,
+        Sex::Female => 150.0,
     }
 }
 
@@ -93,7 +104,8 @@ fn raw_coefficient(sex: Sex, bodyweight_kg: f64) -> f64 {
             -9.054e-8,
         ),
     };
-    500.0 / (a + b * x + c * x.powi(2) + d * x.powi(3) + e * x.powi(4) + f * x.powi(5))
+    let denominator = ((((f * x + e) * x + d) * x + c) * x + b) * x + a;
+    500.0 / denominator
 }
 
 fn round4(v: f64) -> f64 {
@@ -105,31 +117,51 @@ fn round2(v: f64) -> f64 {
 }
 
 pub fn compute(input: &WilksInput) -> Result<WilksOutcome, CalcError> {
-    let (min_bw, max_bw) = bodyweight_range(input.sex);
-    if !input.bodyweight_kg.is_finite() || !(min_bw..=max_bw).contains(&input.bodyweight_kg) {
-        return Err(CalcError::InvalidInput(format!(
-            "bodyweight_kg must be finite and between {min_bw} and {max_bw} for this sex - the published coefficient tables are not validated outside that range"
-        )));
-    }
-    if !input.lifted_kg.is_finite() || input.lifted_kg <= 0.0 || input.lifted_kg > 1500.0 {
+    if !input.bodyweight_kg.is_finite() || input.bodyweight_kg < 40.0 {
         return Err(CalcError::InvalidInput(
-            "lifted_kg must be finite, positive, and no more than 1500".into(),
+            "bodyweight_kg must be finite and at least 40 - the published coefficient table does not cover lower bodyweights".into(),
+        ));
+    }
+    if !input.lifted_kg.is_finite() || input.lifted_kg <= 0.0 {
+        return Err(CalcError::InvalidInput(
+            "lifted_kg must be finite and positive".into(),
         ));
     }
 
-    let coefficient = round4(raw_coefficient(input.sex, input.bodyweight_kg));
+    let maximum_bodyweight = maximum_coefficient_bodyweight(input.sex);
+    let coefficient_bodyweight_kg = input.bodyweight_kg.min(maximum_bodyweight);
+    let coefficient_was_capped = input.bodyweight_kg > maximum_bodyweight;
+    let coefficient = round4(raw_coefficient(input.sex, coefficient_bodyweight_kg));
     let score = round2(coefficient * input.lifted_kg);
+    if !score.is_finite() {
+        return Err(CalcError::InvalidInput(
+            "lifted_kg is too large to produce a finite score".into(),
+        ));
+    }
     let sex_label = match input.sex {
         Sex::Male => "male",
         Sex::Female => "female",
     };
+    let lift_label = match input.lift_type {
+        LiftType::BenchPress => "bench press",
+        LiftType::ThreeLiftTotal => "three-lift total",
+    };
+    let cap_note = if coefficient_was_capped {
+        format!(
+            " The source-table coefficient is capped at {maximum_bodyweight:.1} kg for this category."
+        )
+    } else {
+        String::new()
+    };
 
     let interpretation = format!(
-        "Wilks coefficient {coefficient:.4} at {:.1} kg bodyweight ({sex_label}), applied to {:.1} kg lifted gives a Wilks score of {score:.2}. The score allows comparison of lifters of different bodyweights and sexes on one scale; higher is a relatively stronger performance. Superseded as the IPF's official formula by DOTS (2019) and IPF GL Points (2020), but still widely reported.",
-        input.bodyweight_kg, input.lifted_kg
+        "Wilks coefficient {coefficient:.4} for a {sex_label} lifter at {:.2} kg bodyweight, applied to a {:.1} kg {lift_label}, gives a Wilks score of {score:.2}. Higher scores represent stronger performances relative to bodyweight within the same source category. Vanderburgh and Batterham validated Wilks for bench press and three-lift total, the two applications supported here.{cap_note} The IPF replaced Wilks with IPF Points in 2019 and then IPF GL Points in 2020.",
+        input.bodyweight_kg, input.lifted_kg,
     );
 
     Ok(WilksOutcome {
+        coefficient_bodyweight_kg,
+        coefficient_was_capped,
         coefficient,
         score,
         interpretation,
@@ -141,8 +173,17 @@ pub fn build_response(input: &WilksInput) -> Result<CalculationResponse, CalcErr
 
     let mut working = Map::new();
     working.insert("sex".into(), json!(input.sex));
+    working.insert("lift_type".into(), json!(input.lift_type));
     working.insert("bodyweight_kg".into(), json!(input.bodyweight_kg));
     working.insert("lifted_kg".into(), json!(input.lifted_kg));
+    working.insert(
+        "coefficient_bodyweight_kg".into(),
+        json!(o.coefficient_bodyweight_kg),
+    );
+    working.insert(
+        "coefficient_was_capped".into(),
+        json!(o.coefficient_was_capped),
+    );
     working.insert("coefficient".into(), json!(o.coefficient));
 
     Ok(CalculationResponse {
@@ -166,7 +207,7 @@ impl Calculator for Wilks {
     }
 
     fn description(&self) -> &'static str {
-        "Bodyweight- and sex-adjusted powerlifting score from a lifted weight or competition total, using the 1994-2019 IPF-era Wilks coefficient."
+        "Historical bodyweight-adjusted powerlifting score for bench press or three-lift total using the IPF-era Wilks coefficient."
     }
 
     fn reference(&self) -> &'static str {
@@ -183,24 +224,27 @@ impl Calculator for Wilks {
             "title": "WilksInput",
             "type": "object",
             "additionalProperties": false,
-            "required": ["sex", "bodyweight_kg", "lifted_kg"],
+            "required": ["sex", "lift_type", "bodyweight_kg", "lifted_kg"],
             "properties": {
                 "sex": {
                     "type": "string",
                     "enum": ["male", "female"],
-                    "description": "Sex (determines which coefficient polynomial is applied)"
+                    "description": "Competition category from the source table (determines which coefficient polynomial is applied)"
+                },
+                "lift_type": {
+                    "type": "string",
+                    "enum": ["bench_press", "three_lift_total"],
+                    "description": "Validated application: bench press, or the sum of the best squat, bench press, and deadlift"
                 },
                 "bodyweight_kg": {
                     "type": "number",
                     "minimum": 40,
-                    "maximum": 205,
-                    "description": "Bodyweight in kg. The published coefficient tables are validated for 40-205 kg (men) and 40-150 kg (women); values are rejected outside the range for the given sex."
+                    "description": "Bodyweight in kg. The published table starts at 40 kg; coefficients are capped above 205 kg for men and 150 kg for women."
                 },
                 "lifted_kg": {
                     "type": "number",
                     "exclusiveMinimum": 0,
-                    "maximum": 1500,
-                    "description": "Weight lifted in kg - a single lift or a summed competition total"
+                    "description": "Bench press or summed three-lift competition total in kg"
                 }
             }
         })
@@ -220,6 +264,7 @@ mod tests {
     fn calc(sex: Sex, bodyweight_kg: f64, lifted_kg: f64) -> WilksInput {
         WilksInput {
             sex,
+            lift_type: LiftType::ThreeLiftTotal,
             bodyweight_kg,
             lifted_kg,
         }
@@ -267,7 +312,7 @@ mod tests {
     }
 
     #[test]
-    fn accepts_bodyweight_boundaries() {
+    fn accepts_published_bodyweight_boundaries() {
         assert!(compute(&calc(Sex::Male, 40.0, 100.0)).is_ok());
         assert!(compute(&calc(Sex::Male, 205.0, 100.0)).is_ok());
         assert!(compute(&calc(Sex::Female, 40.0, 100.0)).is_ok());
@@ -275,10 +320,30 @@ mod tests {
     }
 
     #[test]
-    fn rejects_bodyweight_outside_published_range() {
+    fn rejects_bodyweight_below_published_table() {
         assert!(compute(&calc(Sex::Male, 39.9, 100.0)).is_err());
-        assert!(compute(&calc(Sex::Male, 205.1, 100.0)).is_err());
-        assert!(compute(&calc(Sex::Female, 150.1, 100.0)).is_err());
+        assert!(compute(&calc(Sex::Female, 39.9, 100.0)).is_err());
+    }
+
+    #[test]
+    fn caps_coefficients_above_source_table_ceiling() {
+        // Marksteiner's IPF replacement proposal states that Wilks coefficients
+        // are constant above 205 kg for men and 150 kg for women.
+        let man = compute(&calc(Sex::Male, 250.0, 500.0)).unwrap();
+        assert_eq!(man.coefficient_bodyweight_kg, 205.0);
+        assert!(man.coefficient_was_capped);
+        assert_eq!(man.coefficient, 0.5317);
+
+        let woman = compute(&calc(Sex::Female, 200.0, 300.0)).unwrap();
+        assert_eq!(woman.coefficient_bodyweight_kg, 150.0);
+        assert!(woman.coefficient_was_capped);
+        assert_eq!(woman.coefficient, 0.7695);
+    }
+
+    #[test]
+    fn does_not_report_capping_at_the_ceiling() {
+        let o = compute(&calc(Sex::Male, 205.0, 500.0)).unwrap();
+        assert!(!o.coefficient_was_capped);
     }
 
     #[test]
@@ -288,29 +353,71 @@ mod tests {
     }
 
     #[test]
-    fn rejects_excessive_lifted_weight() {
-        assert!(compute(&calc(Sex::Male, 100.0, 1500.1)).is_err());
+    fn does_not_apply_an_unsupported_lifted_weight_ceiling() {
+        assert!(compute(&calc(Sex::Male, 100.0, 1500.1)).is_ok());
+    }
+
+    #[test]
+    fn rejects_lifted_weight_that_overflows_the_score() {
+        assert!(compute(&calc(Sex::Female, 40.0, f64::MAX)).is_err());
     }
 
     #[test]
     fn dynamic_calculate_matches_typed() {
         let value = json!({
             "sex": "female",
+            "lift_type": "bench_press",
             "bodyweight_kg": 63.0,
             "lifted_kg": 250.0
         });
         let dynamic = Wilks.calculate(&value).unwrap();
-        let typed = build_response(&calc(Sex::Female, 63.0, 250.0)).unwrap();
+        let typed = build_response(&WilksInput {
+            sex: Sex::Female,
+            lift_type: LiftType::BenchPress,
+            bodyweight_kg: 63.0,
+            lifted_kg: 250.0,
+        })
+        .unwrap();
         assert_eq!(dynamic, typed);
+    }
+
+    #[test]
+    fn rejects_unvalidated_individual_lift_types() {
+        let value = json!({
+            "sex": "male",
+            "lift_type": "deadlift",
+            "bodyweight_kg": 100.0,
+            "lifted_kg": 300.0
+        });
+        assert!(Wilks.calculate(&value).is_err());
     }
 
     #[test]
     fn response_preserves_inputs_and_coefficient() {
         let response = build_response(&calc(Sex::Male, 100.0, 500.0)).unwrap();
         assert_eq!(response.working["sex"], json!("male"));
+        assert_eq!(response.working["lift_type"], json!("three_lift_total"));
         assert_eq!(response.working["bodyweight_kg"], json!(100.0));
         assert_eq!(response.working["lifted_kg"], json!(500.0));
+        assert_eq!(response.working["coefficient_bodyweight_kg"], json!(100.0));
+        assert_eq!(response.working["coefficient_was_capped"], json!(false));
         assert_eq!(response.working["coefficient"], json!(0.6086));
         assert_eq!(response.result, json!(304.3));
+    }
+
+    #[test]
+    fn schema_exposes_supported_lifts_and_cap_behavior() {
+        let schema = Wilks.input_schema();
+        assert_eq!(
+            schema["properties"]["lift_type"]["enum"],
+            json!(["bench_press", "three_lift_total"])
+        );
+        assert_eq!(schema["properties"]["bodyweight_kg"]["minimum"], json!(40));
+        assert!(
+            schema["properties"]["bodyweight_kg"]
+                .get("maximum")
+                .is_none()
+        );
+        assert!(schema["properties"]["lifted_kg"].get("maximum").is_none());
     }
 }
