@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry. 75 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
+The full registry. 76 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
@@ -75,6 +75,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `frax` | FRAX (10-year fracture risk) | 10-year probability of osteoporotic and hip fracture (NICE CG146). | `endocrinology`, `musculoskeletal`, `risk`, `proprietary`, `unavailable` |
 | `gad7` | GAD-7 Anxiety Severity | Seven-item generalised anxiety severity score (0-21); a total of 10+ flags likely GAD. | `primary-care`, `mental-health`, `screening` |
 | `gcs` | Glasgow Coma Scale (GCS) | Bedside score (3-15) of conscious level from eye, verbal, and motor response (Teasdale & Jennett 1974); omits the total and band when any component is not testable, per current guidance. | `neurology`, `emergency`, `acute-medicine`, `severity` |
+| `glasgow_blatchford` | Glasgow-Blatchford Bleeding Score (GBS) | Pre-endoscopy risk assessment at first presentation with acute upper gastrointestinal bleeding; distinguishes NICE's score-0 early-discharge consideration from ACG's score-0-to-1 very-low-risk example without making disposition automatic. | `emergency`, `acute-medicine`, `risk` |
 | `gleason` | Gleason Grade Group (ISUP/WHO) | Gleason score and ISUP/WHO Grade Group (1-5) from the primary and secondary prostate cancer patterns. | `oncology`, `urology` |
 | `grace` | GRACE ACS Risk Score (in-hospital mortality) | Point-based GRACE 1.0 score (Granger 2003) estimating in-hospital mortality risk in acute coronary syndrome. | `cardiology`, `acute-medicine`, `prognostic` |
 | `hasbled` | HAS-BLED Bleeding Risk (AF) | Bleeding risk in atrial fibrillation on anticoagulation, used alongside CHA2DS2-VASc (NICE NG196). | `cardiology`, `risk` |
@@ -138,7 +139,6 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 | **StatinMD** (Oxford STRATIFY) | Personalised 1/5/10-year risk of serious statin-induced muscle disorders (rhabdomyolysis / hospitalised myopathy) from 22 routinely-recorded factors (Cai et al, *Lancet Digital Health* 2026). Natural pairing with QRISK3: QRISK3 is the benefit side, StatinMD is the harm side. Licensed for **academic use** via Oxford University Innovation - covered while this project is non-commercial. ([source](https://process.innovation.ox.ac.uk/software/p/25396/stratify---stainmd-risk-calculator---academic-use/1)) | `primary-care`, `cardiology`, `risk` |
 | **NIHSS** | Acute stroke severity standard. | `neurology`, `emergency`, `severity` |
 | **MELD 3.0** | Updated MELD (we ship the 2001 original). | `hepatology`, `prognostic` |
-| **Glasgow-Blatchford** | Upper-GI bleed pre-endoscopy triage. | `emergency` |
 | **NYHA** | Heart-failure functional class. | `cardiology`, `severity` |
 | **PSA density** | PSA / prostate volume; grey-zone PSA. | `urology`, `oncology` |
 | **Norton Scale** | Pressure-ulcer risk; complements the shipped Braden and Waterlow tools. | `geriatrics`, `screening` |

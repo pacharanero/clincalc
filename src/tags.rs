@@ -116,6 +116,10 @@ pub const TAGS: &[(&str, &[&str])] = &[
         "lrinec",
         &["emergency", "surgery", "infectious-diseases", "risk"],
     ),
+    (
+        "glasgow_blatchford",
+        &["emergency", "acute-medicine", "risk"],
+    ),
     // ---- Renal ----
     ("egfr", &["primary-care", "nephrology"]),
     ("cockcroft_gault", &["primary-care", "nephrology"]),

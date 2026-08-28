@@ -52,6 +52,7 @@ pub mod findrisc;
 pub mod fourat;
 pub mod gad7;
 pub mod gcs;
+pub mod glasgow_blatchford;
 pub mod gleason;
 pub mod grace;
 pub mod hasbled;
