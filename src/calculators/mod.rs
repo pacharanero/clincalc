@@ -57,6 +57,7 @@ pub mod gleason;
 pub mod grace;
 pub mod hasbled;
 pub mod heart;
+pub mod hinchey;
 pub mod ipss;
 pub mod lrinec;
 pub mod max_heart_rate;

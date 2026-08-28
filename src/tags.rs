@@ -120,6 +120,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
         "glasgow_blatchford",
         &["emergency", "acute-medicine", "risk"],
     ),
+    ("hinchey", &["surgery", "acute-medicine", "severity"]),
     // ---- Renal ----
     ("egfr", &["primary-care", "nephrology"]),
     ("cockcroft_gault", &["primary-care", "nephrology"]),
