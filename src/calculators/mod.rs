@@ -57,6 +57,7 @@ pub mod grace;
 pub mod hasbled;
 pub mod heart;
 pub mod ipss;
+pub mod lrinec;
 pub mod max_heart_rate;
 pub mod meld;
 pub mod mrc_dyspnoea;

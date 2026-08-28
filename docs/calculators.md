@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry. 73 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
+The full registry. 74 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
@@ -81,6 +81,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `heart` | HEART Score (ED Chest Pain) | 6-week MACE risk for emergency department chest pain, guiding discharge versus admission versus early invasive management (Six AJ et al. 2008). | `cardiology`, `emergency`, `risk` |
 | `ipss` | IPSS - International Prostate Symptom Score | Seven-item lower urinary tract symptom score (0-35) for benign prostatic hyperplasia; bands mild 0-7, moderate 8-19, severe 20-35, with an optional quality-of-life item (0-6). | `urology`, `severity` |
 | `lanss` | LANSS (Leeds Assessment of Neuropathic Symptoms and Signs) | Screening for pain of predominantly neuropathic origin (7 items, 0-24; >=12 likely neuropathic). | `neurology`, `screening`, `proprietary`, `unavailable` |
+| `lrinec` | LRINEC Score (Necrotising Fasciitis Risk Indicator) | Six-variable laboratory score (CRP, WBC, haemoglobin, sodium, creatinine, glucose) distinguishing necrotising fasciitis from other soft-tissue infections; score >=6 warrants increased suspicion, >=8 is high risk. | `emergency`, `surgery`, `infectious-diseases`, `severity` |
 | `max_heart_rate` | Max Heart Rate & Training Zones | Estimates HRmax from age (Tanaka 2001) and derives aerobic training zones; uses Karvonen heart-rate reserve when resting HR is supplied. | `primary-care`, `screening` |
 | `meld` | MELD Score (original, 2001) | Model for End-Stage Liver Disease: 3-month mortality risk from bilirubin, INR, and creatinine (Kamath 2001). | `hepatology`, `prognostic` |
 | `mmse` | MMSE (Mini-Mental State Examination) | Cognitive screening / dementia monitoring (NICE NG97). | `geriatrics`, `neurology`, `mental-health`, `screening`, `proprietary`, `unavailable` |
@@ -142,7 +143,6 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 | **Norton Scale** | Pressure-ulcer risk; complements the shipped Braden and Waterlow tools. | `geriatrics`, `screening` |
 | **RCRI (Lee)** | Pre-op cardiac risk. | `surgery`, `cardiology`, `risk` |
 | **Hinchey** | Acute diverticulitis anatomy. | `surgery` |
-| **LRINEC** | Necrotising-fasciitis lab indicator. | `infectious-diseases`, `emergency` |
 | **Pitt Bacteraemia** | BSI severity. | `infectious-diseases`, `severity` |
 | **Modified Duke criteria** | Endocarditis. | `infectious-diseases` |
 | **PASI**, **SCORAD** | Psoriasis / atopic dermatitis. | `dermatology`, `severity` |

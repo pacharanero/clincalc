@@ -35,7 +35,6 @@ Shipped anthropometric and body-composition measures include BMI, body-fat circu
 - [ ] **CALC-018 Glasgow-Blatchford** - Upper-GI bleed pre-endoscopy triage
 - [ ] **CALC-019 Hinchey** - Acute diverticulitis anatomy
 - [ ] **CALC-041 LDL / non-HDL cholesterol** - Friedewald, Martin-Hopkins, and Sampson-NIH LDL estimation from a lipid panel
-- [ ] **CALC-021 LRINEC** - Necrotising fasciitis
 - [ ] **CALC-022 MELD 3.0** - Updated MELD
 - [ ] **CALC-023 Modified Duke criteria** - Infective endocarditis
 - [ ] **CALC-024 NIHSS** - Acute stroke severity
