@@ -4,26 +4,16 @@
 //! LRINEC - Laboratory Risk Indicator for Necrotizing Fasciitis.
 //!
 //! Sums points across six routine blood tests - CRP, total white cell count,
-//! haemoglobin, sodium, creatinine, and glucose - to flag soft-tissue
-//! infections where necrotising fasciitis should be considered more seriously
-//! than ordinary cellulitis or abscess. Derived and internally validated on a
-//! 314-patient Singapore cohort (89 confirmed necrotising fasciitis, 225
-//! severe cellulitis/abscess controls) by Wong CH, Khin LW, Heng KS, Tan KC,
-//! Low CO. "The LRINEC (Laboratory Risk Indicator for Necrotizing Fasciitis)
-//! score: a tool for distinguishing necrotizing fasciitis from other soft
-//! tissue infections." Crit Care Med. 2004;32(7):1535-1541.
-//! doi:10.1097/01.CCM.0000129486.35458.7D.
+//! haemoglobin, sodium, creatinine, and glucose - as a diagnostic adjunct in
+//! severe soft-tissue infection. Wong et al. retrospectively developed the
+//! score in 314 patients at one Singapore hospital and externally validated it
+//! in 140 patients at a second hospital.
 //!
-//! Point thresholds and risk-category bands below are transcribed from that
-//! publication's Table 2 and accompanying text (verified against a faithful
-//! reproduction of the same table circulated as a bedside reference by the
-//! University of Colorado Department of Surgery, and cross-checked against
-//! independent secondary reproductions). Maximum score is 13. A score of 6 or
-//! more was the paper's own cutoff (positive predictive value 92.0%, negative
-//! predictive value 96.0% in the derivation cohort); the paper additionally
-//! stratified the full score range into three risk bands: low risk (score
-//! <=5, <50% probability of necrotising fasciitis), intermediate risk (score
-//! 6-7, 50-75% probability), and high risk (score >=8, >75% probability).
+//! The original publication's Table 2 defines a maximum score of 13 and bands
+//! of low (0-5), intermediate (6-7), and high (8-13). Its associated modeled
+//! probability bands came from retrospectively selected case/control cohorts
+//! and are not portable patient-specific probabilities, so this implementation
+//! reports only the original category labels.
 //!
 //! Units are fixed to the paper's own reporting units rather than accepting
 //! caller-selected alternatives, because a silently wrong unit here changes
@@ -34,11 +24,10 @@
 //! integrating a US laboratory (creatinine typically mg/dL, glucose typically
 //! mg/dL) must convert before calling this calculator.
 //!
-//! LRINEC is a screening aid derived from a single-centre retrospective
-//! cohort. It has shown inconsistent sensitivity in later external
-//! validations and must never be used to defer surgical exploration or
-//! specialist referral in a patient whose clinical picture is concerning for
-//! necrotising fasciitis, regardless of the computed score.
+//! A 2019 systematic review and meta-analysis found sensitivity of 68.2% at a
+//! cutoff of 6 and 40.8% at a cutoff of 8, and concluded that LRINEC should not
+//! be used to rule out necrotising soft-tissue infection. Clinical concern
+//! warrants early surgical consultation regardless of this score.
 
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value, json};
@@ -50,13 +39,13 @@ use crate::response::CalculationResponse;
 /// Machine name.
 pub const NAME: &str = "lrinec";
 
-/// Primary citation.
-pub const REFERENCE: &str = "Wong CH, Khin LW, Heng KS, Tan KC, Low CO. The LRINEC (Laboratory Risk Indicator for Necrotizing Fasciitis) score: a tool for distinguishing necrotizing fasciitis from other soft tissue infections. Crit Care Med. 2004;32(7):1535-1541. doi:10.1097/01.CCM.0000129486.35458.7D";
+/// Primary derivation plus later diagnostic-accuracy evidence.
+pub const REFERENCE: &str = "Wong CH, Khin LW, Heng KS, Tan KC, Low CO. The LRINEC (Laboratory Risk Indicator for Necrotizing Fasciitis) score: a tool for distinguishing necrotizing fasciitis from other soft tissue infections. Crit Care Med. 2004;32(7):1535-1541. doi:10.1097/01.CCM.0000129486.35458.7D. Fernando SM, Tran A, Cheng W, et al. Necrotizing Soft Tissue Infection: Diagnostic Accuracy of Physical Examination, Imaging, and LRINEC Score: A Systematic Review and Meta-Analysis. Ann Surg. 2019;269(1):58-65. doi:10.1097/SLA.0000000000002774.";
 
 /// Distribution licence: the score is a published clinical method from the
 /// primary literature, implemented here from that source.
 pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
+    license: "Published clinical scoring method - independently implemented from the primary literature",
     source_url: "https://doi.org/10.1097/01.CCM.0000129486.35458.7D",
 };
 
@@ -65,6 +54,8 @@ pub const LICENSE: CalculatorLicense = CalculatorLicense {
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct LrinecInput {
+    /// Confirm that the score is being used in its intended severe-infection context.
+    pub severe_soft_tissue_infection_suspected: bool,
     /// C-reactive protein, mg/L (>= 150 scores 4 points).
     pub crp_mg_l: f64,
     /// Total white cell count, x10^9/L (equivalently x1000/microL). <15 -> 0,
@@ -82,39 +73,31 @@ pub struct LrinecInput {
 
 /// Overall LRINEC risk band, per the original paper's stratification.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum RiskCategory {
-    /// Score 0-5: <50% probability of necrotising fasciitis.
+pub enum OriginalRiskCategory {
+    /// Score 0-5 in the original study.
     Low,
-    /// Score 6-7: 50-75% probability.
+    /// Score 6-7 in the original study.
     Intermediate,
-    /// Score 8-13: >75% probability.
+    /// Score 8-13 in the original study.
     High,
 }
 
-impl RiskCategory {
+impl OriginalRiskCategory {
     fn from_score(score: u8) -> Self {
         if score <= 5 {
-            RiskCategory::Low
+            OriginalRiskCategory::Low
         } else if score <= 7 {
-            RiskCategory::Intermediate
+            OriginalRiskCategory::Intermediate
         } else {
-            RiskCategory::High
+            OriginalRiskCategory::High
         }
     }
 
     fn slug(self) -> &'static str {
         match self {
-            RiskCategory::Low => "low",
-            RiskCategory::Intermediate => "intermediate",
-            RiskCategory::High => "high",
-        }
-    }
-
-    fn probability_descriptor(self) -> &'static str {
-        match self {
-            RiskCategory::Low => "<50%",
-            RiskCategory::Intermediate => "50-75%",
-            RiskCategory::High => ">75%",
+            OriginalRiskCategory::Low => "low",
+            OriginalRiskCategory::Intermediate => "intermediate",
+            OriginalRiskCategory::High => "high",
         }
     }
 }
@@ -130,7 +113,7 @@ pub struct LrinecOutcome {
     pub glucose_points: u8,
     /// Total score, 0-13.
     pub score: u8,
-    pub risk_category: RiskCategory,
+    pub original_risk_category: OriginalRiskCategory,
     pub interpretation: String,
 }
 
@@ -170,14 +153,19 @@ fn glucose_points(mmol_l: f64) -> u8 {
     if mmol_l > 10.0 { 1 } else { 0 }
 }
 
-/// Plausibility bounds only - not part of the original scoring criteria.
-/// These exist to catch an obviously wrong unit or a mistyped value (for
-/// example a raw WBC count of 18000 entered where 18 was meant), not to
-/// encode any clinical judgement.
-fn validate(value: f64, name: &str, min: f64, max: f64) -> Result<(), CalcError> {
-    if !value.is_finite() || !(min..=max).contains(&value) {
+fn validate_nonnegative(value: f64, name: &str) -> Result<(), CalcError> {
+    if !value.is_finite() || value < 0.0 {
         return Err(CalcError::InvalidInput(format!(
-            "{name} must be finite and between {min} and {max}"
+            "{name} must be finite and non-negative"
+        )));
+    }
+    Ok(())
+}
+
+fn validate_positive(value: f64, name: &str) -> Result<(), CalcError> {
+    if !value.is_finite() || value <= 0.0 {
+        return Err(CalcError::InvalidInput(format!(
+            "{name} must be finite and positive"
         )));
     }
     Ok(())
@@ -185,12 +173,17 @@ fn validate(value: f64, name: &str, min: f64, max: f64) -> Result<(), CalcError>
 
 /// Pure scoring.
 pub fn compute(input: &LrinecInput) -> Result<LrinecOutcome, CalcError> {
-    validate(input.crp_mg_l, "crp_mg_l", 0.0, 600.0)?;
-    validate(input.wbc_x10_9_l, "wbc_x10_9_l", 0.0, 100.0)?;
-    validate(input.haemoglobin_g_dl, "haemoglobin_g_dl", 2.0, 24.0)?;
-    validate(input.sodium_mmol_l, "sodium_mmol_l", 100.0, 200.0)?;
-    validate(input.creatinine_umol_l, "creatinine_umol_l", 10.0, 2000.0)?;
-    validate(input.glucose_mmol_l, "glucose_mmol_l", 0.5, 100.0)?;
+    if !input.severe_soft_tissue_infection_suspected {
+        return Err(CalcError::InvalidInput(
+            "LRINEC is intended only when severe soft-tissue infection is suspected".into(),
+        ));
+    }
+    validate_nonnegative(input.crp_mg_l, "crp_mg_l")?;
+    validate_nonnegative(input.wbc_x10_9_l, "wbc_x10_9_l")?;
+    validate_positive(input.haemoglobin_g_dl, "haemoglobin_g_dl")?;
+    validate_positive(input.sodium_mmol_l, "sodium_mmol_l")?;
+    validate_positive(input.creatinine_umol_l, "creatinine_umol_l")?;
+    validate_positive(input.glucose_mmol_l, "glucose_mmol_l")?;
 
     let crp_points = crp_points(input.crp_mg_l);
     let wbc_points = wbc_points(input.wbc_x10_9_l);
@@ -206,18 +199,11 @@ pub fn compute(input: &LrinecInput) -> Result<LrinecOutcome, CalcError> {
         + creatinine_points
         + glucose_points;
 
-    let risk_category = RiskCategory::from_score(score);
+    let original_risk_category = OriginalRiskCategory::from_score(score);
 
     let interpretation = format!(
-        "LRINEC score {score} of a possible 13: {} risk of necrotising fasciitis ({} probability). \
-Wong et al. (2004) found a score of 6 or more had a positive predictive value of 92.0% and a \
-negative predictive value of 96.0% in their derivation cohort. LRINEC is a screening aid derived \
-from a single-centre retrospective cohort with inconsistent sensitivity on later external \
-validation: a low score does not exclude necrotising fasciitis, and urgent surgical exploration \
-or specialist referral should never be deferred for a low or intermediate score in a patient whose \
-clinical picture is concerning for necrotising fasciitis.",
-        risk_category.slug(),
-        risk_category.probability_descriptor()
+        "LRINEC score {score} of 13: {} original-study risk category. LRINEC is a diagnostic adjunct for severe soft-tissue infection, not a rule-out test. A 2019 meta-analysis found sensitivity of 68.2% at a cutoff of 6 and 40.8% at a cutoff of 8. A low score does not exclude necrotising soft-tissue infection; clinical concern warrants early surgical consultation, and definitive assessment or treatment must not be delayed because of this score.",
+        original_risk_category.slug(),
     );
 
     Ok(LrinecOutcome {
@@ -228,7 +214,7 @@ clinical picture is concerning for necrotising fasciitis.",
         creatinine_points,
         glucose_points,
         score,
-        risk_category,
+        original_risk_category,
         interpretation,
     })
 }
@@ -238,18 +224,29 @@ pub fn build_response(input: &LrinecInput) -> Result<CalculationResponse, CalcEr
     let o = compute(input)?;
 
     let mut working = Map::new();
+    working.insert(
+        "severe_soft_tissue_infection_suspected".into(),
+        json!(input.severe_soft_tissue_infection_suspected),
+    );
+    working.insert("crp_mg_l".into(), json!(input.crp_mg_l));
     working.insert("crp_points".into(), json!(o.crp_points));
+    working.insert("wbc_x10_9_l".into(), json!(input.wbc_x10_9_l));
     working.insert("wbc_points".into(), json!(o.wbc_points));
+    working.insert("haemoglobin_g_dl".into(), json!(input.haemoglobin_g_dl));
     working.insert("haemoglobin_points".into(), json!(o.haemoglobin_points));
+    working.insert("sodium_mmol_l".into(), json!(input.sodium_mmol_l));
     working.insert("sodium_points".into(), json!(o.sodium_points));
+    working.insert("creatinine_umol_l".into(), json!(input.creatinine_umol_l));
     working.insert("creatinine_points".into(), json!(o.creatinine_points));
+    working.insert("glucose_mmol_l".into(), json!(input.glucose_mmol_l));
     working.insert("glucose_points".into(), json!(o.glucose_points));
     working.insert("total_score".into(), json!(o.score));
-    working.insert("risk_category".into(), json!(o.risk_category.slug()));
     working.insert(
-        "probability_of_necrotising_fasciitis".into(),
-        json!(o.risk_category.probability_descriptor()),
+        "original_study_risk_category".into(),
+        json!(o.original_risk_category.slug()),
     );
+    working.insert("score_at_least_six".into(), json!(o.score >= 6));
+    working.insert("score_at_least_eight".into(), json!(o.score >= 8));
 
     Ok(CalculationResponse {
         calculator: NAME.to_string(),
@@ -273,9 +270,7 @@ impl Calculator for Lrinec {
     }
 
     fn description(&self) -> &'static str {
-        "Six-variable laboratory score (CRP, WBC, haemoglobin, sodium, creatinine, glucose) \
-distinguishing necrotising fasciitis from other soft-tissue infections; score >=6 warrants \
-increased suspicion, >=8 is high risk."
+        "Six-variable laboratory diagnostic adjunct for severe soft-tissue infection; a score of 6 or more increases suspicion, but a low score does not exclude necrotising infection."
     }
 
     fn reference(&self) -> &'static str {
@@ -293,15 +288,26 @@ increased suspicion, >=8 is high risk."
             "type": "object",
             "additionalProperties": false,
             "required": [
+                "severe_soft_tissue_infection_suspected",
                 "crp_mg_l", "wbc_x10_9_l", "haemoglobin_g_dl",
                 "sodium_mmol_l", "creatinine_umol_l", "glucose_mmol_l"
             ],
             "properties": {
+                "severe_soft_tissue_infection_suspected": {
+                    "type": "boolean",
+                    "description": "Confirm that severe soft-tissue infection is suspected; LRINEC was not derived for indiscriminate screening",
+                    "definition": {
+                        "concept": "Intended LRINEC population",
+                        "statement": "LRINEC is a diagnostic adjunct for patients being evaluated for severe soft-tissue infection, not a general screen and not a rule-out test.",
+                        "excludes": ["Use in a patient without suspected severe soft-tissue infection", "Use of a low score to defer surgical consultation when clinical concern persists"],
+                        "source": { "citation": "Wong CH et al. Crit Care Med. 2004;32(7):1535-1541; Fernando SM et al. Ann Surg. 2019;269(1):58-65.", "url": "https://pubmed.ncbi.nlm.nih.gov/29672405/" },
+                        "status": "draft"
+                    }
+                },
                 "crp_mg_l": {
                     "type": "number",
                     "minimum": 0,
-                    "maximum": 600,
-                    "description": "C-reactive protein, mg/L (>= 150 scores 4 points)",
+                    "description": "Initial-evaluation C-reactive protein, mg/L (>= 150 scores 4 points)",
                     "definition": {
                         "concept": "CRP sub-score",
                         "statement": "CRP of 150 mg/L or greater scores 4 points; below 150 mg/L scores 0. This is the largest single weight in the score.",
@@ -313,8 +319,7 @@ increased suspicion, >=8 is high risk."
                 "wbc_x10_9_l": {
                     "type": "number",
                     "minimum": 0,
-                    "maximum": 100,
-                    "description": "Total white cell count, x10^9/L (equivalently x1000/microL). <15 -> 0, 15-25 -> 1, >25 -> 2 points",
+                    "description": "Initial-evaluation total white cell count, x10^9/L (equivalently x1000/microL). <15 -> 0, 15-25 -> 1, >25 -> 2 points",
                     "definition": {
                         "concept": "Total WBC sub-score",
                         "statement": "Below 15 x10^9/L scores 0; 15 to 25 x10^9/L inclusive scores 1; above 25 x10^9/L scores 2.",
@@ -325,9 +330,8 @@ increased suspicion, >=8 is high risk."
                 },
                 "haemoglobin_g_dl": {
                     "type": "number",
-                    "minimum": 2,
-                    "maximum": 24,
-                    "description": "Haemoglobin, g/dL. >13.5 -> 0, 11-13.5 -> 1, <11 -> 2 points",
+                    "exclusiveMinimum": 0,
+                    "description": "Initial-evaluation haemoglobin, g/dL. >13.5 -> 0, 11-13.5 -> 1, <11 -> 2 points",
                     "definition": {
                         "concept": "Haemoglobin sub-score",
                         "statement": "Above 13.5 g/dL scores 0; 11 to 13.5 g/dL inclusive scores 1; below 11 g/dL scores 2.",
@@ -338,9 +342,8 @@ increased suspicion, >=8 is high risk."
                 },
                 "sodium_mmol_l": {
                     "type": "number",
-                    "minimum": 100,
-                    "maximum": 200,
-                    "description": "Serum sodium, mmol/L (< 135 scores 2 points)",
+                    "exclusiveMinimum": 0,
+                    "description": "Initial-evaluation serum sodium, mmol/L (< 135 scores 2 points)",
                     "definition": {
                         "concept": "Sodium sub-score",
                         "statement": "Below 135 mmol/L scores 2 points; 135 mmol/L or above scores 0.",
@@ -350,9 +353,8 @@ increased suspicion, >=8 is high risk."
                 },
                 "creatinine_umol_l": {
                     "type": "number",
-                    "minimum": 10,
-                    "maximum": 2000,
-                    "description": "Serum creatinine, umol/L (> 141 scores 2 points)",
+                    "exclusiveMinimum": 0,
+                    "description": "Initial-evaluation serum creatinine, umol/L (> 141 scores 2 points)",
                     "definition": {
                         "concept": "Creatinine sub-score",
                         "statement": "Above 141 umol/L scores 2 points; 141 umol/L or below scores 0.",
@@ -363,9 +365,8 @@ increased suspicion, >=8 is high risk."
                 },
                 "glucose_mmol_l": {
                     "type": "number",
-                    "minimum": 0.5,
-                    "maximum": 100,
-                    "description": "Serum glucose, mmol/L (> 10 scores 1 point)",
+                    "exclusiveMinimum": 0,
+                    "description": "Initial-evaluation serum glucose, mmol/L (> 10 scores 1 point)",
                     "definition": {
                         "concept": "Glucose sub-score",
                         "statement": "Above 10 mmol/L scores 1 point; 10 mmol/L or below scores 0.",
@@ -392,6 +393,7 @@ mod tests {
     /// All parameters at their most reassuring values -> score 0, low risk.
     fn all_reassuring() -> LrinecInput {
         LrinecInput {
+            severe_soft_tissue_infection_suspected: true,
             crp_mg_l: 10.0,
             wbc_x10_9_l: 8.0,
             haemoglobin_g_dl: 14.0,
@@ -404,6 +406,7 @@ mod tests {
     /// All six criteria at their most severe values -> maximum score of 13.
     fn all_severe() -> LrinecInput {
         LrinecInput {
+            severe_soft_tissue_infection_suspected: true,
             crp_mg_l: 150.0,
             wbc_x10_9_l: 26.0,
             haemoglobin_g_dl: 10.0,
@@ -417,9 +420,12 @@ mod tests {
     fn wong_2004_all_reassuring_scores_zero_and_low_risk() {
         let o = compute(&all_reassuring()).unwrap();
         assert_eq!(o.score, 0);
-        assert_eq!(o.risk_category, RiskCategory::Low);
-        assert!(o.interpretation.contains("low risk"));
-        assert!(o.interpretation.contains("<50%"));
+        assert_eq!(o.original_risk_category, OriginalRiskCategory::Low);
+        assert!(
+            o.interpretation
+                .contains("low original-study risk category")
+        );
+        assert!(o.interpretation.contains("does not exclude"));
     }
 
     #[test]
@@ -432,9 +438,11 @@ mod tests {
         assert_eq!(o.creatinine_points, 2);
         assert_eq!(o.glucose_points, 1);
         assert_eq!(o.score, 13);
-        assert_eq!(o.risk_category, RiskCategory::High);
-        assert!(o.interpretation.contains("high risk"));
-        assert!(o.interpretation.contains(">75%"));
+        assert_eq!(o.original_risk_category, OriginalRiskCategory::High);
+        assert!(
+            o.interpretation
+                .contains("high original-study risk category")
+        );
     }
 
     #[test]
@@ -482,11 +490,26 @@ mod tests {
     /// intermediate as 6-7 and high as >=8.
     #[test]
     fn risk_category_boundaries() {
-        assert_eq!(RiskCategory::from_score(5), RiskCategory::Low);
-        assert_eq!(RiskCategory::from_score(6), RiskCategory::Intermediate);
-        assert_eq!(RiskCategory::from_score(7), RiskCategory::Intermediate);
-        assert_eq!(RiskCategory::from_score(8), RiskCategory::High);
-        assert_eq!(RiskCategory::from_score(13), RiskCategory::High);
+        assert_eq!(
+            OriginalRiskCategory::from_score(5),
+            OriginalRiskCategory::Low
+        );
+        assert_eq!(
+            OriginalRiskCategory::from_score(6),
+            OriginalRiskCategory::Intermediate
+        );
+        assert_eq!(
+            OriginalRiskCategory::from_score(7),
+            OriginalRiskCategory::Intermediate
+        );
+        assert_eq!(
+            OriginalRiskCategory::from_score(8),
+            OriginalRiskCategory::High
+        );
+        assert_eq!(
+            OriginalRiskCategory::from_score(13),
+            OriginalRiskCategory::High
+        );
     }
 
     #[test]
@@ -498,11 +521,19 @@ mod tests {
         input.sodium_mmol_l = 130.0; // +2
         let o = compute(&input).unwrap();
         assert_eq!(o.score, 6);
-        assert_eq!(o.risk_category, RiskCategory::Intermediate);
+        assert_eq!(o.original_risk_category, OriginalRiskCategory::Intermediate);
     }
 
     #[test]
-    fn rejects_out_of_plausible_range_values() {
+    fn rejects_use_outside_the_source_population() {
+        let mut input = all_reassuring();
+        input.severe_soft_tissue_infection_suspected = false;
+        let error = compute(&input).unwrap_err();
+        assert!(error.to_string().contains("severe soft-tissue infection"));
+    }
+
+    #[test]
+    fn rejects_physically_invalid_or_non_finite_values() {
         let mut i = all_reassuring();
         i.crp_mg_l = -1.0;
         assert!(compute(&i).is_err());
@@ -512,11 +543,11 @@ mod tests {
         assert!(compute(&i).is_err());
 
         let mut i = all_reassuring();
-        i.sodium_mmol_l = 50.0;
+        i.sodium_mmol_l = 0.0;
         assert!(compute(&i).is_err());
 
         let mut i = all_reassuring();
-        i.creatinine_umol_l = 5.0;
+        i.creatinine_umol_l = -1.0;
         assert!(compute(&i).is_err());
     }
 
@@ -525,19 +556,24 @@ mod tests {
         let r = build_response(&all_severe()).unwrap();
         assert_eq!(r.calculator, "lrinec");
         assert_eq!(r.result, json!(13));
+        assert_eq!(r.working["crp_mg_l"], json!(150.0));
+        assert_eq!(r.working["wbc_x10_9_l"], json!(26.0));
+        assert_eq!(r.working["haemoglobin_g_dl"], json!(10.0));
+        assert_eq!(r.working["sodium_mmol_l"], json!(130.0));
+        assert_eq!(r.working["creatinine_umol_l"], json!(150.0));
+        assert_eq!(r.working["glucose_mmol_l"], json!(11.0));
         assert_eq!(r.working["total_score"], json!(13));
-        assert_eq!(r.working["risk_category"], json!("high"));
-        assert_eq!(
-            r.working["probability_of_necrotising_fasciitis"],
-            json!(">75%")
-        );
+        assert_eq!(r.working["original_study_risk_category"], json!("high"));
+        assert_eq!(r.working["score_at_least_six"], json!(true));
+        assert_eq!(r.working["score_at_least_eight"], json!(true));
         assert!(r.reference.contains("Wong"));
-        assert!(r.reference.contains("2004"));
+        assert!(r.reference.contains("Fernando"));
     }
 
     #[test]
     fn dynamic_calculate_matches_typed() {
         let value = json!({
+            "severe_soft_tissue_infection_suspected": true,
             "crp_mg_l": 10.0,
             "wbc_x10_9_l": 8.0,
             "haemoglobin_g_dl": 14.0,
@@ -563,10 +599,11 @@ mod tests {
     }
 
     #[test]
-    fn schema_requires_all_six_variables() {
+    fn schema_requires_context_and_all_six_variables() {
         let schema = Lrinec.input_schema();
         let required = schema["required"].as_array().unwrap();
-        assert_eq!(required.len(), 6);
+        assert_eq!(required.len(), 7);
+        assert!(required.contains(&json!("severe_soft_tissue_infection_suspected")));
         assert!(required.contains(&json!("crp_mg_l")));
         assert!(required.contains(&json!("glucose_mmol_l")));
     }
@@ -578,5 +615,14 @@ mod tests {
         assert!(creatinine["excludes"][0].as_str().unwrap().contains("88.4"));
         let glucose = &schema["properties"]["glucose_mmol_l"]["definition"];
         assert!(glucose["excludes"][0].as_str().unwrap().contains("18.016"));
+    }
+
+    #[test]
+    fn interpretation_reports_current_rule_out_limitation() {
+        let o = compute(&all_reassuring()).unwrap();
+        assert!(o.interpretation.contains("68.2%"));
+        assert!(o.interpretation.contains("40.8%"));
+        assert!(!o.interpretation.contains("92.0%"));
+        assert!(!o.interpretation.contains("patient probability"));
     }
 }

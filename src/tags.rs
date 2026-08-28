@@ -113,7 +113,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ),
     (
         "lrinec",
-        &["emergency", "surgery", "infectious-diseases", "severity"],
+        &["emergency", "surgery", "infectious-diseases", "risk"],
     ),
     // ---- Renal ----
     ("egfr", &["primary-care", "nephrology"]),
