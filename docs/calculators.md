@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry. 74 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
+The full registry. 75 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
@@ -99,6 +99,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `qfracture` | QFracture (10-year fracture risk) | 10-year risk of major osteoporotic and hip fracture (QFracture-2012), the open UK alternative to FRAX (NICE CG146/NG6). | `primary-care`, `endocrinology`, `risk` |
 | `qrisk3` | QRISK3 (10-year cardiovascular risk) | 10-year risk of heart attack or stroke (QRISK3-2017), the UK standard for primary CVD risk assessment (NICE NG238). | `primary-care`, `cardiology`, `risk` |
 | `qsofa` | qSOFA Score (Sepsis-3) | Quick bedside prompt flagging suspected-infection patients at higher risk of poor outcome (Sepsis-3). A prognostic prompt, not a diagnosis of sepsis. | `acute-medicine`, `intensive-care`, `screening` |
+| `rcri` | Revised Cardiac Risk Index (RCRI) | Six-factor Lee index for in-hospital major cardiac complications after noncardiac surgery, used within stepwise adult preoperative assessment; historical event rates are shown only when the original validation population matches. | `cardiology`, `surgery`, `risk` |
 | `relative_fat_mass` | Relative Fat Mass (RFM) | Sex-specific estimate of whole-body fat percentage from height and source-protocol waist circumference (Woolcott-Bergman 2018), evaluated against DXA in US adults aged 20-69; accuracy decreased with age and was lower at lower body-fat levels. It does not provide a diagnostic obesity cut-point. | `primary-care`, `endocrinology`, `screening` |
 | `sofa` | SOFA Score (Sequential Organ Failure Assessment) | Grades dysfunction across six organ systems (0-24); underpins the Sepsis-3 definition (rise >= 2 from baseline). | `intensive-care`, `severity` |
 | `timi` | TIMI Risk Score for UA/NSTEMI | 14-day risk of death, MI, or urgent revascularisation in unstable angina / NSTEMI (Antman et al, JAMA 2000). Not the STEMI score. | `cardiology`, `acute-medicine`, `risk` |
@@ -141,7 +142,6 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 | **NYHA** | Heart-failure functional class. | `cardiology`, `severity` |
 | **PSA density** | PSA / prostate volume; grey-zone PSA. | `urology`, `oncology` |
 | **Norton Scale** | Pressure-ulcer risk; complements the shipped Braden and Waterlow tools. | `geriatrics`, `screening` |
-| **RCRI (Lee)** | Pre-op cardiac risk. | `surgery`, `cardiology`, `risk` |
 | **Hinchey** | Acute diverticulitis anatomy. | `surgery` |
 | **Pitt Bacteraemia** | BSI severity. | `infectious-diseases`, `severity` |
 | **Modified Duke criteria** | Endocarditis. | `infectious-diseases` |

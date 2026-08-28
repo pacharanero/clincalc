@@ -172,6 +172,7 @@ pub fn all() -> Vec<Box<dyn Calculator>> {
         Box::new(calculators::ckd_risk::CkdRisk),
         Box::new(calculators::grace::Grace),
         Box::new(calculators::euroscore2::EuroScore2),
+        Box::new(calculators::rcri::Rcri),
         Box::new(calculators::qrisk3::Qrisk3),
         Box::new(calculators::qfracture::Qfracture),
     ];
