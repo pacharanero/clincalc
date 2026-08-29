@@ -1,0 +1,18 @@
+{
+  "assessment_context": "clinician_administered_standard_adult_nihss_using_authorized_scale_materials",
+  "level_of_consciousness": "alert",
+  "loc_questions": "one_correct",
+  "loc_commands": "both_correct",
+  "best_gaze": "normal",
+  "visual_fields": "partial_hemianopia",
+  "facial_palsy": "minor_paralysis",
+  "motor_arm_left": "drift_without_hitting_support",
+  "motor_arm_right": "no_drift_for_ten_seconds",
+  "motor_leg_left": "drift_without_hitting_bed",
+  "motor_leg_right": "no_drift_for_five_seconds",
+  "limb_ataxia": "absent",
+  "sensory": "mild_to_moderate_loss",
+  "best_language": "mild_to_moderate_aphasia",
+  "dysarthria": "mild_to_moderate",
+  "extinction_inattention": "one_modality"
+}

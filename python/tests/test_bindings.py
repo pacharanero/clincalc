@@ -257,6 +257,32 @@ class TestCalculate:
         assert result["result"] == 4
         assert result["working"]["score_at_least_four"] is True
 
+    def test_calculate_nihss(self):
+        result = clincalc.calculate(
+            "nihss",
+            {
+                "assessment_context": "clinician_administered_standard_adult_nihss_using_authorized_scale_materials",
+                "level_of_consciousness": "alert",
+                "loc_questions": "one_correct",
+                "loc_commands": "both_correct",
+                "best_gaze": "normal",
+                "visual_fields": "partial_hemianopia",
+                "facial_palsy": "minor_paralysis",
+                "motor_arm_left": "drift_without_hitting_support",
+                "motor_arm_right": "no_drift_for_ten_seconds",
+                "motor_leg_left": "drift_without_hitting_bed",
+                "motor_leg_right": "no_drift_for_five_seconds",
+                "limb_ataxia": "absent",
+                "sensory": "mild_to_moderate_loss",
+                "best_language": "mild_to_moderate_aphasia",
+                "dysarthria": "mild_to_moderate",
+                "extinction_inattention": "one_modality",
+            },
+        )
+        assert result["calculator"] == "nihss"
+        assert result["result"] == 9
+        assert result["working"]["total_score"] == 9
+
     def test_calculate_unknown_calculator_raises_value_error(self):
         with pytest.raises(ValueError, match="unknown calculator: nope"):
             clincalc.calculate("nope", {})
@@ -333,7 +359,7 @@ class TestListCalculators:
     def test_returns_nonempty_list(self):
         calcs = clincalc.list_calculators()
         assert isinstance(calcs, list)
-        assert len(calcs) == 102
+        assert len(calcs) == 103
 
     def test_each_entry_has_required_keys(self):
         calcs = clincalc.list_calculators()

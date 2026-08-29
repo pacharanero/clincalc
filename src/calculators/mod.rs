@@ -77,6 +77,7 @@ pub mod meld_3;
 pub mod mrc_dyspnoea;
 pub mod news2;
 pub mod nhfs;
+pub mod nihss;
 pub mod npi;
 pub mod one_rep_max;
 pub mod padua;

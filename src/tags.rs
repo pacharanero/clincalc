@@ -103,6 +103,10 @@ pub const TAGS: &[(&str, &[&str])] = &[
         "gcs",
         &["neurology", "emergency", "acute-medicine", "severity"],
     ),
+    (
+        "nihss",
+        &["neurology", "emergency", "acute-medicine", "severity"],
+    ),
     // ---- Acute illness / sepsis / ICU ----
     ("news2", &["acute-medicine", "nhs-mandated", "severity"]),
     ("qsofa", &["acute-medicine", "intensive-care", "screening"]),

@@ -178,6 +178,7 @@ This table tracks every functioning calculation. `✓` means the language is ava
 | `mrc_dyspnoea` | ✓ | - | - | ✓ |
 | `news2` | ✓ | - | - | ✓ |
 | `nhfs` | ✓ | - | - | ✓ |
+| `nihss` | ✓ | - | - | ✓ |
 | `npi` | ✓ | - | - | ✓ |
 | `one_rep_max` | ✓ | - | - | ✓ |
 | `padua` | ✓ | - | - | ✓ |
