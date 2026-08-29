@@ -43,15 +43,15 @@ This is the complete calculation gap against MedikQuantis's live 65-calculator r
 
 For every item below, completion means: independent implementation from the primary source; closed schema, licence evidence, and literature-vector tests under the normal calculator contract; explicit comparison with the pinned MedikQuantis behavior and documentation of intentional clinical or guideline differences; and complete attributed `en`/`ca`/`es` prose with recorded review. Machine identifiers and numeric behavior remain locale-neutral.
 
-- [ ] **CALC-022 MELD 3.0** - Updated MELD
+- [~] **CALC-022 MELD 3.0** - English OPTN calculation shipped for candidates registered at age 12 or older, with the uncapped policy-formula score preserved separately. Unlike the pinned MedikQuantis surface, clincalc returns the policy integer, models the adolescent coefficient and exact qualifying-dialysis predicate, and does not publish unsupported mortality bands or management advice. Reviewed Catalan and Spanish bundles remain outstanding.
 - [ ] **CALC-023 Modified Duke criteria** - Infective endocarditis
 - [ ] **CALC-024 NIHSS** - Acute stroke severity
 - [ ] **CALC-025 Norton Scale** - Pressure-ulcer risk (immobile)
 - [ ] **CALC-026 NYHA** - Heart-failure functional class
-- [ ] **CALC-027 ORBIT** - Bleeding risk in AF (DOAC era)
+- [ ] **CALC-027 ORBIT** - Bleeding risk in AF (DOAC era); blocked pending unrestricted redistribution evidence or legal review because the original 2015 article is licensed CC BY-NC 4.0, which is incompatible with clincalc's unrestricted reusable-library goal
 - [ ] **CALC-028 PASI** - Psoriasis Area and Severity Index
 - [ ] **CALC-030 Pitt Bacteraemia** - BSI severity
-- [ ] **CALC-031 PSA density** - PSA / prostate volume
+- [~] **CALC-031 PSA density** - English continuous calculation shipped from CC BY 4.0 evidence without a universal diagnostic or biopsy cutoff; reviewed Catalan and Spanish bundles remain outstanding
 - [ ] **CALC-034 SCORAD** - Atopic dermatitis severity
 - [ ] **CALC-035 SCORE2 / SCORE2-OP** - ESC 2021 CV risk (verify licensing)
 - [ ] **CALC-056 Combined BMI / BSA / ideal body weight** - Parity gap retained but blocked as currently scoped: BMI and BSA already ship independently, no generic ideal-body-weight equation is canonical, and adjusted weight is protocol-specific; do not implement until the parity scope is explicitly waived or replaced by a named clinical protocol

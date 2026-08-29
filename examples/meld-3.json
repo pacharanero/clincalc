@@ -1,0 +1,13 @@
+{
+  "registration_age_years": 40,
+  "female_for_adult_meld": false,
+  "bilirubin": 6.0,
+  "bilirubin_unit": "mg/dL",
+  "inr": 1.5,
+  "creatinine": 1.5,
+  "creatinine_unit": "mg/dL",
+  "sodium_mmol_l": 131.0,
+  "albumin": 3.5,
+  "albumin_unit": "g/dL",
+  "qualifying_dialysis_in_prior_7_days": false
+}

@@ -195,6 +195,37 @@ class TestCalculate:
         assert result["working"]["resting_pulse_rate_points"] == 2
         assert result["working"]["severity_band"] == "mild"
 
+    def test_calculate_meld_3(self):
+        result = clincalc.calculate(
+            "meld_3",
+            {
+                "registration_age_years": 40,
+                "female_for_adult_meld": False,
+                "bilirubin": 6.0,
+                "bilirubin_unit": "mg/dL",
+                "inr": 1.5,
+                "creatinine": 1.5,
+                "creatinine_unit": "mg/dL",
+                "sodium_mmol_l": 131.0,
+                "albumin": 3.5,
+                "albumin_unit": "g/dL",
+                "qualifying_dialysis_in_prior_7_days": False,
+            },
+        )
+        assert result["calculator"] == "meld_3"
+        assert result["result"] == 25
+        assert result["working"]["rounded_uncapped_policy_score"] == 25
+
+    def test_calculate_psa_density(self):
+        result = clincalc.calculate(
+            "psa_density",
+            {"total_psa_ng_ml": 6.0, "prostate_volume_ml": 40.0},
+        )
+        assert result["calculator"] == "psa_density"
+        assert result["result"] == 0.15
+        assert result["working"]["result_unit"] == "ng/mL/cc"
+        assert "No cutoff is universal" in result["interpretation"]
+
     def test_calculate_unknown_calculator_raises_value_error(self):
         with pytest.raises(ValueError, match="unknown calculator: nope"):
             clincalc.calculate("nope", {})
@@ -271,7 +302,7 @@ class TestListCalculators:
     def test_returns_nonempty_list(self):
         calcs = clincalc.list_calculators()
         assert isinstance(calcs, list)
-        assert len(calcs) == 98
+        assert len(calcs) == 100
 
     def test_each_entry_has_required_keys(self):
         calcs = clincalc.list_calculators()

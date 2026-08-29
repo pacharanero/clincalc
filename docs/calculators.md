@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry. 88 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
+The full registry. 90 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
@@ -97,6 +97,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `lrinec` | LRINEC Score (Necrotising Fasciitis Risk Indicator) | Six-variable laboratory diagnostic adjunct for severe soft-tissue infection; a score of 6 or more increases suspicion, but poor sensitivity means a low score does not exclude necrotising infection or justify delaying surgical consultation. | `emergency`, `surgery`, `infectious-diseases`, `risk` |
 | `max_heart_rate` | Max Heart Rate & Training Zones | Estimates HRmax from age (Tanaka 2001) and derives aerobic training zones; uses Karvonen heart-rate reserve when resting HR is supplied. | `primary-care`, `screening` |
 | `meld` | MELD Score (original, 2001) | Model for End-Stage Liver Disease: 3-month mortality risk from bilirubin, INR, and creatinine (Kamath 2001). | `hepatology`, `prognostic` |
+| `meld_3` | MELD 3.0 (OPTN) | Current OPTN MELD 3.0 allocation score for liver-transplant candidates registered at age 12 or older; preserves the uncapped policy-formula score separately and does not determine official allocation. | `hepatology`, `prognostic` |
 | `mmse` | MMSE (Mini-Mental State Examination) | Cognitive screening / dementia monitoring (NICE NG97). | `geriatrics`, `neurology`, `mental-health`, `screening`, `proprietary`, `unavailable` |
 | `mrc_dyspnoea` | MRC Dyspnoea Scale | Grades breathlessness-related disability on the classic MRC 1-5 scale (Fletcher 1959; NICE/BTS UK usage). | `primary-care`, `respiratory` |
 | `must` | MUST (Malnutrition Universal Screening Tool) | Malnutrition risk screening (NICE CG32). | `primary-care`, `screening`, `proprietary`, `unavailable` |
@@ -109,6 +110,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `padua` | Padua Prediction Score (VTE risk) | VTE risk in hospitalised medical inpatients, guiding thromboprophylaxis (NICE NG89). | `acute-medicine`, `vascular`, `risk` |
 | `perc` | PERC Rule (PE Rule-out Criteria) | Eight-item block rule for stable adult emergency-department outpatients with suspected pulmonary embolism and clinician gestalt below 15%; PERC-negative can avoid further PE-specific testing. | `emergency`, `respiratory`, `vascular` |
 | `phq9` | PHQ-9 Depression Severity | Nine-item depression severity score (0-27) with standard bands; item 9 flags self-harm risk. | `primary-care`, `mental-health`, `screening` |
+| `psa_density` | Prostate-specific Antigen Density | Calculates total serum PSA divided by imaging-derived prostate volume as a continuous prostate-cancer risk modifier, without imposing a universal diagnostic or biopsy cutoff. | `urology`, `oncology` |
 | `qfracture` | QFracture (10-year fracture risk) | 10-year risk of major osteoporotic and hip fracture (QFracture-2012), the open UK alternative to FRAX (NICE CG146/NG6). | `primary-care`, `endocrinology`, `risk` |
 | `qrisk3` | QRISK3 (10-year cardiovascular risk) | 10-year risk of heart attack or stroke (QRISK3-2017), the UK standard for primary CVD risk assessment (NICE NG238). | `primary-care`, `cardiology`, `risk` |
 | `qsofa` | qSOFA Score (Sepsis-3) | Quick bedside prompt flagging suspected-infection patients at higher risk of poor outcome (Sepsis-3). A prognostic prompt, not a diagnosis of sepsis. | `acute-medicine`, `intensive-care`, `screening` |
@@ -142,7 +144,7 @@ See [Why some calculators are unavailable](how-it-works.md#unavailable-on-princi
 
 ## Wishlist (candidates for future addition)
 
-Calculators below are clinically valuable and on the radar but not yet implemented. They include the complete 23-calculator gap against [MedikQuantis](https://medikquantis.me) (Laura Piñero Roig, Barcelona, MIT) at upstream commit [`16c63c85`](https://github.com/laurapiro17/medikquantis/tree/16c63c85aee7a64417205f60cb3e66fccf19fae2), plus candidates from other sources. The governed queue and stable identifiers live in [`spec/calculator-roadmap.md`](https://github.com/pacharanero/clincalc/blob/main/spec/calculator-roadmap.md).
+Calculators below are clinically valuable and on the radar but not yet implemented. They include remaining entries from the 23-calculator gap recorded against [MedikQuantis](https://medikquantis.me) (Laura Piñero Roig, Barcelona, MIT) at upstream commit [`16c63c85`](https://github.com/laurapiro17/medikquantis/tree/16c63c85aee7a64417205f60cb3e66fccf19fae2), plus candidates from other sources. The complete governed queue and stable identifiers live in [`spec/calculator-roadmap.md`](https://github.com/pacharanero/clincalc/blob/main/spec/calculator-roadmap.md).
 
 Contributions welcome. The shape of the work is documented in [How it works](how-it-works.md#embedding-clincalc-in-a-host), [`AGENTS.md`](https://github.com/pacharanero/clincalc/blob/main/AGENTS.md), and the [`spec/`](https://github.com/pacharanero/clincalc/tree/main/spec) and [`examples/`](https://github.com/pacharanero/clincalc/tree/main/examples) directories.
 
@@ -150,14 +152,12 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 |---|---|---|
 | **StatinMD** (Oxford STRATIFY) | Personalised 1/5/10-year risk of serious statin-induced muscle disorders (rhabdomyolysis / hospitalised myopathy) from 22 routinely-recorded factors (Cai et al, *Lancet Digital Health* 2026). Natural pairing with QRISK3: QRISK3 is the benefit side, StatinMD is the harm side. Licensed for **academic use** via Oxford University Innovation - covered while this project is non-commercial. ([source](https://process.innovation.ox.ac.uk/software/p/25396/stratify---stainmd-risk-calculator---academic-use/1)) | `primary-care`, `cardiology`, `risk` |
 | **NIHSS** | Acute stroke severity standard. | `neurology`, `emergency`, `severity` |
-| **MELD 3.0** | Updated MELD (we ship the 2001 original). | `hepatology`, `prognostic` |
 | **NYHA** | Heart-failure functional class. | `cardiology`, `severity` |
-| **PSA density** | PSA / prostate volume; grey-zone PSA. | `urology`, `oncology` |
 | **Norton Scale** | Pressure-ulcer risk; complements the shipped Braden and Waterlow tools. | `geriatrics`, `screening` |
 | **Pitt Bacteraemia** | BSI severity. | `infectious-diseases`, `severity` |
 | **Modified Duke criteria** | Endocarditis. | `infectious-diseases` |
 | **PASI**, **SCORAD** | Psoriasis / atopic dermatitis. | `dermatology`, `severity` |
-| **ORBIT** | Bleeding risk in atrial fibrillation. | `cardiology`, `risk` |
+| **ORBIT** | Bleeding risk in atrial fibrillation; blocked pending unrestricted redistribution evidence because the original article is CC BY-NC. | `cardiology`, `risk` |
 | **SCORE2 / SCORE2-OP** | ESC 2021 CV risk (verify licensing). | `cardiology`, `risk` |
 | **ARDSNet adult predicted body weight** | Protocol-specific adult PBW for lung-protective ventilation, reframed from the ambiguous combined BMI / BSA / ideal-body-weight proposal. | `intensive-care`, `respiratory` |
 | **SAD PERSONS** | Legacy suicide-risk checklist. Poor predictive performance requires prominent safeguards against using it for disposition decisions. | `mental-health`, `risk` |

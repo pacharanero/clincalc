@@ -170,6 +170,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ("fib4", &["primary-care", "hepatology", "screening"]),
     ("child_pugh", &["hepatology", "severity"]),
     ("meld", &["hepatology", "prognostic"]),
+    ("meld_3", &["hepatology", "prognostic"]),
     ("ukeld", &["hepatology", "prognostic"]),
     // ---- Endocrinology / bone ----
     ("qfracture", &["primary-care", "endocrinology", "risk"]),
@@ -179,6 +180,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
     // ---- Urology / oncology ----
     ("ipss", &["urology", "severity"]),
     ("gleason", &["oncology", "urology"]),
+    ("psa_density", &["urology", "oncology"]),
     ("npi", &["oncology", "prognostic"]),
     ("binet", &["oncology", "severity", "prognostic"]),
     ("khorana", &["oncology", "haematology", "risk"]),
