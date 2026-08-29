@@ -44,6 +44,10 @@ struct ApiCommand {
 )]
 struct Cli {
     /// Locale for human-readable calculator content, as a BCP 47 tag.
+    ///
+    /// For `clincalc api`, this sets the server's configured default locale,
+    /// used only when a request supplies no `?locale=` or `Accept-Language`
+    /// of its own.
     #[arg(
         long,
         global = true,
@@ -145,9 +149,7 @@ fn main() -> anyhow::Result<()> {
         Some(Commands::Version(cmd)) => clincalc::cli::run_version(cmd),
         Some(Commands::Completions(args)) => run_completions(args),
         Some(Commands::Mcp) => reject_surface_locale(locale, "mcp").and_then(|()| run_mcp()),
-        Some(Commands::Api(cmd)) => {
-            reject_surface_locale(locale, "api").and_then(|()| run_api(cmd))
-        }
+        Some(Commands::Api(cmd)) => run_api(cmd, clincalc::cli::resolve_cli_locale(locale)?),
     }
 }
 
@@ -247,12 +249,16 @@ fn run_mcp() -> Result<()> {
 }
 
 #[cfg(feature = "rest-api")]
-fn run_api(cmd: ApiCommand) -> Result<()> {
-    tokio::runtime::Runtime::new()?.block_on(clincalc::api::serve(&cmd.host, cmd.port))
+fn run_api(cmd: ApiCommand, default_locale: clincalc::SupportedLocale) -> Result<()> {
+    tokio::runtime::Runtime::new()?.block_on(clincalc::api::serve(
+        &cmd.host,
+        cmd.port,
+        default_locale,
+    ))
 }
 
 #[cfg(not(feature = "rest-api"))]
-fn run_api(_cmd: ApiCommand) -> Result<()> {
+fn run_api(_cmd: ApiCommand, _default_locale: clincalc::SupportedLocale) -> Result<()> {
     Err(anyhow!(
         "REST API support was not compiled into this clincalc binary.\nReinstall with it enabled, for example: cargo install clincalc --features rest-api"
     ))

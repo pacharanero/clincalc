@@ -37,9 +37,9 @@ The implementation distinguishes two concepts:
 
 `SupportedLocale` is a `#[non_exhaustive]` Rust enum because the compiled set is finite and benefits from exhaustive handling inside the crate. It is not used as the public wire syntax: its serialised form is the canonical BCP 47 tag.
 
-### Planned HTTP language negotiation
+### HTTP language negotiation
 
-The REST surface will follow RFC 9110 when locale propagation reaches it:
+The REST surface (`src/api.rs`) follows RFC 9110:
 
 - Explicit `?locale=<tag>` takes precedence.
 - `Accept-Language` is used when no explicit locale is supplied.
@@ -153,7 +153,7 @@ There is no module-global `set_locale()`. A future immutable client object may h
 
 ### REST API
 
-REST locale propagation is not implemented yet. Its planned contract is the explicit-query/header/configured-default precedence described above, resolved independently for each request so concurrent multi-user use remains deterministic and safe.
+Implemented: the explicit-query/header/configured-default precedence described above, resolved independently for each request (`src/api.rs`) so concurrent multi-user use remains deterministic and safe. The configured default is set per server process with `clincalc api --locale <tag>` (or `CLINCALC_LOCALE`).
 
 ### MCP
 

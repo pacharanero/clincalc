@@ -3,7 +3,7 @@
 
 //! HTTP REST API surface for clincalc, behind the `rest-api` feature.
 //!
-//! Start with `clincalc api [--port 8080] [--host 127.0.0.1]`.
+//! Start with `clincalc api [--port 8080] [--host 127.0.0.1] [--locale <tag>]`.
 //!
 //! Endpoints:
 //!   GET  /calculators                    list all calculators
@@ -11,26 +11,56 @@
 //!   GET  /calculators/{name}/template    fillable input template
 //!   GET  /calculators/{name}/license     licence and evidence URL
 //!   POST /calculators/{name}             compute (body: JSON input object)
+//!
+//! ## Locale negotiation
+//!
+//! Every endpoint above except `/license` and `/openapi.json` resolves a
+//! locale per RFC 9110 and the contract in `spec/multilingual.md`: an
+//! explicit `?locale=<tag>` query parameter takes precedence, then the
+//! `Accept-Language` header, then the server's configured default (set via
+//! `clincalc api --locale`), then English. An explicit `?locale=` that does
+//! not identify a compiled locale bundle fails with `400`; an
+//! `Accept-Language` value that matches nothing quietly falls through to the
+//! next tier, matching ordinary content negotiation. Responses report the
+//! locale actually used via `Content-Language`, and add `Vary:
+//! Accept-Language` when the header was consulted. The OpenAPI document and
+//! licence metadata are not calculator prose and stay locale-neutral.
+
+use std::str::FromStr;
 
 use axum::{
     Json, Router,
-    extract::{Path, rejection::JsonRejection},
-    http::StatusCode,
+    extract::{Path, Query, State, rejection::JsonRejection},
+    http::{HeaderMap, HeaderValue, StatusCode, header},
+    response::{IntoResponse, Response},
     routing::{get, post},
 };
 
+use crate::locale::SupportedLocale;
+
 type ApiResult<T> = Result<Json<T>, (StatusCode, Json<serde_json::Value>)>;
 
-/// Start the axum HTTP server on `host:port`.
-pub async fn serve(host: &str, port: u16) -> anyhow::Result<()> {
+#[derive(Debug, Clone, Copy)]
+struct ApiState {
+    default_locale: SupportedLocale,
+}
+
+#[derive(Debug, serde::Deserialize)]
+struct LocaleQuery {
+    locale: Option<String>,
+}
+
+/// Start the axum HTTP server on `host:port`, using `default_locale` when a
+/// request expresses no locale preference of its own.
+pub async fn serve(host: &str, port: u16, default_locale: SupportedLocale) -> anyhow::Result<()> {
     let addr = format!("{host}:{port}");
     let listener = tokio::net::TcpListener::bind(&addr).await?;
     eprintln!("clincalc REST API listening on http://{addr}");
-    axum::serve(listener, router()).await?;
+    axum::serve(listener, router(default_locale)).await?;
     Ok(())
 }
 
-fn router() -> Router {
+fn router(default_locale: SupportedLocale) -> Router {
     Router::new()
         .route("/openapi.json", get(get_openapi_spec))
         .route("/calculators", get(list_calculators))
@@ -38,6 +68,122 @@ fn router() -> Router {
         .route("/calculators/{name}/template", get(get_template))
         .route("/calculators/{name}/license", get(get_license))
         .route("/calculators/{name}", post(compute))
+        .with_state(ApiState { default_locale })
+}
+
+/// Resolve the locale for one request: explicit query, then `Accept-Language`,
+/// then the server default. Returns whether the header was consulted, so
+/// callers can decide whether to add `Vary: Accept-Language`.
+fn negotiate_locale(
+    query: &LocaleQuery,
+    headers: &HeaderMap,
+    default_locale: SupportedLocale,
+) -> Result<(SupportedLocale, bool), (StatusCode, Json<serde_json::Value>)> {
+    if let Some(tag) = query.locale.as_deref() {
+        return crate::lookup_locale(tag, crate::COMPILED_LOCALES)
+            .map(|locale| (locale, false))
+            .ok_or_else(|| unsupported_locale_error(tag));
+    }
+
+    if let Some(header_value) = headers
+        .get(header::ACCEPT_LANGUAGE)
+        .and_then(|value| value.to_str().ok())
+    {
+        for range in accept_language_ranges(header_value) {
+            if let Some(locale) = crate::lookup_locale(&range, crate::COMPILED_LOCALES) {
+                return Ok((locale, true));
+            }
+        }
+    }
+
+    Ok((default_locale, false))
+}
+
+/// A locale is "effective" for a calculator only when that calculator has a
+/// complete reviewed bundle for it; this mirrors the fallback every
+/// locale-aware `Calculator` method is required to perform internally, so it
+/// can be reported externally in `Content-Language` without recomputing
+/// calculator-specific state.
+fn effective_locale(calc: &dyn crate::Calculator, locale: SupportedLocale) -> SupportedLocale {
+    if calc.supported_locales().contains(&locale) {
+        locale
+    } else {
+        SupportedLocale::En
+    }
+}
+
+fn unsupported_locale_error(tag: &str) -> (StatusCode, Json<serde_json::Value>) {
+    (
+        StatusCode::BAD_REQUEST,
+        Json(serde_json::json!({
+            "error": format!(
+                "unsupported locale `{tag}`; available locales: {}",
+                crate::COMPILED_LOCALES
+                    .iter()
+                    .map(ToString::to_string)
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            )
+        })),
+    )
+}
+
+/// Parse an `Accept-Language` header into language ranges ordered by
+/// descending quality (RFC 9110 12.5.4). A range with no explicit `q`
+/// defaults to `1.0`. Malformed ranges or `q` values are skipped rather than
+/// rejected: an unusable header degrades to the next negotiation tier the
+/// same way a header that matches nothing does.
+fn accept_language_ranges(header_value: &str) -> Vec<String> {
+    let mut ranges: Vec<(String, u32)> = header_value
+        .split(',')
+        .filter_map(|entry| {
+            let mut parts = entry.split(';');
+            let range = parts.next()?.trim();
+            if range.is_empty() {
+                return None;
+            }
+            let mut quality = 1000;
+            for param in parts {
+                if let Some(value) = param.trim().strip_prefix("q=") {
+                    quality = parse_quality(value).unwrap_or(1000);
+                }
+            }
+            Some((range.to_string(), quality))
+        })
+        .collect();
+    // Stable sort: entries with equal quality keep the header's own order.
+    ranges.sort_by(|a, b| b.1.cmp(&a.1));
+    ranges.into_iter().map(|(range, _)| range).collect()
+}
+
+/// Parse an RFC 9110 `qvalue` (`0` to `1`, up to three decimal digits) into a
+/// fixed-point integer out of 1000, so ranges sort without float comparison.
+fn parse_quality(value: &str) -> Option<u32> {
+    let value: f64 = value.parse().ok()?;
+    if !(0.0..=1.0).contains(&value) {
+        return None;
+    }
+    Some((value * 1000.0).round() as u32)
+}
+
+/// Attach `Content-Language` (and `Vary: Accept-Language` when negotiated) to
+/// a JSON response.
+fn with_locale_headers(
+    json: Json<serde_json::Value>,
+    locale: SupportedLocale,
+    negotiated_via_header: bool,
+) -> Response {
+    let mut response = json.into_response();
+    response.headers_mut().insert(
+        header::CONTENT_LANGUAGE,
+        HeaderValue::from_static(locale.as_bcp47()),
+    );
+    if negotiated_via_header {
+        response
+            .headers_mut()
+            .insert(header::VARY, HeaderValue::from_static("Accept-Language"));
+    }
+    response
 }
 
 fn not_found(name: &str) -> (StatusCode, Json<serde_json::Value>) {
@@ -54,15 +200,23 @@ fn invalid_json(rejection: JsonRejection) -> (StatusCode, Json<serde_json::Value
     )
 }
 
-async fn list_calculators() -> Json<serde_json::Value> {
+async fn list_calculators(
+    State(state): State<ApiState>,
+    Query(query): Query<LocaleQuery>,
+    headers: HeaderMap,
+) -> Response {
+    let (locale, negotiated) = match negotiate_locale(&query, &headers, state.default_locale) {
+        Ok(resolved) => resolved,
+        Err(err) => return err.into_response(),
+    };
     let items: Vec<serde_json::Value> = crate::all()
         .iter()
         .map(|c| {
             let lic = c.license();
             serde_json::json!({
                 "name": c.name(),
-                "title": c.title(),
-                "description": c.description(),
+                "title": c.title_for(locale),
+                "description": c.description_for(locale),
                 "supported_locales": c.supported_locales(),
                 "license": lic.license,
                 "license_source": lic.source_url,
@@ -70,19 +224,58 @@ async fn list_calculators() -> Json<serde_json::Value> {
             })
         })
         .collect();
-    Json(serde_json::json!(items))
+    // No single Content-Language: the catalogue mixes calculators that may
+    // each fall back to English independently; `supported_locales` per item
+    // already tells a caller which ones actually honoured the request.
+    let mut response = Json(serde_json::json!(items)).into_response();
+    if negotiated {
+        response
+            .headers_mut()
+            .insert(header::VARY, HeaderValue::from_static("Accept-Language"));
+    }
+    response
 }
 
-async fn get_schema(Path(name): Path<String>) -> ApiResult<serde_json::Value> {
-    crate::get(&name)
-        .map(|c| Json(c.input_schema()))
-        .ok_or_else(|| not_found(&name))
+async fn get_schema(
+    State(state): State<ApiState>,
+    Path(name): Path<String>,
+    Query(query): Query<LocaleQuery>,
+    headers: HeaderMap,
+) -> Response {
+    let (locale, negotiated) = match negotiate_locale(&query, &headers, state.default_locale) {
+        Ok(resolved) => resolved,
+        Err(err) => return err.into_response(),
+    };
+    let Some(calc) = crate::get(&name) else {
+        return not_found(&name).into_response();
+    };
+    let effective = effective_locale(calc.as_ref(), locale);
+    with_locale_headers(
+        Json(calc.input_schema_for(effective)),
+        effective,
+        negotiated,
+    )
 }
 
-async fn get_template(Path(name): Path<String>) -> ApiResult<serde_json::Value> {
-    crate::get(&name)
-        .map(|c| Json(c.input_template()))
-        .ok_or_else(|| not_found(&name))
+async fn get_template(
+    State(state): State<ApiState>,
+    Path(name): Path<String>,
+    Query(query): Query<LocaleQuery>,
+    headers: HeaderMap,
+) -> Response {
+    let (locale, negotiated) = match negotiate_locale(&query, &headers, state.default_locale) {
+        Ok(resolved) => resolved,
+        Err(err) => return err.into_response(),
+    };
+    let Some(calc) = crate::get(&name) else {
+        return not_found(&name).into_response();
+    };
+    let effective = effective_locale(calc.as_ref(), locale);
+    with_locale_headers(
+        Json(calc.input_template_for(effective)),
+        effective,
+        negotiated,
+    )
 }
 
 async fn get_license(Path(name): Path<String>) -> ApiResult<serde_json::Value> {
@@ -92,17 +285,45 @@ async fn get_license(Path(name): Path<String>) -> ApiResult<serde_json::Value> {
 }
 
 async fn compute(
+    State(state): State<ApiState>,
     Path(name): Path<String>,
+    Query(query): Query<LocaleQuery>,
+    headers: HeaderMap,
     payload: Result<Json<serde_json::Value>, JsonRejection>,
-) -> ApiResult<serde_json::Value> {
-    let calc = crate::get(&name).ok_or_else(|| not_found(&name))?;
-    let Json(input) = payload.map_err(invalid_json)?;
-    match calc.calculate(&input) {
-        Ok(response) => Ok(Json(serde_json::to_value(response).unwrap())),
-        Err(e) => Err((
+) -> Response {
+    let (locale, negotiated) = match negotiate_locale(&query, &headers, state.default_locale) {
+        Ok(resolved) => resolved,
+        Err(err) => return err.into_response(),
+    };
+    let Some(calc) = crate::get(&name) else {
+        return not_found(&name).into_response();
+    };
+    let input = match payload {
+        Ok(Json(input)) => input,
+        Err(rejection) => return invalid_json(rejection).into_response(),
+    };
+    match calc.calculate_for(&input, locale) {
+        Ok(response) => {
+            // Ground truth: `calculate_for` stamps the bundle it actually
+            // rendered in `working.content_locale`, which may differ from
+            // the requested/negotiated locale if this calculator lacks it.
+            let content_locale = response
+                .working
+                .get("content_locale")
+                .and_then(|value| value.as_str())
+                .and_then(|tag| SupportedLocale::from_str(tag).ok())
+                .unwrap_or(locale);
+            with_locale_headers(
+                Json(serde_json::to_value(response).unwrap()),
+                content_locale,
+                negotiated,
+            )
+        }
+        Err(e) => (
             StatusCode::UNPROCESSABLE_ENTITY,
             Json(serde_json::json!({"error": format!("{e}")})),
-        )),
+        )
+            .into_response(),
     }
 }
 
@@ -377,7 +598,13 @@ mod tests {
 
     #[tokio::test]
     async fn list_calculators_returns_all_entries() {
-        let (status, body) = send(router(), Method::GET, "/calculators", None).await;
+        let (status, body) = send(
+            router(SupportedLocale::En),
+            Method::GET,
+            "/calculators",
+            None,
+        )
+        .await;
         assert_eq!(status, StatusCode::OK);
         let arr = body.as_array().unwrap();
         assert_eq!(arr.len(), crate::all().len());
@@ -393,8 +620,13 @@ mod tests {
 
     #[tokio::test]
     async fn get_schema_for_known_calculator() {
-        let (status, body) =
-            send(router(), Method::GET, "/calculators/feverpain/schema", None).await;
+        let (status, body) = send(
+            router(SupportedLocale::En),
+            Method::GET,
+            "/calculators/feverpain/schema",
+            None,
+        )
+        .await;
         assert_eq!(status, StatusCode::OK);
         assert_eq!(body["title"], "FeverPainInput");
         assert!(body["properties"]["fever"]["type"].is_string());
@@ -402,7 +634,13 @@ mod tests {
 
     #[tokio::test]
     async fn get_schema_for_unknown_calculator_returns_404() {
-        let (status, body) = send(router(), Method::GET, "/calculators/nope/schema", None).await;
+        let (status, body) = send(
+            router(SupportedLocale::En),
+            Method::GET,
+            "/calculators/nope/schema",
+            None,
+        )
+        .await;
         assert_eq!(status, StatusCode::NOT_FOUND);
         assert!(
             body["error"]
@@ -415,7 +653,7 @@ mod tests {
     #[tokio::test]
     async fn get_template_for_known_calculator() {
         let (status, body) = send(
-            router(),
+            router(SupportedLocale::En),
             Method::GET,
             "/calculators/feverpain/template",
             None,
@@ -428,14 +666,20 @@ mod tests {
 
     #[tokio::test]
     async fn get_template_for_unknown_calculator_returns_404() {
-        let (status, _body) = send(router(), Method::GET, "/calculators/nope/template", None).await;
+        let (status, _body) = send(
+            router(SupportedLocale::En),
+            Method::GET,
+            "/calculators/nope/template",
+            None,
+        )
+        .await;
         assert_eq!(status, StatusCode::NOT_FOUND);
     }
 
     #[tokio::test]
     async fn get_license_for_known_calculator() {
         let (status, body) = send(
-            router(),
+            router(SupportedLocale::En),
             Method::GET,
             "/calculators/feverpain/license",
             None,
@@ -448,7 +692,13 @@ mod tests {
 
     #[tokio::test]
     async fn get_license_for_unknown_calculator_returns_404() {
-        let (status, _body) = send(router(), Method::GET, "/calculators/nope/license", None).await;
+        let (status, _body) = send(
+            router(SupportedLocale::En),
+            Method::GET,
+            "/calculators/nope/license",
+            None,
+        )
+        .await;
         assert_eq!(status, StatusCode::NOT_FOUND);
     }
 
@@ -456,7 +706,7 @@ mod tests {
     async fn compute_valid_input_returns_result() {
         let input = r#"{"fever":true,"purulence":true,"attend_rapidly":true,"inflamed_tonsils":true,"absence_of_cough":true}"#;
         let (status, body) = send(
-            router(),
+            router(SupportedLocale::En),
             Method::POST,
             "/calculators/feverpain",
             Some(input),
@@ -474,7 +724,7 @@ mod tests {
     async fn compute_invalid_input_returns_422() {
         let input = r#"{"fever":"not-a-boolean"}"#;
         let (status, body) = send(
-            router(),
+            router(SupportedLocale::En),
             Method::POST,
             "/calculators/feverpain",
             Some(input),
@@ -492,7 +742,7 @@ mod tests {
             .header("content-type", "application/json")
             .body(Body::from("{"))
             .unwrap();
-        let (status, body) = send_request(router(), request).await;
+        let (status, body) = send_request(router(SupportedLocale::En), request).await;
         assert_eq!(status, StatusCode::BAD_REQUEST);
         assert!(body["error"].as_str().unwrap().contains("Failed to parse"));
     }
@@ -504,7 +754,7 @@ mod tests {
             .uri("/calculators/feverpain")
             .body(Body::from("{}"))
             .unwrap();
-        let (status, body) = send_request(router(), request).await;
+        let (status, body) = send_request(router(SupportedLocale::En), request).await;
         assert_eq!(status, StatusCode::UNSUPPORTED_MEDIA_TYPE);
         assert!(body["error"].as_str().unwrap().contains("Content-Type"));
     }
@@ -512,7 +762,13 @@ mod tests {
     #[tokio::test]
     async fn compute_unknown_calculator_returns_404() {
         let input = r#"{}"#;
-        let (status, body) = send(router(), Method::POST, "/calculators/nope", Some(input)).await;
+        let (status, body) = send(
+            router(SupportedLocale::En),
+            Method::POST,
+            "/calculators/nope",
+            Some(input),
+        )
+        .await;
         assert_eq!(status, StatusCode::NOT_FOUND);
         assert!(
             body["error"]
@@ -524,7 +780,13 @@ mod tests {
 
     #[tokio::test]
     async fn openapi_spec_has_all_paths_and_schemas() {
-        let (status, body) = send(router(), Method::GET, "/openapi.json", None).await;
+        let (status, body) = send(
+            router(SupportedLocale::En),
+            Method::GET,
+            "/openapi.json",
+            None,
+        )
+        .await;
         assert_eq!(status, StatusCode::OK);
         assert_eq!(body["openapi"], "3.1.0");
         assert!(body["paths"]["/calculators"]["get"].is_object());
@@ -543,7 +805,13 @@ mod tests {
 
     #[tokio::test]
     async fn openapi_spec_includes_every_calculator_post_path() {
-        let (status, body) = send(router(), Method::GET, "/openapi.json", None).await;
+        let (status, body) = send(
+            router(SupportedLocale::En),
+            Method::GET,
+            "/openapi.json",
+            None,
+        )
+        .await;
         assert_eq!(status, StatusCode::OK);
         for calc in crate::all() {
             let path = format!("/calculators/{}", calc.name());
@@ -553,5 +821,173 @@ mod tests {
                 calc.name()
             );
         }
+    }
+
+    // --- Locale negotiation ---------------------------------------------
+
+    #[test]
+    fn negotiate_locale_prefers_explicit_query() {
+        let query = LocaleQuery {
+            locale: Some("es".to_string()),
+        };
+        let (locale, negotiated) =
+            negotiate_locale(&query, &HeaderMap::new(), SupportedLocale::En).unwrap();
+        assert_eq!(locale, SupportedLocale::Es);
+        assert!(!negotiated);
+    }
+
+    #[test]
+    fn negotiate_locale_rejects_an_unrecognised_explicit_query() {
+        let query = LocaleQuery {
+            locale: Some("xx".to_string()),
+        };
+        let (status, body) =
+            negotiate_locale(&query, &HeaderMap::new(), SupportedLocale::En).unwrap_err();
+        assert_eq!(status, StatusCode::BAD_REQUEST);
+        assert!(
+            body.0["error"]
+                .as_str()
+                .unwrap()
+                .contains("unsupported locale `xx`")
+        );
+    }
+
+    #[test]
+    fn negotiate_locale_falls_back_to_accept_language_header() {
+        let query = LocaleQuery { locale: None };
+        let mut headers = HeaderMap::new();
+        headers.insert(
+            header::ACCEPT_LANGUAGE,
+            HeaderValue::from_static("fr;q=0.5, ca;q=0.9, en;q=0.1"),
+        );
+        let (locale, negotiated) = negotiate_locale(&query, &headers, SupportedLocale::En).unwrap();
+        assert_eq!(locale, SupportedLocale::Ca);
+        assert!(negotiated);
+    }
+
+    #[test]
+    fn negotiate_locale_ignores_a_header_that_matches_no_compiled_bundle() {
+        let query = LocaleQuery { locale: None };
+        let mut headers = HeaderMap::new();
+        headers.insert(header::ACCEPT_LANGUAGE, HeaderValue::from_static("de, fr"));
+        let (locale, negotiated) = negotiate_locale(&query, &headers, SupportedLocale::Es).unwrap();
+        assert_eq!(locale, SupportedLocale::Es);
+        assert!(!negotiated);
+    }
+
+    #[test]
+    fn negotiate_locale_uses_the_server_default_with_no_request_signal() {
+        let query = LocaleQuery { locale: None };
+        let (locale, negotiated) =
+            negotiate_locale(&query, &HeaderMap::new(), SupportedLocale::Ca).unwrap();
+        assert_eq!(locale, SupportedLocale::Ca);
+        assert!(!negotiated);
+    }
+
+    #[test]
+    fn accept_language_ranges_sort_by_descending_quality_and_keep_header_order_for_ties() {
+        assert_eq!(
+            accept_language_ranges("en;q=0.5, es, ca;q=0.5, fr;q=0.9"),
+            vec!["es", "fr", "en", "ca"]
+        );
+    }
+
+    #[test]
+    fn accept_language_ranges_treats_a_malformed_quality_as_default() {
+        assert_eq!(
+            accept_language_ranges("es;q=notanumber, en;q=0.9"),
+            vec!["es", "en"]
+        );
+    }
+
+    #[test]
+    fn accept_language_ranges_skips_blank_entries() {
+        assert_eq!(accept_language_ranges("es,, en"), vec!["es", "en"]);
+    }
+
+    #[tokio::test]
+    async fn get_schema_with_an_unrecognised_explicit_locale_returns_400() {
+        let (status, body) = send(
+            router(SupportedLocale::En),
+            Method::GET,
+            "/calculators/feverpain/schema?locale=xx",
+            None,
+        )
+        .await;
+        assert_eq!(status, StatusCode::BAD_REQUEST);
+        assert!(
+            body["error"]
+                .as_str()
+                .unwrap()
+                .contains("unsupported locale `xx`")
+        );
+    }
+
+    #[tokio::test]
+    async fn get_schema_reports_the_english_fallback_actually_rendered() {
+        // feverpain has no Spanish bundle yet, so a compiled-but-unsupported
+        // `?locale=es` still succeeds and reports the fallback it used,
+        // rather than echoing back the request or erroring.
+        let request = Request::builder()
+            .method(Method::GET)
+            .uri("/calculators/feverpain/schema?locale=es")
+            .body(Body::empty())
+            .unwrap();
+        let response = router(SupportedLocale::En).oneshot(request).await.unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+        assert_eq!(
+            response.headers().get(header::CONTENT_LANGUAGE).unwrap(),
+            "en"
+        );
+        assert!(response.headers().get(header::VARY).is_none());
+    }
+
+    #[tokio::test]
+    async fn compute_negotiated_via_accept_language_sets_vary() {
+        let input = r#"{"fever":true,"purulence":true,"attend_rapidly":true,"inflamed_tonsils":true,"absence_of_cough":true}"#;
+        let request = Request::builder()
+            .method(Method::POST)
+            .uri("/calculators/feverpain")
+            .header("content-type", "application/json")
+            .header("accept-language", "es")
+            .body(Body::from(input))
+            .unwrap();
+        let response = router(SupportedLocale::En).oneshot(request).await.unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+        assert_eq!(
+            response.headers().get(header::CONTENT_LANGUAGE).unwrap(),
+            "en"
+        );
+        assert_eq!(
+            response.headers().get(header::VARY).unwrap(),
+            "Accept-Language"
+        );
+    }
+
+    #[tokio::test]
+    async fn compute_reports_content_locale_in_working() {
+        let input = r#"{"fever":true,"purulence":true,"attend_rapidly":true,"inflamed_tonsils":true,"absence_of_cough":true}"#;
+        let (status, body) = send(
+            router(SupportedLocale::En),
+            Method::POST,
+            "/calculators/feverpain",
+            Some(input),
+        )
+        .await;
+        assert_eq!(status, StatusCode::OK);
+        assert_eq!(body["working"]["content_locale"], "en");
+    }
+
+    #[tokio::test]
+    async fn list_calculators_accepts_a_compiled_but_unsupported_locale() {
+        let (status, body) = send(
+            router(SupportedLocale::En),
+            Method::GET,
+            "/calculators?locale=es",
+            None,
+        )
+        .await;
+        assert_eq!(status, StatusCode::OK);
+        assert!(body.as_array().unwrap()[0]["title"].is_string());
     }
 }
