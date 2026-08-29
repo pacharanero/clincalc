@@ -152,7 +152,7 @@ fn accept_language_ranges(header_value: &str) -> Vec<String> {
         })
         .collect();
     // Stable sort: entries with equal quality keep the header's own order.
-    ranges.sort_by(|a, b| b.1.cmp(&a.1));
+    ranges.sort_by_key(|entry| std::cmp::Reverse(entry.1));
     ranges.into_iter().map(|(range, _)| range).collect()
 }
 
