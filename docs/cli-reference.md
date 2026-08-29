@@ -34,7 +34,7 @@ The locale architecture is implemented, but calculators currently advertise Engl
 
 When a reviewed bundle is available, the locale applies to metadata, schema descriptions, template hints, computed interpretation, and the human text output labels. Input field names, JSON numbers, result values, risk codes, recommendation codes, units, and citations remain stable. A calculation reports the resolved bundle in `working.content_locale`. A calculator that does not advertise the requested locale exits with its supported locale list rather than mixing languages; catalogue entries without that translation remain in English and expose their `supported_locales` in JSON output.
 
-Locale negotiation is currently implemented for catalogue and calculator commands. `clincalc api` and `clincalc mcp` reject the global `--locale` option until their protocol-specific negotiation described in the multilingual roadmap is implemented.
+Locale negotiation is implemented for catalogue and calculator commands, and for `clincalc api`, where `--locale` sets the server's configured default; a request can override it per-call with `?locale=<tag>` or `Accept-Language`. Named calculator responses report the resolved locale via `Content-Language`; catalogue entries report their own `content_locale` because calculators can fall back independently. See the module documentation in `src/api.rs` for the full precedence. `clincalc mcp` still rejects the global `--locale` option until its protocol-specific negotiation described in the multilingual roadmap is implemented.
 
 ### `--input <JSON|FILE|->`
 
