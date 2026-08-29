@@ -50,6 +50,8 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ("gad7", &["primary-care", "mental-health", "screening"]),
     ("audit", &["primary-care", "mental-health", "screening"]),
     ("auditc", &["primary-care", "mental-health", "screening"]),
+    ("ciwa_ar", &["acute-medicine", "mental-health", "severity"]),
+    ("cows", &["acute-medicine", "mental-health", "severity"]),
     (
         "epds",
         &["primary-care", "mental-health", "perinatal", "screening"],

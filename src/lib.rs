@@ -136,6 +136,8 @@ pub fn all() -> Vec<Box<dyn Calculator>> {
         Box::new(calculators::homa_ir::HomaIr),
         Box::new(calculators::auditc::AuditC),
         Box::new(calculators::audit::Audit),
+        Box::new(calculators::ciwa_ar::CiwaAr),
+        Box::new(calculators::cows::Cows),
         Box::new(calculators::epds::Epds),
         Box::new(calculators::ipss::Ipss),
         Box::new(calculators::isth_overt_dic::IsthOvertDic),

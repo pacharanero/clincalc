@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry. 86 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
+The full registry. 88 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
@@ -57,9 +57,11 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `chalice` | CHALICE Paediatric Head Injury Rule | Decision rule for CT head in children after head injury: any positive criterion predicts a clinically significant intracranial injury and a CT head scan is recommended (Dunning et al 2006; NICE NG232). | `paediatrics`, `emergency` |
 | `charlson` | Charlson Comorbidity Index (CCI) | Predicts 10-year mortality from 19 weighted comorbidities, with optional age adjustment. | `primary-care`, `risk`, `prognostic` |
 | `child_pugh` | Child-Pugh Score (Cirrhosis Severity) | Severity of chronic liver disease from bilirubin, albumin, INR, ascites, and encephalopathy; reports class A/B/C. | `hepatology`, `severity` |
+| `ciwa_ar` | CIWA-Ar Alcohol Withdrawal Severity | Quantifies current withdrawal symptoms after alcohol withdrawal has been clinically identified in a reliably communicative patient. It is not diagnostic and does not prescribe medication. | `acute-medicine`, `mental-health`, `severity` |
 | `ckd_risk` | KDIGO CKD risk category (eGFR x ACR heatmap) | Combines the eGFR G-stage and albuminuria A-stage into the KDIGO prognosis risk category (the green/yellow/orange/red heatmap). | `primary-care`, `nephrology`, `risk` |
 | `corrected_calcium` | Albumin-corrected Calcium | Corrects total serum calcium for abnormal albumin using the Payne-style correction. | `primary-care`, `endocrinology` |
 | `corrected_sodium` | Hyperglycaemia-corrected Sodium | Estimates expected serum sodium at normoglycaemia in hyperglycaemia (DKA/HHS workup), using the Katz or Hillier correction factor. | `endocrinology`, `acute-medicine` |
+| `cows` | Clinical Opiate Withdrawal Scale (COWS) | Quantifies current clinician-assessed findings apparently attributable to opioid withdrawal. It does not independently diagnose withdrawal or determine medication timing or dosage. | `acute-medicine`, `mental-health`, `severity` |
 | `curb65` | CURB-65 Pneumonia Severity | Severity and 30-day mortality risk in adults with community-acquired pneumonia, guiding place of care (BTS 2009 / NICE NG250). | `acute-medicine`, `respiratory`, `infectious-diseases`, `severity` |
 | `das28` | DAS28 (Rheumatoid Arthritis Disease Activity) | Disease Activity Score in 28 joints for rheumatoid arthritis, from tender/swollen joint counts, an ESR or CRP marker, and patient global health. | `rheumatology`, `severity` |
 | `cockcroft_gault` | Cockcroft-Gault Creatinine Clearance | Creatinine clearance (CrCl, mL/min) from age, weight, sex, and creatinine. Superseded by CKD-EPI 2021 for CKD staging; retained for renal drug dosing where guidelines cite CrCl. | `primary-care`, `nephrology` |
@@ -157,9 +159,7 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 | **PASI**, **SCORAD** | Psoriasis / atopic dermatitis. | `dermatology`, `severity` |
 | **ORBIT** | Bleeding risk in atrial fibrillation. | `cardiology`, `risk` |
 | **SCORE2 / SCORE2-OP** | ESC 2021 CV risk (verify licensing). | `cardiology`, `risk` |
-| **Combined BMI / BSA / ideal body weight** | Combined anthropometric result matching MedikQuantis's current surface while reusing shared BMI and BSA calculations. | `primary-care`, `endocrinology` |
-| **CIWA-Ar** | Alcohol-withdrawal severity assessment; must not become an autonomous medication protocol. | `acute-medicine`, `mental-health`, `severity` |
-| **COWS** | Clinician-rated opioid-withdrawal severity scale. | `acute-medicine`, `mental-health`, `severity` |
+| **ARDSNet adult predicted body weight** | Protocol-specific adult PBW for lung-protective ventilation, reframed from the ambiguous combined BMI / BSA / ideal-body-weight proposal. | `intensive-care`, `respiratory` |
 | **SAD PERSONS** | Legacy suicide-risk checklist. Poor predictive performance requires prominent safeguards against using it for disposition decisions. | `mental-health`, `risk` |
 | **RCPCH Digital Growth Charts** | UK-WHO + UK90; z-score / centile / SDS; chart rendering. Needs LMS tables + RCPCH licensing terms. | `paediatrics` |
 | **Skinfold body fat % (Jackson-Pollock / Durnin-Womersley)** | Caliper-derived body-fat estimate for training and body-comparison settings. | `primary-care`, `endocrinology`, `screening` |

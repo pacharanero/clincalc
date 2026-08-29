@@ -151,6 +151,50 @@ class TestCalculate:
         assert result["working"]["score_version"] == "2025"
         assert result["working"]["band"] == "consistent_with_overt_dic"
 
+    def test_calculate_ciwa_ar(self):
+        result = clincalc.calculate(
+            "ciwa_ar",
+            {
+                "assessment_context": "clinically_identified_alcohol_withdrawal_with_reliable_patient_participation",
+                "nausea_and_vomiting": 1,
+                "tremor": 2,
+                "paroxysmal_sweats": 1,
+                "anxiety": 3,
+                "agitation": 2,
+                "tactile_disturbances": 0,
+                "auditory_disturbances": 0,
+                "visual_disturbances": 0,
+                "headache_or_fullness": 1,
+                "orientation_and_clouding": 0,
+            },
+        )
+        assert result["calculator"] == "ciwa_ar"
+        assert result["result"] == 10
+        assert result["working"]["severity_band"] == "moderate"
+
+    def test_calculate_cows(self):
+        result = clincalc.calculate(
+            "cows",
+            {
+                "assessment_context": "clinician_assessment_of_current_possible_opioid_withdrawal",
+                "resting_pulse_rate_bpm": 101,
+                "sweating": 3,
+                "restlessness": 0,
+                "pupil_size": 0,
+                "bone_or_joint_aches": 0,
+                "runny_nose_or_tearing": 0,
+                "gastrointestinal_upset": 0,
+                "tremor": 0,
+                "yawning": 0,
+                "anxiety_or_irritability": 0,
+                "gooseflesh_skin": 0,
+            },
+        )
+        assert result["calculator"] == "cows"
+        assert result["result"] == 5
+        assert result["working"]["resting_pulse_rate_points"] == 2
+        assert result["working"]["severity_band"] == "mild"
+
     def test_calculate_unknown_calculator_raises_value_error(self):
         with pytest.raises(ValueError, match="unknown calculator: nope"):
             clincalc.calculate("nope", {})
@@ -227,7 +271,7 @@ class TestListCalculators:
     def test_returns_nonempty_list(self):
         calcs = clincalc.list_calculators()
         assert isinstance(calcs, list)
-        assert len(calcs) == 96
+        assert len(calcs) == 98
 
     def test_each_entry_has_required_keys(self):
         calcs = clincalc.list_calculators()

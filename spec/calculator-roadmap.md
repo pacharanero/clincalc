@@ -54,10 +54,10 @@ For every item below, completion means: independent implementation from the prim
 - [ ] **CALC-031 PSA density** - PSA / prostate volume
 - [ ] **CALC-034 SCORAD** - Atopic dermatitis severity
 - [ ] **CALC-035 SCORE2 / SCORE2-OP** - ESC 2021 CV risk (verify licensing)
-- [ ] **CALC-056 Combined BMI / BSA / ideal body weight** - Match MedikQuantis's combined anthropometric calculation while reusing shared clincalc primitives rather than duplicating BMI or BSA logic
+- [ ] **CALC-056 Combined BMI / BSA / ideal body weight** - Parity gap retained but blocked as currently scoped: BMI and BSA already ship independently, no generic ideal-body-weight equation is canonical, and adjusted weight is protocol-specific; do not implement until the parity scope is explicitly waived or replaced by a named clinical protocol
 - [~] **CALC-057 Free-water deficit** - English implementation shipped using an explicit clinician-selected total-body-water fraction rather than inferring body composition from sex or an arbitrary age boundary; reviewed Catalan and Spanish bundles remain outstanding
-- [ ] **CALC-059 CIWA-Ar** - Alcohol-withdrawal severity; verify instrument reproduction terms and ensure scoring does not become an autonomous medication protocol
-- [ ] **CALC-060 COWS** - Clinical Opiate Withdrawal Scale; verify instrument reproduction terms and preserve clinician-assessment context
+- [~] **CALC-059 CIWA-Ar** - English implementation shipped after confirming that the instrument is not copyrighted and may be reproduced freely; requires clinically identified withdrawal and reliable patient participation and does not provide a medication protocol; reviewed Catalan and Spanish bundles remain outstanding
+- [~] **CALC-060 COWS** - English implementation shipped after confirming NIH's no-copyright record and the original publication's clinical-copy permission; derives pulse points, preserves clinician-attributed scoring, and does not determine medication timing or dose; reviewed Catalan and Spanish bundles remain outstanding
 - [ ] **CALC-061 SAD PERSONS** - Legacy suicide-risk checklist; require an evidence and safety review because poor predictive performance means it must not determine discharge, observation, or referral
 - [~] **CALC-062 ISTH overt DIC score** - English implementation shipped using the 2025 ISTH update, measured inputs, D-dimer multiples of assay ULN, and an explicit DIC-associated etiology prerequisite; reviewed Catalan and Spanish bundles remain outstanding
 
@@ -74,3 +74,4 @@ Shipped anthropometric and body-composition measures include BMI, body-fat circu
 - [ ] **CALC-051 Fat-free mass index (FFMI)** - fat-free mass normalised to height^2; used in sports medicine and sarcopenia screening
 - [ ] **CALC-052 Skeletal muscle mass index (SMI)** - appendicular lean mass / height^2; sarcopenia definition (EWGSOP2 / FNIH)
 - [ ] **CALC-053 Axial length centile charts (CREAM-Kids)** - age-, sex-, and region-specific centile charts for axial eye length in children and adolescents, from the CREAM-Kids Consortium (Kneepkens, Lingham, Mackey et al, *JAMA Ophthalmology* 2026). Reusable coefficients or tables and their distribution terms must be confirmed before implementation. Do not infer a serial rate-of-change risk model unless a primary source specifies and validates one. Shared centile-engine work is tracked only under ENG-010 in [`roadmap.md`](roadmap.md#eng-010-generic-centile-engine).
+- [ ] **CALC-066 ARDSNet adult predicted body weight** - Protocol-specific PBW from adult height and a clinician-selected ARDSNet coefficient branch for lung-protective ventilation; not generic ideal body weight, drug-dosing weight, or a ventilation prescription
