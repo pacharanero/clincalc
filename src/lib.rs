@@ -128,6 +128,7 @@ pub fn all() -> Vec<Box<dyn Calculator>> {
         Box::new(calculators::ehra::Ehra),
         Box::new(calculators::ascvd::Ascvd),
         Box::new(calculators::familial_hypercholesterolaemia::FamilialHypercholesterolaemia),
+        Box::new(calculators::ldl_cholesterol::LdlCholesterol),
         Box::new(calculators::findrisc::Findrisc),
         Box::new(calculators::auditc::AuditC),
         Box::new(calculators::audit::Audit),

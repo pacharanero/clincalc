@@ -69,6 +69,10 @@ pub const TAGS: &[(&str, &[&str])] = &[
         "familial_hypercholesterolaemia",
         &["primary-care", "cardiology", "endocrinology", "risk"],
     ),
+    (
+        "ldl_cholesterol",
+        &["primary-care", "cardiology", "endocrinology"],
+    ),
     ("hasbled", &["cardiology", "risk"]),
     ("heart", &["cardiology", "emergency", "risk"]),
     ("grace", &["cardiology", "acute-medicine", "prognostic"]),
