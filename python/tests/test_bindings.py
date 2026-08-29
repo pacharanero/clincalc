@@ -35,6 +35,26 @@ class TestCalculate:
         assert result["calculator"] == "bmi"
         assert round(result["result"], 1) == 22.9
 
+    def test_calculate_body_surface_area(self):
+        result = clincalc.calculate(
+            "body_surface_area", {"height_cm": 180, "weight_kg": 80}
+        )
+        assert result["calculator"] == "body_surface_area"
+        assert result["result"] == 2.0
+
+    def test_calculate_homa_ir(self):
+        result = clincalc.calculate(
+            "homa_ir",
+            {
+                "fasting_glucose": 4.5,
+                "glucose_unit": "mmol/L",
+                "fasting_insulin_miu_l": 5,
+            },
+        )
+        assert result["calculator"] == "homa_ir"
+        assert result["result"] == 1.0
+        assert "not a universal diagnostic cut-off" in result["interpretation"]
+
     def test_calculate_unknown_calculator_raises_value_error(self):
         with pytest.raises(ValueError, match="unknown calculator: nope"):
             clincalc.calculate("nope", {})
@@ -111,7 +131,7 @@ class TestListCalculators:
     def test_returns_nonempty_list(self):
         calcs = clincalc.list_calculators()
         assert isinstance(calcs, list)
-        assert len(calcs) == 88
+        assert len(calcs) == 90
 
     def test_each_entry_has_required_keys(self):
         calcs = clincalc.list_calculators()

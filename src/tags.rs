@@ -138,6 +138,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
         "body_fat_circumference",
         &["primary-care", "endocrinology", "screening"],
     ),
+    ("body_surface_area", &["primary-care"]),
     (
         "waist_to_height_ratio",
         &["primary-care", "endocrinology", "screening"],
@@ -154,6 +155,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ("one_rep_max", &["primary-care", "musculoskeletal"]),
     ("wilks", &["musculoskeletal"]),
     ("findrisc", &["primary-care", "endocrinology", "screening"]),
+    ("homa_ir", &["endocrinology", "screening"]),
     ("uacr", &["primary-care", "nephrology"]),
     ("ckd_risk", &["primary-care", "nephrology", "risk"]),
     // ---- Hepatology ----

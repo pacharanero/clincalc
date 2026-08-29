@@ -22,7 +22,8 @@ MedikQuantis parity items have a stricter completion rule: the calculation and i
 
 ### In-progress
 
-_None active right now._
+- [~] **CALC-055 Mosteller body surface area** - English calculation shipped. Reviewed Catalan and Spanish bundles remain outstanding. Unlike the pinned MedikQuantis surface, clincalc reports the continuous BSA without inferring protocol-specific drug doses or indexing decisions.
+- [~] **CALC-058 HOMA-IR** - English calculation shipped. Reviewed Catalan and Spanish bundles remain outstanding. Unlike the pinned MedikQuantis surface, clincalc does not apply universal interpretation thresholds because HOMA-IR varies by population and insulin assay.
 
 ### Planned
 
@@ -50,10 +51,8 @@ For every item below, completion means: independent implementation from the prim
 - [ ] **CALC-034 SCORAD** - Atopic dermatitis severity
 - [ ] **CALC-035 SCORE2 / SCORE2-OP** - ESC 2021 CV risk (verify licensing)
 - [ ] **CALC-054 Apgar score** - Newborn condition at 1 and 5 minutes from appearance, pulse, grimace, activity, and respiration
-- [ ] **CALC-055 Mosteller body surface area** - BSA from height and weight using the Mosteller equation
 - [ ] **CALC-056 Combined BMI / BSA / ideal body weight** - Match MedikQuantis's combined anthropometric calculation while reusing shared clincalc primitives rather than duplicating BMI or BSA logic
 - [ ] **CALC-057 Free-water deficit** - Estimated water deficit in hypernatraemia from sodium, weight, and sex/age-adjusted total-body-water fraction
-- [ ] **CALC-058 HOMA-IR** - Homeostatic Model Assessment estimate of insulin resistance from fasting glucose and insulin; document assay and population limitations
 - [ ] **CALC-059 CIWA-Ar** - Alcohol-withdrawal severity; verify instrument reproduction terms and ensure scoring does not become an autonomous medication protocol
 - [ ] **CALC-060 COWS** - Clinical Opiate Withdrawal Scale; verify instrument reproduction terms and preserve clinician-assessment context
 - [ ] **CALC-061 SAD PERSONS** - Legacy suicide-risk checklist; require an evidence and safety review because poor predictive performance means it must not determine discharge, observation, or referral

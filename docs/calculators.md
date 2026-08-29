@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry. 78 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
+The full registry. 80 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
@@ -44,6 +44,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `bmi` | BMI (Body Mass Index) | Body mass index from weight and height, with standard adult category. | `primary-care`, `endocrinology` |
 | `bode` | BODE Index (COPD prognosis) | Multidimensional prognostic index in COPD from BMI, FEV1, mMRC dyspnoea, and six-minute walk distance; predicts ~4-year survival. | `respiratory`, `prognostic` |
 | `body_fat_circumference` | Body Fat % (US Navy Circumference Method) | Estimates body fat percentage from height, waist, neck (and hip for women) using the US Navy / Hodgdon-Beckett regression equations. | `primary-care`, `endocrinology`, `screening` |
+| `body_surface_area` | Body Surface Area (Mosteller) | Calculates body surface area from height and weight using the Mosteller formula. It does not infer dosing or indexing decisions, which remain protocol-specific. | `primary-care` |
 | `braden` | Braden Scale (Pressure Ulcer Risk) | Predicts pressure ulcer risk across six subscales (sensory perception, moisture, activity, mobility, nutrition, friction/shear). Score 6-23; lower = higher risk. | `acute-medicine`, `geriatrics`, `screening` |
 | `caprini` | Caprini VTE Risk Score | Peri-operative venous thromboembolism (VTE) risk assessment using weighted risk factors. Score 0=very low to ≥5=high. | `surgery`, `vascular`, `risk` |
 | `cat` | CAT (COPD Assessment Test) | Symptom-burden / health-status measure in COPD (8 items, 0-40; GOLD/NICE NG115). | `respiratory`, `severity`, `proprietary`, `unavailable` |
@@ -81,6 +82,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `hasbled` | HAS-BLED Bleeding Risk (AF) | Bleeding risk in atrial fibrillation on anticoagulation, used alongside CHA2DS2-VASc (NICE NG196). | `cardiology`, `risk` |
 | `heart` | HEART Score (ED Chest Pain) | 6-week MACE risk for emergency department chest pain, guiding discharge versus admission versus early invasive management (Six AJ et al. 2008). | `cardiology`, `emergency`, `risk` |
 | `hinchey` | Modified Hinchey Classification (Wasvary/Kaiser) | Classifies diverticulitis anatomy using the Wasvary modified stages and Kaiser CT operationalisation; preserves fistula/obstruction as separate categories and does not infer purulent versus fecal peritonitis from CT alone. | `surgery`, `acute-medicine`, `severity` |
+| `homa_ir` | HOMA-IR | Calculates the continuous original HOMA1 surrogate estimate from fasting glucose and fasting insulin. It does not apply a universal diagnostic cutoff because values depend on the assay and population. | `endocrinology`, `screening` |
 | `ipss` | IPSS - International Prostate Symptom Score | Seven-item lower urinary tract symptom score (0-35) for benign prostatic hyperplasia; bands mild 0-7, moderate 8-19, severe 20-35, with an optional quality-of-life item (0-6). | `urology`, `severity` |
 | `lanss` | LANSS (Leeds Assessment of Neuropathic Symptoms and Signs) | Screening for pain of predominantly neuropathic origin (7 items, 0-24; >=12 likely neuropathic). | `neurology`, `screening`, `proprietary`, `unavailable` |
 | `ldl_cholesterol` | LDL and non-HDL Cholesterol | Calculates non-HDL cholesterol and estimates LDL cholesterol using Friedewald, Martin-Hopkins, and Sampson-NIH, with method-specific triglyceride limits. | `primary-care`, `cardiology`, `endocrinology` |
@@ -150,10 +152,8 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 | **ORBIT** | Bleeding risk in atrial fibrillation. | `cardiology`, `risk` |
 | **SCORE2 / SCORE2-OP** | ESC 2021 CV risk (verify licensing). | `cardiology`, `risk` |
 | **Apgar score** | Newborn condition at 1 and 5 minutes from appearance, pulse, grimace, activity, and respiration. | `paediatrics`, `perinatal`, `severity` |
-| **Mosteller body surface area** | Body surface area from height and weight using the Mosteller equation. | `primary-care` |
 | **Combined BMI / BSA / ideal body weight** | Combined anthropometric result matching MedikQuantis's current surface while reusing shared BMI and BSA calculations. | `primary-care`, `endocrinology` |
 | **Free-water deficit** | Estimated water deficit in hypernatraemia from sodium, weight, and a sex/age-adjusted total-body-water fraction. | `acute-medicine`, `nephrology` |
-| **HOMA-IR** | Estimate of insulin resistance from fasting glucose and insulin, with assay and population limitations made explicit. | `endocrinology`, `screening` |
 | **CIWA-Ar** | Alcohol-withdrawal severity assessment; must not become an autonomous medication protocol. | `acute-medicine`, `mental-health`, `severity` |
 | **COWS** | Clinician-rated opioid-withdrawal severity scale. | `acute-medicine`, `mental-health`, `severity` |
 | **SAD PERSONS** | Legacy suicide-risk checklist. Poor predictive performance requires prominent safeguards against using it for disposition decisions. | `mental-health`, `risk` |
