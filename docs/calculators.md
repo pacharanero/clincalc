@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry. 80 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
+The full registry. 82 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
@@ -34,6 +34,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `amts` | Abbreviated Mental Test Score (AMTS) | Ten-item bedside cognitive screen (0-10); a score below 8 suggests cognitive impairment. | `primary-care`, `geriatrics`, `neurology`, `screening` |
 | `anion_gap` | Anion Gap | Serum anion gap from sodium, chloride, bicarbonate, optional potassium, and optional albumin correction. | `acute-medicine`, `nephrology` |
 | `apache2` | APACHE II | ICU acute physiology, age, and chronic health severity score (0-71). | `intensive-care`, `severity`, `prognostic` |
+| `apgar` | Apgar Score | Scores one newborn observation set at 1, 5, 10, 15, or 20 minutes. It documents clinical status and response but does not determine initial resuscitation or diagnose asphyxia. | `paediatrics`, `perinatal`, `severity` |
 | `asa_physical_status` | ASA Physical Status | ASA preoperative physical-status classification, with optional emergency suffix. | `surgery`, `severity` |
 | `ascvd` | ASCVD Pooled Cohort Equations | ACC/AHA 2013 10-year ASCVD risk estimate for US adults aged 40-79. | `primary-care`, `cardiology`, `risk` |
 | `asrs` | ASRS-v1.1 Six-Question Adult ADHD Screener | Scores six coded adult responses covering the past six months from the authorised form, reporting the classic and continuous methods separately; questionnaire text is not bundled. | `primary-care`, `mental-health`, `screening` |
@@ -41,6 +42,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `auditc` | AUDIT-C Alcohol Consumption Screen | Three-item WHO AUDIT consumption subscale (0-12); positive at 4+ (men) or 3+ (women). | `primary-care`, `mental-health`, `screening` |
 | `barthel` | Barthel Index | Activities of daily living score (0-100) from ten functional domains. | `geriatrics`, `severity` |
 | `basdai` | BASDAI | Bath Ankylosing Spondylitis Disease Activity Index (0-10). | `rheumatology`, `severity` |
+| `binet` | Binet Stage for Chronic Lymphocytic Leukaemia | Derives historical CLL stage A, B, or C from five physical-examination lymphoid areas, haemoglobin, and platelet count. It is not a treatment instruction. | `oncology`, `severity`, `prognostic` |
 | `bmi` | BMI (Body Mass Index) | Body mass index from weight and height, with standard adult category. | `primary-care`, `endocrinology` |
 | `bode` | BODE Index (COPD prognosis) | Multidimensional prognostic index in COPD from BMI, FEV1, mMRC dyspnoea, and six-minute walk distance; predicts ~4-year survival. | `respiratory`, `prognostic` |
 | `body_fat_circumference` | Body Fat % (US Navy Circumference Method) | Estimates body fat percentage from height, waist, neck (and hip for women) using the US Navy / Hodgdon-Beckett regression equations. | `primary-care`, `endocrinology`, `screening` |
@@ -151,7 +153,6 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 | **PASI**, **SCORAD** | Psoriasis / atopic dermatitis. | `dermatology`, `severity` |
 | **ORBIT** | Bleeding risk in atrial fibrillation. | `cardiology`, `risk` |
 | **SCORE2 / SCORE2-OP** | ESC 2021 CV risk (verify licensing). | `cardiology`, `risk` |
-| **Apgar score** | Newborn condition at 1 and 5 minutes from appearance, pulse, grimace, activity, and respiration. | `paediatrics`, `perinatal`, `severity` |
 | **Combined BMI / BSA / ideal body weight** | Combined anthropometric result matching MedikQuantis's current surface while reusing shared BMI and BSA calculations. | `primary-care`, `endocrinology` |
 | **Free-water deficit** | Estimated water deficit in hypernatraemia from sodium, weight, and a sex/age-adjusted total-body-water fraction. | `acute-medicine`, `nephrology` |
 | **CIWA-Ar** | Alcohol-withdrawal severity assessment; must not become an autonomous medication protocol. | `acute-medicine`, `mental-health`, `severity` |
@@ -160,7 +161,6 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 | **ISTH overt DIC score** | Disseminated intravascular coagulation score for patients with an appropriate underlying disorder. | `acute-medicine`, `haematology`, `severity` |
 | **4Ts score for HIT** | Pre-test probability of heparin-induced thrombocytopenia. | `haematology`, `risk` |
 | **Khorana score** | Venous-thromboembolism risk in ambulatory patients starting systemic cancer therapy. | `oncology`, `haematology`, `risk` |
-| **Binet staging** | Clinical stage of chronic lymphocytic leukaemia. | `oncology`, `haematology`, `severity` |
 | **RCPCH Digital Growth Charts** | UK-WHO + UK90; z-score / centile / SDS; chart rendering. Needs LMS tables + RCPCH licensing terms. | `paediatrics` |
 | **Skinfold body fat % (Jackson-Pollock / Durnin-Womersley)** | Caliper-derived body-fat estimate for training and body-comparison settings. | `primary-care`, `endocrinology`, `screening` |
 | **Body adiposity index (BAI)** | %BF proxy from height and hip circumference; population-specific (Hispanic-origin calibration). | `primary-care`, `endocrinology`, `screening` |

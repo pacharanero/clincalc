@@ -55,6 +55,40 @@ class TestCalculate:
         assert result["result"] == 1.0
         assert "not a universal diagnostic cut-off" in result["interpretation"]
 
+    def test_calculate_apgar(self):
+        result = clincalc.calculate(
+            "apgar",
+            {
+                "minute_after_birth": 5,
+                "assessment_during_resuscitation": False,
+                "gestational_context": "term_or_late_preterm",
+                "heart_rate": "at_least_100",
+                "respiratory_effort": "good_with_vigorous_cry",
+                "muscle_tone": "active_motion",
+                "reflex_irritability": "cough_sneeze_or_active_withdrawal",
+                "appearance": "completely_pink",
+            },
+        )
+        assert result["calculator"] == "apgar"
+        assert result["result"] == 10
+
+    def test_calculate_binet(self):
+        result = clincalc.calculate(
+            "binet",
+            {
+                "cll_diagnosis_confirmed": True,
+                "haemoglobin_g_dl": 12,
+                "platelet_count_10_9_l": 150,
+                "head_and_neck_involved": True,
+                "axillae_involved": True,
+                "groins_involved": True,
+                "spleen_involved": False,
+                "liver_involved": False,
+            },
+        )
+        assert result["calculator"] == "binet"
+        assert result["result"] == "B"
+
     def test_calculate_unknown_calculator_raises_value_error(self):
         with pytest.raises(ValueError, match="unknown calculator: nope"):
             clincalc.calculate("nope", {})
@@ -131,7 +165,7 @@ class TestListCalculators:
     def test_returns_nonempty_list(self):
         calcs = clincalc.list_calculators()
         assert isinstance(calcs, list)
-        assert len(calcs) == 90
+        assert len(calcs) == 92
 
     def test_each_entry_has_required_keys(self):
         calcs = clincalc.list_calculators()

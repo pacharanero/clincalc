@@ -22,8 +22,10 @@ MedikQuantis parity items have a stricter completion rule: the calculation and i
 
 ### In-progress
 
+- [~] **CALC-054 Apgar score** - English calculation shipped. Reviewed Catalan and Spanish bundles remain outstanding. Unlike the pinned MedikQuantis surface, clincalc records assessment timing and resuscitation context, limits descriptive bands to their supported context, and never turns the total into a resuscitation instruction.
 - [~] **CALC-055 Mosteller body surface area** - English calculation shipped. Reviewed Catalan and Spanish bundles remain outstanding. Unlike the pinned MedikQuantis surface, clincalc reports the continuous BSA without inferring protocol-specific drug doses or indexing decisions.
 - [~] **CALC-058 HOMA-IR** - English calculation shipped. Reviewed Catalan and Spanish bundles remain outstanding. Unlike the pinned MedikQuantis surface, clincalc does not apply universal interpretation thresholds because HOMA-IR varies by population and insulin assay.
+- [~] **CALC-065 Binet staging** - English calculation shipped. Reviewed Catalan and Spanish bundles remain outstanding. Unlike the pinned MedikQuantis surface, clincalc derives the canonical stage from examination and blood-count findings rather than accepting a caller-selected stage and mapping it to an invented number.
 
 ### Planned
 
@@ -50,7 +52,6 @@ For every item below, completion means: independent implementation from the prim
 - [ ] **CALC-031 PSA density** - PSA / prostate volume
 - [ ] **CALC-034 SCORAD** - Atopic dermatitis severity
 - [ ] **CALC-035 SCORE2 / SCORE2-OP** - ESC 2021 CV risk (verify licensing)
-- [ ] **CALC-054 Apgar score** - Newborn condition at 1 and 5 minutes from appearance, pulse, grimace, activity, and respiration
 - [ ] **CALC-056 Combined BMI / BSA / ideal body weight** - Match MedikQuantis's combined anthropometric calculation while reusing shared clincalc primitives rather than duplicating BMI or BSA logic
 - [ ] **CALC-057 Free-water deficit** - Estimated water deficit in hypernatraemia from sodium, weight, and sex/age-adjusted total-body-water fraction
 - [ ] **CALC-059 CIWA-Ar** - Alcohol-withdrawal severity; verify instrument reproduction terms and ensure scoring does not become an autonomous medication protocol
@@ -59,7 +60,6 @@ For every item below, completion means: independent implementation from the prim
 - [ ] **CALC-062 ISTH overt DIC score** - Disseminated intravascular coagulation score from platelet count, fibrin markers, prothrombin time, and fibrinogen in an appropriate underlying disorder
 - [ ] **CALC-063 4Ts score for HIT** - Pre-test probability of heparin-induced thrombocytopenia from thrombocytopenia, timing, thrombosis, and other causes
 - [ ] **CALC-064 Khorana score** - Venous-thromboembolism risk in ambulatory patients starting systemic cancer therapy
-- [ ] **CALC-065 Binet staging** - Clinical stage of chronic lymphocytic leukaemia from involved lymphoid areas, anaemia, and thrombocytopenia
 
 #### Other candidates
 

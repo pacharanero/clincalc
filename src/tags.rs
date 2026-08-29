@@ -172,6 +172,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ("ipss", &["urology", "severity"]),
     ("gleason", &["oncology", "urology"]),
     ("npi", &["oncology", "prognostic"]),
+    ("binet", &["oncology", "severity", "prognostic"]),
     // ---- Surgery / trauma / pressure injury ----
     (
         "nhfs",
@@ -184,6 +185,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
     // ---- Respiratory / COPD ----
     ("bode", &["respiratory", "prognostic"]),
     // ---- Paediatrics ----
+    ("apgar", &["paediatrics", "perinatal", "severity"]),
     ("chalice", &["paediatrics", "emergency"]),
     // ---- Proprietary / unavailable (the 10 stubs) ----
     (
