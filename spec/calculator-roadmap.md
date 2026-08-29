@@ -55,11 +55,11 @@ For every item below, completion means: independent implementation from the prim
 - [ ] **CALC-034 SCORAD** - Atopic dermatitis severity
 - [ ] **CALC-035 SCORE2 / SCORE2-OP** - ESC 2021 CV risk (verify licensing)
 - [ ] **CALC-056 Combined BMI / BSA / ideal body weight** - Match MedikQuantis's combined anthropometric calculation while reusing shared clincalc primitives rather than duplicating BMI or BSA logic
-- [ ] **CALC-057 Free-water deficit** - Estimated water deficit in hypernatraemia from sodium, weight, and sex/age-adjusted total-body-water fraction
+- [~] **CALC-057 Free-water deficit** - English implementation shipped using an explicit clinician-selected total-body-water fraction rather than inferring body composition from sex or an arbitrary age boundary; reviewed Catalan and Spanish bundles remain outstanding
 - [ ] **CALC-059 CIWA-Ar** - Alcohol-withdrawal severity; verify instrument reproduction terms and ensure scoring does not become an autonomous medication protocol
 - [ ] **CALC-060 COWS** - Clinical Opiate Withdrawal Scale; verify instrument reproduction terms and preserve clinician-assessment context
 - [ ] **CALC-061 SAD PERSONS** - Legacy suicide-risk checklist; require an evidence and safety review because poor predictive performance means it must not determine discharge, observation, or referral
-- [ ] **CALC-062 ISTH overt DIC score** - Disseminated intravascular coagulation score from platelet count, fibrin markers, prothrombin time, and fibrinogen in an appropriate underlying disorder
+- [~] **CALC-062 ISTH overt DIC score** - English implementation shipped using the 2025 ISTH update, measured inputs, D-dimer multiples of assay ULN, and an explicit DIC-associated etiology prerequisite; reviewed Catalan and Spanish bundles remain outstanding
 
 #### Other candidates
 

@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry. 84 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
+The full registry. 86 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
@@ -76,6 +76,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `findrisc` | FINDRISC (Finnish Diabetes Risk Score) | Predicts 10-year risk of type 2 diabetes using 8 lifestyle and clinical items (score 0-26). | `primary-care`, `endocrinology`, `screening` |
 | `fourat` | 4AT Rapid Delirium Screening | Rapid bedside screen for delirium and cognitive impairment (four items, score 0-12). | `acute-medicine`, `geriatrics`, `neurology`, `screening` |
 | `four_ts` | 4Ts Score for Heparin-Induced Thrombocytopenia | Estimates HIT pretest probability from four clinician-resolved domains using the standard days 5-10 timing variant. It is not diagnostic and does not autonomously select treatment. | `haematology`, `risk` |
+| `free_water_deficit` | Free-water Deficit | Estimates the static free-water deficit in an adult with hypernatraemia using an explicit sodium target and clinician-selected total-body-water fraction. It is not a fluid prescription or correction rate. | `acute-medicine`, `nephrology` |
 | `frax` | FRAX (10-year fracture risk) | 10-year probability of osteoporotic and hip fracture (NICE CG146). | `endocrinology`, `musculoskeletal`, `risk`, `proprietary`, `unavailable` |
 | `gad7` | GAD-7 Anxiety Severity | Seven-item generalised anxiety severity score (0-21); a total of 10+ flags likely GAD. | `primary-care`, `mental-health`, `screening` |
 | `gcs` | Glasgow Coma Scale (GCS) | Bedside score (3-15) of conscious level from eye, verbal, and motor response (Teasdale & Jennett 1974); omits the total and band when any component is not testable, per current guidance. | `neurology`, `emergency`, `acute-medicine`, `severity` |
@@ -87,6 +88,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `hinchey` | Modified Hinchey Classification (Wasvary/Kaiser) | Classifies diverticulitis anatomy using the Wasvary modified stages and Kaiser CT operationalisation; preserves fistula/obstruction as separate categories and does not infer purulent versus fecal peritonitis from CT alone. | `surgery`, `acute-medicine`, `severity` |
 | `homa_ir` | HOMA-IR | Calculates the continuous original HOMA1 surrogate estimate from fasting glucose and fasting insulin. It does not apply a universal diagnostic cutoff because values depend on the assay and population. | `endocrinology`, `screening` |
 | `ipss` | IPSS - International Prostate Symptom Score | Seven-item lower urinary tract symptom score (0-35) for benign prostatic hyperplasia; bands mild 0-7, moderate 8-19, severe 20-35, with an optional quality-of-life item (0-6). | `urology`, `severity` |
+| `isth_overt_dic` | ISTH Overt DIC Score (2025) | Derives the current overt/late-phase DIC score from same-episode measurements in a patient with a recognised DIC-associated underlying disorder. It supports but does not establish or exclude the diagnosis. | `acute-medicine`, `haematology`, `severity` |
 | `khorana` | Khorana Score for Chemotherapy-Associated VTE | Estimates short-term symptomatic VTE risk before a new chemotherapy regimen in adult ambulatory patients. The original bands and modern score-2 prophylaxis-assessment threshold are reported separately. | `oncology`, `haematology`, `risk` |
 | `lanss` | LANSS (Leeds Assessment of Neuropathic Symptoms and Signs) | Screening for pain of predominantly neuropathic origin (7 items, 0-24; >=12 likely neuropathic). | `neurology`, `screening`, `proprietary`, `unavailable` |
 | `ldl_cholesterol` | LDL and non-HDL Cholesterol | Calculates non-HDL cholesterol and estimates LDL cholesterol using Friedewald, Martin-Hopkins, and Sampson-NIH, with method-specific triglyceride limits. | `primary-care`, `cardiology`, `endocrinology` |
@@ -156,11 +158,9 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 | **ORBIT** | Bleeding risk in atrial fibrillation. | `cardiology`, `risk` |
 | **SCORE2 / SCORE2-OP** | ESC 2021 CV risk (verify licensing). | `cardiology`, `risk` |
 | **Combined BMI / BSA / ideal body weight** | Combined anthropometric result matching MedikQuantis's current surface while reusing shared BMI and BSA calculations. | `primary-care`, `endocrinology` |
-| **Free-water deficit** | Estimated water deficit in hypernatraemia from sodium, weight, and a sex/age-adjusted total-body-water fraction. | `acute-medicine`, `nephrology` |
 | **CIWA-Ar** | Alcohol-withdrawal severity assessment; must not become an autonomous medication protocol. | `acute-medicine`, `mental-health`, `severity` |
 | **COWS** | Clinician-rated opioid-withdrawal severity scale. | `acute-medicine`, `mental-health`, `severity` |
 | **SAD PERSONS** | Legacy suicide-risk checklist. Poor predictive performance requires prominent safeguards against using it for disposition decisions. | `mental-health`, `risk` |
-| **ISTH overt DIC score** | Disseminated intravascular coagulation score for patients with an appropriate underlying disorder. | `acute-medicine`, `haematology`, `severity` |
 | **RCPCH Digital Growth Charts** | UK-WHO + UK90; z-score / centile / SDS; chart rendering. Needs LMS tables + RCPCH licensing terms. | `paediatrics` |
 | **Skinfold body fat % (Jackson-Pollock / Durnin-Womersley)** | Caliper-derived body-fat estimate for training and body-comparison settings. | `primary-care`, `endocrinology`, `screening` |
 | **Body adiposity index (BAI)** | %BF proxy from height and hip circumference; population-specific (Hispanic-origin calibration). | `primary-care`, `endocrinology`, `screening` |

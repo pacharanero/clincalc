@@ -122,6 +122,10 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ),
     ("four_ts", &["haematology", "risk"]),
     (
+        "isth_overt_dic",
+        &["acute-medicine", "haematology", "severity"],
+    ),
+    (
         "glasgow_blatchford",
         &["emergency", "acute-medicine", "risk"],
     ),
@@ -130,6 +134,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ("egfr", &["primary-care", "nephrology"]),
     ("cockcroft_gault", &["primary-care", "nephrology"]),
     ("fena", &["acute-medicine", "nephrology"]),
+    ("free_water_deficit", &["acute-medicine", "nephrology"]),
     ("corrected_calcium", &["primary-care", "endocrinology"]),
     ("corrected_sodium", &["endocrinology", "acute-medicine"]),
     ("anion_gap", &["acute-medicine", "nephrology"]),

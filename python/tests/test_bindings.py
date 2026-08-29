@@ -120,6 +120,37 @@ class TestCalculate:
         assert result["working"]["original_risk_band"] == "intermediate"
         assert result["working"]["meets_guideline_consideration_threshold"] is True
 
+    def test_calculate_free_water_deficit(self):
+        result = clincalc.calculate(
+            "free_water_deficit",
+            {
+                "assessment_context": "adult_with_hypernatraemia",
+                "weight_kg": 60,
+                "current_sodium_mmol_l": 166,
+                "target_sodium_mmol_l": 140,
+                "total_body_water_fraction": 0.5,
+            },
+        )
+        assert result["calculator"] == "free_water_deficit"
+        assert result["result"] == 5.6
+        assert "not a fluid prescription" in result["interpretation"]
+
+    def test_calculate_isth_overt_dic(self):
+        result = clincalc.calculate(
+            "isth_overt_dic",
+            {
+                "underlying_etiology": "sepsis_or_severe_infection",
+                "platelet_count_10_9_l": 72,
+                "d_dimer_multiple_of_uln": 8.2,
+                "pt_prolongation_seconds": 4.1,
+                "fibrinogen_g_l": 1.4,
+            },
+        )
+        assert result["calculator"] == "isth_overt_dic"
+        assert result["result"] == 5
+        assert result["working"]["score_version"] == "2025"
+        assert result["working"]["band"] == "consistent_with_overt_dic"
+
     def test_calculate_unknown_calculator_raises_value_error(self):
         with pytest.raises(ValueError, match="unknown calculator: nope"):
             clincalc.calculate("nope", {})
@@ -196,7 +227,7 @@ class TestListCalculators:
     def test_returns_nonempty_list(self):
         calcs = clincalc.list_calculators()
         assert isinstance(calcs, list)
-        assert len(calcs) == 94
+        assert len(calcs) == 96
 
     def test_each_entry_has_required_keys(self):
         calcs = clincalc.list_calculators()
