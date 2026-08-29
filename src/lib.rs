@@ -152,6 +152,7 @@ pub fn all() -> Vec<Box<dyn Calculator>> {
         Box::new(calculators::hasbled::HasBled),
         Box::new(calculators::abcd2::Abcd2),
         Box::new(calculators::qsofa::Qsofa),
+        Box::new(calculators::pitt_bacteraemia::PittBacteraemia),
         Box::new(calculators::fourat::FourAt),
         Box::new(calculators::four_ts::FourTs),
         Box::new(calculators::das28::Das28),
@@ -169,6 +170,7 @@ pub fn all() -> Vec<Box<dyn Calculator>> {
         Box::new(calculators::meld::Meld),
         Box::new(calculators::meld_3::Meld3),
         Box::new(calculators::padua::Padua),
+        Box::new(calculators::pasi::Pasi),
         Box::new(calculators::caprini::Caprini),
         Box::new(calculators::asa_physical_status::AsaPhysicalStatus),
         Box::new(calculators::ukeld::Ukeld),
@@ -289,6 +291,35 @@ mod registry_tests {
                     calc.name()
                 );
             }
+        }
+    }
+
+    /// The README is the public language and clinical-verification tracker for
+    /// every functioning calculation. Unavailable registry stubs are excluded.
+    #[test]
+    fn every_active_calculator_has_a_readme_status_row() {
+        let readme = include_str!("../README.md");
+        for calc in all() {
+            if calc.tags().contains(&"unavailable") {
+                continue;
+            }
+            let locales = calc.supported_locales();
+            let ca = if locales.contains(&SupportedLocale::Ca) {
+                "✓"
+            } else {
+                "-"
+            };
+            let es = if locales.contains(&SupportedLocale::Es) {
+                "✓"
+            } else {
+                "-"
+            };
+            let row = format!("| `{}` | ✓ | {ca} | {es} | ✓ |", calc.name());
+            assert!(
+                readme.lines().any(|line| line == row),
+                "{}: missing or stale calculator-status row in README.md; expected {row}",
+                calc.name()
+            );
         }
     }
 

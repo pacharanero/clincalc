@@ -1,0 +1,27 @@
+{
+  "assessment_context": "clinician_assessed_plaque_psoriasis",
+  "head_and_neck": {
+    "area_grade": 1,
+    "erythema": 2,
+    "induration": 2,
+    "desquamation": 1
+  },
+  "upper_limbs": {
+    "area_grade": 2,
+    "erythema": 2,
+    "induration": 2,
+    "desquamation": 2
+  },
+  "trunk": {
+    "area_grade": 3,
+    "erythema": 3,
+    "induration": 3,
+    "desquamation": 3
+  },
+  "lower_limbs": {
+    "area_grade": 4,
+    "erythema": 3,
+    "induration": 3,
+    "desquamation": 3
+  }
+}

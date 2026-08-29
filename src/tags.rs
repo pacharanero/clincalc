@@ -19,7 +19,7 @@
 //! **Specialty** (one or more per calculator):
 //! `primary-care`, `emergency`, `acute-medicine`, `intensive-care`,
 //! `cardiology`, `nephrology`, `hepatology`, `respiratory`, `neurology`,
-//! `mental-health`, `endocrinology`, `rheumatology`, `urology`, `oncology`,
+//! `mental-health`, `endocrinology`, `rheumatology`, `dermatology`, `urology`, `oncology`,
 //! `geriatrics`, `perinatal`, `paediatrics`, `infectious-diseases`,
 //! `haematology`, `surgery`, `vascular`, `musculoskeletal`.
 //!
@@ -132,6 +132,15 @@ pub const TAGS: &[(&str, &[&str])] = &[
         &["emergency", "acute-medicine", "risk"],
     ),
     ("hinchey", &["surgery", "acute-medicine", "severity"]),
+    (
+        "pitt_bacteraemia",
+        &[
+            "acute-medicine",
+            "infectious-diseases",
+            "severity",
+            "prognostic",
+        ],
+    ),
     // ---- Renal ----
     ("egfr", &["primary-care", "nephrology"]),
     ("cockcroft_gault", &["primary-care", "nephrology"]),
@@ -177,6 +186,8 @@ pub const TAGS: &[(&str, &[&str])] = &[
     // ---- Rheumatology ----
     ("das28", &["rheumatology", "severity"]),
     ("basdai", &["rheumatology", "severity"]),
+    // ---- Dermatology ----
+    ("pasi", &["dermatology", "severity"]),
     // ---- Urology / oncology ----
     ("ipss", &["urology", "severity"]),
     ("gleason", &["oncology", "urology"]),

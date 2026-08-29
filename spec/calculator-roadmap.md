@@ -8,7 +8,7 @@ Roadmap items have stable identifiers so they can be referred to in conversation
 
 Completed calculators are removed from this file rather than kept as roadmap history. The shipped catalogue is [`docs/calculators.md`](../docs/calculators.md).
 
-MedikQuantis parity items have a stricter completion rule: the calculation and its reviewed Catalan (`ca`) and Spanish (`es`) bundles are one adoption workstream. Prefer implementing all three locales in the calculator's initial pull request. If translation review is not available, the independently verified English calculation may ship first, but the roadmap item remains `[~]` until complete attributed `ca`/`es` bundles pass the review gates in [`multilingual.md`](multilingual.md) and [`docs/translating.md`](../docs/translating.md). Upstream MedikQuantis logic and tests are useful cross-project evidence, not a substitute for clincalc's primary-source verification.
+MedikQuantis parity items follow the normal calculator completion rule: an independently implemented calculation is complete when it passes the primary-source, licence, closed-schema, clinical-safety, and testing gates. Translation availability is tracked independently in the README calculator-status table and does not block calculator completion. A locale is advertised only after its complete attributed bundle passes the review gates in [`multilingual.md`](multilingual.md) and [`docs/translating.md`](../docs/translating.md). Upstream MedikQuantis logic and tests are useful cross-project evidence, not a substitute for clincalc's primary-source verification.
 
 ## Status legend
 
@@ -22,12 +22,7 @@ MedikQuantis parity items have a stricter completion rule: the calculation and i
 
 ### In-progress
 
-- [~] **CALC-054 Apgar score** - English calculation shipped. Reviewed Catalan and Spanish bundles remain outstanding. Unlike the pinned MedikQuantis surface, clincalc records assessment timing and resuscitation context, limits descriptive bands to their supported context, and never turns the total into a resuscitation instruction.
-- [~] **CALC-055 Mosteller body surface area** - English calculation shipped. Reviewed Catalan and Spanish bundles remain outstanding. Unlike the pinned MedikQuantis surface, clincalc reports the continuous BSA without inferring protocol-specific drug doses or indexing decisions.
-- [~] **CALC-058 HOMA-IR** - English calculation shipped. Reviewed Catalan and Spanish bundles remain outstanding. Unlike the pinned MedikQuantis surface, clincalc does not apply universal interpretation thresholds because HOMA-IR varies by population and insulin assay.
-- [~] **CALC-063 4Ts score for HIT** - English calculation shipped. Reviewed Catalan and Spanish bundles remain outstanding. Unlike the pinned MedikQuantis surface, clincalc derives points from required semantic categories, identifies the standard days 5-10 variant, and does not reduce current ASH guidance to generic band recommendations.
-- [~] **CALC-064 Khorana score** - English calculation shipped. Reviewed Catalan and Spanish bundles remain outstanding. Unlike the pinned MedikQuantis surface, clincalc derives points from raw measurements and reports the original risk band separately from the modern score-2 thromboprophylaxis-assessment threshold.
-- [~] **CALC-065 Binet staging** - English calculation shipped. Reviewed Catalan and Spanish bundles remain outstanding. Unlike the pinned MedikQuantis surface, clincalc derives the canonical stage from examination and blood-count findings rather than accepting a caller-selected stage and mapping it to an invented number.
+_Nothing currently in progress._
 
 ### Planned
 
@@ -39,27 +34,19 @@ Calculators worth shipping, under consideration. Largely surfaced from sibling o
 
 #### MedikQuantis parity gaps
 
-This is the complete calculation gap against MedikQuantis's live 65-calculator registry at upstream commit [`16c63c85`](https://github.com/laurapiro17/medikquantis/tree/16c63c85aee7a64417205f60cb3e66fccf19fae2), reviewed 2026-08-29. clincalc already ships 42 equivalent calculations and lacks the 23 below. MedikQuantis's README still reports 49 calculators, so its registry is the authoritative inventory. Review this snapshot when upstream changes; add new stable `CALC-*` items rather than silently letting parity drift.
+This is the remaining calculation gap against MedikQuantis's live 65-calculator registry at upstream commit [`16c63c85`](https://github.com/laurapiro17/medikquantis/tree/16c63c85aee7a64417205f60cb3e66fccf19fae2), reviewed 2026-08-29. clincalc ships 56 equivalent calculations and lacks the 9 below. MedikQuantis's README still reports 49 calculators, so its registry is the authoritative inventory. Review this snapshot when upstream changes; add new stable `CALC-*` items rather than silently letting parity drift.
 
-For every item below, completion means: independent implementation from the primary source; closed schema, licence evidence, and literature-vector tests under the normal calculator contract; explicit comparison with the pinned MedikQuantis behavior and documentation of intentional clinical or guideline differences; and complete attributed `en`/`ca`/`es` prose with recorded review. Machine identifiers and numeric behavior remain locale-neutral.
+For every item below, completion means independent implementation from the primary source; closed schema, licence evidence, and literature-vector tests under the normal calculator contract; and explicit comparison with the pinned MedikQuantis behavior with intentional clinical or guideline differences documented. Machine identifiers and numeric behavior remain locale-neutral. Reviewed translations are tracked independently in the README and do not block completion.
 
-- [~] **CALC-022 MELD 3.0** - English OPTN calculation shipped for candidates registered at age 12 or older, with the uncapped policy-formula score preserved separately. Unlike the pinned MedikQuantis surface, clincalc returns the policy integer, models the adolescent coefficient and exact qualifying-dialysis predicate, and does not publish unsupported mortality bands or management advice. Reviewed Catalan and Spanish bundles remain outstanding.
-- [ ] **CALC-023 Modified Duke criteria** - Infective endocarditis
+- [ ] **CALC-023 Duke-ISCVID criteria (2023)** - Current infective-endocarditis diagnostic criteria; implement the superseding ISCVID revision rather than shipping the 2000 Modified Duke criteria as the default
 - [ ] **CALC-024 NIHSS** - Acute stroke severity
-- [ ] **CALC-025 Norton Scale** - Pressure-ulcer risk (immobile)
-- [ ] **CALC-026 NYHA** - Heart-failure functional class
+- [ ] **CALC-025 Norton Scale** - Pressure-ulcer risk; blocked pending unrestricted redistribution permission or legal review because the Centre for Policy on Ageing claims ownership of the scale
+- [ ] **CALC-026 NYHA** - Heart-failure functional class; blocked pending unrestricted redistribution permission or legal review because the American Heart Association claims copyright in the classification
 - [ ] **CALC-027 ORBIT** - Bleeding risk in AF (DOAC era); blocked pending unrestricted redistribution evidence or legal review because the original 2015 article is licensed CC BY-NC 4.0, which is incompatible with clincalc's unrestricted reusable-library goal
-- [ ] **CALC-028 PASI** - Psoriasis Area and Severity Index
-- [ ] **CALC-030 Pitt Bacteraemia** - BSI severity
-- [~] **CALC-031 PSA density** - English continuous calculation shipped from CC BY 4.0 evidence without a universal diagnostic or biopsy cutoff; reviewed Catalan and Spanish bundles remain outstanding
-- [ ] **CALC-034 SCORAD** - Atopic dermatitis severity
-- [ ] **CALC-035 SCORE2 / SCORE2-OP** - ESC 2021 CV risk (verify licensing)
+- [ ] **CALC-034 SCORAD** - Atopic dermatitis severity; blocked pending explicit unrestricted permission or legal review because [ePROVIDE identifies SCORAD as all rights reserved](https://eprovide.mapi-trust.org/instruments/scoring-in-atopic-dermatitis) and the [Eczema Foundation legal notice](https://www.pierrefabreeczemafoundation.org/en/legal-notice-po-scorad) reserves adaptation, translation, and software-integration rights
+- [ ] **CALC-035 SCORE2 / SCORE2-OP** - ESC 2021 cardiovascular risk; blocked pending explicit unrestricted software-redistribution terms or legal review
 - [ ] **CALC-056 Combined BMI / BSA / ideal body weight** - Parity gap retained but blocked as currently scoped: BMI and BSA already ship independently, no generic ideal-body-weight equation is canonical, and adjusted weight is protocol-specific; do not implement until the parity scope is explicitly waived or replaced by a named clinical protocol
-- [~] **CALC-057 Free-water deficit** - English implementation shipped using an explicit clinician-selected total-body-water fraction rather than inferring body composition from sex or an arbitrary age boundary; reviewed Catalan and Spanish bundles remain outstanding
-- [~] **CALC-059 CIWA-Ar** - English implementation shipped after confirming that the instrument is not copyrighted and may be reproduced freely; requires clinically identified withdrawal and reliable patient participation and does not provide a medication protocol; reviewed Catalan and Spanish bundles remain outstanding
-- [~] **CALC-060 COWS** - English implementation shipped after confirming NIH's no-copyright record and the original publication's clinical-copy permission; derives pulse points, preserves clinician-attributed scoring, and does not determine medication timing or dose; reviewed Catalan and Spanish bundles remain outstanding
-- [ ] **CALC-061 SAD PERSONS** - Legacy suicide-risk checklist; require an evidence and safety review because poor predictive performance means it must not determine discharge, observation, or referral
-- [~] **CALC-062 ISTH overt DIC score** - English implementation shipped using the 2025 ISTH update, measured inputs, D-dimer multiples of assay ULN, and an explicit DIC-associated etiology prerequisite; reviewed Catalan and Spanish bundles remain outstanding
+- [ ] **CALC-061 SAD PERSONS** - Blocked on clinical-safety grounds: poor predictive performance makes a scored implementation liable to misuse for discharge, observation, or referral despite warnings
 
 #### Other candidates
 

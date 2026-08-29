@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry. 90 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
+The full registry. 92 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
@@ -108,8 +108,10 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `oks` | Oxford Knee Score (OKS) | Patient-reported outcome after knee replacement (NHS England PROMs). | `surgery`, `musculoskeletal`, `proprietary`, `unavailable` |
 | `one_rep_max` | One-Rep Max Estimator | Estimates 1RM from a submaximal weight and reps using Epley, Brzycki, or Lombardi. | `primary-care`, `musculoskeletal` |
 | `padua` | Padua Prediction Score (VTE risk) | VTE risk in hospitalised medical inpatients, guiding thromboprophylaxis (NICE NG89). | `acute-medicine`, `vascular`, `risk` |
+| `pasi` | Psoriasis Area and Severity Index (PASI) | Calculates standard PASI from clinician-rated extent, erythema, induration, and desquamation across four body regions without imposing a universal treatment threshold. | `dermatology`, `severity` |
 | `perc` | PERC Rule (PE Rule-out Criteria) | Eight-item block rule for stable adult emergency-department outpatients with suspected pulmonary embolism and clinician gestalt below 15%; PERC-negative can avoid further PE-specific testing. | `emergency`, `respiratory`, `vascular` |
 | `phq9` | PHQ-9 Depression Severity | Nine-item depression severity score (0-27) with standard bands; item 9 flags self-harm risk. | `primary-care`, `mental-health`, `screening` |
+| `pitt_bacteraemia` | Pitt Bacteraemia Score | Acute severity score for hospitalised bloodstream infection or CRE infection, using index-culture-day physiology and cardiac arrest on that day or in the preceding 48 hours. | `acute-medicine`, `infectious-diseases`, `severity`, `prognostic` |
 | `psa_density` | Prostate-specific Antigen Density | Calculates total serum PSA divided by imaging-derived prostate volume as a continuous prostate-cancer risk modifier, without imposing a universal diagnostic or biopsy cutoff. | `urology`, `oncology` |
 | `qfracture` | QFracture (10-year fracture risk) | 10-year risk of major osteoporotic and hip fracture (QFracture-2012), the open UK alternative to FRAX (NICE CG146/NG6). | `primary-care`, `endocrinology`, `risk` |
 | `qrisk3` | QRISK3 (10-year cardiovascular risk) | 10-year risk of heart attack or stroke (QRISK3-2017), the UK standard for primary CVD risk assessment (NICE NG238). | `primary-care`, `cardiology`, `risk` |
@@ -154,9 +156,8 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 | **NIHSS** | Acute stroke severity standard. | `neurology`, `emergency`, `severity` |
 | **NYHA** | Heart-failure functional class. | `cardiology`, `severity` |
 | **Norton Scale** | Pressure-ulcer risk; complements the shipped Braden and Waterlow tools. | `geriatrics`, `screening` |
-| **Pitt Bacteraemia** | BSI severity. | `infectious-diseases`, `severity` |
 | **Modified Duke criteria** | Endocarditis. | `infectious-diseases` |
-| **PASI**, **SCORAD** | Psoriasis / atopic dermatitis. | `dermatology`, `severity` |
+| **SCORAD** | Atopic dermatitis severity; blocked pending unrestricted redistribution permission or legal review because [ePROVIDE identifies the instrument as all rights reserved](https://eprovide.mapi-trust.org/instruments/scoring-in-atopic-dermatitis) and its rights manager reserves adaptation, translation, and software-integration rights. | `dermatology`, `severity` |
 | **ORBIT** | Bleeding risk in atrial fibrillation; blocked pending unrestricted redistribution evidence because the original article is CC BY-NC. | `cardiology`, `risk` |
 | **SCORE2 / SCORE2-OP** | ESC 2021 CV risk (verify licensing). | `cardiology`, `risk` |
 | **ARDSNet adult predicted body weight** | Protocol-specific adult PBW for lung-protective ventilation, reframed from the ambiguous combined BMI / BSA / ideal-body-weight proposal. | `intensive-care`, `respiratory` |
@@ -169,4 +170,4 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 | **Protein / macronutrient target** | g/day from weight or LBM + goal (e.g. 1.6-2.2 g/kg for lean-mass retention in a deficit). | `primary-care`, `endocrinology` |
 | **Axial length centile charts (CREAM-Kids)** | Age-, sex-, and region-specific centile charts for axial eye length in children and adolescents (Kneepkens, Lingham, Mackey et al, *JAMA Ophthalmology* 2026; [DOI: 10.1001/jamaophthalmol.2026.2539](https://doi.org/10.1001/jamaophthalmol.2026.2539)). Reusable coefficients/data and their distribution terms must be confirmed before implementation; serial change needs a separately cited model. | `ophthalmology`, `paediatrics`, `screening` |
 
-For every MedikQuantis parity calculator, implementation and complete Catalan/Spanish adaptation are one roadmap workstream. The independently verified English calculation may land first when review availability blocks translation, but the parity item remains partial and the non-English locale is not advertised until the review and completeness gates in [`spec/multilingual.md`](https://github.com/pacharanero/clincalc/blob/main/spec/multilingual.md) pass.
+MedikQuantis parity is complete when the independently implemented calculation passes clincalc's normal primary-source, licence, schema, and testing gates. Translation progress is tracked independently in the README status table; a locale is not advertised until the review and completeness gates in [`spec/multilingual.md`](https://github.com/pacharanero/clincalc/blob/main/spec/multilingual.md) pass.

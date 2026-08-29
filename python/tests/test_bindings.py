@@ -226,6 +226,37 @@ class TestCalculate:
         assert result["working"]["result_unit"] == "ng/mL/cc"
         assert "No cutoff is universal" in result["interpretation"]
 
+    def test_calculate_pasi(self):
+        result = clincalc.calculate(
+            "pasi",
+            {
+                "assessment_context": "clinician_assessed_plaque_psoriasis",
+                "head_and_neck": {"area_grade": 0, "erythema": 0, "induration": 0, "desquamation": 0},
+                "upper_limbs": {"area_grade": 0, "erythema": 0, "induration": 0, "desquamation": 0},
+                "trunk": {"area_grade": 3, "erythema": 3, "induration": 3, "desquamation": 3},
+                "lower_limbs": {"area_grade": 0, "erythema": 0, "induration": 0, "desquamation": 0},
+            },
+        )
+        assert result["calculator"] == "pasi"
+        assert result["result"] == 8.1
+        assert result["working"]["variant"] == "standard_pasi"
+
+    def test_calculate_pitt_bacteraemia(self):
+        result = clincalc.calculate(
+            "pitt_bacteraemia",
+            {
+                "assessment_context": "hospitalised_patient_with_cre_infection_and_index_culture",
+                "maximum_temperature_c": 39.2,
+                "acute_hypotension_on_index_culture_day": True,
+                "mechanical_ventilation_on_index_culture_day": False,
+                "cardiac_arrest_on_index_day_or_prior_48_hours": False,
+                "worst_mental_status_on_index_culture_day": "disoriented",
+            },
+        )
+        assert result["calculator"] == "pitt_bacteraemia"
+        assert result["result"] == 4
+        assert result["working"]["score_at_least_four"] is True
+
     def test_calculate_unknown_calculator_raises_value_error(self):
         with pytest.raises(ValueError, match="unknown calculator: nope"):
             clincalc.calculate("nope", {})
@@ -302,7 +333,7 @@ class TestListCalculators:
     def test_returns_nonempty_list(self):
         calcs = clincalc.list_calculators()
         assert isinstance(calcs, list)
-        assert len(calcs) == 100
+        assert len(calcs) == 102
 
     def test_each_entry_has_required_keys(self):
         calcs = clincalc.list_calculators()

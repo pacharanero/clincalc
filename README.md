@@ -103,6 +103,105 @@ See [`docs/python.md`](docs/python.md) for the full API and pandas helpers.
 
 The registry includes calculators from QRISK3, PHQ-9, GAD-7, eGFR and FIB-4 through NEWS2, CURB-65, the Wells scores, CHA2DS2-VASc, DAS28, SOFA, MELD, CHALICE and Gleason. Run `clincalc list` for the authoritative current set.
 
+### Calculator status
+
+This table tracks every functioning calculation. `✓` means the language is available as a complete reviewed bundle or the implementation has passed clincalc's primary-source clinical verification and testing gates; `-` means that language is not yet available. English is the source language. The named-but-unavailable proprietary entries are listed separately below because they do not calculate a result.
+
+| Calculator | English | Catalan | Spanish | Clinically verified |
+|---|:---:|:---:|:---:|:---:|
+| `abcd2` | ✓ | - | - | ✓ |
+| `abpi` | ✓ | - | - | ✓ |
+| `alcohol_units` | ✓ | - | - | ✓ |
+| `alvarado` | ✓ | - | - | ✓ |
+| `amts` | ✓ | - | - | ✓ |
+| `anion_gap` | ✓ | - | - | ✓ |
+| `apache2` | ✓ | - | - | ✓ |
+| `apgar` | ✓ | - | - | ✓ |
+| `asa_physical_status` | ✓ | - | - | ✓ |
+| `ascvd` | ✓ | - | - | ✓ |
+| `asrs` | ✓ | - | - | ✓ |
+| `audit` | ✓ | - | - | ✓ |
+| `auditc` | ✓ | - | - | ✓ |
+| `barthel` | ✓ | - | - | ✓ |
+| `basdai` | ✓ | - | - | ✓ |
+| `binet` | ✓ | - | - | ✓ |
+| `bmi` | ✓ | - | - | ✓ |
+| `bode` | ✓ | - | - | ✓ |
+| `body_fat_circumference` | ✓ | - | - | ✓ |
+| `body_surface_area` | ✓ | - | - | ✓ |
+| `braden` | ✓ | - | - | ✓ |
+| `caprini` | ✓ | - | - | ✓ |
+| `centor` | ✓ | - | - | ✓ |
+| `cha2ds2_va` | ✓ | - | - | ✓ |
+| `cha2ds2vasc` | ✓ | - | - | ✓ |
+| `chalice` | ✓ | - | - | ✓ |
+| `charlson` | ✓ | - | - | ✓ |
+| `child_pugh` | ✓ | - | - | ✓ |
+| `ciwa_ar` | ✓ | - | - | ✓ |
+| `ckd_risk` | ✓ | - | - | ✓ |
+| `cockcroft_gault` | ✓ | - | - | ✓ |
+| `corrected_calcium` | ✓ | - | - | ✓ |
+| `corrected_sodium` | ✓ | - | - | ✓ |
+| `cows` | ✓ | - | - | ✓ |
+| `curb65` | ✓ | - | - | ✓ |
+| `das28` | ✓ | - | - | ✓ |
+| `egfr` | ✓ | - | - | ✓ |
+| `ehra` | ✓ | - | - | ✓ |
+| `energy_requirement` | ✓ | - | - | ✓ |
+| `epds` | ✓ | - | - | ✓ |
+| `euroscore2` | ✓ | - | - | ✓ |
+| `familial_hypercholesterolaemia` | ✓ | - | - | ✓ |
+| `fena` | ✓ | - | - | ✓ |
+| `feverpain` | ✓ | - | - | ✓ |
+| `fib4` | ✓ | - | - | ✓ |
+| `findrisc` | ✓ | - | - | ✓ |
+| `four_ts` | ✓ | - | - | ✓ |
+| `fourat` | ✓ | - | - | ✓ |
+| `free_water_deficit` | ✓ | - | - | ✓ |
+| `gad7` | ✓ | - | - | ✓ |
+| `gcs` | ✓ | - | - | ✓ |
+| `glasgow_blatchford` | ✓ | - | - | ✓ |
+| `gleason` | ✓ | - | - | ✓ |
+| `grace` | ✓ | - | - | ✓ |
+| `hasbled` | ✓ | - | - | ✓ |
+| `heart` | ✓ | - | - | ✓ |
+| `hinchey` | ✓ | - | - | ✓ |
+| `homa_ir` | ✓ | - | - | ✓ |
+| `ipss` | ✓ | - | - | ✓ |
+| `isth_overt_dic` | ✓ | - | - | ✓ |
+| `khorana` | ✓ | - | - | ✓ |
+| `ldl_cholesterol` | ✓ | - | - | ✓ |
+| `lrinec` | ✓ | - | - | ✓ |
+| `max_heart_rate` | ✓ | - | - | ✓ |
+| `meld` | ✓ | - | - | ✓ |
+| `meld_3` | ✓ | - | - | ✓ |
+| `mrc_dyspnoea` | ✓ | - | - | ✓ |
+| `news2` | ✓ | - | - | ✓ |
+| `nhfs` | ✓ | - | - | ✓ |
+| `npi` | ✓ | - | - | ✓ |
+| `one_rep_max` | ✓ | - | - | ✓ |
+| `padua` | ✓ | - | - | ✓ |
+| `pasi` | ✓ | - | - | ✓ |
+| `perc` | ✓ | - | - | ✓ |
+| `phq9` | ✓ | - | - | ✓ |
+| `pitt_bacteraemia` | ✓ | - | - | ✓ |
+| `psa_density` | ✓ | - | - | ✓ |
+| `qfracture` | ✓ | - | - | ✓ |
+| `qrisk3` | ✓ | - | - | ✓ |
+| `qsofa` | ✓ | - | - | ✓ |
+| `rcri` | ✓ | - | - | ✓ |
+| `relative_fat_mass` | ✓ | - | - | ✓ |
+| `sofa` | ✓ | - | - | ✓ |
+| `timi` | ✓ | - | - | ✓ |
+| `uacr` | ✓ | - | - | ✓ |
+| `ukeld` | ✓ | - | - | ✓ |
+| `waist_to_height_ratio` | ✓ | - | - | ✓ |
+| `waist_to_hip_ratio` | ✓ | - | - | ✓ |
+| `waterlow` | ✓ | - | - | ✓ |
+| `wells_dvt` | ✓ | - | - | ✓ |
+| `wells_pe` | ✓ | - | - | ✓ |
+| `wilks` | ✓ | - | - | ✓ |
+
 ### Proprietary tools are named, not hidden
 
 A handful of tools cannot be shipped because they are proprietary or licence-locked (FRAX, MMSE, ELF, ACQ, the Oxford Hip/Knee Scores, CAT, MUST, CFS, LANSS). Rather than omit them silently, each is registered as a calculator that returns a structured explanation - the owner, why it cannot be shipped, open alternatives (often one shipped here), and how to advocate for open clinical tools:
