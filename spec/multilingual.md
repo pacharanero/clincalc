@@ -173,6 +173,7 @@ The host resolves one locale for calculator content and UI chrome. Stable result
 6. Add two more overlapping calculators of different shapes and have native speakers review all three bundles.
 7. Propagate locale through CLI, Python, REST, MCP, and GUI once the engine pattern is proven.
 8. Write `docs/translating.md` with the contribution, attribution, review, and stale-translation workflow before opening translation batches.
+9. Treat every new calculator in the MedikQuantis parity programme as an `en`/`ca`/`es` implementation workstream. Prefer landing reviewed translations with the initial calculator; if reviewer availability requires an English-first merge, keep the parity item partially complete and do not advertise `ca` or `es` until the complete-bundle gates pass.
 
 ## Translation quality gates
 

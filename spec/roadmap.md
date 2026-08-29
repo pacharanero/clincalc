@@ -74,16 +74,24 @@ Decisions:
 
 Status: Future
 
-[MedikQuantis](https://medikquantis.me) ships Catalan/Spanish/English calculator strings for several scores we also implement. The goal is to avoid duplicating native-speaker translation work.
+[MedikQuantis](https://medikquantis.me) ships Catalan/Spanish/English calculator strings for its registry. The goal is to avoid duplicating native-speaker translation work and to make reviewed `ca`/`es` bundles part of calculator adoption, not an indefinite follow-up. The pinned capability snapshot and 23 missing calculations live in [`calculator-roadmap.md`](calculator-roadmap.md#medikquantis-parity-gaps).
 
 - [ ] **ENG-002.1 Align tag taxonomy** with MedikQuantis so calculators are discoverable under the same specialty labels in both projects.
 - [ ] **ENG-002.2 Agree a shared citation shape** (PMID + URL + access date) so either project can ingest the other's metadata.
 - [ ] **ENG-002.3 Write a converter** (one-way or bidirectional) that maps their exported JSON catalogue to our structured translation bundles, preserving stable message IDs, provenance, reviewer attribution, and licence.
-- [ ] **ENG-002.4 Pull Catalan/Spanish strings** for CURB-65 first, then the remaining overlapping calculators, as the reviewed seed translations for ENG-001.
+- [ ] **ENG-002.4 Pilot CURB-65 translation adoption** - adapt MedikQuantis's Catalan and Spanish strings with attribution, reconcile them with clincalc's independently verified clinical prose, and record native-speaker clinical review before advertising either locale.
+- [ ] **ENG-002.5 Backfill cardiovascular and vascular overlaps** - reviewed `ca`/`es` bundles for `cha2ds2vasc`, `cha2ds2_va`, `hasbled`, `ehra`, `heart`, `grace`, `timi`, `wells_pe`, `perc`, `ascvd`, `rcri`, `caprini`, and `wells_dvt`.
+- [ ] **ENG-002.6 Backfill acute, critical-care, infectious, and surgical overlaps** - reviewed `ca`/`es` bundles for `qsofa`, `gcs`, `centor`, `alvarado`, `lrinec`, `hinchey`, `asa_physical_status`, `glasgow_blatchford`, `sofa`, and `apache2`.
+- [ ] **ENG-002.7 Backfill renal, metabolic, and hepatic overlaps** - reviewed `ca`/`es` bundles for `egfr`, `corrected_calcium`, `corrected_sodium`, `energy_requirement` (including Harris-Benedict), `anion_gap`, `fena`, `child_pugh`, `cockcroft_gault`, `bmi`, and `findrisc`.
+- [ ] **ENG-002.8 Backfill remaining shipped overlaps** - reviewed `ca`/`es` bundles for `charlson`, `braden`, `barthel`, `ipss`, `basdai`, `das28`, `phq9`, and `gad7`.
 
 Open questions for comment:
 - Do we want a formal data-sharing agreement or is MIT-to-AGPL ingestion already acceptable with attribution?
 - Should this live as a one-off import script or a recurring sync job?
+
+Decisions:
+- A new calculator in the MedikQuantis parity section is planned as one `en`/`ca`/`es` workstream. Prefer one implementation pull request; an English-first merge is acceptable when review availability is the only blocker, but the calculator's parity item remains `[~]` and non-English locales remain unadvertised.
+- Translation reuse does not imply scoring reuse. clincalc continues to implement and test calculations from primary sources, then uses MedikQuantis for cross-project comparison and MIT-licensed prose adaptation with attribution.
 
 ### ENG-003 `clincalc-web`
 

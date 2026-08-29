@@ -21,8 +21,9 @@ Machine identifiers never change: calculator names, schema property names, enum 
 ## Before you start
 
 - **Check for an existing source.** [MedikQuantis](https://medikquantis.me) (MIT licensed, maintained by Laura Piñero Roig) already ships Catalan, Spanish, and English strings for several overlapping calculators. Reusing that source text with attribution is preferred over translating from scratch - see [Attribution](#attribution) below. Cross-check its scoring semantics against `clincalc`'s own primary-source implementation before adapting any wording; the two projects can agree on terminology while keeping independently verified scoring logic.
+- **Plan translations with new MedikQuantis parity calculators.** The parity backlog treats the English calculation and reviewed Catalan/Spanish bundles as one workstream. Prefer including all three locales in the implementation pull request. If native-speaker clinical review is not available, English may ship first, but the roadmap item stays partially complete and `ca`/`es` remain unadvertised.
 - **Pick a calculator with stable clinical prose.** Review its implementation under `src/calculators/`, any calculator-specific document under `spec/calculators/`, and recent roadmap work. Most calculators do not yet have a separate calculator spec, so the absence of one is not evidence that the wording is stable.
-- **One calculator, one pull request.** Keeps review scoped and makes attribution unambiguous.
+- **One calculator, one implementation workstream.** A single pull request is preferred when scoring and translation reviewers can review it coherently. Split an English implementation from its translation follow-up only when that makes the clinical reviews materially safer or reviewer availability would otherwise block the calculation; keep both changes linked to the same `CALC-*` item.
 
 ## Workflow
 

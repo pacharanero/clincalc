@@ -132,7 +132,7 @@ See [Why some calculators are unavailable](how-it-works.md#unavailable-on-princi
 
 ## Wishlist (candidates for future addition)
 
-Calculators below are clinically valuable and on the radar but not yet implemented. Several originate from [MedikQuantis](https://medikquantis.me) (Laura Piñero Roig, Barcelona, MIT) - a sibling project we're exploring collaboration with.
+Calculators below are clinically valuable and on the radar but not yet implemented. They include the complete 23-calculator gap against [MedikQuantis](https://medikquantis.me) (Laura Piñero Roig, Barcelona, MIT) at upstream commit [`16c63c85`](https://github.com/laurapiro17/medikquantis/tree/16c63c85aee7a64417205f60cb3e66fccf19fae2), plus candidates from other sources. The governed queue and stable identifiers live in [`spec/calculator-roadmap.md`](https://github.com/pacharanero/clincalc/blob/main/spec/calculator-roadmap.md).
 
 Contributions welcome. The shape of the work is documented in [How it works](how-it-works.md#embedding-clincalc-in-a-host), [`AGENTS.md`](https://github.com/pacharanero/clincalc/blob/main/AGENTS.md), and the [`spec/`](https://github.com/pacharanero/clincalc/tree/main/spec) and [`examples/`](https://github.com/pacharanero/clincalc/tree/main/examples) directories.
 
@@ -149,6 +149,18 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 | **PASI**, **SCORAD** | Psoriasis / atopic dermatitis. | `dermatology`, `severity` |
 | **ORBIT** | Bleeding risk in atrial fibrillation. | `cardiology`, `risk` |
 | **SCORE2 / SCORE2-OP** | ESC 2021 CV risk (verify licensing). | `cardiology`, `risk` |
+| **Apgar score** | Newborn condition at 1 and 5 minutes from appearance, pulse, grimace, activity, and respiration. | `paediatrics`, `perinatal`, `severity` |
+| **Mosteller body surface area** | Body surface area from height and weight using the Mosteller equation. | `primary-care` |
+| **Combined BMI / BSA / ideal body weight** | Combined anthropometric result matching MedikQuantis's current surface while reusing shared BMI and BSA calculations. | `primary-care`, `endocrinology` |
+| **Free-water deficit** | Estimated water deficit in hypernatraemia from sodium, weight, and a sex/age-adjusted total-body-water fraction. | `acute-medicine`, `nephrology` |
+| **HOMA-IR** | Estimate of insulin resistance from fasting glucose and insulin, with assay and population limitations made explicit. | `endocrinology`, `screening` |
+| **CIWA-Ar** | Alcohol-withdrawal severity assessment; must not become an autonomous medication protocol. | `acute-medicine`, `mental-health`, `severity` |
+| **COWS** | Clinician-rated opioid-withdrawal severity scale. | `acute-medicine`, `mental-health`, `severity` |
+| **SAD PERSONS** | Legacy suicide-risk checklist. Poor predictive performance requires prominent safeguards against using it for disposition decisions. | `mental-health`, `risk` |
+| **ISTH overt DIC score** | Disseminated intravascular coagulation score for patients with an appropriate underlying disorder. | `acute-medicine`, `haematology`, `severity` |
+| **4Ts score for HIT** | Pre-test probability of heparin-induced thrombocytopenia. | `haematology`, `risk` |
+| **Khorana score** | Venous-thromboembolism risk in ambulatory patients starting systemic cancer therapy. | `oncology`, `haematology`, `risk` |
+| **Binet staging** | Clinical stage of chronic lymphocytic leukaemia. | `oncology`, `haematology`, `severity` |
 | **RCPCH Digital Growth Charts** | UK-WHO + UK90; z-score / centile / SDS; chart rendering. Needs LMS tables + RCPCH licensing terms. | `paediatrics` |
 | **Skinfold body fat % (Jackson-Pollock / Durnin-Womersley)** | Caliper-derived body-fat estimate for training and body-comparison settings. | `primary-care`, `endocrinology`, `screening` |
 | **Body adiposity index (BAI)** | %BF proxy from height and hip circumference; population-specific (Hispanic-origin calibration). | `primary-care`, `endocrinology`, `screening` |
@@ -157,4 +169,4 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 | **Protein / macronutrient target** | g/day from weight or LBM + goal (e.g. 1.6-2.2 g/kg for lean-mass retention in a deficit). | `primary-care`, `endocrinology` |
 | **Axial length centile charts (CREAM-Kids)** | Age-, sex-, and region-specific centile charts for axial eye length in children and adolescents (Kneepkens, Lingham, Mackey et al, *JAMA Ophthalmology* 2026; [DOI: 10.1001/jamaophthalmol.2026.2539](https://doi.org/10.1001/jamaophthalmol.2026.2539)). Reusable coefficients/data and their distribution terms must be confirmed before implementation; serial change needs a separately cited model. | `ophthalmology`, `paediatrics`, `screening` |
 
-The multilingual design in [`spec/multilingual.md`](https://github.com/pacharanero/clincalc/blob/main/spec/multilingual.md) is what makes ingesting MedikQuantis's Catalan and Spanish translations practical when these calculators land.
+For every MedikQuantis parity calculator, implementation and complete Catalan/Spanish adaptation are one roadmap workstream. The independently verified English calculation may land first when review availability blocks translation, but the parity item remains partial and the non-English locale is not advertised until the review and completeness gates in [`spec/multilingual.md`](https://github.com/pacharanero/clincalc/blob/main/spec/multilingual.md) pass.
