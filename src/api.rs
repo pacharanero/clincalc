@@ -19,11 +19,14 @@
 //! explicit `?locale=<tag>` query parameter takes precedence, then the
 //! `Accept-Language` header, then the server's configured default (set via
 //! `clincalc api --locale`), then English. An explicit `?locale=` that does
-//! not identify a compiled locale bundle fails with `400`; an
+//! not identify an available locale bundle fails with `400`; an
 //! `Accept-Language` value that matches nothing quietly falls through to the
-//! next tier, matching ordinary content negotiation. Responses report the
-//! locale actually used via `Content-Language`, and add `Vary:
-//! Accept-Language` when the header was consulted. The OpenAPI document and
+//! next tier, matching ordinary content negotiation. On a named calculator
+//! endpoint, an explicit locale must be one that calculator advertises.
+//! Named calculator responses report the locale actually used via
+//! `Content-Language`. The catalogue reports `content_locale` per entry because
+//! calculators can fall back independently. Responses add `Vary:
+//! Accept-Language` when the header can affect them. The OpenAPI document and
 //! licence metadata are not calculator prose and stay locale-neutral.
 
 use std::str::FromStr;
@@ -50,9 +53,18 @@ struct LocaleQuery {
     locale: Option<String>,
 }
 
-/// Start the axum HTTP server on `host:port`, using `default_locale` when a
+/// Start the axum HTTP server on `host:port`, defaulting to English when a
 /// request expresses no locale preference of its own.
-pub async fn serve(host: &str, port: u16, default_locale: SupportedLocale) -> anyhow::Result<()> {
+pub async fn serve(host: &str, port: u16) -> anyhow::Result<()> {
+    serve_with_locale(host, port, SupportedLocale::En).await
+}
+
+/// Start the axum HTTP server on `host:port` with a configured default locale.
+pub async fn serve_with_locale(
+    host: &str,
+    port: u16,
+    default_locale: SupportedLocale,
+) -> anyhow::Result<()> {
     let addr = format!("{host}:{port}");
     let listener = tokio::net::TcpListener::bind(&addr).await?;
     eprintln!("clincalc REST API listening on http://{addr}");
@@ -72,17 +84,20 @@ fn router(default_locale: SupportedLocale) -> Router {
 }
 
 /// Resolve the locale for one request: explicit query, then `Accept-Language`,
-/// then the server default. Returns whether the header was consulted, so
-/// callers can decide whether to add `Vary: Accept-Language`.
+/// then the server default. `available_locales` is the complete locale set for
+/// the selected representation. Returns whether `Accept-Language` can affect
+/// the response, so callers can emit the required `Vary` header even when the
+/// header is absent, malformed, or does not match.
 fn negotiate_locale(
     query: &LocaleQuery,
     headers: &HeaderMap,
     default_locale: SupportedLocale,
+    available_locales: &[SupportedLocale],
 ) -> Result<(SupportedLocale, bool), (StatusCode, Json<serde_json::Value>)> {
     if let Some(tag) = query.locale.as_deref() {
-        return crate::lookup_locale(tag, crate::COMPILED_LOCALES)
+        return crate::lookup_locale(tag, available_locales)
             .map(|locale| (locale, false))
-            .ok_or_else(|| unsupported_locale_error(tag));
+            .ok_or_else(|| unsupported_locale_error(tag, available_locales));
     }
 
     if let Some(header_value) = headers
@@ -90,35 +105,30 @@ fn negotiate_locale(
         .and_then(|value| value.to_str().ok())
     {
         for range in accept_language_ranges(header_value) {
-            if let Some(locale) = crate::lookup_locale(&range, crate::COMPILED_LOCALES) {
+            if let Some(locale) = crate::lookup_locale(&range, available_locales) {
                 return Ok((locale, true));
             }
         }
     }
 
-    Ok((default_locale, false))
-}
-
-/// A locale is "effective" for a calculator only when that calculator has a
-/// complete reviewed bundle for it; this mirrors the fallback every
-/// locale-aware `Calculator` method is required to perform internally, so it
-/// can be reported externally in `Content-Language` without recomputing
-/// calculator-specific state.
-fn effective_locale(calc: &dyn crate::Calculator, locale: SupportedLocale) -> SupportedLocale {
-    if calc.supported_locales().contains(&locale) {
-        locale
+    let locale = if available_locales.contains(&default_locale) {
+        default_locale
     } else {
         SupportedLocale::En
-    }
+    };
+    Ok((locale, true))
 }
 
-fn unsupported_locale_error(tag: &str) -> (StatusCode, Json<serde_json::Value>) {
+fn unsupported_locale_error(
+    tag: &str,
+    available_locales: &[SupportedLocale],
+) -> (StatusCode, Json<serde_json::Value>) {
     (
         StatusCode::BAD_REQUEST,
         Json(serde_json::json!({
             "error": format!(
                 "unsupported locale `{tag}`; available locales: {}",
-                crate::COMPILED_LOCALES
+                available_locales
                     .iter()
                     .map(ToString::to_string)
                     .collect::<Vec<_>>()
@@ -143,10 +153,17 @@ fn accept_language_ranges(header_value: &str) -> Vec<String> {
                 return None;
             }
             let mut quality = 1000;
+            let mut has_quality = false;
             for param in parts {
-                if let Some(value) = param.trim().strip_prefix("q=") {
-                    quality = parse_quality(value).unwrap_or(1000);
+                let (name, value) = param.trim().split_once('=')?;
+                if has_quality || !name.trim().eq_ignore_ascii_case("q") {
+                    return None;
                 }
+                quality = parse_quality(value.trim())?;
+                has_quality = true;
+            }
+            if quality == 0 {
+                return None;
             }
             Some((range.to_string(), quality))
         })
@@ -159,11 +176,34 @@ fn accept_language_ranges(header_value: &str) -> Vec<String> {
 /// Parse an RFC 9110 `qvalue` (`0` to `1`, up to three decimal digits) into a
 /// fixed-point integer out of 1000, so ranges sort without float comparison.
 fn parse_quality(value: &str) -> Option<u32> {
-    let value: f64 = value.parse().ok()?;
-    if !(0.0..=1.0).contains(&value) {
+    let (whole, fraction) = value.split_once('.').unwrap_or((value, ""));
+    if fraction.len() > 3 || !fraction.bytes().all(|byte| byte.is_ascii_digit()) {
         return None;
     }
-    Some((value * 1000.0).round() as u32)
+    match whole {
+        "0" => {
+            let fraction = if fraction.is_empty() {
+                0
+            } else {
+                fraction.parse::<u32>().ok()? * 10_u32.pow(3 - fraction.len() as u32)
+            };
+            Some(fraction)
+        }
+        "1" if fraction.bytes().all(|byte| byte == b'0') => Some(1000),
+        _ => None,
+    }
+}
+
+fn add_vary_accept_language(headers: &mut HeaderMap) {
+    let already_present = headers
+        .get_all(header::VARY)
+        .iter()
+        .filter_map(|value| value.to_str().ok())
+        .flat_map(|value| value.split(','))
+        .any(|name| name.trim().eq_ignore_ascii_case("Accept-Language"));
+    if !already_present {
+        headers.append(header::VARY, HeaderValue::from_static("Accept-Language"));
+    }
 }
 
 /// Attach `Content-Language` (and `Vary: Accept-Language` when negotiated) to
@@ -171,17 +211,15 @@ fn parse_quality(value: &str) -> Option<u32> {
 fn with_locale_headers(
     json: Json<serde_json::Value>,
     locale: SupportedLocale,
-    negotiated_via_header: bool,
+    varies_by_accept_language: bool,
 ) -> Response {
     let mut response = json.into_response();
     response.headers_mut().insert(
         header::CONTENT_LANGUAGE,
         HeaderValue::from_static(locale.as_bcp47()),
     );
-    if negotiated_via_header {
-        response
-            .headers_mut()
-            .insert(header::VARY, HeaderValue::from_static("Accept-Language"));
+    if varies_by_accept_language {
+        add_vary_accept_language(response.headers_mut());
     }
     response
 }
@@ -205,7 +243,12 @@ async fn list_calculators(
     Query(query): Query<LocaleQuery>,
     headers: HeaderMap,
 ) -> Response {
-    let (locale, negotiated) = match negotiate_locale(&query, &headers, state.default_locale) {
+    let (locale, negotiated) = match negotiate_locale(
+        &query,
+        &headers,
+        state.default_locale,
+        crate::COMPILED_LOCALES,
+    ) {
         Ok(resolved) => resolved,
         Err(err) => return err.into_response(),
     };
@@ -213,10 +256,16 @@ async fn list_calculators(
         .iter()
         .map(|c| {
             let lic = c.license();
+            let content_locale = if c.supported_locales().contains(&locale) {
+                locale
+            } else {
+                SupportedLocale::En
+            };
             serde_json::json!({
                 "name": c.name(),
-                "title": c.title_for(locale),
-                "description": c.description_for(locale),
+                "title": c.title_for(content_locale),
+                "description": c.description_for(content_locale),
+                "content_locale": content_locale,
                 "supported_locales": c.supported_locales(),
                 "license": lic.license,
                 "license_source": lic.source_url,
@@ -225,13 +274,10 @@ async fn list_calculators(
         })
         .collect();
     // No single Content-Language: the catalogue mixes calculators that may
-    // each fall back to English independently; `supported_locales` per item
-    // already tells a caller which ones actually honoured the request.
+    // each fall back to English independently, so every item reports its own.
     let mut response = Json(serde_json::json!(items)).into_response();
     if negotiated {
-        response
-            .headers_mut()
-            .insert(header::VARY, HeaderValue::from_static("Accept-Language"));
+        add_vary_accept_language(response.headers_mut());
     }
     response
 }
@@ -242,19 +288,19 @@ async fn get_schema(
     Query(query): Query<LocaleQuery>,
     headers: HeaderMap,
 ) -> Response {
-    let (locale, negotiated) = match negotiate_locale(&query, &headers, state.default_locale) {
-        Ok(resolved) => resolved,
-        Err(err) => return err.into_response(),
-    };
     let Some(calc) = crate::get(&name) else {
         return not_found(&name).into_response();
     };
-    let effective = effective_locale(calc.as_ref(), locale);
-    with_locale_headers(
-        Json(calc.input_schema_for(effective)),
-        effective,
-        negotiated,
-    )
+    let (locale, negotiated) = match negotiate_locale(
+        &query,
+        &headers,
+        state.default_locale,
+        calc.supported_locales(),
+    ) {
+        Ok(resolved) => resolved,
+        Err(err) => return err.into_response(),
+    };
+    with_locale_headers(Json(calc.input_schema_for(locale)), locale, negotiated)
 }
 
 async fn get_template(
@@ -263,19 +309,19 @@ async fn get_template(
     Query(query): Query<LocaleQuery>,
     headers: HeaderMap,
 ) -> Response {
-    let (locale, negotiated) = match negotiate_locale(&query, &headers, state.default_locale) {
-        Ok(resolved) => resolved,
-        Err(err) => return err.into_response(),
-    };
     let Some(calc) = crate::get(&name) else {
         return not_found(&name).into_response();
     };
-    let effective = effective_locale(calc.as_ref(), locale);
-    with_locale_headers(
-        Json(calc.input_template_for(effective)),
-        effective,
-        negotiated,
-    )
+    let (locale, negotiated) = match negotiate_locale(
+        &query,
+        &headers,
+        state.default_locale,
+        calc.supported_locales(),
+    ) {
+        Ok(resolved) => resolved,
+        Err(err) => return err.into_response(),
+    };
+    with_locale_headers(Json(calc.input_template_for(locale)), locale, negotiated)
 }
 
 async fn get_license(Path(name): Path<String>) -> ApiResult<serde_json::Value> {
@@ -291,12 +337,17 @@ async fn compute(
     headers: HeaderMap,
     payload: Result<Json<serde_json::Value>, JsonRejection>,
 ) -> Response {
-    let (locale, negotiated) = match negotiate_locale(&query, &headers, state.default_locale) {
-        Ok(resolved) => resolved,
-        Err(err) => return err.into_response(),
-    };
     let Some(calc) = crate::get(&name) else {
         return not_found(&name).into_response();
+    };
+    let (locale, negotiated) = match negotiate_locale(
+        &query,
+        &headers,
+        state.default_locale,
+        calc.supported_locales(),
+    ) {
+        Ok(resolved) => resolved,
+        Err(err) => return err.into_response(),
     };
     let input = match payload {
         Ok(Json(input)) => input,
@@ -340,11 +391,12 @@ fn openapi_spec() -> serde_json::Value {
         "CalculatorInfo".to_string(),
         serde_json::json!({
             "type": "object",
-            "required": ["name", "title", "description", "supported_locales", "license", "license_source", "tags"],
+            "required": ["name", "title", "description", "content_locale", "supported_locales", "license", "license_source", "tags"],
             "properties": {
                 "name": {"type": "string"},
                 "title": {"type": "string"},
                 "description": {"type": "string"},
+                "content_locale": {"type": "string", "description": "Canonical BCP 47 tag of the complete locale bundle used for this entry"},
                 "supported_locales": {"type": "array", "items": {"type": "string"}},
                 "license": {"type": "string"},
                 "license_source": {"type": "string", "format": "uri"},
@@ -404,6 +456,30 @@ fn openapi_spec() -> serde_json::Value {
         "schema": {"type": "string", "enum": calculator_names}
     });
 
+    let locale_query_param = serde_json::json!({
+        "name": "locale",
+        "in": "query",
+        "required": false,
+        "description": "Explicit BCP 47 locale tag. On named calculator endpoints, the locale must be listed in that calculator's supported_locales.",
+        "schema": {"type": "string"}
+    });
+
+    let accept_language_param = serde_json::json!({
+        "name": "Accept-Language",
+        "in": "header",
+        "required": false,
+        "description": "RFC 9110 language preferences, used when locale is not supplied.",
+        "schema": {"type": "string"}
+    });
+
+    let catalogue_locale_params =
+        serde_json::json!([locale_query_param.clone(), accept_language_param.clone()]);
+    let calculator_locale_params = serde_json::json!([
+        name_param.clone(),
+        locale_query_param,
+        accept_language_param
+    ]);
+
     let error_404 = serde_json::json!({
         "description": "Unknown calculator",
         "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}
@@ -418,6 +494,7 @@ fn openapi_spec() -> serde_json::Value {
                 "operationId": "listCalculators",
                 "summary": "List all calculators",
                 "tags": ["catalogue"],
+                "parameters": catalogue_locale_params,
                 "responses": {
                     "200": {
                         "description": "Catalogue of calculators",
@@ -439,7 +516,7 @@ fn openapi_spec() -> serde_json::Value {
                 "operationId": "getSchema",
                 "summary": "Get the JSON Schema for a calculator's input",
                 "tags": ["calculator"],
-                "parameters": [name_param.clone()],
+                "parameters": calculator_locale_params.clone(),
                 "responses": {
                     "200": {"description": "JSON Schema object"},
                     "404": error_404.clone()
@@ -455,7 +532,7 @@ fn openapi_spec() -> serde_json::Value {
                 "operationId": "getTemplate",
                 "summary": "Get a fillable input template",
                 "tags": ["calculator"],
-                "parameters": [name_param.clone()],
+                "parameters": calculator_locale_params.clone(),
                 "responses": {
                     "200": {"description": "Template JSON object with placeholder values"},
                     "404": error_404.clone()
@@ -500,6 +577,7 @@ fn openapi_spec() -> serde_json::Value {
                     "summary": calc.title(),
                     "description": calc.description(),
                     "tags": calc.tags(),
+                    "parameters": calculator_locale_params.clone(),
                     "requestBody": {
                         "required": true,
                         "content": {
@@ -612,6 +690,7 @@ mod tests {
         assert!(first["name"].is_string());
         assert!(first["title"].is_string());
         assert!(first["description"].is_string());
+        assert!(first["content_locale"].is_string());
         assert!(first["supported_locales"].is_array());
         assert!(first["license"].is_string());
         assert!(first["license_source"].is_string());
@@ -801,6 +880,14 @@ mod tests {
         assert!(body["components"]["schemas"]["Input_feverpain"].is_object());
         assert!(body["paths"]["/calculators/feverpain"]["post"]["responses"]["400"].is_object());
         assert!(body["paths"]["/calculators/feverpain"]["post"]["responses"]["415"].is_object());
+        assert_eq!(
+            body["paths"]["/calculators"]["get"]["parameters"][0]["name"],
+            "locale"
+        );
+        assert_eq!(
+            body["paths"]["/calculators/feverpain"]["post"]["parameters"][2]["name"],
+            "Accept-Language"
+        );
     }
 
     #[tokio::test]
@@ -830,8 +917,13 @@ mod tests {
         let query = LocaleQuery {
             locale: Some("es".to_string()),
         };
-        let (locale, negotiated) =
-            negotiate_locale(&query, &HeaderMap::new(), SupportedLocale::En).unwrap();
+        let (locale, negotiated) = negotiate_locale(
+            &query,
+            &HeaderMap::new(),
+            SupportedLocale::En,
+            crate::COMPILED_LOCALES,
+        )
+        .unwrap();
         assert_eq!(locale, SupportedLocale::Es);
         assert!(!negotiated);
     }
@@ -841,8 +933,13 @@ mod tests {
         let query = LocaleQuery {
             locale: Some("xx".to_string()),
         };
-        let (status, body) =
-            negotiate_locale(&query, &HeaderMap::new(), SupportedLocale::En).unwrap_err();
+        let (status, body) = negotiate_locale(
+            &query,
+            &HeaderMap::new(),
+            SupportedLocale::En,
+            crate::COMPILED_LOCALES,
+        )
+        .unwrap_err();
         assert_eq!(status, StatusCode::BAD_REQUEST);
         assert!(
             body.0["error"]
@@ -860,7 +957,13 @@ mod tests {
             header::ACCEPT_LANGUAGE,
             HeaderValue::from_static("fr;q=0.5, ca;q=0.9, en;q=0.1"),
         );
-        let (locale, negotiated) = negotiate_locale(&query, &headers, SupportedLocale::En).unwrap();
+        let (locale, negotiated) = negotiate_locale(
+            &query,
+            &headers,
+            SupportedLocale::En,
+            crate::COMPILED_LOCALES,
+        )
+        .unwrap();
         assert_eq!(locale, SupportedLocale::Ca);
         assert!(negotiated);
     }
@@ -870,18 +973,29 @@ mod tests {
         let query = LocaleQuery { locale: None };
         let mut headers = HeaderMap::new();
         headers.insert(header::ACCEPT_LANGUAGE, HeaderValue::from_static("de, fr"));
-        let (locale, negotiated) = negotiate_locale(&query, &headers, SupportedLocale::Es).unwrap();
+        let (locale, negotiated) = negotiate_locale(
+            &query,
+            &headers,
+            SupportedLocale::Es,
+            crate::COMPILED_LOCALES,
+        )
+        .unwrap();
         assert_eq!(locale, SupportedLocale::Es);
-        assert!(!negotiated);
+        assert!(negotiated);
     }
 
     #[test]
     fn negotiate_locale_uses_the_server_default_with_no_request_signal() {
         let query = LocaleQuery { locale: None };
-        let (locale, negotiated) =
-            negotiate_locale(&query, &HeaderMap::new(), SupportedLocale::Ca).unwrap();
+        let (locale, negotiated) = negotiate_locale(
+            &query,
+            &HeaderMap::new(),
+            SupportedLocale::Ca,
+            crate::COMPILED_LOCALES,
+        )
+        .unwrap();
         assert_eq!(locale, SupportedLocale::Ca);
-        assert!(!negotiated);
+        assert!(negotiated);
     }
 
     #[test]
@@ -893,11 +1007,51 @@ mod tests {
     }
 
     #[test]
-    fn accept_language_ranges_treats_a_malformed_quality_as_default() {
+    fn accept_language_ranges_skips_malformed_and_zero_quality_ranges() {
         assert_eq!(
-            accept_language_ranges("es;q=notanumber, en;q=0.9"),
-            vec!["es", "en"]
+            accept_language_ranges("es;q=notanumber, ca;q=1.001, fr;q=0, en;q=0.9, de;q=0.1234"),
+            vec!["en"]
         );
+    }
+
+    #[test]
+    fn parse_quality_accepts_only_the_rfc_qvalue_grammar() {
+        assert_eq!(parse_quality("0"), Some(0));
+        assert_eq!(parse_quality("0.5"), Some(500));
+        assert_eq!(parse_quality("0.125"), Some(125));
+        assert_eq!(parse_quality("1.000"), Some(1000));
+        assert_eq!(parse_quality("1.001"), None);
+        assert_eq!(parse_quality("0.1234"), None);
+        assert_eq!(parse_quality(".5"), None);
+        assert_eq!(parse_quality("-0.5"), None);
+    }
+
+    #[test]
+    fn negotiate_locale_uses_the_selected_calculators_available_locales() {
+        let query = LocaleQuery { locale: None };
+        let mut headers = HeaderMap::new();
+        headers.insert(
+            header::ACCEPT_LANGUAGE,
+            HeaderValue::from_static("es, ca;q=0.8, en;q=0.5"),
+        );
+        let available = [SupportedLocale::En, SupportedLocale::Ca];
+        let (locale, negotiated) =
+            negotiate_locale(&query, &headers, SupportedLocale::En, &available).unwrap();
+        assert_eq!(locale, SupportedLocale::Ca);
+        assert!(negotiated);
+    }
+
+    #[test]
+    fn add_vary_accept_language_preserves_existing_values() {
+        let mut headers = HeaderMap::new();
+        headers.insert(header::VARY, HeaderValue::from_static("Accept-Encoding"));
+        add_vary_accept_language(&mut headers);
+        let values: Vec<_> = headers
+            .get_all(header::VARY)
+            .iter()
+            .map(|value| value.to_str().unwrap())
+            .collect();
+        assert_eq!(values, vec!["Accept-Encoding", "Accept-Language"]);
     }
 
     #[test]
@@ -924,22 +1078,30 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn get_schema_reports_the_english_fallback_actually_rendered() {
-        // feverpain has no Spanish bundle yet, so a compiled-but-unsupported
-        // `?locale=es` still succeeds and reports the fallback it used,
-        // rather than echoing back the request or erroring.
+    async fn get_schema_rejects_a_locale_the_calculator_does_not_support() {
         let request = Request::builder()
             .method(Method::GET)
             .uri("/calculators/feverpain/schema?locale=es")
             .body(Body::empty())
             .unwrap();
         let response = router(SupportedLocale::En).oneshot(request).await.unwrap();
+        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+        assert!(response.headers().get(header::VARY).is_none());
+    }
+
+    #[tokio::test]
+    async fn schema_without_an_explicit_locale_sets_vary_even_without_a_header() {
+        let request = Request::builder()
+            .method(Method::GET)
+            .uri("/calculators/feverpain/schema")
+            .body(Body::empty())
+            .unwrap();
+        let response = router(SupportedLocale::En).oneshot(request).await.unwrap();
         assert_eq!(response.status(), StatusCode::OK);
         assert_eq!(
-            response.headers().get(header::CONTENT_LANGUAGE).unwrap(),
-            "en"
+            response.headers().get(header::VARY).unwrap(),
+            "Accept-Language"
         );
-        assert!(response.headers().get(header::VARY).is_none());
     }
 
     #[tokio::test]
@@ -988,6 +1150,8 @@ mod tests {
         )
         .await;
         assert_eq!(status, StatusCode::OK);
-        assert!(body.as_array().unwrap()[0]["title"].is_string());
+        let first = &body.as_array().unwrap()[0];
+        assert!(first["title"].is_string());
+        assert_eq!(first["content_locale"], "en");
     }
 }

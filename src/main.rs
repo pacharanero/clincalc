@@ -250,7 +250,7 @@ fn run_mcp() -> Result<()> {
 
 #[cfg(feature = "rest-api")]
 fn run_api(cmd: ApiCommand, default_locale: clincalc::SupportedLocale) -> Result<()> {
-    tokio::runtime::Runtime::new()?.block_on(clincalc::api::serve(
+    tokio::runtime::Runtime::new()?.block_on(clincalc::api::serve_with_locale(
         &cmd.host,
         cmd.port,
         default_locale,
