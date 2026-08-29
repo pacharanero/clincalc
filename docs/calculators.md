@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry. 77 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
+The full registry. 78 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
@@ -83,6 +83,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `hinchey` | Modified Hinchey Classification (Wasvary/Kaiser) | Classifies diverticulitis anatomy using the Wasvary modified stages and Kaiser CT operationalisation; preserves fistula/obstruction as separate categories and does not infer purulent versus fecal peritonitis from CT alone. | `surgery`, `acute-medicine`, `severity` |
 | `ipss` | IPSS - International Prostate Symptom Score | Seven-item lower urinary tract symptom score (0-35) for benign prostatic hyperplasia; bands mild 0-7, moderate 8-19, severe 20-35, with an optional quality-of-life item (0-6). | `urology`, `severity` |
 | `lanss` | LANSS (Leeds Assessment of Neuropathic Symptoms and Signs) | Screening for pain of predominantly neuropathic origin (7 items, 0-24; >=12 likely neuropathic). | `neurology`, `screening`, `proprietary`, `unavailable` |
+| `ldl_cholesterol` | LDL and non-HDL Cholesterol | Calculates non-HDL cholesterol and estimates LDL cholesterol using Friedewald, Martin-Hopkins, and Sampson-NIH, with method-specific triglyceride limits. | `primary-care`, `cardiology`, `endocrinology` |
 | `lrinec` | LRINEC Score (Necrotising Fasciitis Risk Indicator) | Six-variable laboratory diagnostic adjunct for severe soft-tissue infection; a score of 6 or more increases suspicion, but poor sensitivity means a low score does not exclude necrotising infection or justify delaying surgical consultation. | `emergency`, `surgery`, `infectious-diseases`, `risk` |
 | `max_heart_rate` | Max Heart Rate & Training Zones | Estimates HRmax from age (Tanaka 2001) and derives aerobic training zones; uses Karvonen heart-rate reserve when resting HR is supplied. | `primary-care`, `screening` |
 | `meld` | MELD Score (original, 2001) | Model for End-Stage Liver Disease: 3-month mortality risk from bilirubin, INR, and creatinine (Kamath 2001). | `hepatology`, `prognostic` |

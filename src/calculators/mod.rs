@@ -59,6 +59,7 @@ pub mod hasbled;
 pub mod heart;
 pub mod hinchey;
 pub mod ipss;
+pub mod ldl_cholesterol;
 pub mod lrinec;
 pub mod max_heart_rate;
 pub mod meld;

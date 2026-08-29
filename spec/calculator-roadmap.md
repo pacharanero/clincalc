@@ -32,7 +32,6 @@ Calculators worth shipping, under consideration. Largely surfaced from sibling o
 
 Shipped anthropometric and body-composition measures include BMI, body-fat circumference, WHtR, WHR, RFM, 1RM, training zones, and the Wilks score. Remaining candidates range from tape-measure proxies (BAI) to lab or field methods for body composition (skinfolds, FFMI, SMI) and the alternative DOTS strength score.
 
-- [ ] **CALC-041 LDL / non-HDL cholesterol** - Friedewald, Martin-Hopkins, and Sampson-NIH LDL estimation from a lipid panel
 - [ ] **CALC-022 MELD 3.0** - Updated MELD
 - [ ] **CALC-023 Modified Duke criteria** - Infective endocarditis
 - [ ] **CALC-024 NIHSS** - Acute stroke severity
