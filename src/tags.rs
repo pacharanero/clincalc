@@ -21,7 +21,7 @@
 //! `cardiology`, `nephrology`, `hepatology`, `respiratory`, `neurology`,
 //! `mental-health`, `endocrinology`, `rheumatology`, `urology`, `oncology`,
 //! `geriatrics`, `perinatal`, `paediatrics`, `infectious-diseases`,
-//! `surgery`, `vascular`, `musculoskeletal`.
+//! `haematology`, `surgery`, `vascular`, `musculoskeletal`.
 //!
 //! **Status / kind** (zero or more):
 //! `nhs-mandated`, `screening`, `severity`, `prognostic`, `risk`,
@@ -120,6 +120,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
         "lrinec",
         &["emergency", "surgery", "infectious-diseases", "risk"],
     ),
+    ("four_ts", &["haematology", "risk"]),
     (
         "glasgow_blatchford",
         &["emergency", "acute-medicine", "risk"],
@@ -173,6 +174,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ("gleason", &["oncology", "urology"]),
     ("npi", &["oncology", "prognostic"]),
     ("binet", &["oncology", "severity", "prognostic"]),
+    ("khorana", &["oncology", "haematology", "risk"]),
     // ---- Surgery / trauma / pressure injury ----
     (
         "nhfs",

@@ -25,6 +25,8 @@ MedikQuantis parity items have a stricter completion rule: the calculation and i
 - [~] **CALC-054 Apgar score** - English calculation shipped. Reviewed Catalan and Spanish bundles remain outstanding. Unlike the pinned MedikQuantis surface, clincalc records assessment timing and resuscitation context, limits descriptive bands to their supported context, and never turns the total into a resuscitation instruction.
 - [~] **CALC-055 Mosteller body surface area** - English calculation shipped. Reviewed Catalan and Spanish bundles remain outstanding. Unlike the pinned MedikQuantis surface, clincalc reports the continuous BSA without inferring protocol-specific drug doses or indexing decisions.
 - [~] **CALC-058 HOMA-IR** - English calculation shipped. Reviewed Catalan and Spanish bundles remain outstanding. Unlike the pinned MedikQuantis surface, clincalc does not apply universal interpretation thresholds because HOMA-IR varies by population and insulin assay.
+- [~] **CALC-063 4Ts score for HIT** - English calculation shipped. Reviewed Catalan and Spanish bundles remain outstanding. Unlike the pinned MedikQuantis surface, clincalc derives points from required semantic categories, identifies the standard days 5-10 variant, and does not reduce current ASH guidance to generic band recommendations.
+- [~] **CALC-064 Khorana score** - English calculation shipped. Reviewed Catalan and Spanish bundles remain outstanding. Unlike the pinned MedikQuantis surface, clincalc derives points from raw measurements and reports the original risk band separately from the modern score-2 thromboprophylaxis-assessment threshold.
 - [~] **CALC-065 Binet staging** - English calculation shipped. Reviewed Catalan and Spanish bundles remain outstanding. Unlike the pinned MedikQuantis surface, clincalc derives the canonical stage from examination and blood-count findings rather than accepting a caller-selected stage and mapping it to an invented number.
 
 ### Planned
@@ -58,8 +60,6 @@ For every item below, completion means: independent implementation from the prim
 - [ ] **CALC-060 COWS** - Clinical Opiate Withdrawal Scale; verify instrument reproduction terms and preserve clinician-assessment context
 - [ ] **CALC-061 SAD PERSONS** - Legacy suicide-risk checklist; require an evidence and safety review because poor predictive performance means it must not determine discharge, observation, or referral
 - [ ] **CALC-062 ISTH overt DIC score** - Disseminated intravascular coagulation score from platelet count, fibrin markers, prothrombin time, and fibrinogen in an appropriate underlying disorder
-- [ ] **CALC-063 4Ts score for HIT** - Pre-test probability of heparin-induced thrombocytopenia from thrombocytopenia, timing, thrombosis, and other causes
-- [ ] **CALC-064 Khorana score** - Venous-thromboembolism risk in ambulatory patients starting systemic cancer therapy
 
 #### Other candidates
 

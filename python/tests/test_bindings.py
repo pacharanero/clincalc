@@ -89,6 +89,37 @@ class TestCalculate:
         assert result["calculator"] == "binet"
         assert result["result"] == "B"
 
+    def test_calculate_four_ts(self):
+        result = clincalc.calculate(
+            "four_ts",
+            {
+                "thrombocytopenia": "fall_gt_50_nadir_ge_20",
+                "timing": "clear_day_5_to_10_or_rapid_with_prior_exposure_within_30_days",
+                "thrombosis_or_sequelae": "none",
+                "other_causes": "none_apparent",
+            },
+        )
+        assert result["calculator"] == "four_ts"
+        assert result["result"] == 6
+
+    def test_calculate_khorana(self):
+        result = clincalc.calculate(
+            "khorana",
+            {
+                "assessment_context": "adult_ambulatory_before_new_chemotherapy_regimen",
+                "cancer_site": "lung",
+                "platelet_count_10_9_l": 350,
+                "haemoglobin_g_dl": 12,
+                "uses_erythropoiesis_stimulating_agent": False,
+                "leukocyte_count_10_9_l": 11,
+                "bmi_kg_m2": 30,
+            },
+        )
+        assert result["calculator"] == "khorana"
+        assert result["result"] == 2
+        assert result["working"]["original_risk_band"] == "intermediate"
+        assert result["working"]["meets_guideline_consideration_threshold"] is True
+
     def test_calculate_unknown_calculator_raises_value_error(self):
         with pytest.raises(ValueError, match="unknown calculator: nope"):
             clincalc.calculate("nope", {})
@@ -165,7 +196,7 @@ class TestListCalculators:
     def test_returns_nonempty_list(self):
         calcs = clincalc.list_calculators()
         assert isinstance(calcs, list)
-        assert len(calcs) == 92
+        assert len(calcs) == 94
 
     def test_each_entry_has_required_keys(self):
         calcs = clincalc.list_calculators()
