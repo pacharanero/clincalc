@@ -145,6 +145,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
             "prognostic",
         ],
     ),
+    ("duke_iscvid", &["infectious-diseases", "cardiology"]),
     // ---- Renal ----
     ("egfr", &["primary-care", "nephrology"]),
     ("cockcroft_gault", &["primary-care", "nephrology"]),

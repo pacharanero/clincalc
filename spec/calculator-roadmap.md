@@ -34,11 +34,10 @@ Calculators worth shipping, under consideration. Largely surfaced from sibling o
 
 #### MedikQuantis parity gaps
 
-This is the remaining calculation gap against MedikQuantis's live 65-calculator registry at upstream commit [`16c63c85`](https://github.com/laurapiro17/medikquantis/tree/16c63c85aee7a64417205f60cb3e66fccf19fae2), reviewed 2026-08-29. clincalc ships 57 equivalent calculations and lacks the 8 below. MedikQuantis's README still reports 49 calculators, so its registry is the authoritative inventory. Review this snapshot when upstream changes; add new stable `CALC-*` items rather than silently letting parity drift.
+This is the remaining calculation gap against MedikQuantis's live 65-calculator registry at upstream commit [`16c63c85`](https://github.com/laurapiro17/medikquantis/tree/16c63c85aee7a64417205f60cb3e66fccf19fae2), reviewed 2026-08-29. clincalc ships 58 equivalent calculations and lacks the 7 below. MedikQuantis's README still reports 49 calculators, so its registry is the authoritative inventory. Review this snapshot when upstream changes; add new stable `CALC-*` items rather than silently letting parity drift.
 
 For every item below, completion means independent implementation from the primary source; closed schema, licence evidence, and literature-vector tests under the normal calculator contract; and explicit comparison with the pinned MedikQuantis behavior with intentional clinical or guideline differences documented. Machine identifiers and numeric behavior remain locale-neutral. Reviewed translations are tracked independently in the README and do not block completion.
 
-- [ ] **CALC-023 Duke-ISCVID criteria (2023)** - Current infective-endocarditis diagnostic criteria; implement the superseding ISCVID revision rather than shipping the 2000 Modified Duke criteria as the default
 - [ ] **CALC-025 Norton Scale** - Pressure-ulcer risk; blocked pending unrestricted redistribution permission or legal review because the Centre for Policy on Ageing claims ownership of the scale
 - [ ] **CALC-026 NYHA** - Heart-failure functional class; blocked pending unrestricted redistribution permission or legal review because the American Heart Association claims copyright in the classification
 - [ ] **CALC-027 ORBIT** - Bleeding risk in AF (DOAC era); blocked pending unrestricted redistribution evidence or legal review because the original 2015 article is licensed CC BY-NC 4.0, which is incompatible with clincalc's unrestricted reusable-library goal

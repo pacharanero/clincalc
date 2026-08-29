@@ -1,0 +1,18 @@
+{
+  "assessment_context": "clinician_classification_of_suspected_ie_using_corrected_2023_duke_iscvid_criteria",
+  "pathologic_evidence": "none",
+  "intracardiac_prosthetic_material": [],
+  "blood_culture_organism": "staphylococcus_aureus",
+  "positive_blood_culture_sets": 2,
+  "major_laboratory_evidence": "none",
+  "anatomic_imaging_evidence": "none_or_nonqualifying",
+  "pet_ct_evidence": "none_or_nonqualifying",
+  "surgical_inspection_evidence": "none_or_nonqualifying",
+  "predisposition": [],
+  "maximum_documented_temperature_c": 38.6,
+  "vascular_phenomena": [],
+  "immunologic_phenomena": [],
+  "other_minor_microbiology": "none",
+  "auscultation_evidence": "none_or_nonqualifying",
+  "rejection_evidence": []
+}

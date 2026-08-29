@@ -44,6 +44,7 @@ pub mod corrected_sodium;
 pub mod cows;
 pub mod curb65;
 pub mod das28;
+pub mod duke_iscvid;
 pub mod egfr;
 pub mod ehra;
 pub mod energy_requirement;

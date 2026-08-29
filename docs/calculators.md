@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry. 93 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
+The full registry. 94 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
@@ -64,6 +64,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `cows` | Clinical Opiate Withdrawal Scale (COWS) | Quantifies current clinician-assessed findings apparently attributable to opioid withdrawal. It does not independently diagnose withdrawal or determine medication timing or dosage. | `acute-medicine`, `mental-health`, `severity` |
 | `curb65` | CURB-65 Pneumonia Severity | Severity and 30-day mortality risk in adults with community-acquired pneumonia, guiding place of care (BTS 2009 / NICE NG250). | `acute-medicine`, `respiratory`, `infectious-diseases`, `severity` |
 | `das28` | DAS28 (Rheumatoid Arthritis Disease Activity) | Disease Activity Score in 28 joints for rheumatoid arthritis, from tender/swollen joint counts, an ESR or CRP marker, and patient global health. | `rheumatology`, `severity` |
+| `duke_iscvid` | 2023 Duke-ISCVID Criteria for Infective Endocarditis | Derives the corrected 2023 research case-definition classification of suspected infective endocarditis as definite, possible, or rejected from clinician-asserted evidence. It supplements clinical judgement and is not a screening, diagnosis, exclusion, prognosis, surgery, or antibiotic-treatment rule. | `infectious-diseases`, `cardiology` |
 | `cockcroft_gault` | Cockcroft-Gault Creatinine Clearance | Creatinine clearance (CrCl, mL/min) from age, weight, sex, and creatinine. Superseded by CKD-EPI 2021 for CKD staging; retained for renal drug dosing where guidelines cite CrCl. | `primary-care`, `nephrology` |
 | `egfr` | eGFR (CKD-EPI 2021) | Estimated glomerular filtration rate from creatinine (race-free CKD-EPI 2021); reports CKD G-stage. | `primary-care`, `nephrology` |
 | `ehra` | EHRA AF Symptom Classification | Classifies atrial fibrillation symptom burden (Classes 1, 2a, 2b, 3, 4) to guide rhythm-control decisions. | `cardiology` |
@@ -156,7 +157,6 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 | **StatinMD** (Oxford STRATIFY) | Personalised 1/5/10-year risk of serious statin-induced muscle disorders (rhabdomyolysis / hospitalised myopathy) from 22 routinely-recorded factors (Cai et al, *Lancet Digital Health* 2026). Natural pairing with QRISK3: QRISK3 is the benefit side, StatinMD is the harm side. Licensed for **academic use** via Oxford University Innovation - covered while this project is non-commercial. ([source](https://process.innovation.ox.ac.uk/software/p/25396/stratify---stainmd-risk-calculator---academic-use/1)) | `primary-care`, `cardiology`, `risk` |
 | **NYHA** | Heart-failure functional class. | `cardiology`, `severity` |
 | **Norton Scale** | Pressure-ulcer risk; complements the shipped Braden and Waterlow tools. | `geriatrics`, `screening` |
-| **Modified Duke criteria** | Endocarditis. | `infectious-diseases` |
 | **SCORAD** | Atopic dermatitis severity; blocked pending unrestricted redistribution permission or legal review because [ePROVIDE identifies the instrument as all rights reserved](https://eprovide.mapi-trust.org/instruments/scoring-in-atopic-dermatitis) and its rights manager reserves adaptation, translation, and software-integration rights. | `dermatology`, `severity` |
 | **ORBIT** | Bleeding risk in atrial fibrillation; blocked pending unrestricted redistribution evidence because the original article is CC BY-NC. | `cardiology`, `risk` |
 | **SCORE2 / SCORE2-OP** | ESC 2021 CV risk (verify licensing). | `cardiology`, `risk` |

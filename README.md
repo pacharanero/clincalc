@@ -145,6 +145,7 @@ This table tracks every functioning calculation. `✓` means the language is ava
 | `cows` | ✓ | - | - | ✓ |
 | `curb65` | ✓ | - | - | ✓ |
 | `das28` | ✓ | - | - | ✓ |
+| `duke_iscvid` | ✓ | - | - | ✓ |
 | `egfr` | ✓ | - | - | ✓ |
 | `ehra` | ✓ | - | - | ✓ |
 | `energy_requirement` | ✓ | - | - | ✓ |

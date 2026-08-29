@@ -283,6 +283,33 @@ class TestCalculate:
         assert result["result"] == 9
         assert result["working"]["total_score"] == 9
 
+    def test_calculate_duke_iscvid(self):
+        result = clincalc.calculate(
+            "duke_iscvid",
+            {
+                "assessment_context": "clinician_classification_of_suspected_ie_using_corrected_2023_duke_iscvid_criteria",
+                "pathologic_evidence": "none",
+                "intracardiac_prosthetic_material": [],
+                "blood_culture_organism": "staphylococcus_aureus",
+                "positive_blood_culture_sets": 2,
+                "major_laboratory_evidence": "none",
+                "anatomic_imaging_evidence": "none_or_nonqualifying",
+                "pet_ct_evidence": "none_or_nonqualifying",
+                "surgical_inspection_evidence": "none_or_nonqualifying",
+                "predisposition": [],
+                "maximum_documented_temperature_c": 38.6,
+                "vascular_phenomena": [],
+                "immunologic_phenomena": [],
+                "other_minor_microbiology": "none",
+                "auscultation_evidence": "none_or_nonqualifying",
+                "rejection_evidence": [],
+            },
+        )
+        assert result["calculator"] == "duke_iscvid"
+        assert result["result"] == "possible"
+        assert result["working"]["major_count"] == 1
+        assert result["working"]["minor_count"] == 1
+
     def test_calculate_unknown_calculator_raises_value_error(self):
         with pytest.raises(ValueError, match="unknown calculator: nope"):
             clincalc.calculate("nope", {})
@@ -359,7 +386,7 @@ class TestListCalculators:
     def test_returns_nonempty_list(self):
         calcs = clincalc.list_calculators()
         assert isinstance(calcs, list)
-        assert len(calcs) == 103
+        assert len(calcs) == 104
 
     def test_each_entry_has_required_keys(self):
         calcs = clincalc.list_calculators()
