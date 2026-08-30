@@ -1,13 +1,13 @@
 # Calculator catalogue
 
-The full registry. 95 active calculators that compute a real result, plus 11 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
+The full registry: 111 entries comprising 95 active calculators that compute a real result, 11 named-but-unavailable rights-locked stubs (carrying `proprietary` and `unavailable`), four rights-review stubs, and one clinical-safety stub (the latter five carry `unavailable` without `proprietary`). One row per calculator.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
 !!! info "Two kinds of entry"
     **Active** entries compute a real score. Their algorithm is either public-domain (implemented from primary literature) or open-source (notably QRISK3 and QFracture, ported from ClinRisk's LGPL-3 source).
 
-    **Unavailable** entries (`proprietary` + `unavailable` tags) are named on purpose. They appear in `clincalc list`, but invoking them returns a structured explanation - owner, reason, and an open alternative where one exists. See [Unavailable on principle](#unavailable-on-principle).
+    **Unavailable** entries are named on purpose. They appear in `clincalc list`, but invoking them never returns a score. Confirmed rights-locked entries carry `proprietary` + `unavailable`; entries awaiting permission or legal review and the clinical-safety entry carry `unavailable` without `proprietary`. Each response preserves the precise reason and alternatives. See [Unavailable on principle](#unavailable-on-principle).
 
 ## Filtering by tag
 
@@ -107,10 +107,12 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `nhfs` | Nottingham Hip Fracture Score (NHFS) | Preoperative score (0-10) predicting 30-day mortality after hip fracture surgery. | `surgery`, `geriatrics`, `musculoskeletal`, `prognostic` |
 | `nihss` | NIH Stroke Scale (NIHSS) | Standard adult 0-42 neurological deficit score for clinician-administered stroke assessment; omits the total when any officially permitted entry is unscored. | `neurology`, `emergency`, `acute-medicine`, `severity` |
 | `npi` | Nottingham Prognostic Index (NPI) | Prognosis in primary operable breast cancer from invasive tumour size, lymph node stage, and histological grade; reports the prognostic group. | `oncology`, `prognostic` |
-| `nyha` | NYHA Functional Classification | Functional classification of activity limitation associated with heart disease. Unavailable pending unrestricted redistribution permission or legal review; the protected class descriptors are not reproduced. | `cardiology`, `severity`, `proprietary`, `unavailable` |
+| `norton` | Norton Scale | Generic pressure-ulcer risk screening. Unavailable pending permission or legal review because no unrestricted redistribution grant has been identified; this does not assert that independent implementation is prohibited. Shipped Braden and Waterlow are alternatives but are not equivalent. | `geriatrics`, `screening`, `unavailable` |
+| `nyha` | NYHA Functional Classification | Functional classification of activity limitation associated with heart disease. Unavailable pending unrestricted redistribution permission or legal review; this does not assert that independent implementation is prohibited, and the class descriptors are not reproduced. | `cardiology`, `severity`, `unavailable` |
 | `ohs` | Oxford Hip Score (OHS) | Patient-reported outcome after hip replacement (NHS England PROMs). | `surgery`, `musculoskeletal`, `proprietary`, `unavailable` |
 | `oks` | Oxford Knee Score (OKS) | Patient-reported outcome after knee replacement (NHS England PROMs). | `surgery`, `musculoskeletal`, `proprietary`, `unavailable` |
 | `one_rep_max` | One-Rep Max Estimator | Estimates 1RM from a submaximal weight and reps using Epley, Brzycki, or Lombardi. | `primary-care`, `musculoskeletal` |
+| `orbit` | ORBIT Bleeding Risk Score | Generic major-bleeding risk stratification in anticoagulated atrial fibrillation. Unavailable pending permission or legal review because no explicit unrestricted software-redistribution grant has been identified; this does not assert that independent implementation is prohibited. Shipped HAS-BLED is not equivalent, and bleeding-risk scores do not determine whether anticoagulation should be withheld. | `cardiology`, `risk`, `unavailable` |
 | `padua` | Padua Prediction Score (VTE risk) | VTE risk in hospitalised medical inpatients, guiding thromboprophylaxis (NICE NG89). | `acute-medicine`, `vascular`, `risk` |
 | `pasi` | Psoriasis Area and Severity Index (PASI) | Calculates standard PASI from clinician-rated extent, erythema, induration, and desquamation across four body regions without imposing a universal treatment threshold. | `dermatology`, `severity` |
 | `perc` | PERC Rule (PE Rule-out Criteria) | Eight-item block rule for stable adult emergency-department outpatients with suspected pulmonary embolism and clinician gestalt below 15%; PERC-negative can avoid further PE-specific testing. | `emergency`, `respiratory`, `vascular` |
@@ -122,6 +124,9 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `qsofa` | qSOFA Score (Sepsis-3) | Quick bedside prompt flagging suspected-infection patients at higher risk of poor outcome (Sepsis-3). A prognostic prompt, not a diagnosis of sepsis. | `acute-medicine`, `intensive-care`, `screening` |
 | `rcri` | Revised Cardiac Risk Index (RCRI) | Six-factor Lee index for in-hospital major cardiac complications after noncardiac surgery, used within stepwise adult preoperative assessment; historical event rates are shown only when the original validation population matches. | `cardiology`, `surgery`, `risk` |
 | `relative_fat_mass` | Relative Fat Mass (RFM) | Sex-specific estimate of whole-body fat percentage from height and source-protocol waist circumference (Woolcott-Bergman 2018), evaluated against DXA in US adults aged 20-69; accuracy decreased with age and was lower at lower body-fat levels. It does not provide a diagnostic obesity cut-point. | `primary-care`, `endocrinology`, `screening` |
+| `sad_persons` | SAD PERSONS | Generic legacy suicide-risk checklist. Unavailable for clinical-safety reasons: NICE rejects using risk scales for prediction or disposition after self-harm, while separate systematic-review and validation evidence reports poor sensitivity and misclassification for SAD PERSONS. Returns no score; use comprehensive psychosocial assessment and risk formulation, immediate safety assessment, and urgent specialist support where indicated. | `mental-health`, `risk`, `unavailable` |
+| `scorad` | SCORAD | Generic atopic-dermatitis extent and severity assessment. Unavailable because all rights are reserved and adaptation/software-integration rights are controlled, with no unrestricted grant identified; use under local licence or use clinician-directed eczema assessment, with no equivalent unrestricted scored alternative identified. | `dermatology`, `severity`, `proprietary`, `unavailable` |
+| `score2` | SCORE2 / SCORE2-OP | Generic European 10-year fatal and non-fatal cardiovascular risk prediction. Unavailable pending permission or legal review because explicit unrestricted redistribution terms for a complete calibrated implementation have not been identified; this does not assert that independent implementation is prohibited. Use official ESC HeartScore, or QRISK3 for its validated UK population, which is not equivalent. | `cardiology`, `risk`, `unavailable` |
 | `sofa` | SOFA Score (Sequential Organ Failure Assessment) | Grades dysfunction across six organ systems (0-24); underpins the Sepsis-3 definition (rise >= 2 from baseline). | `intensive-care`, `severity` |
 | `timi` | TIMI Risk Score for UA/NSTEMI | 14-day risk of death, MI, or urgent revascularisation in unstable angina / NSTEMI (Antman et al, JAMA 2000). Not the STEMI score. | `cardiology`, `acute-medicine`, `risk` |
 | `uacr` | uACR (urine albumin-to-creatinine ratio) | Urine albumin-to-creatinine ratio from a measured ratio or raw albumin/creatinine; reports the KDIGO albuminuria category (A1-A3). | `primary-care`, `nephrology` |
@@ -135,7 +140,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 
 ## Unavailable on principle
 
-A handful of widely-used clinical tools are licence-locked or proprietary. They are tagged `proprietary` + `unavailable` in the table above. Invoking any of them returns a structured "unavailable" response, never a score:
+Eleven widely-used clinical tools are confirmed rights-locked. They are tagged `proprietary` + `unavailable` in the table above. Invoking any of them returns `unavailable: proprietary` with the owner, reason, alternatives, and source, never a score:
 
 ```console
 $ clincalc calc frax --input '{}'
@@ -143,6 +148,8 @@ frax = unavailable: proprietary
 
 FRAX (10-year fracture risk) is not available here because it is proprietary or licence-locked. Owner: University of Sheffield (Centre for Metabolic Bone Diseases). The FRAX algorithm and its country-specific coefficients are a trade secret and have never been published, so it cannot be reimplemented from primary literature. ...
 ```
+
+NYHA, Norton, ORBIT, and SCORE2 / SCORE2-OP are withheld pending permission or legal review without claiming that their algorithms are proprietary or that independent implementation is prohibited. They return `unavailable: rights-review`. SAD PERSONS is unavailable for a different reason and returns `unavailable: clinical-safety`. None is tagged proprietary or returns a score. The SAD PERSONS interpretation explicitly warns that the entry must not be used to reduce observation, referral, treatment, or admission/discharge decisions.
 
 The point is to make the *gap* a first-class object. Where an open alternative exists in this catalogue, it is named in the response (e.g. `qfracture` for FRAX, `amts` and `fourat` for MMSE).
 
@@ -157,11 +164,6 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 | Candidate | What it does | Tentative tags |
 |---|---|---|
 | **StatinMD** (Oxford STRATIFY) | Personalised 1/5/10-year risk of serious statin-induced muscle disorders (rhabdomyolysis / hospitalised myopathy) from 22 routinely-recorded factors (Cai et al, *Lancet Digital Health* 2026). Natural pairing with QRISK3: QRISK3 is the benefit side, StatinMD is the harm side. Licensed for **academic use** via Oxford University Innovation - covered while this project is non-commercial. ([source](https://process.innovation.ox.ac.uk/software/p/25396/stratify---stainmd-risk-calculator---academic-use/1)) | `primary-care`, `cardiology`, `risk` |
-| **Norton Scale** | Pressure-ulcer risk; complements the shipped Braden and Waterlow tools. | `geriatrics`, `screening` |
-| **SCORAD** | Atopic dermatitis severity; blocked pending unrestricted redistribution permission or legal review because [ePROVIDE identifies the instrument as all rights reserved](https://eprovide.mapi-trust.org/instruments/scoring-in-atopic-dermatitis) and its rights manager reserves adaptation, translation, and software-integration rights. | `dermatology`, `severity` |
-| **ORBIT** | Bleeding risk in atrial fibrillation; blocked pending unrestricted redistribution evidence because the original article is CC BY-NC. | `cardiology`, `risk` |
-| **SCORE2 / SCORE2-OP** | ESC 2021 CV risk (verify licensing). | `cardiology`, `risk` |
-| **SAD PERSONS** | Legacy suicide-risk checklist. Poor predictive performance requires prominent safeguards against using it for disposition decisions. | `mental-health`, `risk` |
 | **RCPCH Digital Growth Charts** | UK-WHO + UK90; z-score / centile / SDS; chart rendering. Needs LMS tables + RCPCH licensing terms. | `paediatrics` |
 | **Skinfold body fat % (Jackson-Pollock / Durnin-Womersley)** | Caliper-derived body-fat estimate for training and body-comparison settings. | `primary-care`, `endocrinology`, `screening` |
 | **Body adiposity index (BAI)** | %BF proxy from height and hip circumference; population-specific (Hispanic-origin calibration). | `primary-care`, `endocrinology`, `screening` |

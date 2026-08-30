@@ -106,7 +106,7 @@ For these inputs the schema carries a machine-readable definition - **includes**
 
 ## Unavailable on principle
 
-Ten tools widely used in UK clinical practice are licence-locked: FRAX, MMSE, MUST, CAT, ACQ, ELF, CFS, LANSS, OHS, OKS. `clincalc` lists them, but invoking them returns a structured `unavailable` response rather than a score - with the owner, the reason, and the named open alternative where one exists.
+The registry contains 11 confirmed rights-locked entries, four entries awaiting permission or legal review, and one safety-blocked entry. Confirmed rights-locked entries return `unavailable: proprietary`; NYHA, Norton, ORBIT, and SCORE2 / SCORE2-OP return `unavailable: rights-review` without asserting that independent implementation is prohibited. The safety-blocked SAD PERSONS entry returns `unavailable: clinical-safety`, the safety reason, cited evidence, and safer clinical approaches. The latter five are not described or tagged as proprietary, none returns a score, and the SAD PERSONS interpretation warns that it must not be used to reduce observation, referral, treatment, or admission/discharge decisions.
 
 This is deliberate. **Naming the gap is part of the project.** Clinical decision tools that public healthcare relies on should be open, free to use, and auditable; tools that are not should be visible as the licensing problem they are, not silently absent. See the [catalogue](calculators.md#unavailable-on-principle).
 

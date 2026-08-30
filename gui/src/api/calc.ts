@@ -18,8 +18,10 @@ export interface CalcSummary {
   title: string;
   description: string;
   tags: string[];
-  /** True for the 10 proprietary "unavailable" stubs. */
+  /** True for confirmed proprietary or licence-locked entries. */
   proprietary: boolean;
+  /** True when invoking the entry returns an explanation instead of a score. */
+  unavailable: boolean;
 }
 
 /** A computed result (mirrors `clincalc::CalculationResponse`). */

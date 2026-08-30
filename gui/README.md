@@ -2,7 +2,7 @@
 
 Tauri 2 + React 19 + Mantine 8 + Vite 7, matching the GitEHR house-style frontend stack while using a quieter Lato typeface and the same teal primary.
 
-Status: **MVP**. Three calculators (FeverPAIN, CHA2DS2-VASc, and QRISK3) are hand-crafted end-to-end. The other calculators in the registry are listed in the sidebar and show a "GUI coming soon" placeholder when selected - the scoring already works via the CLI today.
+Status: **MVP**. Three calculators (FeverPAIN, CHA2DS2-VASc, and QRISK3) are hand-crafted end-to-end. Other active calculators in the registry show a "GUI coming soon" placeholder when selected because their scoring already works via the CLI. Entries withheld for rights or clinical-safety reasons instead show the engine's exact unavailability explanation and never imply that scoring logic ships or is planned.
 
 ## Architecture
 

@@ -26,8 +26,9 @@
 //! **Status / kind** (zero or more):
 //! `nhs-mandated`, `screening`, `severity`, `prognostic`, `risk`,
 //! `proprietary` (the algorithm is licence-locked and unshippable),
-//! `unavailable` (the calculator returns an explanation, not a score - always
-//! paired with `proprietary` today).
+//! `unavailable` (the calculator returns an explanation, not a score; usually
+//! paired with `proprietary`, but also used for unresolved-rights reviews and
+//! clinical-safety exclusions).
 //!
 //! Tags are lowercase, hyphen-separated, ASCII. New tags are added here only
 //! after at least two calculators want them - one-offs go in the description.
@@ -218,7 +219,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
     // ---- Paediatrics ----
     ("apgar", &["paediatrics", "perinatal", "severity"]),
     ("chalice", &["paediatrics", "emergency"]),
-    // ---- Proprietary / unavailable (the 11 stubs) ----
+    // ---- Unavailable (11 rights-locked, 4 rights-review, 1 clinical-safety) ----
     (
         "frax",
         &[
@@ -272,10 +273,15 @@ pub const TAGS: &[(&str, &[&str])] = &[
         "oks",
         &["surgery", "musculoskeletal", "proprietary", "unavailable"],
     ),
+    ("nyha", &["cardiology", "severity", "unavailable"]),
+    ("norton", &["geriatrics", "screening", "unavailable"]),
+    ("orbit", &["cardiology", "risk", "unavailable"]),
     (
-        "nyha",
-        &["cardiology", "severity", "proprietary", "unavailable"],
+        "scorad",
+        &["dermatology", "severity", "proprietary", "unavailable"],
     ),
+    ("score2", &["cardiology", "risk", "unavailable"]),
+    ("sad_persons", &["mental-health", "risk", "unavailable"]),
 ];
 
 /// Look up the tags for a calculator by its machine name. Returns `&[]` for an

@@ -24,10 +24,10 @@ struct CalcSummary {
     title: &'static str,
     description: &'static str,
     tags: &'static [&'static str],
-    /// True for the 10 proprietary "unavailable" stubs - the frontend can
-    /// render them differently (badged, faded) without having to know which
-    /// names are stubs.
+    /// True for confirmed proprietary or licence-locked entries.
     proprietary: bool,
+    /// True when invoking the entry returns an explanation instead of a score.
+    unavailable: bool,
 }
 
 #[tauri::command]
@@ -42,9 +42,38 @@ fn list_calculators() -> Vec<CalcSummary> {
                 description: c.description(),
                 tags,
                 proprietary: tags.contains(&"proprietary"),
+                unavailable: tags.contains(&"unavailable"),
             }
         })
         .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn catalogue_distinguishes_all_unavailable_entries() {
+        let calculators = list_calculators();
+        let sad_persons = calculators
+            .iter()
+            .find(|calculator| calculator.name == "sad_persons")
+            .unwrap();
+        let frax = calculators
+            .iter()
+            .find(|calculator| calculator.name == "frax")
+            .unwrap();
+        let feverpain = calculators
+            .iter()
+            .find(|calculator| calculator.name == "feverpain")
+            .unwrap();
+
+        assert!(sad_persons.unavailable);
+        assert!(!sad_persons.proprietary);
+        assert!(frax.unavailable);
+        assert!(frax.proprietary);
+        assert!(!feverpain.unavailable);
+    }
 }
 
 /// Compute a result from a JSON input. The frontend is responsible for

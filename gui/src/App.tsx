@@ -25,7 +25,12 @@ import {
 } from "@tabler/icons-react";
 
 import logoUrl from "/logo.svg";
-import { listCalculators, type CalcSummary } from "./api/calc";
+import {
+  calculate,
+  listCalculators,
+  type CalculationResponse,
+  type CalcSummary,
+} from "./api/calc";
 import { Cha2ds2VascCalculator } from "./calculators/Cha2ds2Vasc";
 import { FeverPainCalculator } from "./calculators/FeverPain";
 import { Qrisk3Calculator } from "./calculators/Qrisk3";
@@ -73,6 +78,73 @@ function ComingSoon({ calc }: { calc: CalcSummary }) {
           <code>{`clincalc ${calc.name} --input examples/${calc.name}.json`}</code>
           .
         </Text>
+      </Box>
+    </Stack>
+  );
+}
+
+function Unavailable({ calc }: { calc: CalcSummary }) {
+  const [response, setResponse] = useState<CalculationResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    setResponse(null);
+    setError(null);
+    calculate(calc.name, {})
+      .then((result) => {
+        if (active) setResponse(result);
+      })
+      .catch((reason: unknown) => {
+        if (active) setError(String(reason));
+      });
+    return () => {
+      active = false;
+    };
+  }, [calc.name]);
+
+  return (
+    <Stack gap="md" maw={720}>
+      <Group gap="sm">
+        <Title order={2}>{calc.title}</Title>
+        <Badge color={calc.proprietary ? "red" : "orange"} variant="light">
+          unavailable
+        </Badge>
+      </Group>
+      <Text c="dimmed">{calc.description}</Text>
+      <Box
+        p="lg"
+        style={{
+          border: "1px solid var(--mantine-color-default-border)",
+          borderRadius: "var(--mantine-radius-md)",
+        }}
+      >
+        {!response && !error && <Loader size="sm" />}
+        {error && (
+          <Stack gap="xs">
+            <Text fw={600} c="red">
+              Could not load unavailability details
+            </Text>
+            <Text size="sm" c="dimmed">
+              {error}
+            </Text>
+          </Stack>
+        )}
+        {response && (
+          <Stack gap="sm">
+            <Text fw={600}>{response.result}</Text>
+            <Text size="sm">{response.interpretation}</Text>
+            <Text
+              component="a"
+              href={response.reference}
+              target="_blank"
+              rel="noreferrer"
+              size="sm"
+            >
+              Review source
+            </Text>
+          </Stack>
+        )}
       </Box>
     </Stack>
   );
@@ -264,8 +336,11 @@ export default function App() {
             <Loader />
           </Center>
         )}
-        {!error && current && Body && <Body />}
-        {!error && current && !Body && <ComingSoon calc={current} />}
+        {!error && current?.unavailable && <Unavailable calc={current} />}
+        {!error && current && !current.unavailable && Body && <Body />}
+        {!error && current && !current.unavailable && !Body && (
+          <ComingSoon calc={current} />
+        )}
       </AppShell.Main>
     </AppShell>
   );
@@ -291,12 +366,16 @@ function CalcLink({
           <Text size="sm" truncate>
             {calc.title}
           </Text>
-          {calc.proprietary && (
-            <Badge size="xs" color="red" variant="light">
-              stub
+          {calc.unavailable && (
+            <Badge
+              size="xs"
+              color={calc.proprietary ? "red" : "orange"}
+              variant="light"
+            >
+              unavailable
             </Badge>
           )}
-          {!calc.proprietary && implemented && (
+          {!calc.unavailable && implemented && (
             <Badge size="xs" color="teal" variant="light">
               ready
             </Badge>

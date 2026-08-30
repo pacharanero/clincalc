@@ -105,7 +105,7 @@ The registry includes calculators from QRISK3, PHQ-9, GAD-7, eGFR and FIB-4 thro
 
 ### Calculator status
 
-This table tracks every functioning calculation. `✓` means the language is available as a complete reviewed bundle or the implementation has passed clincalc's primary-source clinical verification and testing gates; `-` means that language is not yet available. English is the source language. The named-but-unavailable proprietary entries are listed separately below because they do not calculate a result.
+This table tracks every functioning calculation. `✓` means the language is available as a complete reviewed bundle or the implementation has passed clincalc's primary-source clinical verification and testing gates; `-` means that language is not yet available. English is the source language. The named-but-unavailable entries are listed separately below because they do not calculate a result.
 
 | Calculator | English | Catalan | Spanish | Clinically verified |
 |---|:---:|:---:|:---:|:---:|
@@ -205,9 +205,9 @@ This table tracks every functioning calculation. `✓` means the language is ava
 | `wells_pe` | ✓ | - | - | ✓ |
 | `wilks` | ✓ | - | - | ✓ |
 
-### Proprietary tools are named, not hidden
+### Unavailable tools are named, not hidden
 
-A handful of tools cannot be shipped because they are proprietary or licence-locked (FRAX, MMSE, ELF, ACQ, the Oxford Hip/Knee Scores, CAT, MUST, CFS, LANSS, NYHA). Rather than omit them silently, each is registered as a calculator that returns a structured explanation - the owner, why it cannot be shipped, open alternatives (often one shipped here), and how to advocate for open clinical tools:
+The registry contains 95 active calculators and 16 named-but-unavailable entries, for 111 entries in total. Eleven cannot be shipped because they are proprietary or licence-locked: FRAX, MMSE, ELF, ACQ, the Oxford Hip/Knee Scores, CAT, MUST, CFS, LANSS, and SCORAD. NYHA, Norton, ORBIT, and SCORE2 / SCORE2-OP are separately withheld pending permission or legal review because unrestricted software-redistribution rights have not been established; they are not labelled proprietary. Rather than omit these gaps silently, each is registered with its precise unavailable reason and alternatives:
 
 ```console
 $ clincalc calc frax --input '{}'
@@ -215,6 +215,8 @@ frax = unavailable: proprietary
 FRAX ... is not available because it is proprietary or licence-locked. Owner:
 University of Sheffield ... Open alternatives: qfracture ...
 ```
+
+SAD PERSONS is separately registered as unavailable for clinical-safety reasons, not as proprietary. It returns no score because exposing this poorly predictive suicide-risk checklist could cause foreseeable disposition harm; its response directs clinicians to comprehensive psychosocial assessment, risk formulation, immediate safety assessment, and urgent specialist support where indicated.
 
 ## Architecture: one core, many surfaces
 

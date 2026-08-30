@@ -324,6 +324,35 @@ class TestCalculate:
         assert result["working"]["height_inches"] == 60.0
         assert result["working"]["outside_official_reference_table_range"] is False
 
+    def test_calculate_orbit_returns_rights_review_response(self):
+        result = clincalc.calculate("orbit", {})
+
+        assert result["result"] == "unavailable: rights-review"
+        assert result["working"]["status"] == "unavailable-rights-review"
+        assert clincalc.get_schema("orbit")["properties"] == {}
+
+    def test_calculate_nyha_returns_rights_review_response(self):
+        result = clincalc.calculate("nyha", {})
+
+        assert result["result"] == "unavailable: rights-review"
+        assert result["working"]["status"] == "unavailable-rights-review"
+        assert "proprietary" not in result["interpretation"]
+
+    def test_calculate_sad_persons_returns_clinical_safety_response(self):
+        result = clincalc.calculate("sad_persons", {})
+
+        assert result["result"] == "unavailable: clinical-safety"
+        assert result["working"]["status"] == "unavailable-clinical-safety"
+        assert "returns no score" in result["interpretation"]
+        entry = next(
+            calculator
+            for calculator in clincalc.list_calculators()
+            if calculator["name"] == "sad_persons"
+        )
+        assert "unavailable" in entry["tags"]
+        assert "proprietary" not in entry["tags"]
+        assert clincalc.get_schema("sad_persons")["properties"] == {}
+
     def test_calculate_unknown_calculator_raises_value_error(self):
         with pytest.raises(ValueError, match="unknown calculator: nope"):
             clincalc.calculate("nope", {})
@@ -400,7 +429,7 @@ class TestListCalculators:
     def test_returns_nonempty_list(self):
         calcs = clincalc.list_calculators()
         assert isinstance(calcs, list)
-        assert len(calcs) == 106
+        assert len(calcs) == 111
 
     def test_each_entry_has_required_keys(self):
         calcs = clincalc.list_calculators()

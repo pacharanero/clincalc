@@ -89,7 +89,9 @@ pub use locale::{
     COMPILED_LOCALES, ENGLISH_ONLY, SupportedLocale, UnsupportedLocale, lookup_locale,
 };
 pub use message::ClinicalMessage;
-pub use proprietary::ProprietaryCalculator;
+pub use proprietary::{
+    ProprietaryCalculator, RightsReviewUnavailableCalculator, SafetyUnavailableCalculator,
+};
 pub use response::CalculationResponse;
 pub use tags::{all_tags, for_name as tags_for_name};
 pub use template::template_from_schema;
@@ -201,6 +203,14 @@ pub fn all() -> Vec<Box<dyn Calculator>> {
     for p in proprietary::PROPRIETARY {
         list.push(Box::new(*p));
     }
+    for calculator in proprietary::RIGHTS_REVIEW_UNAVAILABLE {
+        list.push(Box::new(*calculator));
+    }
+    // Safety-blocked tools use a distinct response so they are never mistaken
+    // for rights restrictions or exposed as scores by registry consumers.
+    for calculator in proprietary::SAFETY_UNAVAILABLE {
+        list.push(Box::new(*calculator));
+    }
     list
 }
 
@@ -247,6 +257,25 @@ mod registry_tests {
                 "{}: tags() must return at least one tag - add an entry to clincalc::tags::TAGS",
                 calc.name()
             );
+        }
+    }
+
+    #[test]
+    fn unavailable_categories_have_consistent_status_tags() {
+        for calculator in proprietary::PROPRIETARY {
+            let tags = tags::for_name(calculator.name);
+            assert!(tags.contains(&"unavailable"), "{}", calculator.name);
+            assert!(tags.contains(&"proprietary"), "{}", calculator.name);
+        }
+        for calculator in proprietary::RIGHTS_REVIEW_UNAVAILABLE {
+            let tags = tags::for_name(calculator.name);
+            assert!(tags.contains(&"unavailable"), "{}", calculator.name);
+            assert!(!tags.contains(&"proprietary"), "{}", calculator.name);
+        }
+        for calculator in proprietary::SAFETY_UNAVAILABLE {
+            let tags = tags::for_name(calculator.name);
+            assert!(tags.contains(&"unavailable"), "{}", calculator.name);
+            assert!(!tags.contains(&"proprietary"), "{}", calculator.name);
         }
     }
 
