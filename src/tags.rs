@@ -111,6 +111,10 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ("news2", &["acute-medicine", "nhs-mandated", "severity"]),
     ("qsofa", &["acute-medicine", "intensive-care", "screening"]),
     ("sofa", &["intensive-care", "severity"]),
+    (
+        "ardsnet_predicted_body_weight",
+        &["intensive-care", "respiratory"],
+    ),
     ("apache2", &["intensive-care", "severity", "prognostic"]),
     ("charlson", &["primary-care", "risk", "prognostic"]),
     (

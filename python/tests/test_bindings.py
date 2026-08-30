@@ -310,6 +310,20 @@ class TestCalculate:
         assert result["working"]["major_count"] == 1
         assert result["working"]["minor_count"] == 1
 
+    def test_calculate_ardsnet_predicted_body_weight(self):
+        result = clincalc.calculate(
+            "ardsnet_predicted_body_weight",
+            {
+                "assessment_context": "adult_lung_protective_ventilation_protocol_using_ardsnet_predicted_body_weight",
+                "height_cm": 152.4,
+                "formula_branch": "female",
+            },
+        )
+        assert result["calculator"] == "ardsnet_predicted_body_weight"
+        assert result["result"] == 45.5
+        assert result["working"]["height_inches"] == 60.0
+        assert result["working"]["outside_official_reference_table_range"] is False
+
     def test_calculate_unknown_calculator_raises_value_error(self):
         with pytest.raises(ValueError, match="unknown calculator: nope"):
             clincalc.calculate("nope", {})
@@ -386,7 +400,7 @@ class TestListCalculators:
     def test_returns_nonempty_list(self):
         calcs = clincalc.list_calculators()
         assert isinstance(calcs, list)
-        assert len(calcs) == 105
+        assert len(calcs) == 106
 
     def test_each_entry_has_required_keys(self):
         calcs = clincalc.list_calculators()

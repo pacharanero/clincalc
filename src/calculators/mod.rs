@@ -16,6 +16,7 @@ pub mod amts;
 pub mod anion_gap;
 pub mod apache2;
 pub mod apgar;
+pub mod ardsnet_predicted_body_weight;
 pub mod asa_physical_status;
 pub mod ascvd;
 pub mod asrs;

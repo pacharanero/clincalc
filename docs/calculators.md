@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry. 94 active calculators that compute a real result, plus 11 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
+The full registry. 95 active calculators that compute a real result, plus 11 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
@@ -35,6 +35,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `anion_gap` | Anion Gap | Serum anion gap from sodium, chloride, bicarbonate, optional potassium, and optional albumin correction. | `acute-medicine`, `nephrology` |
 | `apache2` | APACHE II | ICU acute physiology, age, and chronic health severity score (0-71). | `intensive-care`, `severity`, `prognostic` |
 | `apgar` | Apgar Score | Scores one newborn observation set at 1, 5, 10, 15, or 20 minutes. It documents clinical status and response but does not determine initial resuscitation or diagnose asphyxia. | `paediatrics`, `perinatal`, `severity` |
+| `ardsnet_predicted_body_weight` | ARDSNet Predicted Body Weight | Calculates the adult NIH-NHLBI ARDS Network predicted-body-weight scalar from measured height and an explicitly selected historical protocol coefficient branch. It is not actual weight, nutritional ideal weight, adjusted weight, or drug-dosing weight and does not prescribe ventilator settings. | `intensive-care`, `respiratory` |
 | `asa_physical_status` | ASA Physical Status | ASA preoperative physical-status classification, with optional emergency suffix. | `surgery`, `severity` |
 | `ascvd` | ASCVD Pooled Cohort Equations | ACC/AHA 2013 10-year ASCVD risk estimate for US adults aged 40-79. | `primary-care`, `cardiology`, `risk` |
 | `asrs` | ASRS-v1.1 Six-Question Adult ADHD Screener | Scores six coded adult responses covering the past six months from the authorised form, reporting the classic and continuous methods separately; questionnaire text is not bundled. | `primary-care`, `mental-health`, `screening` |
@@ -160,7 +161,6 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 | **SCORAD** | Atopic dermatitis severity; blocked pending unrestricted redistribution permission or legal review because [ePROVIDE identifies the instrument as all rights reserved](https://eprovide.mapi-trust.org/instruments/scoring-in-atopic-dermatitis) and its rights manager reserves adaptation, translation, and software-integration rights. | `dermatology`, `severity` |
 | **ORBIT** | Bleeding risk in atrial fibrillation; blocked pending unrestricted redistribution evidence because the original article is CC BY-NC. | `cardiology`, `risk` |
 | **SCORE2 / SCORE2-OP** | ESC 2021 CV risk (verify licensing). | `cardiology`, `risk` |
-| **ARDSNet adult predicted body weight** | Protocol-specific adult PBW for lung-protective ventilation, reframed from the ambiguous combined BMI / BSA / ideal-body-weight proposal. | `intensive-care`, `respiratory` |
 | **SAD PERSONS** | Legacy suicide-risk checklist. Poor predictive performance requires prominent safeguards against using it for disposition decisions. | `mental-health`, `risk` |
 | **RCPCH Digital Growth Charts** | UK-WHO + UK90; z-score / centile / SDS; chart rendering. Needs LMS tables + RCPCH licensing terms. | `paediatrics` |
 | **Skinfold body fat % (Jackson-Pollock / Durnin-Womersley)** | Caliper-derived body-fat estimate for training and body-comparison settings. | `primary-care`, `endocrinology`, `screening` |

@@ -117,6 +117,7 @@ This table tracks every functioning calculation. `✓` means the language is ava
 | `anion_gap` | ✓ | - | - | ✓ |
 | `apache2` | ✓ | - | - | ✓ |
 | `apgar` | ✓ | - | - | ✓ |
+| `ardsnet_predicted_body_weight` | ✓ | - | - | ✓ |
 | `asa_physical_status` | ✓ | - | - | ✓ |
 | `ascvd` | ✓ | - | - | ✓ |
 | `asrs` | ✓ | - | - | ✓ |
