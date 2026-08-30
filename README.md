@@ -206,7 +206,7 @@ This table tracks every functioning calculation. `✓` means the language is ava
 
 ### Proprietary tools are named, not hidden
 
-A handful of tools cannot be shipped because they are proprietary or licence-locked (FRAX, MMSE, ELF, ACQ, the Oxford Hip/Knee Scores, CAT, MUST, CFS, LANSS). Rather than omit them silently, each is registered as a calculator that returns a structured explanation - the owner, why it cannot be shipped, open alternatives (often one shipped here), and how to advocate for open clinical tools:
+A handful of tools cannot be shipped because they are proprietary or licence-locked (FRAX, MMSE, ELF, ACQ, the Oxford Hip/Knee Scores, CAT, MUST, CFS, LANSS, NYHA). Rather than omit them silently, each is registered as a calculator that returns a structured explanation - the owner, why it cannot be shipped, open alternatives (often one shipped here), and how to advocate for open clinical tools:
 
 ```console
 $ clincalc calc frax --input '{}'

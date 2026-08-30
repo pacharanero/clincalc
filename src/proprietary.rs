@@ -258,6 +258,21 @@ from Oxford University Innovation.",
         alternatives: &["EQ-5D (generic PROM)", "KOOS / KOOS-12 (check licensing)"],
         source_url: "https://innovation.ox.ac.uk/outcome-measures/oxford-knee-score-oks/",
     },
+    ProprietaryCalculator {
+        name: "nyha",
+        title: "NYHA Functional Classification",
+        purpose: "Functional classification of activity limitation associated with heart disease.",
+        owner: "American Heart Association / New York Heart Association",
+        reason: "The American Heart Association states that its copyrighted materials may not be \
+reproduced without prior written permission. No unrestricted grant for embedding and redistributing \
+the NYHA classification in open software has been identified, so clincalc does not reproduce its \
+class descriptors or implement the classification without permission or legal review.",
+        alternatives: &[
+            "mrc_dyspnoea (open breathlessness-related disability scale, shipped here; not equivalent to NYHA)",
+            "Clinician assessment using NYHA materials licensed by the local organisation",
+        ],
+        source_url: "https://www.heart.org/en/about-us/statements-and-policies/copyright",
+    },
 ];
 
 #[cfg(test)]
@@ -296,5 +311,15 @@ mod tests {
             let error = frax.calculate(&invalid).unwrap_err();
             assert!(matches!(error, CalcError::InvalidInput(_)));
         }
+    }
+
+    #[test]
+    fn nyha_explains_the_rights_block_without_reproducing_the_classification() {
+        let nyha = PROPRIETARY.iter().find(|p| p.name == "nyha").unwrap();
+        let response = nyha.calculate(&json!({})).unwrap();
+
+        assert_eq!(response.result, json!("unavailable: proprietary"));
+        assert!(response.interpretation.contains("prior written permission"));
+        assert!(response.interpretation.contains("does not reproduce"));
     }
 }

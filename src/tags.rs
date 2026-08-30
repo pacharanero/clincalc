@@ -214,7 +214,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
     // ---- Paediatrics ----
     ("apgar", &["paediatrics", "perinatal", "severity"]),
     ("chalice", &["paediatrics", "emergency"]),
-    // ---- Proprietary / unavailable (the 10 stubs) ----
+    // ---- Proprietary / unavailable (the 11 stubs) ----
     (
         "frax",
         &[
@@ -267,6 +267,10 @@ pub const TAGS: &[(&str, &[&str])] = &[
     (
         "oks",
         &["surgery", "musculoskeletal", "proprietary", "unavailable"],
+    ),
+    (
+        "nyha",
+        &["cardiology", "severity", "proprietary", "unavailable"],
     ),
 ];
 

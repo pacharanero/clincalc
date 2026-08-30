@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry. 94 active calculators that compute a real result, plus 10 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
+The full registry. 94 active calculators that compute a real result, plus 11 named-but-unavailable proprietary stubs (carrying the `proprietary` and `unavailable` tags). One row per calculator.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
@@ -106,6 +106,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `nhfs` | Nottingham Hip Fracture Score (NHFS) | Preoperative score (0-10) predicting 30-day mortality after hip fracture surgery. | `surgery`, `geriatrics`, `musculoskeletal`, `prognostic` |
 | `nihss` | NIH Stroke Scale (NIHSS) | Standard adult 0-42 neurological deficit score for clinician-administered stroke assessment; omits the total when any officially permitted entry is unscored. | `neurology`, `emergency`, `acute-medicine`, `severity` |
 | `npi` | Nottingham Prognostic Index (NPI) | Prognosis in primary operable breast cancer from invasive tumour size, lymph node stage, and histological grade; reports the prognostic group. | `oncology`, `prognostic` |
+| `nyha` | NYHA Functional Classification | Functional classification of activity limitation associated with heart disease. Unavailable pending unrestricted redistribution permission or legal review; the protected class descriptors are not reproduced. | `cardiology`, `severity`, `proprietary`, `unavailable` |
 | `ohs` | Oxford Hip Score (OHS) | Patient-reported outcome after hip replacement (NHS England PROMs). | `surgery`, `musculoskeletal`, `proprietary`, `unavailable` |
 | `oks` | Oxford Knee Score (OKS) | Patient-reported outcome after knee replacement (NHS England PROMs). | `surgery`, `musculoskeletal`, `proprietary`, `unavailable` |
 | `one_rep_max` | One-Rep Max Estimator | Estimates 1RM from a submaximal weight and reps using Epley, Brzycki, or Lombardi. | `primary-care`, `musculoskeletal` |
@@ -155,7 +156,6 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 | Candidate | What it does | Tentative tags |
 |---|---|---|
 | **StatinMD** (Oxford STRATIFY) | Personalised 1/5/10-year risk of serious statin-induced muscle disorders (rhabdomyolysis / hospitalised myopathy) from 22 routinely-recorded factors (Cai et al, *Lancet Digital Health* 2026). Natural pairing with QRISK3: QRISK3 is the benefit side, StatinMD is the harm side. Licensed for **academic use** via Oxford University Innovation - covered while this project is non-commercial. ([source](https://process.innovation.ox.ac.uk/software/p/25396/stratify---stainmd-risk-calculator---academic-use/1)) | `primary-care`, `cardiology`, `risk` |
-| **NYHA** | Heart-failure functional class. | `cardiology`, `severity` |
 | **Norton Scale** | Pressure-ulcer risk; complements the shipped Braden and Waterlow tools. | `geriatrics`, `screening` |
 | **SCORAD** | Atopic dermatitis severity; blocked pending unrestricted redistribution permission or legal review because [ePROVIDE identifies the instrument as all rights reserved](https://eprovide.mapi-trust.org/instruments/scoring-in-atopic-dermatitis) and its rights manager reserves adaptation, translation, and software-integration rights. | `dermatology`, `severity` |
 | **ORBIT** | Bleeding risk in atrial fibrillation; blocked pending unrestricted redistribution evidence because the original article is CC BY-NC. | `cardiology`, `risk` |
