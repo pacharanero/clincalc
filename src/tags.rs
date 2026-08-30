@@ -77,6 +77,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ),
     ("hasbled", &["cardiology", "risk"]),
     ("heart", &["cardiology", "emergency", "risk"]),
+    ("nyha", &["cardiology", "severity"]),
     ("grace", &["cardiology", "acute-medicine", "prognostic"]),
     ("timi", &["cardiology", "acute-medicine", "risk"]),
     ("qrisk3", &["primary-care", "cardiology", "risk"]),

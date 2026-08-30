@@ -104,6 +104,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `news2` | NEWS2 (National Early Warning Score 2) | NHS-mandated aggregate physiology score (RCP 2017) driving the clinical-response band. | `acute-medicine`, `nhs-mandated`, `severity` |
 | `nhfs` | Nottingham Hip Fracture Score (NHFS) | Preoperative score (0-10) predicting 30-day mortality after hip fracture surgery. | `surgery`, `geriatrics`, `musculoskeletal`, `prognostic` |
 | `npi` | Nottingham Prognostic Index (NPI) | Prognosis in primary operable breast cancer from invasive tumour size, lymph node stage, and histological grade; reports the prognostic group. | `oncology`, `prognostic` |
+| `nyha` | NYHA Functional Classification | Classifies symptom-limited functional capacity in known heart disease on the NYHA I-IV scale. | `cardiology`, `severity` |
 | `ohs` | Oxford Hip Score (OHS) | Patient-reported outcome after hip replacement (NHS England PROMs). | `surgery`, `musculoskeletal`, `proprietary`, `unavailable` |
 | `oks` | Oxford Knee Score (OKS) | Patient-reported outcome after knee replacement (NHS England PROMs). | `surgery`, `musculoskeletal`, `proprietary`, `unavailable` |
 | `one_rep_max` | One-Rep Max Estimator | Estimates 1RM from a submaximal weight and reps using Epley, Brzycki, or Lombardi. | `primary-care`, `musculoskeletal` |
@@ -152,7 +153,6 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 |---|---|---|
 | **StatinMD** (Oxford STRATIFY) | Personalised 1/5/10-year risk of serious statin-induced muscle disorders (rhabdomyolysis / hospitalised myopathy) from 22 routinely-recorded factors (Cai et al, *Lancet Digital Health* 2026). Natural pairing with QRISK3: QRISK3 is the benefit side, StatinMD is the harm side. Licensed for **academic use** via Oxford University Innovation - covered while this project is non-commercial. ([source](https://process.innovation.ox.ac.uk/software/p/25396/stratify---stainmd-risk-calculator---academic-use/1)) | `primary-care`, `cardiology`, `risk` |
 | **NIHSS** | Acute stroke severity standard. | `neurology`, `emergency`, `severity` |
-| **NYHA** | Heart-failure functional class. | `cardiology`, `severity` |
 | **Norton Scale** | Pressure-ulcer risk; complements the shipped Braden and Waterlow tools. | `geriatrics`, `screening` |
 | **Pitt Bacteraemia** | BSI severity. | `infectious-diseases`, `severity` |
 | **Modified Duke criteria** | Endocarditis. | `infectious-diseases` |

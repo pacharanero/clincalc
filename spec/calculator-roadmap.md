@@ -47,7 +47,7 @@ For every item below, completion means: independent implementation from the prim
 - [ ] **CALC-023 Modified Duke criteria** - Infective endocarditis
 - [ ] **CALC-024 NIHSS** - Acute stroke severity
 - [ ] **CALC-025 Norton Scale** - Pressure-ulcer risk (immobile)
-- [ ] **CALC-026 NYHA** - Heart-failure functional class
+- [~] **CALC-026 NYHA** - English functional classification shipped from the New York Heart Association's published criteria; classifies symptom-limited functional capacity in known heart disease and is kept distinct from the ACC/AHA structural stage (A-D); reviewed Catalan and Spanish bundles remain outstanding
 - [ ] **CALC-027 ORBIT** - Bleeding risk in AF (DOAC era); blocked pending unrestricted redistribution evidence or legal review because the original 2015 article is licensed CC BY-NC 4.0, which is incompatible with clincalc's unrestricted reusable-library goal
 - [ ] **CALC-028 PASI** - Psoriasis Area and Severity Index
 - [ ] **CALC-030 Pitt Bacteraemia** - BSI severity
