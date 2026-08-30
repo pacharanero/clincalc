@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry: 111 entries comprising 95 active calculators that compute a real result, 11 named-but-unavailable rights-locked stubs (carrying `proprietary` and `unavailable`), four rights-review stubs, and one clinical-safety stub (the latter five carry `unavailable` without `proprietary`). One row per calculator.
+The full registry: 111 entries comprising 96 active calculators that compute a real result, 11 named-but-unavailable rights-locked stubs (carrying `proprietary` and `unavailable`), three rights-review stubs, and one clinical-safety stub (the latter four carry `unavailable` without `proprietary`). One row per calculator.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
@@ -112,7 +112,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `ohs` | Oxford Hip Score (OHS) | Patient-reported outcome after hip replacement (NHS England PROMs). | `surgery`, `musculoskeletal`, `proprietary`, `unavailable` |
 | `oks` | Oxford Knee Score (OKS) | Patient-reported outcome after knee replacement (NHS England PROMs). | `surgery`, `musculoskeletal`, `proprietary`, `unavailable` |
 | `one_rep_max` | One-Rep Max Estimator | Estimates 1RM from a submaximal weight and reps using Epley, Brzycki, or Lombardi. | `primary-care`, `musculoskeletal` |
-| `orbit` | ORBIT Bleeding Risk Score | Generic major-bleeding risk stratification in anticoagulated atrial fibrillation. Unavailable pending permission or legal review because no explicit unrestricted software-redistribution grant has been identified; this does not assert that independent implementation is prohibited. Shipped HAS-BLED is not equivalent, and bleeding-risk scores do not determine whether anticoagulation should be withheld. | `cardiology`, `risk`, `unavailable` |
+| `orbit` | ORBIT Bleeding Risk Score | Estimates major-bleeding risk in an anticoagulated adult with electrocardiographically confirmed atrial fibrillation from age, source-defined sex-specific haemoglobin/haematocrit thresholds or anaemia history, bleeding history, eGFR, and antiplatelet treatment. Reports observed ORBIT-AF incidence rates per 100 patient-years, not a personalised annual probability, and does not determine whether anticoagulation should be started, stopped, or withheld. | `cardiology`, `risk` |
 | `padua` | Padua Prediction Score (VTE risk) | VTE risk in hospitalised medical inpatients, guiding thromboprophylaxis (NICE NG89). | `acute-medicine`, `vascular`, `risk` |
 | `pasi` | Psoriasis Area and Severity Index (PASI) | Calculates standard PASI from clinician-rated extent, erythema, induration, and desquamation across four body regions without imposing a universal treatment threshold. | `dermatology`, `severity` |
 | `perc` | PERC Rule (PE Rule-out Criteria) | Eight-item block rule for stable adult emergency-department outpatients with suspected pulmonary embolism and clinician gestalt below 15%; PERC-negative can avoid further PE-specific testing. | `emergency`, `respiratory`, `vascular` |
@@ -149,7 +149,7 @@ frax = unavailable: proprietary
 FRAX (10-year fracture risk) is not available here because it is proprietary or licence-locked. Owner: University of Sheffield (Centre for Metabolic Bone Diseases). The FRAX algorithm and its country-specific coefficients are a trade secret and have never been published, so it cannot be reimplemented from primary literature. ...
 ```
 
-NYHA, Norton, ORBIT, and SCORE2 / SCORE2-OP are withheld pending permission or legal review without claiming that their algorithms are proprietary or that independent implementation is prohibited. They return `unavailable: rights-review`. SAD PERSONS is unavailable for a different reason and returns `unavailable: clinical-safety`. None is tagged proprietary or returns a score. The SAD PERSONS interpretation explicitly warns that the entry must not be used to reduce observation, referral, treatment, or admission/discharge decisions.
+NYHA, Norton, and SCORE2 / SCORE2-OP are withheld pending permission or legal review without claiming that their algorithms are proprietary or that independent implementation is prohibited. They return `unavailable: rights-review`. SAD PERSONS is unavailable for a different reason and returns `unavailable: clinical-safety`. None is tagged proprietary or returns a score. The SAD PERSONS interpretation explicitly warns that the entry must not be used to reduce observation, referral, treatment, or admission/discharge decisions.
 
 The point is to make the *gap* a first-class object. Where an open alternative exists in this catalogue, it is named in the response (e.g. `qfracture` for FRAX, `amts` and `fourat` for MMSE).
 

@@ -1,0 +1,11 @@
+{
+  "assessment_context": "adult_with_electrocardiographically_confirmed_atrial_fibrillation_receiving_oral_anticoagulation",
+  "age_years": 78,
+  "sex": "female",
+  "haemoglobin_g_l": 118.0,
+  "haematocrit_percent": 36.0,
+  "history_of_anaemia": false,
+  "bleeding_history": false,
+  "egfr_ml_min_1_73_m2": 55.0,
+  "antiplatelet_treatment": false
+}

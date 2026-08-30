@@ -82,6 +82,7 @@ pub mod nhfs;
 pub mod nihss;
 pub mod npi;
 pub mod one_rep_max;
+pub mod orbit;
 pub mod padua;
 pub mod pasi;
 pub mod perc;

@@ -324,12 +324,26 @@ class TestCalculate:
         assert result["working"]["height_inches"] == 60.0
         assert result["working"]["outside_official_reference_table_range"] is False
 
-    def test_calculate_orbit_returns_rights_review_response(self):
-        result = clincalc.calculate("orbit", {})
+    def test_calculate_orbit(self):
+        result = clincalc.calculate(
+            "orbit",
+            {
+                "assessment_context": "adult_with_electrocardiographically_confirmed_atrial_fibrillation_receiving_oral_anticoagulation",
+                "age_years": 78,
+                "sex": "female",
+                "haemoglobin_g_l": 118.0,
+                "haematocrit_percent": 36.0,
+                "history_of_anaemia": False,
+                "bleeding_history": False,
+                "egfr_ml_min_1_73_m2": 55.0,
+                "antiplatelet_treatment": False,
+            },
+        )
 
-        assert result["result"] == "unavailable: rights-review"
-        assert result["working"]["status"] == "unavailable-rights-review"
-        assert clincalc.get_schema("orbit")["properties"] == {}
+        assert result["result"] == 4
+        assert result["working"]["risk_band"] == "high"
+        assert result["working"]["score_observed_bleeds_per_100_patient_years"] == 6.8
+        assert clincalc.get_schema("orbit")["properties"]["egfr_ml_min_1_73_m2"]["unit"] == "mL/min/1.73 m2"
 
     def test_calculate_nyha_returns_rights_review_response(self):
         result = clincalc.calculate("nyha", {})

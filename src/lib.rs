@@ -153,6 +153,7 @@ pub fn all() -> Vec<Box<dyn Calculator>> {
         Box::new(calculators::wells_pe::WellsPe),
         Box::new(calculators::perc::Perc),
         Box::new(calculators::hasbled::HasBled),
+        Box::new(calculators::orbit::Orbit),
         Box::new(calculators::abcd2::Abcd2),
         Box::new(calculators::nihss::Nihss),
         Box::new(calculators::qsofa::Qsofa),

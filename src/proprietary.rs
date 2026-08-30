@@ -465,18 +465,6 @@ pub const RIGHTS_REVIEW_UNAVAILABLE: &[RightsReviewUnavailableCalculator] = &[
         source_url: "https://loinc.org/75243-6/panel",
     },
     RightsReviewUnavailableCalculator {
-        name: "orbit",
-        title: "ORBIT Bleeding Risk Score",
-        purpose: "Generic major-bleeding risk stratification in anticoagulated atrial fibrillation.",
-        rights_holder_or_contact: "Original authors / Oxford University Press",
-        reason: "The original 2015 article is CC BY-NC 4.0. That licence restricts reuse of the article but does not by itself establish that an independent implementation of the published method is prohibited; no explicit unrestricted software-redistribution grant has been identified, so implementation awaits permission or legal review.",
-        alternatives: &[
-            "hasbled (shipped; not equivalent)",
-            "Bleeding-risk scores do not determine whether anticoagulation should be withheld",
-        ],
-        source_url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC4670965/",
-    },
-    RightsReviewUnavailableCalculator {
         name: "score2",
         title: "SCORE2 / SCORE2-OP",
         purpose: "Generic European 10-year fatal and non-fatal cardiovascular risk prediction.",
@@ -573,7 +561,7 @@ mod tests {
 
     #[test]
     fn rights_review_entries_do_not_claim_proprietary_status() {
-        for name in ["nyha", "norton", "orbit", "score2"] {
+        for name in ["nyha", "norton", "score2"] {
             let calculator = RIGHTS_REVIEW_UNAVAILABLE
                 .iter()
                 .find(|calculator| calculator.name == name)
