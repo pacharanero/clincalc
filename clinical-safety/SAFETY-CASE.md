@@ -11,9 +11,9 @@
 | **Project** | clincalc - open library of clinical calculators |
 | **Classification** | PUBLIC (open-source project) |
 | **Status** | DRAFT |
-| **Version** | 0.1.0 |
+| **Version** | 0.1.2 |
 | **Created Date** | 2026-07-03 |
-| **Last Modified** | 2026-08-23 |
+| **Last Modified** | 2026-08-30 |
 | **Review Cycle** | Quarterly (recommended); on every material product change |
 | **Next Review Date** | 2026-10-03 |
 | **Owner** | Marcus Baw, Maintainer / Product Owner (Baw Medical Ltd) |
@@ -27,6 +27,7 @@
 |---|---|---|---|---|---|
 | 0.1.0 | 2026-07-03 | ArcKit AI | Initial creation from `/arckit:uk-nhs-dcb0129` command | PENDING | PENDING |
 | 0.1.1 | 2026-08-23 | Marcus Baw | Record PERC eligibility enforcement as evidence for C007 | PENDING | PENDING |
+| 0.1.2 | 2026-08-30 | Marcus Baw | Record NYHA cardiac-disease context attestation and subjective-classification limitations | PENDING | PENDING |
 
 ---
 
@@ -131,7 +132,7 @@ Evidence:
 Evidence:
 
 - `input_schema()` (JSON Schema) declares each input's type, units, and permitted values, exposed via `clincalc calc <name> --schema` and to MCP/GUI hosts, so expected units are machine-discoverable (**C004**, addressing **H002**).
-- Strongly-typed `Input` structs reject wrong-shape, unknown, and misspelled input and return `CalcError::InvalidInput` rather than silently ignoring or coercing it; a registry policy test enforces every closed schema, and range, eligibility, and administration-context checks reject implausible or out-of-population values instead of scoring them, including the ASRS adult and six-month recall assertions, CURB-65's adult age floor, and PERC's required confirmation of clinician gestalt below 15% (**C005, C007, C008**, addressing **H002, H003**).
+- Strongly-typed `Input` structs reject wrong-shape, unknown, and misspelled input and return `CalcError::InvalidInput` rather than silently ignoring or coercing it; a registry policy test enforces every closed schema, and range, eligibility, and administration-context checks reject implausible or out-of-population values instead of scoring them, including the ASRS adult and six-month recall assertions, CURB-65's adult age floor, PERC's required confirmation of clinician gestalt below 15%, and NYHA's required attestation of defined or presumed cardiac disease. NYHA additionally returns the selected functional profile and warns that the classification is subjective, is poorly reproducible across Classes II and III, and must not be treated as an objective measure or treatment rule (**C005, C007, C008, C013**, addressing **H002, H003, H006**).
 - Required inputs fail deserialization if missing rather than defaulting to a scored value; the governed input-definition system defines each clinician-asserted predicate so "not asserted" is not collapsed into "asserted false" (**C009, C010**, addressing **H004**).
 
 ### G1.4 - Results are never presented as a naked number by the engine

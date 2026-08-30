@@ -81,6 +81,7 @@ pub mod news2;
 pub mod nhfs;
 pub mod nihss;
 pub mod npi;
+pub mod nyha;
 pub mod one_rep_max;
 pub mod orbit;
 pub mod padua;

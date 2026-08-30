@@ -78,6 +78,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ),
     ("hasbled", &["cardiology", "risk"]),
     ("orbit", &["cardiology", "risk"]),
+    ("nyha", &["cardiology", "severity"]),
     ("heart", &["cardiology", "emergency", "risk"]),
     ("grace", &["cardiology", "acute-medicine", "prognostic"]),
     ("timi", &["cardiology", "acute-medicine", "risk"]),
@@ -220,7 +221,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
     // ---- Paediatrics ----
     ("apgar", &["paediatrics", "perinatal", "severity"]),
     ("chalice", &["paediatrics", "emergency"]),
-    // ---- Unavailable (11 rights-locked, 3 rights-review, 1 clinical-safety) ----
+    // ---- Unavailable (11 rights-locked, 2 rights-review, 1 clinical-safety) ----
     (
         "frax",
         &[
@@ -274,7 +275,6 @@ pub const TAGS: &[(&str, &[&str])] = &[
         "oks",
         &["surgery", "musculoskeletal", "proprietary", "unavailable"],
     ),
-    ("nyha", &["cardiology", "severity", "unavailable"]),
     ("norton", &["geriatrics", "screening", "unavailable"]),
     (
         "scorad",

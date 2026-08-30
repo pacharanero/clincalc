@@ -155,7 +155,7 @@ controls:
   - id: C006
     description: "Per-calculator documentation states the expected unit for every numeric input. The governed input-definition system (spec/calculator-input-definitions.md) is the planned single source of truth for what each input means and the unit it carries."
   - id: C007
-    description: "Range, eligibility, and administration-context validation in compute() returns CalcError::InvalidInput for physiologically implausible or out-of-population inputs rather than scoring them. Each calculator's valid domain is derived from its primary source; for example, ASRS requires confirmation of adult age and its six-month recall period, CURB-65 rejects ages below 18, and PERC requires confirmation of clinician gestalt below 15%."
+    description: "Range, eligibility, and administration-context validation at typed deserialization and compute() boundaries returns CalcError::InvalidInput for physiologically implausible or out-of-population inputs rather than scoring them. Each calculator's valid domain is derived from its primary source; for example, ASRS requires confirmation of adult age and its six-month recall period, CURB-65 rejects ages below 18, PERC requires confirmation of clinician gestalt below 15%, and NYHA requires attestation of defined or presumed cardiac disease."
   - id: C008
     description: "Enumerated and boolean predicates constrain the input domain by construction; free numeric inputs are bounded by schema minimum/maximum so out-of-range values are rejectable at the schema layer."
   - id: C009
@@ -195,11 +195,11 @@ controls:
 | **Project** | clincalc - open library of clinical calculators |
 | **Classification** | PUBLIC (open-source project) |
 | **Status** | DRAFT |
-| **Version** | 0.1.0 |
+| **Version** | 0.1.1 |
 | **Created Date** | 2026-07-03 |
-| **Last Modified** | 2026-08-23 |
+| **Last Modified** | 2026-08-30 |
 | **Review Cycle** | Monthly (hazard logs are *living* documents) |
-| **Next Review Date** | 2026-08-03 |
+| **Next Review Date** | 2026-09-30 |
 | **Owner** | Marcus Baw, Maintainer / Product Owner (Baw Medical Ltd) |
 | **Reviewed By** | [PENDING - CSO] |
 | **Approved By** | [PENDING - CSO] |
@@ -241,7 +241,7 @@ controls:
 | C004 | `input_schema()` declares type, units, permitted values; exposed via `--schema` and to MCP/GUI hosts |
 | C005 | Typed `Input` structs reject wrong-shape and unknown input; a registry test enforces closed schemas; `CalcError::InvalidInput` surfaced, no silent ignore/coercion |
 | C006 | Per-calculator documentation of expected units; governed input-definition system as planned single source of truth |
-| C007 | Range, eligibility, and administration-context validation in `compute()` rejects implausible or out-of-population inputs |
+| C007 | Range, eligibility, and administration-context validation at typed deserialization and `compute()` boundaries rejects implausible or out-of-population inputs, including explicit assessment-context attestations for PERC and NYHA |
 | C008 | Enum/boolean predicates constrain domain; numeric inputs bounded by schema `minimum`/`maximum` |
 | C009 | Governed input-definition system defines each clinician-asserted predicate; 'not asserted' ≠ 'asserted false' |
 | C010 | Required schema fields; missing required input fails deserialization rather than defaulting |

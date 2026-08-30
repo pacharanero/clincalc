@@ -345,12 +345,19 @@ class TestCalculate:
         assert result["working"]["score_observed_bleeds_per_100_patient_years"] == 6.8
         assert clincalc.get_schema("orbit")["properties"]["egfr_ml_min_1_73_m2"]["unit"] == "mL/min/1.73 m2"
 
-    def test_calculate_nyha_returns_rights_review_response(self):
-        result = clincalc.calculate("nyha", {})
+    def test_calculate_nyha(self):
+        result = clincalc.calculate(
+            "nyha",
+            {
+                "assessment_context": "defined_or_presumed_cardiac_disease",
+                "functional_profile": "comfortable_at_rest_symptoms_with_less_than_ordinary_activity",
+            },
+        )
 
-        assert result["result"] == "unavailable: rights-review"
-        assert result["working"]["status"] == "unavailable-rights-review"
-        assert "proprietary" not in result["interpretation"]
+        assert result["result"] == 3
+        assert result["working"]["nyha_class"] == "III"
+        assert result["working"]["nci_thesaurus_concept_id"] == "C1882086"
+        assert "treatment rule" in result["interpretation"]
 
     def test_calculate_sad_persons_returns_clinical_safety_response(self):
         result = clincalc.calculate("sad_persons", {})

@@ -441,18 +441,6 @@ adaptation and software-integration rights; no unrestricted grant has been ident
 /// independently implementing their published methods is necessarily restricted.
 pub const RIGHTS_REVIEW_UNAVAILABLE: &[RightsReviewUnavailableCalculator] = &[
     RightsReviewUnavailableCalculator {
-        name: "nyha",
-        title: "NYHA Functional Classification",
-        purpose: "Functional classification of activity limitation associated with heart disease.",
-        rights_holder_or_contact: "American Heart Association / New York Heart Association",
-        reason: "The American Heart Association states that its copyrighted materials may not be reproduced without prior written permission, but that general policy does not establish that independent implementation of the classification is prohibited. No unrestricted grant for embedding and redistributing the class descriptors in open software has been identified, so implementation awaits permission or legal review.",
-        alternatives: &[
-            "mrc_dyspnoea (open breathlessness-related disability scale, shipped here; not equivalent to NYHA)",
-            "Clinician assessment using NYHA materials licensed by the local organisation",
-        ],
-        source_url: "https://www.heart.org/en/about-us/statements-and-policies/copyright",
-    },
-    RightsReviewUnavailableCalculator {
         name: "norton",
         title: "Norton Scale",
         purpose: "Generic pressure-ulcer risk screening.",
@@ -535,19 +523,6 @@ mod tests {
     }
 
     #[test]
-    fn nyha_explains_the_rights_block_without_reproducing_the_classification() {
-        let nyha = RIGHTS_REVIEW_UNAVAILABLE
-            .iter()
-            .find(|calculator| calculator.name == "nyha")
-            .unwrap();
-        let response = nyha.calculate(&json!({})).unwrap();
-
-        assert_eq!(response.result, json!("unavailable: rights-review"));
-        assert!(response.interpretation.contains("prior written permission"));
-        assert!(response.interpretation.contains("class descriptors"));
-    }
-
-    #[test]
     fn new_rights_locked_names_exist_and_return_no_score() {
         let calculator = PROPRIETARY
             .iter()
@@ -561,7 +536,7 @@ mod tests {
 
     #[test]
     fn rights_review_entries_do_not_claim_proprietary_status() {
-        for name in ["nyha", "norton", "score2"] {
+        for name in ["norton", "score2"] {
             let calculator = RIGHTS_REVIEW_UNAVAILABLE
                 .iter()
                 .find(|calculator| calculator.name == name)
