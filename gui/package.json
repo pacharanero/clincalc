@@ -14,9 +14,9 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@mantine/core": "9.5.1",
-    "@mantine/hooks": "9.5.1",
-    "@mantine/notifications": "9.5.1",
+    "@mantine/core": "9.5.2",
+    "@mantine/hooks": "9.5.2",
+    "@mantine/notifications": "9.5.2",
     "@tabler/icons-react": "^3.46.0",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-opener": "^2",
@@ -27,7 +27,7 @@
     "@tauri-apps/cli": "^2",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.4",
+    "@types/react-dom": "^19.2.5",
     "@vitejs/plugin-react": "^6.1.0",
     "typescript": "^7.0.2",
     "vite": "^8.2.2"
