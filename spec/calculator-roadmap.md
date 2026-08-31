@@ -28,6 +28,7 @@ MedikQuantis parity items have a stricter completion rule: the calculation and i
 - [~] **CALC-063 4Ts score for HIT** - English calculation shipped. Reviewed Catalan and Spanish bundles remain outstanding. Unlike the pinned MedikQuantis surface, clincalc derives points from required semantic categories, identifies the standard days 5-10 variant, and does not reduce current ASH guidance to generic band recommendations.
 - [~] **CALC-064 Khorana score** - English calculation shipped. Reviewed Catalan and Spanish bundles remain outstanding. Unlike the pinned MedikQuantis surface, clincalc derives points from raw measurements and reports the original risk band separately from the modern score-2 thromboprophylaxis-assessment threshold.
 - [~] **CALC-065 Binet staging** - English calculation shipped. Reviewed Catalan and Spanish bundles remain outstanding. Unlike the pinned MedikQuantis surface, clincalc derives the canonical stage from examination and blood-count findings rather than accepting a caller-selected stage and mapping it to an invented number.
+- [~] **CALC-026 NYHA** - English functional classification shipped from the Criteria Committee's 1994 definitions (verified against an accessible peer-reviewed reproduction, Raphael et al 2007). Explicit comparison against the pinned MedikQuantis surface and reviewed Catalan and Spanish bundles remain outstanding.
 
 ### Planned
 
@@ -47,7 +48,6 @@ For every item below, completion means: independent implementation from the prim
 - [ ] **CALC-023 Modified Duke criteria** - Infective endocarditis
 - [ ] **CALC-024 NIHSS** - Acute stroke severity
 - [ ] **CALC-025 Norton Scale** - Pressure-ulcer risk (immobile)
-- [ ] **CALC-026 NYHA** - Heart-failure functional class
 - [ ] **CALC-027 ORBIT** - Bleeding risk in AF (DOAC era); blocked pending unrestricted redistribution evidence or legal review because the original 2015 article is licensed CC BY-NC 4.0, which is incompatible with clincalc's unrestricted reusable-library goal
 - [ ] **CALC-028 PASI** - Psoriasis Area and Severity Index
 - [ ] **CALC-030 Pitt Bacteraemia** - BSI severity

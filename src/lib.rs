@@ -181,6 +181,7 @@ pub fn all() -> Vec<Box<dyn Calculator>> {
         Box::new(calculators::gleason::Gleason),
         Box::new(calculators::psa_density::PsaDensity),
         Box::new(calculators::npi::Npi),
+        Box::new(calculators::nyha::Nyha),
         Box::new(calculators::binet::Binet),
         Box::new(calculators::khorana::Khorana),
         Box::new(calculators::chalice::Chalice),

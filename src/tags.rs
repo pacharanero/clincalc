@@ -82,6 +82,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ("qrisk3", &["primary-care", "cardiology", "risk"]),
     ("euroscore2", &["cardiology", "surgery", "prognostic"]),
     ("rcri", &["cardiology", "surgery", "risk"]),
+    ("nyha", &["cardiology", "severity"]),
     // ---- Vascular / thrombosis ----
     ("wells_dvt", &["emergency", "vascular"]),
     ("wells_pe", &["emergency", "respiratory", "vascular"]),

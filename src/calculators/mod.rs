@@ -78,6 +78,7 @@ pub mod mrc_dyspnoea;
 pub mod news2;
 pub mod nhfs;
 pub mod npi;
+pub mod nyha;
 pub mod one_rep_max;
 pub mod padua;
 pub mod perc;
