@@ -27,6 +27,7 @@ pub mod basdai;
 pub mod binet;
 pub mod bmi;
 pub mod bode;
+pub mod body_adiposity_index;
 pub mod body_fat_circumference;
 pub mod body_surface_area;
 pub mod braden;

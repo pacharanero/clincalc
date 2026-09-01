@@ -169,6 +169,10 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ),
     ("body_surface_area", &["primary-care"]),
     (
+        "body_adiposity_index",
+        &["primary-care", "endocrinology", "screening"],
+    ),
+    (
         "waist_to_height_ratio",
         &["primary-care", "endocrinology", "screening"],
     ),

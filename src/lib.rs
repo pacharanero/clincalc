@@ -119,6 +119,7 @@ pub fn all() -> Vec<Box<dyn Calculator>> {
         Box::new(calculators::anion_gap::AnionGap),
         Box::new(calculators::energy_requirement::EnergyRequirement),
         Box::new(calculators::bmi::Bmi),
+        Box::new(calculators::body_adiposity_index::BodyAdiposityIndex),
         Box::new(calculators::body_fat_circumference::BodyFatCircumference),
         Box::new(calculators::body_surface_area::BodySurfaceArea),
         Box::new(calculators::ardsnet_predicted_body_weight::ArdsnetPredictedBodyWeight),
