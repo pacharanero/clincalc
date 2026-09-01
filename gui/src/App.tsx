@@ -7,6 +7,7 @@ import {
   AppShell,
   Badge,
   Box,
+  Burger,
   Center,
   Group,
   Loader,
@@ -74,9 +75,8 @@ function ComingSoon({ calc }: { calc: CalcSummary }) {
           The scoring logic for this calculator already ships in the{" "}
           <code>clincalc</code> CLI - the desktop UI is being built calculator
           by calculator, each one hand-crafted so the form fits the clinical
-          question. Try it now with{" "}
-          <code>{`clincalc ${calc.name} --input examples/${calc.name}.json`}</code>
-          .
+          question. Print its fillable input template with{" "}
+          <code>{`clincalc calc ${calc.name}`}</code>.
         </Text>
       </Box>
     </Stack>
@@ -193,6 +193,7 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<string>("feverpain");
   const [query, setQuery] = useState("");
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
     listCalculators()
@@ -220,16 +221,33 @@ export default function App() {
 
   const current = calcs?.find((c) => c.name === selected) ?? null;
   const Body = current && IMPLEMENTED[current.name];
+  const selectCalculator = (name: string) => {
+    setSelected(name);
+    setMobileNavOpen(false);
+  };
 
   return (
     <AppShell
       header={{ height: 56 }}
-      navbar={{ width: 280, breakpoint: 0 }}
+      navbar={{
+        width: 280,
+        breakpoint: "sm",
+        collapsed: { mobile: !mobileNavOpen },
+      }}
       padding="lg"
     >
       <AppShell.Header>
         <Group h="100%" px="lg" justify="space-between">
-          <Brand />
+          <Group gap="sm">
+            <Burger
+              opened={mobileNavOpen}
+              onClick={() => setMobileNavOpen((open) => !open)}
+              hiddenFrom="sm"
+              size="sm"
+              aria-label="Toggle calculator navigation"
+            />
+            <Brand />
+          </Group>
           <Group gap="xs">
             <ColorSchemeToggle />
             <ActionIcon
@@ -281,7 +299,7 @@ export default function App() {
                   calc={c}
                   active={selected === c.name}
                   implemented={c.name in IMPLEMENTED}
-                  onClick={() => setSelected(c.name)}
+                  onClick={() => selectCalculator(c.name)}
                 />
               ))}
 
@@ -296,7 +314,7 @@ export default function App() {
                   calc={c}
                   active={selected === c.name}
                   implemented={c.name in IMPLEMENTED}
-                  onClick={() => setSelected(c.name)}
+                  onClick={() => selectCalculator(c.name)}
                 />
               ))}
             </Stack>

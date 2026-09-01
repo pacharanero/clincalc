@@ -140,6 +140,24 @@ hazards:
     cso-reviewed: false
     date-raised: "2026-07-03"
     date-closed:
+  - id: H009
+    description: "Model estimate mistaken for a direct measurement despite poor individual agreement"
+    cause: "A regression-derived anthropometric estimate is displayed as a percentage without prominent evidence limitations; cohort-level correlation is mistaken for individual accuracy"
+    effect: "A clinician or patient treats a biased estimate as measured body composition and uses it to classify health status or guide treatment"
+    severity: 3
+    likelihood: 3
+    risk: medium
+    controls:
+      - C013
+      - C015
+      - C020
+    residual-severity: 3
+    residual-likelihood: 4
+    residual-risk: medium
+    status: open
+    cso-reviewed: false
+    date-raised: "2026-09-01"
+    date-closed:
 
 controls:
   - id: C001
@@ -180,6 +198,8 @@ controls:
     description: "Literature-vector tests include boundary cases that exercise each banding cutoff, so a threshold flip is caught by a failing test."
   - id: C019
     description: "Integer arithmetic is used for integer scores; explicit banding/threshold tests assert the correct band on both sides of each cutoff."
+  - id: C020
+    description: "Regression-derived estimates with poor individual agreement are labelled as estimates rather than measurements, retain later validation evidence in every interpretation, exclude unsupported diagnostic cut-points, and constrain inputs to a source-observed validation envelope."
 ---
 
 # Hazard Log - clincalc
@@ -195,9 +215,9 @@ controls:
 | **Project** | clincalc - open library of clinical calculators |
 | **Classification** | PUBLIC (open-source project) |
 | **Status** | DRAFT |
-| **Version** | 0.1.1 |
+| **Version** | 0.1.2 |
 | **Created Date** | 2026-07-03 |
-| **Last Modified** | 2026-08-30 |
+| **Last Modified** | 2026-09-01 |
 | **Review Cycle** | Monthly (hazard logs are *living* documents) |
 | **Next Review Date** | 2026-09-30 |
 | **Owner** | Marcus Baw, Maintainer / Product Owner (Baw Medical Ltd) |
@@ -230,6 +250,7 @@ controls:
 | H006 | Naked result copied without interpretation / inputs | 3 | 3 | MEDIUM | C013, C014, C015 | MEDIUM | Open |
 | H007 | Guideline drift - engine computes superseded algorithm | 2 | 4 | MEDIUM | C016, C017 | LOW | Open |
 | H008 | Rounding / boundary error at a decision threshold | 2 | 4 | MEDIUM | C018, C019 | LOW | Open |
+| H009 | Model estimate mistaken for a direct measurement despite poor individual agreement | 3 | 3 | MEDIUM | C013, C015, C020 | MEDIUM | Open |
 
 ## Controls
 
@@ -254,6 +275,7 @@ controls:
 | C017 | CHANGELOG + SemVer + single-sourced version; CSO-owned review cadence against current guidelines |
 | C018 | Boundary-case literature vectors exercise banding cutoffs; a threshold flip fails a test |
 | C019 | Integer arithmetic for integer scores; explicit banding tests on both sides of each cutoff |
+| C020 | Poor-agreement regression outputs are labelled as estimates, carry later validation limitations, omit unsupported diagnostic cut-points, and accept only a source-observed validation envelope |
 
 ---
 
