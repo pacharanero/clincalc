@@ -128,6 +128,7 @@ This table tracks every functioning calculation. `✓` means the language is ava
 | `binet` | ✓ | - | - | ✓ |
 | `bmi` | ✓ | - | - | ✓ |
 | `bode` | ✓ | - | - | ✓ |
+| `body_adiposity_index` | ✓ | - | - | ✓ |
 | `body_fat_circumference` | ✓ | - | - | ✓ |
 | `body_surface_area` | ✓ | - | - | ✓ |
 | `braden` | ✓ | - | - | ✓ |

@@ -226,6 +226,39 @@ class TestCalculate:
         assert result["working"]["result_unit"] == "ng/mL/cc"
         assert "No cutoff is universal" in result["interpretation"]
 
+    def test_calculate_body_adiposity_index(self):
+        result = clincalc.calculate(
+            "body_adiposity_index",
+            {
+                "assessment_context": "adult_legacy_anthropometric_estimate",
+                "age_years": 35,
+                "height_cm": 175.0,
+                "hip_cm": 100.0,
+            },
+        )
+
+        assert result["result"] == 25.2
+        assert result["working"]["bai_estimate_percent_unrounded"] == pytest.approx(
+            25.195939772483108
+        )
+        assert result["working"]["bai_estimate_percent"] == result["result"]
+        assert "wide individual error" in result["interpretation"]
+        schema = clincalc.get_schema("body_adiposity_index")
+        assert schema["properties"]["height_cm"]["minimum"] == 148
+        assert schema["properties"]["hip_cm"]["unit"] == "cm"
+
+        with pytest.raises(ValueError, match="invalid input"):
+            clincalc.calculate(
+                "body_adiposity_index",
+                {
+                    "assessment_context": "adult_legacy_anthropometric_estimate",
+                    "age_years": 35,
+                    "height_cm": 175.0,
+                    "hip_cm": 100.0,
+                    "unexpected": True,
+                },
+            )
+
     def test_calculate_pasi(self):
         result = clincalc.calculate(
             "pasi",
@@ -450,7 +483,7 @@ class TestListCalculators:
     def test_returns_nonempty_list(self):
         calcs = clincalc.list_calculators()
         assert isinstance(calcs, list)
-        assert len(calcs) == 111
+        assert len(calcs) == 112
 
     def test_each_entry_has_required_keys(self):
         calcs = clincalc.list_calculators()
