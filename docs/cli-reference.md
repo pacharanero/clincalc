@@ -125,18 +125,20 @@ clincalc calc qrisk3 --license
 
 This is separate from the licence of the original `clincalc` code (AGPL-3.0-or-later) - it records the basis on which the **clinical algorithm itself** is being shipped. Third-party-derived modules retain their own licences, including LGPL-3.0-or-later for QRISK3 and QFracture.
 
-### `--format <text|json>`
+### `--format <text|json|markdown>`
 
 Output format for computed results, `list`, `tags`, and `version`.
 
 - `text` (default) - a clinician-facing block: result, interpretation, working, reference. Designed for the clipboard. Calculators may provide a more helpful headline label than their machine name, for example `BMR/RMR`, `TDEE`, or `Target intake` for `energy_requirement`.
 - `json` - the `CalculationResponse` structure as machine-readable JSON. The same shape every surface (CLI, MCP, GUI) produces.
+- `markdown` - the same content as `text`, rendered as headings and bullet working steps with the reference linked to its evidence URL, for pasting into EHR free-text fields or notes apps that render Markdown. `list`, `tags`, and `version` accept `markdown` but currently render the same layout as `text`.
 
 ```bash
 clincalc list --format json
 clincalc tags --format json
 clincalc version --format json
 clincalc calc feverpain --input examples/feverpain.json --format json
+clincalc calc feverpain --input examples/feverpain.json --format markdown
 ```
 
 ### `--help`, `--version`, `-V`, `-v`, `-version`

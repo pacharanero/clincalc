@@ -144,9 +144,9 @@ Status: Future
 
 Improve the copy-paste output beyond the existing plain text block, with richer formats that preserve the citation.
 
-- [ ] **ENG-006.1 Define a `Formatter` trait or output modes** in `clincalc::cli` (or a new module): `text`, `markdown`, `html`, `pdf`, `rtf`.
-- [ ] **ENG-006.2 Keep `text` as default** for CLI stdout and MCP.
-- [ ] **ENG-006.3 Add `markdown` output** with headings, bullet working steps, and a hyperlink to the primary reference - useful for pasting into EHR free-text or notes apps.
+- [x] **ENG-006.1 Define a `Formatter` trait or output modes** in `clincalc::cli` (or a new module): `text`, `markdown`, `html`, `pdf`, `rtf`. Delivered as an `OutputFormat` enum variant (`text`, `json`, `markdown`); `html`/`pdf`/`rtf` remain future work.
+- [x] **ENG-006.2 Keep `text` as default** for CLI stdout and MCP.
+- [x] **ENG-006.3 Add `markdown` output** with headings, bullet working steps, and a hyperlink to the primary reference - useful for pasting into EHR free-text or notes apps.
 - [ ] **ENG-006.4 Add `html` and `pdf` rendering** via a small template engine for the web/GUI surfaces.
 - [ ] **ENG-006.5 Keep the engine returning the same structured `CalculationResponse`**; formatting is a surface concern.
 

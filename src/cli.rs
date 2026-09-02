@@ -127,6 +127,9 @@ pub enum OutputFormat {
     Text,
     /// Machine-readable JSON (the `CalculationResponse` schema).
     Json,
+    /// Markdown with headings, bullet working steps, and a linked reference -
+    /// for pasting into EHR free-text fields or notes apps.
+    Markdown,
 }
 
 /// The `clincalc` command surface. Reused unchanged by host CLIs such as `gitehr calc`.
@@ -338,7 +341,7 @@ pub fn run_with_locale(cmd: CalcCommand, locale: SupportedLocale) -> Result<()> 
                 let response = calc
                     .calculate_for(&serde_json::json!({}), locale)
                     .map_err(|e| anyhow!("{e}"))?;
-                return emit(&response, cmd.format, locale);
+                return emit(&response, cmd.format, locale, calc.license().source_url);
             }
             println!("{}", serde_json::to_string_pretty(&template)?);
             // If the schema has `oneOf` alternatives, the template shows only
@@ -381,7 +384,7 @@ pub fn run_with_locale(cmd: CalcCommand, locale: SupportedLocale) -> Result<()> 
             for (key, value) in cli_working {
                 response.working.insert(key, value);
             }
-            emit(&response, cmd.format, locale)
+            emit(&response, cmd.format, locale, calc.license().source_url)
         }
     }
 }
@@ -945,7 +948,9 @@ pub fn run_tags(cmd: TagsCommand) -> Result<()> {
 /// Run `clincalc version`.
 pub fn run_version(cmd: VersionCommand) -> Result<()> {
     match cmd.format {
-        OutputFormat::Text => println!("clincalc {}", env!("CARGO_PKG_VERSION")),
+        OutputFormat::Text | OutputFormat::Markdown => {
+            println!("clincalc {}", env!("CARGO_PKG_VERSION"));
+        }
         OutputFormat::Json => println!(
             "{}",
             serde_json::to_string_pretty(&serde_json::json!({
@@ -1082,7 +1087,7 @@ fn print_list(
                 .collect();
             println!("{}", serde_json::to_string_pretty(&items)?);
         }
-        OutputFormat::Text => {
+        OutputFormat::Text | OutputFormat::Markdown => {
             for c in crate::all().iter().filter(|c| passes(c.as_ref())) {
                 let aliases = aliases_for(c.name());
                 let alias_note = if aliases.is_empty() {
@@ -1122,7 +1127,7 @@ fn print_tags(format: OutputFormat) -> Result<()> {
                 .collect();
             println!("{}", serde_json::to_string_pretty(&items)?);
         }
-        OutputFormat::Text => {
+        OutputFormat::Text | OutputFormat::Markdown => {
             for (t, n) in &counts {
                 println!("{:<22}  {:>3}", t, n);
             }
@@ -1135,10 +1140,12 @@ fn emit(
     response: &CalculationResponse,
     format: OutputFormat,
     locale: SupportedLocale,
+    source_url: &str,
 ) -> Result<()> {
     match format {
         OutputFormat::Json => println!("{}", serde_json::to_string_pretty(response)?),
         OutputFormat::Text => println!("{}", render_text(response, locale)),
+        OutputFormat::Markdown => println!("{}", render_markdown(response, locale, source_url)),
     }
     Ok(())
 }
@@ -1172,6 +1179,44 @@ fn render_text(r: &CalculationResponse, locale: SupportedLocale) -> String {
         SupportedLocale::Ca => "Referència",
     };
     out.push_str(&format!("\n\n{reference_label}: {}", r.reference));
+    out
+}
+
+/// Render a result as a Markdown block, for pasting into EHR free-text fields
+/// or notes apps that render Markdown.
+fn render_markdown(r: &CalculationResponse, locale: SupportedLocale, source_url: &str) -> String {
+    let mut out = String::new();
+    out.push_str(&format!(
+        "## {} = {}{}\n\n",
+        result_label(r),
+        value_to_string(&r.result),
+        result_unit(r)
+    ));
+    out.push_str(&r.interpretation);
+    out.push('\n');
+    if !r.working.is_empty() {
+        let working_heading = match locale {
+            SupportedLocale::En => "Working",
+            SupportedLocale::Es => "Desglose",
+            SupportedLocale::Ca => "Desglossament",
+        };
+        out.push_str(&format!("\n### {working_heading}\n\n"));
+        for (k, v) in &r.working {
+            if k == "result_label" {
+                continue;
+            }
+            out.push_str(&format!("- **{k}:** {}\n", value_to_string(v)));
+        }
+    }
+    let reference_label = match locale {
+        SupportedLocale::En => "Reference",
+        SupportedLocale::Es => "Referencia",
+        SupportedLocale::Ca => "Referència",
+    };
+    out.push_str(&format!(
+        "\n**{reference_label}:** [{}]({source_url})",
+        r.reference
+    ));
     out
 }
 
@@ -1232,7 +1277,8 @@ fn oneof_alternatives_note(schema: &serde_json::Value) -> Option<String> {
 
 #[cfg(test)]
 mod tests {
-    use super::{closest_calculator_name, levenshtein, oneof_alternatives_note};
+    use super::{closest_calculator_name, levenshtein, oneof_alternatives_note, render_markdown};
+    use crate::{CalculationResponse, SupportedLocale};
     use serde_json::json;
 
     #[test]
@@ -1266,5 +1312,34 @@ mod tests {
     #[test]
     fn no_oneof_yields_no_note() {
         assert!(oneof_alternatives_note(&json!({"type": "object"})).is_none());
+    }
+
+    #[test]
+    fn markdown_render_has_heading_working_bullets_and_linked_reference() {
+        let mut working = serde_json::Map::new();
+        working.insert("result_label".to_string(), json!("CURB-65"));
+        working.insert("confusion".to_string(), json!(false));
+        let response = CalculationResponse {
+            calculator: "curb65".to_string(),
+            result: json!(2),
+            interpretation: "Moderate severity.".to_string(),
+            working,
+            reference: "Lim WS, et al. Thorax. 2003;58(5):377-382.".to_string(),
+        };
+
+        let out = render_markdown(
+            &response,
+            SupportedLocale::En,
+            "https://doi.org/10.1136/thorax.58.5.377",
+        );
+
+        assert!(out.starts_with("## CURB-65 = 2\n\n"));
+        assert!(out.contains("Moderate severity."));
+        assert!(out.contains("### Working\n\n"));
+        assert!(out.contains("- **confusion:** false"));
+        assert!(!out.contains("- **result_label:**"));
+        assert!(out.contains(
+            "**Reference:** [Lim WS, et al. Thorax. 2003;58(5):377-382.](https://doi.org/10.1136/thorax.58.5.377)"
+        ));
     }
 }
