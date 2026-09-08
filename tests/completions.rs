@@ -106,6 +106,46 @@ fn top_level_commands_and_legacy_shorthand_work() {
 }
 
 #[test]
+fn markdown_format_is_structured_and_links_the_clinical_reference() {
+    let bin = clincalc_bin();
+
+    let output = Command::new(&bin)
+        .args(["list", "--format", "markdown", "--tag", "cardiology"])
+        .output()
+        .expect("run Markdown calculator list");
+    assert!(output.status.success());
+    let list = String::from_utf8(output.stdout).expect("Markdown list is utf8");
+    assert!(list.starts_with("# Calculators\n"));
+    assert!(list.contains("- **QRISK3"));
+
+    let output = Command::new(&bin)
+        .args(["tags", "--format", "markdown"])
+        .output()
+        .expect("run Markdown tag list");
+    assert!(output.status.success());
+    let tags = String::from_utf8(output.stdout).expect("Markdown tags are utf8");
+    assert!(tags.starts_with("# Calculator tags\n\n| Tag | Calculators |"));
+
+    let input = r#"{"assessment_context":"adult_legacy_anthropometric_estimate","age_years":35,"height_cm":175.0,"hip_cm":100.0}"#;
+    let output = Command::new(&bin)
+        .args([
+            "calc",
+            "body_adiposity_index",
+            "--input",
+            input,
+            "--format",
+            "markdown",
+        ])
+        .output()
+        .expect("run Markdown BAI calculation");
+    assert!(output.status.success());
+    let result = String::from_utf8(output.stdout).expect("Markdown result is utf8");
+    assert!(result.starts_with("## body\\_adiposity\\_index = 25.2"));
+    assert!(result.contains("[doi:10.1038/oby.2011.38](<https://doi.org/10.1038/oby.2011.38>)"));
+    assert!(!result.contains("copyright.gov"));
+}
+
+#[test]
 fn aliases_and_fuzzy_unknown_name_help_work() {
     let bin = clincalc_bin();
 

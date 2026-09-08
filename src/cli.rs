@@ -127,6 +127,9 @@ pub enum OutputFormat {
     Text,
     /// Machine-readable JSON (the `CalculationResponse` schema).
     Json,
+    /// Markdown with headings, bullet working steps, and a linked reference -
+    /// for pasting into EHR free-text fields or notes apps.
+    Markdown,
 }
 
 /// The `clincalc` command surface. Reused unchanged by host CLIs such as `gitehr calc`.
@@ -945,7 +948,10 @@ pub fn run_tags(cmd: TagsCommand) -> Result<()> {
 /// Run `clincalc version`.
 pub fn run_version(cmd: VersionCommand) -> Result<()> {
     match cmd.format {
-        OutputFormat::Text => println!("clincalc {}", env!("CARGO_PKG_VERSION")),
+        OutputFormat::Text => {
+            println!("clincalc {}", env!("CARGO_PKG_VERSION"));
+        }
+        OutputFormat::Markdown => println!("# clincalc {}", env!("CARGO_PKG_VERSION")),
         OutputFormat::Json => println!(
             "{}",
             serde_json::to_string_pretty(&serde_json::json!({
@@ -1099,6 +1105,35 @@ fn print_list(
                 );
             }
         }
+        OutputFormat::Markdown => {
+            println!("# Calculators");
+            for c in crate::all().iter().filter(|c| passes(c.as_ref())) {
+                let aliases = aliases_for(c.name());
+                let alias_note = if aliases.is_empty() {
+                    String::new()
+                } else {
+                    format!(
+                        " - aliases: {}",
+                        aliases
+                            .iter()
+                            .map(|alias| format!("`{alias}`"))
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                    )
+                };
+                let tags = c
+                    .tags()
+                    .iter()
+                    .map(|tag| format!("`{tag}`"))
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                println!(
+                    "\n- **{}** (`{}`) - tags: {tags}{alias_note}",
+                    escape_markdown_inline(c.title_for(locale)),
+                    c.name(),
+                );
+            }
+        }
     }
     Ok(())
 }
@@ -1127,6 +1162,12 @@ fn print_tags(format: OutputFormat) -> Result<()> {
                 println!("{:<22}  {:>3}", t, n);
             }
         }
+        OutputFormat::Markdown => {
+            println!("# Calculator tags\n\n| Tag | Calculators |\n|---|---:|");
+            for (t, n) in &counts {
+                println!("| `{t}` | {n} |");
+            }
+        }
     }
     Ok(())
 }
@@ -1139,6 +1180,7 @@ fn emit(
     match format {
         OutputFormat::Json => println!("{}", serde_json::to_string_pretty(response)?),
         OutputFormat::Text => println!("{}", render_text(response, locale)),
+        OutputFormat::Markdown => println!("{}", render_markdown(response, locale)),
     }
     Ok(())
 }
@@ -1173,6 +1215,134 @@ fn render_text(r: &CalculationResponse, locale: SupportedLocale) -> String {
     };
     out.push_str(&format!("\n\n{reference_label}: {}", r.reference));
     out
+}
+
+/// Render a result as a Markdown block, for pasting into EHR free-text fields
+/// or notes apps that render Markdown.
+fn render_markdown(r: &CalculationResponse, locale: SupportedLocale) -> String {
+    let mut out = String::new();
+    out.push_str(&format!(
+        "## {} = {}{}\n\n",
+        escape_markdown_inline(result_label(r)),
+        escape_markdown_inline(&value_to_string(&r.result)),
+        escape_markdown_inline(&result_unit(r))
+    ));
+    out.push_str(&escape_markdown_inline(&r.interpretation));
+    out.push('\n');
+    if !r.working.is_empty() {
+        let working_heading = match locale {
+            SupportedLocale::En => "Working",
+            SupportedLocale::Es => "Desglose",
+            SupportedLocale::Ca => "Desglossament",
+        };
+        out.push_str(&format!("\n### {working_heading}\n\n"));
+        for (k, v) in &r.working {
+            if k == "result_label" {
+                continue;
+            }
+            out.push_str(&format!(
+                "- **{}:** {}\n",
+                escape_markdown_inline(k),
+                escape_markdown_inline(&value_to_string(v))
+            ));
+        }
+    }
+    let reference_label = match locale {
+        SupportedLocale::En => "Reference",
+        SupportedLocale::Es => "Referencia",
+        SupportedLocale::Ca => "Referència",
+    };
+    out.push_str(&format!(
+        "\n**{reference_label}:** {}",
+        render_markdown_reference(&r.reference)
+    ));
+    out
+}
+
+fn render_markdown_reference(reference: &str) -> String {
+    let Some((start, end, url)) = reference_link(reference) else {
+        return escape_markdown_inline(reference);
+    };
+    format!(
+        "{}[{}](<{url}>){}",
+        escape_markdown_inline(&reference[..start]),
+        escape_markdown_inline(&reference[start..end]),
+        escape_markdown_inline(&reference[end..])
+    )
+}
+
+fn reference_link(reference: &str) -> Option<(usize, usize, String)> {
+    let lower = reference.to_ascii_lowercase();
+    let mut links = Vec::new();
+
+    if let Some(start) = [lower.find("https://"), lower.find("http://")]
+        .into_iter()
+        .flatten()
+        .min()
+    {
+        let raw_end = reference[start..]
+            .find(char::is_whitespace)
+            .map_or(reference.len(), |offset| start + offset);
+        let url = reference[start..raw_end].trim_end_matches(['.', ',', ';']);
+        if !url.is_empty() {
+            links.push((start, start + url.len(), url.to_string()));
+        }
+    }
+
+    if let Some(start) = lower.find("doi:") {
+        let after_prefix = &reference[start + 4..];
+        let identifier_start = start + 4 + (after_prefix.len() - after_prefix.trim_start().len());
+        let raw_end = reference[identifier_start..]
+            .find(char::is_whitespace)
+            .map_or(reference.len(), |offset| identifier_start + offset);
+        let identifier = reference[identifier_start..raw_end].trim_end_matches(['.', ',', ';']);
+        if !identifier.is_empty() {
+            links.push((
+                start,
+                identifier_start + identifier.len(),
+                format!("https://doi.org/{identifier}"),
+            ));
+        }
+    }
+
+    if let Some(start) = lower.find("pmid:") {
+        let after_prefix = &reference[start + 5..];
+        let identifier_start = start + 5 + (after_prefix.len() - after_prefix.trim_start().len());
+        let identifier_len = reference[identifier_start..]
+            .chars()
+            .take_while(char::is_ascii_digit)
+            .map(char::len_utf8)
+            .sum::<usize>();
+        if identifier_len > 0 {
+            let end = identifier_start + identifier_len;
+            links.push((
+                start,
+                end,
+                format!(
+                    "https://pubmed.ncbi.nlm.nih.gov/{}/",
+                    &reference[identifier_start..end]
+                ),
+            ));
+        }
+    }
+
+    links.into_iter().min_by_key(|(start, _, _)| *start)
+}
+
+fn escape_markdown_inline(value: &str) -> String {
+    let mut escaped = String::with_capacity(value.len());
+    for character in value.chars() {
+        match character {
+            '\\' | '`' | '*' | '_' | '{' | '}' | '[' | ']' | '<' | '>' | '#' | '|' => {
+                escaped.push('\\');
+                escaped.push(character);
+            }
+            '\n' => escaped.push_str("\\\n  "),
+            '\r' => {}
+            _ => escaped.push(character),
+        }
+    }
+    escaped
 }
 
 fn result_label(r: &CalculationResponse) -> &str {
@@ -1232,7 +1402,11 @@ fn oneof_alternatives_note(schema: &serde_json::Value) -> Option<String> {
 
 #[cfg(test)]
 mod tests {
-    use super::{closest_calculator_name, levenshtein, oneof_alternatives_note};
+    use super::{
+        closest_calculator_name, levenshtein, oneof_alternatives_note, render_markdown,
+        render_markdown_reference,
+    };
+    use crate::{CalculationResponse, SupportedLocale};
     use serde_json::json;
 
     #[test]
@@ -1266,5 +1440,64 @@ mod tests {
     #[test]
     fn no_oneof_yields_no_note() {
         assert!(oneof_alternatives_note(&json!({"type": "object"})).is_none());
+    }
+
+    #[test]
+    fn markdown_render_has_heading_working_bullets_and_linked_reference() {
+        let mut working = serde_json::Map::new();
+        working.insert("result_label".to_string(), json!("CURB-65"));
+        working.insert("confusion".to_string(), json!(false));
+        let response = CalculationResponse {
+            calculator: "curb65".to_string(),
+            result: json!(2),
+            interpretation: "Moderate severity.".to_string(),
+            working,
+            reference: "Lim WS, et al. Thorax. 2003;58(5):377-382. doi:10.1136/thorax.58.5.377."
+                .to_string(),
+        };
+
+        let out = render_markdown(&response, SupportedLocale::En);
+
+        assert!(out.starts_with("## CURB-65 = 2\n\n"));
+        assert!(out.contains("Moderate severity."));
+        assert!(out.contains("### Working\n\n"));
+        assert!(out.contains("- **confusion:** false"));
+        assert!(!out.contains("- **result_label:**"));
+        assert!(out.contains(
+            "**Reference:** Lim WS, et al. Thorax. 2003;58(5):377-382. [doi:10.1136/thorax.58.5.377](<https://doi.org/10.1136/thorax.58.5.377>)."
+        ));
+    }
+
+    #[test]
+    fn markdown_reference_links_clinical_identifiers_not_licence_evidence() {
+        assert_eq!(
+            render_markdown_reference("Study. doi:10.1000/example. Review."),
+            "Study. [doi:10.1000/example](<https://doi.org/10.1000/example>). Review."
+        );
+        assert_eq!(
+            render_markdown_reference("Study. PMID: 123456."),
+            "Study. [PMID: 123456](<https://pubmed.ncbi.nlm.nih.gov/123456/>)."
+        );
+        assert_eq!(
+            render_markdown_reference("Guideline. https://example.org/source.pdf."),
+            "Guideline. [https://example.org/source.pdf](<https://example.org/source.pdf>)."
+        );
+    }
+
+    #[test]
+    fn markdown_render_escapes_formatting_characters() {
+        let response = CalculationResponse {
+            calculator: "example".to_string(),
+            result: json!("a_b"),
+            interpretation: "Treat as <5, not *certain*.".to_string(),
+            working: serde_json::Map::from_iter([("value".to_string(), json!("[raw]"))]),
+            reference: "Unlinked [reference].".to_string(),
+        };
+
+        let out = render_markdown(&response, SupportedLocale::En);
+        assert!(out.starts_with("## example = a\\_b"));
+        assert!(out.contains("Treat as \\<5, not \\*certain\\*."));
+        assert!(out.contains("- **value:** \\[raw\\]"));
+        assert!(out.contains("**Reference:** Unlinked \\[reference\\]."));
     }
 }
