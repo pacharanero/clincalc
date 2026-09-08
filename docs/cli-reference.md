@@ -131,7 +131,7 @@ Output format for computed results, `list`, `tags`, and `version`.
 
 - `text` (default) - a clinician-facing block: result, interpretation, working, reference. Designed for the clipboard. Calculators may provide a more helpful headline label than their machine name, for example `BMR/RMR`, `TDEE`, or `Target intake` for `energy_requirement`.
 - `json` - the `CalculationResponse` structure as machine-readable JSON. The same shape every surface (CLI, MCP, GUI) produces.
-- `markdown` - the same content as `text`, rendered as headings and bullet working steps with the reference linked to its evidence URL, for pasting into EHR free-text fields or notes apps that render Markdown. `list`, `tags`, and `version` accept `markdown` but currently render the same layout as `text`.
+- `markdown` - computed results use headings and bullet working steps; an explicit URL, DOI, or PMID in the clinical citation is linked directly. Catalogue and tag output use Markdown lists and tables. Designed for pasting into EHR free-text fields or notes apps that render Markdown.
 
 ```bash
 clincalc list --format json
