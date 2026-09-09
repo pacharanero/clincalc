@@ -184,6 +184,15 @@ pub const TAGS: &[(&str, &[&str])] = &[
         "relative_fat_mass",
         &["primary-care", "endocrinology", "screening"],
     ),
+    (
+        "fat_free_mass_index",
+        &[
+            "primary-care",
+            "endocrinology",
+            "musculoskeletal",
+            "screening",
+        ],
+    ),
     ("max_heart_rate", &["primary-care", "screening"]),
     ("one_rep_max", &["primary-care", "musculoskeletal"]),
     ("wilks", &["musculoskeletal"]),

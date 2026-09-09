@@ -11,9 +11,9 @@
 | **Project** | clincalc - open library of clinical calculators |
 | **Classification** | PUBLIC (open-source project) |
 | **Status** | DRAFT |
-| **Version** | 0.1.3 |
+| **Version** | 0.1.4 |
 | **Created Date** | 2026-07-03 |
-| **Last Modified** | 2026-09-01 |
+| **Last Modified** | 2026-09-09 |
 | **Review Cycle** | Quarterly (recommended); on every material product change |
 | **Next Review Date** | 2026-10-03 |
 | **Owner** | Marcus Baw, Maintainer / Product Owner (Baw Medical Ltd) |
@@ -29,6 +29,7 @@
 | 0.1.1 | 2026-08-23 | Marcus Baw | Record PERC eligibility enforcement as evidence for C007 | PENDING | PENDING |
 | 0.1.2 | 2026-08-30 | Marcus Baw | Record NYHA cardiac-disease context attestation and subjective-classification limitations | PENDING | PENDING |
 | 0.1.3 | 2026-09-01 | Marcus Baw | Record controls for BAI's poor individual agreement and risk of being mistaken for direct body-composition measurement | PENDING | PENDING |
+| 0.1.4 | 2026-09-09 | Marcus Baw | Record controls for FFMI's preliminary cohort maximum being mistaken for a diagnostic or biological threshold | PENDING | PENDING |
 
 ---
 
@@ -143,6 +144,7 @@ Evidence:
 - `CalculationResponse` returns a human-readable `interpretation` and a `working` breakdown alongside every numeric `result`; the `reference` (primary citation) travels with the result and is included in the clipboard summary (**C013, C014**, addressing **H006**).
 - Documentation states outputs are decision aids, not autonomous decisions, with the clinician remaining accountable (**C015**, **H006**).
 - Regression-derived estimates with poor individual agreement are explicitly labelled as estimates rather than measurements and retain later validation evidence in every interpretation. BAI requires a legacy-estimate context, accepts only the TARA external-validation cohort's age and measurement envelope, omits diagnostic cut-points, and warns that systematic review evidence found wide individual error and did not recommend it for adult body-fat determination (**C020**, addressing **H009**).
+- FFMI reports the Kouri male-athlete subgroup's observed maximum only as preliminary study context, emits no threshold classification or natural-limit flag, and explicitly states that the value is not diagnostic, a biological limit, or proof of steroid use, and does not establish interpretation in other populations (**C021**, addressing **H010**).
 - **Known residual gap:** the clipboard summary (`to_summary_text`) carries result, interpretation, and reference but **not** the input values - see §5 and H006.
 
 ### G1.5 - The correct calculator is unambiguously identifiable
@@ -196,12 +198,13 @@ No post-market surveillance process is yet defined. Recommended: a lightweight i
 | H004 | 2 | 4 | medium | Required inputs fail closed, but optional predicates can by design default; distinguishing "unknown" from "false" ultimately depends on the host's data capture (deployment assumption 4). |
 | H006 | 3 | 4 | medium | The engine never emits a naked number in its own output, but the clipboard summary omits the **input values**, so a pasted result cannot be reconstructed from the text alone. Accepted for now with a host obligation to record inputs where clinically relevant (deployment assumption 2); **recommended improvement**: include the inputs (and a version stamp) in `to_summary_text()`. |
 | H009 | 3 | 4 | medium | BAI is constrained to the external-validation envelope, rounded to one decimal place, and always returned with prominent poor-agreement evidence, but a user can still mistake an anthropometric estimate for measured body composition. It must not be used to diagnose obesity or guide treatment; the residual risk requires CSO consideration before deployment. |
+| H010 | 3 | 4 | medium | FFMI retains the source study's preliminary observed maximum as contextual evidence but removes the diagnostic-style threshold flag and "natural limit" language. A user can still overinterpret the contextual value as evidence of steroid use, so the residual risk requires CSO consideration before deployment. |
 
 *The remaining hazards (H001, H003, H005, H007, H008) reduce to `low` residual risk after controls and are recorded as such in the Hazard Log.*
 
 ### Overall residual risk position
 
-*[PENDING - CSO judgement.]* On the evidence above, three principal residual risks are concentrated at the **host boundary** (units, optional-predicate semantics, and result provenance on copy-paste), while H009 is a calculator-specific risk of mistaking a poor-agreement model estimate for a measurement. Scoring itself is strongly controlled by primary-source verification, literature-vector testing, and mandatory evidenced provenance. The boundary risks are best closed by (a) the recommended `to_summary_text()` provenance improvement and (b) the corresponding DCB0160 deployer obligations; H009 additionally depends on retaining BAI's applicability restrictions and limitations wherever the output is presented. The appointed CSO must make and record the overall judgement that the product, with these controls, is acceptably safe for its intended use - and should give particular attention, per calculator, to any high-stakes score whose worst-case severity exceeds the engine-wide assessment used here.
+*[PENDING - CSO judgement.]* On the evidence above, three principal residual risks are concentrated at the **host boundary** (units, optional-predicate semantics, and result provenance on copy-paste), while H009 and H010 are calculator-specific risks of mistaking an estimate for a measurement or a preliminary observed maximum for a diagnostic threshold. Scoring itself is strongly controlled by primary-source verification, literature-vector testing, and mandatory evidenced provenance. The boundary risks are best closed by (a) the recommended `to_summary_text()` provenance improvement and (b) the corresponding DCB0160 deployer obligations; H009 and H010 additionally depend on retaining BAI's and FFMI's applicability restrictions and limitations wherever their outputs are presented. The appointed CSO must make and record the overall judgement that the product, with these controls, is acceptably safe for its intended use - and should give particular attention, per calculator, to any high-stakes score whose worst-case severity exceeds the engine-wide assessment used here.
 
 ---
 

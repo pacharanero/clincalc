@@ -483,7 +483,7 @@ class TestListCalculators:
     def test_returns_nonempty_list(self):
         calcs = clincalc.list_calculators()
         assert isinstance(calcs, list)
-        assert len(calcs) == 112
+        assert len(calcs) == 113
 
     def test_each_entry_has_required_keys(self):
         calcs = clincalc.list_calculators()

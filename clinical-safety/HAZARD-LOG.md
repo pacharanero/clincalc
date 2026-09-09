@@ -158,6 +158,24 @@ hazards:
     cso-reviewed: false
     date-raised: "2026-09-01"
     date-closed:
+  - id: H010
+    description: "Preliminary cohort maximum mistaken for a diagnostic or biological threshold"
+    cause: "A value observed at the upper end of a small source-study subgroup is labelled as a natural limit or emitted as a threshold flag without the publication's preliminary-evidence caveat"
+    effect: "A clinician or patient may infer anabolic-androgenic steroid use, make an unsupported accusation, or treat the value as an established biological boundary"
+    severity: 3
+    likelihood: 3
+    risk: medium
+    controls:
+      - C013
+      - C015
+      - C021
+    residual-severity: 3
+    residual-likelihood: 4
+    residual-risk: medium
+    status: open
+    cso-reviewed: false
+    date-raised: "2026-09-09"
+    date-closed:
 
 controls:
   - id: C001
@@ -200,6 +218,8 @@ controls:
     description: "Integer arithmetic is used for integer scores; explicit banding/threshold tests assert the correct band on both sides of each cutoff."
   - id: C020
     description: "Regression-derived estimates with poor individual agreement are labelled as estimates rather than measurements, retain later validation evidence in every interpretation, exclude unsupported diagnostic cut-points, and constrain inputs to a source-observed validation envelope."
+  - id: C021
+    description: "FFMI reports the Kouri male-athlete subgroup's observed maximum only as preliminary study context, does not emit a threshold classification or natural-limit flag, and states that the value is not diagnostic, a biological limit, or proof of steroid use."
 ---
 
 # Hazard Log - clincalc
@@ -215,9 +235,9 @@ controls:
 | **Project** | clincalc - open library of clinical calculators |
 | **Classification** | PUBLIC (open-source project) |
 | **Status** | DRAFT |
-| **Version** | 0.1.2 |
+| **Version** | 0.1.3 |
 | **Created Date** | 2026-07-03 |
-| **Last Modified** | 2026-09-01 |
+| **Last Modified** | 2026-09-09 |
 | **Review Cycle** | Monthly (hazard logs are *living* documents) |
 | **Next Review Date** | 2026-09-30 |
 | **Owner** | Marcus Baw, Maintainer / Product Owner (Baw Medical Ltd) |
@@ -251,6 +271,7 @@ controls:
 | H007 | Guideline drift - engine computes superseded algorithm | 2 | 4 | MEDIUM | C016, C017 | LOW | Open |
 | H008 | Rounding / boundary error at a decision threshold | 2 | 4 | MEDIUM | C018, C019 | LOW | Open |
 | H009 | Model estimate mistaken for a direct measurement despite poor individual agreement | 3 | 3 | MEDIUM | C013, C015, C020 | MEDIUM | Open |
+| H010 | Preliminary cohort maximum mistaken for a diagnostic or biological threshold | 3 | 3 | MEDIUM | C013, C015, C021 | MEDIUM | Open |
 
 ## Controls
 
@@ -276,6 +297,7 @@ controls:
 | C018 | Boundary-case literature vectors exercise banding cutoffs; a threshold flip fails a test |
 | C019 | Integer arithmetic for integer scores; explicit banding tests on both sides of each cutoff |
 | C020 | Poor-agreement regression outputs are labelled as estimates, carry later validation limitations, omit unsupported diagnostic cut-points, and accept only a source-observed validation envelope |
+| C021 | FFMI retains the Kouri male-athlete subgroup's observed maximum only as preliminary study context, emits no threshold classification or natural-limit flag, and states that it is not diagnostic, a biological limit, or proof of steroid use |
 
 ---
 
