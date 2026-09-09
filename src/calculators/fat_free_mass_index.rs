@@ -7,10 +7,12 @@
 //! analogous to BMI but excluding fat mass. Kouri et al (1995) compared FFMI
 //! in 157 male athletes (83 anabolic-androgenic steroid users, 74 non-users)
 //! and in 20 Mr. America winners from the pre-steroid era (1939-1959, mean
-//! FFMI 25.4). Non-users' normalized FFMI extended up to a well-defined limit
-//! of about 25.0 kg/m^2; many steroid users exceeded it, some above 30. The
-//! source cohort was exclusively adult male athletes, so this natural-limit
-//! context does not establish an equivalent boundary for women.
+//! FFMI 25.4). Normalized FFMI in the 74 non-users extended to 25.0 kg/m^2,
+//! while many steroid users exceeded 25.0. The authors explicitly described
+//! these findings as preliminary. The observed sample maximum is not a
+//! diagnostic cut-point or proof of anabolic-androgenic steroid use, and the
+//! male-athlete evidence does not establish equivalent interpretation in other
+//! populations.
 //!
 //! FFMI = fat-free mass (kg) / (height in m)^2
 //!
@@ -64,7 +66,6 @@ pub struct FatFreeMassIndexOutcome {
 
 const NORMALIZATION_REFERENCE_HEIGHT_M: f64 = 1.8;
 const NORMALIZATION_COEFFICIENT: f64 = 6.3;
-const NATURAL_LIMIT_FFMI: f64 = 25.0;
 
 pub fn compute(input: &FatFreeMassIndexInput) -> Result<FatFreeMassIndexOutcome, CalcError> {
     if !(20.0..=400.0).contains(&input.weight_kg) || !input.weight_kg.is_finite() {
@@ -96,18 +97,8 @@ pub fn compute(input: &FatFreeMassIndexInput) -> Result<FatFreeMassIndexOutcome,
         ));
     }
 
-    let limit_note = if normalized_ffmi >= NATURAL_LIMIT_FFMI {
-        format!(
-            "This is at or above the well-defined upper limit (about {NATURAL_LIMIT_FFMI:.1} kg/m^2) reported in non-steroid-using male athletes; the source study found many anabolic-androgenic steroid users exceeded this limit, some above 30."
-        )
-    } else {
-        format!(
-            "This is below the well-defined upper limit (about {NATURAL_LIMIT_FFMI:.1} kg/m^2) reported in non-steroid-using male athletes."
-        )
-    };
-
     let interpretation = format!(
-        "Fat-free mass index (FFMI) {ffmi:.1} kg/m^2, normalized to a 1.8 m reference height as {normalized_ffmi:.1} kg/m^2. {limit_note} The reference cohort (157 male athletes; 20 Mr. America winners from the 1939-1959 pre-steroid era, mean FFMI 25.4) was exclusively adult men, so this natural-limit context does not establish an equivalent boundary for women. Fat-free mass here is derived from weight and an independently obtained body fat percentage, not measured directly; its accuracy depends entirely on that input."
+        "Fat-free mass index (FFMI) {ffmi:.1} kg/m^2, normalized to a 1.8 m reference height as {normalized_ffmi:.1} kg/m^2 using the Kouri equation. In Kouri et al.'s male-athlete sample, normalized FFMI among 74 participants reporting no steroid use extended to 25.0 kg/m^2, but the authors described their findings as preliminary. That observed sample maximum is not a diagnostic cut-point, a biological limit, or proof of anabolic-androgenic steroid use, and the study does not establish equivalent interpretation in women or other populations. Fat-free mass here is derived from weight and an independently obtained body fat percentage, not measured directly; accuracy depends on that input and its measurement method."
     );
 
     Ok(FatFreeMassIndexOutcome {
@@ -142,11 +133,6 @@ pub fn build_response(input: &FatFreeMassIndexInput) -> Result<CalculationRespon
     );
     working.insert("normalized_ffmi_unrounded".into(), json!(o.normalized_ffmi));
     working.insert("normalized_ffmi".into(), json!(rounded_normalized_ffmi));
-    working.insert("natural_limit_ffmi".into(), json!(NATURAL_LIMIT_FFMI));
-    working.insert(
-        "at_or_above_natural_limit".into(),
-        json!(o.normalized_ffmi >= NATURAL_LIMIT_FFMI),
-    );
 
     Ok(CalculationResponse {
         calculator: NAME.to_string(),
@@ -173,7 +159,7 @@ impl Calculator for FatFreeMassIndex {
     }
 
     fn description(&self) -> &'static str {
-        "Height-normalized fat-free (lean) body mass (Kouri 1995), with the height-1.8m-normalized value compared against the well-defined natural limit (about 25.0 kg/m^2) reported in non-steroid-using male athletes; that limit does not establish an equivalent boundary for women."
+        "Fat-free mass relative to height, with the Kouri 1995 normalization to a 1.8 m reference height. The study's preliminary male-athlete sample maximum is not a diagnostic cut-point, biological limit, or proof of steroid use."
     }
 
     fn reference(&self) -> &'static str {
@@ -188,7 +174,7 @@ impl Calculator for FatFreeMassIndex {
         json!({
             "$schema": "https://json-schema.org/draft/2020-12/schema",
             "title": "FatFreeMassIndexInput",
-            "description": "Fat-free mass index (FFMI) from weight, height, and an independently obtained body fat percentage. The Kouri 1995 natural-limit context (about 25.0 kg/m^2 normalized) was derived exclusively from adult male athletes and does not establish an equivalent boundary for women.",
+            "description": "Fat-free mass index (FFMI) from weight, height, and an independently obtained body fat percentage, including the Kouri 1995 normalization to a 1.8 m reference height. The paper's preliminary male-athlete findings do not establish a diagnostic cut-point, biological limit, proof of steroid use, or equivalent interpretation in women or other populations.",
             "type": "object",
             "additionalProperties": false,
             "required": ["weight_kg", "height_cm", "body_fat_percent"],
@@ -212,7 +198,7 @@ impl Calculator for FatFreeMassIndex {
                     "minimum": 2,
                     "maximum": 70,
                     "unit": "%",
-                    "description": "Body fat percentage (2-70) from any independently obtained method (for example DXA, bioimpedance, skinfold, or a circumference-based estimate such as this crate's body_fat_circumference calculator). FFMI accuracy depends entirely on this input."
+                    "description": "Body fat percentage from an independently obtained method (for example DXA, bioimpedance, skinfold, or a circumference-based estimate such as this crate's body_fat_circumference calculator). The 2-70 range is a broad input-safety guard, not a source-study eligibility range. FFMI accuracy depends on this input and its measurement method."
                 }
             }
         })
@@ -281,18 +267,6 @@ mod tests {
     }
 
     #[test]
-    fn mr_america_era_reference_point_is_near_natural_limit() {
-        // A build broadly consistent with the pre-steroid-era Mr. America mean
-        // (normalized FFMI 25.4): ~90 kg at 8% body fat, 180 cm.
-        let o = compute(&calc(90.0, 180.0, 8.0)).unwrap();
-        assert!(
-            o.normalized_ffmi > NATURAL_LIMIT_FFMI,
-            "got {}",
-            o.normalized_ffmi
-        );
-    }
-
-    #[test]
     fn accepts_boundary_inputs() {
         assert!(compute(&calc(20.0, 100.0, 2.0)).is_ok());
         assert!(compute(&calc(400.0, 250.0, 70.0)).is_ok());
@@ -352,12 +326,13 @@ mod tests {
             json!(1.8)
         );
         assert_eq!(response.working["normalization_coefficient"], json!(6.3));
-        assert_eq!(response.working["natural_limit_ffmi"], json!(25.0));
         assert_eq!(response.result, response.working["normalized_ffmi"]);
+        assert!(response.working.get("natural_limit_ffmi").is_none());
+        assert!(response.working.get("at_or_above_natural_limit").is_none());
         assert!(
             response
                 .interpretation
-                .contains("does not establish an equivalent boundary for women")
+                .contains("not a diagnostic cut-point, a biological limit, or proof")
         );
     }
 
@@ -368,6 +343,7 @@ mod tests {
         assert_eq!(schema["properties"]["height_cm"]["unit"], json!("cm"));
         assert_eq!(schema["properties"]["body_fat_percent"]["unit"], json!("%"));
         let description = schema["description"].as_str().unwrap();
-        assert!(description.contains("does not establish an equivalent boundary for women"));
+        assert!(description.contains("not establish a diagnostic cut-point"));
+        assert!(description.contains("equivalent interpretation in women"));
     }
 }
