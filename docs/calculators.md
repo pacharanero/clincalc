@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry: 111 entries comprising 97 active calculators that compute a real result, 11 named-but-unavailable rights-locked stubs (carrying `proprietary` and `unavailable`), two rights-review stubs, and one clinical-safety stub (the latter three carry `unavailable` without `proprietary`). One row per calculator.
+The full registry: 112 entries comprising 98 active calculators that compute a real result, 11 named-but-unavailable rights-locked stubs (carrying `proprietary` and `unavailable`), two rights-review stubs, and one clinical-safety stub (the latter three carry `unavailable` without `proprietary`). One row per calculator.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
@@ -75,6 +75,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `epds` | Edinburgh Postnatal Depression Scale (EPDS) | Ten-item perinatal depression screen (0-30); >=10 possible, >=13 probable; item 10 flags self-harm risk. | `primary-care`, `mental-health`, `perinatal`, `screening` |
 | `euroscore2` | EuroSCORE II (Cardiac Surgery Mortality) | Predicted operative mortality after cardiac surgery from 18 preoperative factors (Nashef 2012). | `cardiology`, `surgery`, `prognostic` |
 | `familial_hypercholesterolaemia` | Familial Hypercholesterolaemia (Simon Broome + DLCN) | Diagnoses familial hypercholesterolaemia using both the Simon Broome (UK) and Dutch Lipid Clinic Network (DLCN) criteria. | `primary-care`, `cardiology`, `endocrinology`, `risk` |
+| `fat_free_mass_index` | Fat-Free Mass Index (FFMI) | Height-normalized fat-free (lean) body mass from weight, height, and an independently obtained body fat percentage (Kouri 1995). The height-1.8m-normalized value is compared against the well-defined natural limit (about 25.0 kg/m^2) reported in non-steroid-using male athletes; that limit does not establish an equivalent boundary for women. | `primary-care`, `endocrinology`, `musculoskeletal`, `screening` |
 | `fena` | FENa (Fractional Excretion of Sodium) | Differentiates pre-renal from intrinsic renal failure using urine and plasma sodium and creatinine. | `acute-medicine`, `nephrology` |
 | `feverpain` | FeverPAIN Score | Five-item score guiding antibiotic prescribing in acute sore throat (validated for adults and children aged 3+). | `primary-care`, `infectious-diseases`, `respiratory` |
 | `fib4` | FIB-4 Liver Fibrosis Index | Non-invasive screen for advanced liver fibrosis from age, AST, ALT, and platelets (NICE NG49). | `primary-care`, `hepatology`, `screening` |
@@ -167,7 +168,6 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 | **StatinMD** (Oxford STRATIFY) | Personalised 1/5/10-year risk of serious statin-induced muscle disorders (rhabdomyolysis / hospitalised myopathy) from 22 routinely-recorded factors (Cai et al, *Lancet Digital Health* 2026). Natural pairing with QRISK3: QRISK3 is the benefit side, StatinMD is the harm side. Licensed for **academic use** via Oxford University Innovation - covered while this project is non-commercial. ([source](https://process.innovation.ox.ac.uk/software/p/25396/stratify---stainmd-risk-calculator---academic-use/1)) | `primary-care`, `cardiology`, `risk` |
 | **RCPCH Digital Growth Charts** | UK-WHO + UK90; z-score / centile / SDS; chart rendering. Needs LMS tables + RCPCH licensing terms. | `paediatrics` |
 | **Skinfold body fat % (Jackson-Pollock / Durnin-Womersley)** | Caliper-derived body-fat estimate for training and body-comparison settings. | `primary-care`, `endocrinology`, `screening` |
-| **Fat-free mass index (FFMI)** | Fat-free mass normalised to height^2; used in sports medicine and sarcopenia screening. | `primary-care`, `endocrinology`, `screening` |
 | **Skeletal muscle mass index (SMI)** | Appendicular lean mass / height^2; sarcopenia definition (EWGSOP2 / FNIH). | `geriatrics`, `endocrinology`, `screening` |
 | **Protein / macronutrient target** | g/day from weight or LBM + goal (e.g. 1.6-2.2 g/kg for lean-mass retention in a deficit). | `primary-care`, `endocrinology` |
 | **Axial length centile charts (CREAM-Kids)** | Age-, sex-, and region-specific centile charts for axial eye length in children and adolescents (Kneepkens, Lingham, Mackey et al, *JAMA Ophthalmology* 2026; [DOI: 10.1001/jamaophthalmol.2026.2539](https://doi.org/10.1001/jamaophthalmol.2026.2539)). Reusable coefficients/data and their distribution terms must be confirmed before implementation; serial change needs a separately cited model. | `ophthalmology`, `paediatrics`, `screening` |

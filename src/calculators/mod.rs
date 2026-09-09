@@ -53,6 +53,7 @@ pub mod energy_requirement;
 pub mod epds;
 pub mod euroscore2;
 pub mod familial_hypercholesterolaemia;
+pub mod fat_free_mass_index;
 pub mod fena;
 pub mod feverpain;
 pub mod fib4;
