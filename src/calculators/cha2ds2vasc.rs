@@ -343,7 +343,7 @@ impl Calculator for Cha2ds2Vasc {
                         "statement": "Prior ischaemic stroke, transient ischaemic attack, or systemic arterial thromboembolism.",
                         "includes": ["Prior ischaemic stroke", "Transient ischaemic attack (TIA)", "Systemic arterial thromboembolism"],
                         "excludes": ["Venous thromboembolism (DVT or PE) does NOT count - this criterion is arterial"],
-                        "snomedEcl": "(<< 230690007 |Cerebrovascular accident (disorder)| OR << 266257000 |Transient ischemic attack (disorder)|) MINUS << 118927008 |Disorder of venous system (disorder)|",
+                        "snomedEcl": "(<< 230690007 |Cerebrovascular accident (disorder)| OR << 266257000 |Transient ischemic attack (disorder)| OR << 54687002 |Embolic arterial occlusion (disorder)|) MINUS << 118927008 |Disorder of venous system (disorder)|",
                         "source": { "citation": "Lip GYH et al. Chest. 2010;137(2):263-272.", "url": "https://doi.org/10.1378/chest.09-1584" },
                         "status": "draft"
                     }
@@ -608,6 +608,36 @@ mod tests {
         assert!(
             ecl.contains("MINUS"),
             "vascular ECL must exclude the venous hierarchy"
+        );
+    }
+
+    #[test]
+    fn stroke_definition_includes_systemic_arterial_and_excludes_vte() {
+        let schema = Cha2ds2Vasc.input_schema();
+        let definition = &schema["properties"]["stroke_tia_thromboembolism"]["definition"];
+        let includes: Vec<&str> = definition["includes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|v| v.as_str().unwrap())
+            .collect();
+        assert!(
+            includes.contains(&"Systemic arterial thromboembolism"),
+            "S2 criterion must explicitly include systemic arterial thromboembolism"
+        );
+        let excludes = definition["excludes"][0].as_str().unwrap();
+        assert!(
+            excludes.contains("Venous thromboembolism"),
+            "S2 criterion must explicitly exclude venous thromboembolism"
+        );
+        let ecl = definition["snomedEcl"].as_str().unwrap();
+        assert!(
+            ecl.contains("54687002 |Embolic arterial occlusion (disorder)|"),
+            "S2 criterion ECL must include systemic arterial embolism"
+        );
+        assert!(
+            ecl.contains("MINUS << 118927008 |Disorder of venous system (disorder)|"),
+            "S2 criterion ECL must explicitly exclude the venous hierarchy"
         );
     }
 
