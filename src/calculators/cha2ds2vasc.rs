@@ -612,6 +612,32 @@ mod tests {
     }
 
     #[test]
+    fn stroke_definition_includes_systemic_arterial_and_excludes_vte() {
+        let schema = Cha2ds2Vasc.input_schema();
+        let definition = &schema["properties"]["stroke_tia_thromboembolism"]["definition"];
+        let includes: Vec<&str> = definition["includes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|v| v.as_str().unwrap())
+            .collect();
+        assert!(
+            includes.contains(&"Systemic arterial thromboembolism"),
+            "S2 criterion must explicitly include systemic arterial thromboembolism"
+        );
+        let excludes = definition["excludes"][0].as_str().unwrap();
+        assert!(
+            excludes.contains("Venous thromboembolism"),
+            "S2 criterion must explicitly exclude venous thromboembolism"
+        );
+        let ecl = definition["snomedEcl"].as_str().unwrap();
+        assert!(
+            ecl.contains("MINUS"),
+            "S2 criterion ECL must exclude the venous hierarchy"
+        );
+    }
+
+    #[test]
     fn rejects_string_for_integer_age() {
         assert!(
             Cha2ds2Vasc
