@@ -97,6 +97,7 @@ pub mod qrisk3;
 pub mod qsofa;
 pub mod rcri;
 pub mod relative_fat_mass;
+pub mod skeletal_muscle_mass_index;
 pub mod sofa;
 pub mod timi;
 pub mod uacr;
