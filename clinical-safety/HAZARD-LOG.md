@@ -194,6 +194,25 @@ hazards:
     cso-reviewed: false
     date-raised: "2026-09-11"
     date-closed:
+  - id: H012
+    description: "Exploratory protein-intake breakpoint mistaken for a validated target range, individual requirement, or safety ceiling"
+    cause: "A meta-regression breakpoint confidence interval is presented as a 1.6-2.2 g/kg/day prescription range; source-population exclusions and weak exploratory model statistics are omitted"
+    effect: "A user may overprescribe protein, infer safety above or below an unsupported threshold, or apply the estimate during energy restriction or in renal, hepatic, paediatric, pregnancy, eating-disorder, or serious-illness contexts requiring individual assessment"
+    severity: 3
+    likelihood: 3
+    risk: medium
+    controls:
+      - C003
+      - C007
+      - C013
+      - C023
+    residual-severity: 3
+    residual-likelihood: 4
+    residual-risk: medium
+    status: open
+    cso-reviewed: false
+    date-raised: "2026-09-12"
+    date-closed:
 
 controls:
   - id: C001
@@ -240,6 +259,8 @@ controls:
     description: "FFMI reports the Kouri male-athlete subgroup's observed maximum only as preliminary study context, does not emit a threshold classification or natural-limit flag, and states that the value is not diagnostic, a biological limit, or proof of steroid use."
   - id: C022
     description: "Skeletal Muscle Mass Index requires age of at least 65 years and whole-body DXA-derived appendicular lean mass with contemporaneous measured height and weight; reports EWGSOP2 and FNIH threshold classifications separately without a normal or overall diagnostic label; and states that muscle quantity alone cannot diagnose or exclude sarcopenia."
+  - id: C023
+    description: "Resistance-training protein intake requires an adult healthy, non-energy-restricted source-context attestation; reports the authors' prudent 2.2 g/kg/day amount separately from the exploratory 1.62 g/kg/day breakpoint and full confidence interval; retains p value, R-squared, studied intake range, and population limits; and states that the confidence interval is not a target range and 2.2 g/kg/day is not a safety ceiling."
 ---
 
 # Hazard Log - clincalc
@@ -255,9 +276,9 @@ controls:
 | **Project** | clincalc - open library of clinical calculators |
 | **Classification** | PUBLIC (open-source project) |
 | **Status** | DRAFT |
-| **Version** | 0.1.4 |
+| **Version** | 0.1.5 |
 | **Created Date** | 2026-07-03 |
-| **Last Modified** | 2026-09-11 |
+| **Last Modified** | 2026-09-12 |
 | **Review Cycle** | Monthly (hazard logs are *living* documents) |
 | **Next Review Date** | 2026-09-30 |
 | **Owner** | Marcus Baw, Maintainer / Product Owner (Baw Medical Ltd) |
@@ -293,6 +314,7 @@ controls:
 | H009 | Model estimate mistaken for a direct measurement despite poor individual agreement | 3 | 3 | MEDIUM | C013, C015, C020 | MEDIUM | Open |
 | H010 | Preliminary cohort maximum mistaken for a diagnostic or biological threshold | 3 | 3 | MEDIUM | C013, C015, C021 | MEDIUM | Open |
 | H011 | Muscle-quantity threshold classification mistaken for a standalone sarcopenia diagnosis or exclusion | 3 | 3 | MEDIUM | C013, C015, C022 | MEDIUM | Open |
+| H012 | Exploratory protein-intake breakpoint mistaken for a validated target range, individual requirement, or safety ceiling | 3 | 3 | MEDIUM | C003, C007, C013, C023 | MEDIUM | Open |
 
 ## Controls
 
@@ -320,6 +342,7 @@ controls:
 | C020 | Poor-agreement regression outputs are labelled as estimates, carry later validation limitations, omit unsupported diagnostic cut-points, and accept only a source-observed validation envelope |
 | C021 | FFMI retains the Kouri male-athlete subgroup's observed maximum only as preliminary study context, emits no threshold classification or natural-limit flag, and states that it is not diagnostic, a biological limit, or proof of steroid use |
 | C022 | SMI requires age >=65, whole-body DXA ALM, and contemporaneous measured height/weight; reports EWGSOP2 and FNIH classifications separately without a normal or overall diagnostic label; states that muscle quantity alone cannot diagnose or exclude sarcopenia |
+| C023 | Protein intake requires an adult healthy, non-energy-restricted source-context attestation; separates the prudent 2.2 g/kg/day amount from the uncertain breakpoint; retains model and population limits; states that the CI is not a target range and 2.2 is not a safety ceiling |
 
 ---
 
@@ -350,7 +373,7 @@ These hazards **re-enter scope at the deployment / host boundary** - i.e. whiche
 
 ## Important
 
-These eleven hazards are a **starter set** adapted to a stateless clinical-calculator engine. They are not a substitute for project-specific hazard identification by a qualified CSO and clinical SMEs, and they should be revisited per calculator - a high-stakes score (e.g. one that drives anticoagulation, sepsis escalation, or triage) may warrant its own hazards beyond the engine-wide set here. **A short hazard log is more often a sign of insufficient analysis than of a safe product.**
+These twelve hazards are a **starter set** adapted to a stateless clinical-calculator engine. They are not a substitute for project-specific hazard identification by a qualified CSO and clinical SMEs, and they should be revisited per calculator - a high-stakes score (e.g. one that drives anticoagulation, sepsis escalation, or triage) may warrant its own hazards beyond the engine-wide set here. **A short hazard log is more often a sign of insufficient analysis than of a safe product.**
 
 ---
 

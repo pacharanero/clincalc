@@ -11,9 +11,9 @@
 | **Project** | clincalc - open library of clinical calculators |
 | **Classification** | PUBLIC (open-source project) |
 | **Status** | DRAFT |
-| **Version** | 0.1.5 |
+| **Version** | 0.1.6 |
 | **Created Date** | 2026-07-03 |
-| **Last Modified** | 2026-09-11 |
+| **Last Modified** | 2026-09-12 |
 | **Review Cycle** | Quarterly (recommended); on every material product change |
 | **Next Review Date** | 2026-10-03 |
 | **Owner** | Marcus Baw, Maintainer / Product Owner (Baw Medical Ltd) |
@@ -31,6 +31,7 @@
 | 0.1.3 | 2026-09-01 | Marcus Baw | Record controls for BAI's poor individual agreement and risk of being mistaken for direct body-composition measurement | PENDING | PENDING |
 | 0.1.4 | 2026-09-09 | Marcus Baw | Record controls for FFMI's preliminary cohort maximum being mistaken for a diagnostic or biological threshold | PENDING | PENDING |
 | 0.1.5 | 2026-09-11 | Marcus Baw | Record controls preventing muscle-quantity thresholds from being presented as a standalone sarcopenia diagnosis or exclusion | PENDING | PENDING |
+| 0.1.6 | 2026-09-12 | Marcus Baw | Record controls preventing an exploratory protein-intake breakpoint and confidence interval from being presented as a validated target range, individual requirement, or safety ceiling | PENDING | PENDING |
 
 ---
 
@@ -135,7 +136,7 @@ Evidence:
 Evidence:
 
 - `input_schema()` (JSON Schema) declares each input's type, units, and permitted values, exposed via `clincalc calc <name> --schema` and to MCP/GUI hosts, so expected units are machine-discoverable (**C004**, addressing **H002**).
-- Strongly-typed `Input` structs reject wrong-shape, unknown, and misspelled input and return `CalcError::InvalidInput` rather than silently ignoring or coercing it; a registry policy test enforces every closed schema, and range, eligibility, and administration-context checks reject implausible or out-of-population values instead of scoring them, including the ASRS adult and six-month recall assertions, CURB-65's adult age floor, PERC's required confirmation of clinician gestalt below 15%, NYHA's required attestation of defined or presumed cardiac disease, and SMI's age >=65 and whole-body DXA measurement requirements. NYHA additionally returns the selected functional profile and warns that the classification is subjective, is poorly reproducible across Classes II and III, and must not be treated as an objective measure or treatment rule (**C005, C007, C008, C013, C022**, addressing **H002, H003, H006, H011**).
+- Strongly-typed `Input` structs reject wrong-shape, unknown, and misspelled input and return `CalcError::InvalidInput` rather than silently ignoring or coercing it; a registry policy test enforces every closed schema, and range, eligibility, and administration-context checks reject implausible or out-of-population values instead of scoring them, including the ASRS adult and six-month recall assertions, CURB-65's adult age floor, PERC's required confirmation of clinician gestalt below 15%, NYHA's required attestation of defined or presumed cardiac disease, SMI's age >=65 and whole-body DXA measurement requirements, and the protein-intake calculator's healthy, non-energy-restricted adult resistance-training context. NYHA additionally returns the selected functional profile and warns that the classification is subjective, is poorly reproducible across Classes II and III, and must not be treated as an objective measure or treatment rule (**C005, C007, C008, C013, C022, C023**, addressing **H002, H003, H006, H011, H012**).
 - Required inputs fail deserialization if missing rather than defaulting to a scored value; the governed input-definition system defines each clinician-asserted predicate so "not asserted" is not collapsed into "asserted false" (**C009, C010**, addressing **H004**).
 
 ### G1.4 - Results are never presented as a naked number by the engine
@@ -147,6 +148,7 @@ Evidence:
 - Regression-derived estimates with poor individual agreement are explicitly labelled as estimates rather than measurements and retain later validation evidence in every interpretation. BAI requires a legacy-estimate context, accepts only the TARA external-validation cohort's age and measurement envelope, omits diagnostic cut-points, and warns that systematic review evidence found wide individual error and did not recommend it for adult body-fat determination (**C020**, addressing **H009**).
 - FFMI reports the Kouri male-athlete subgroup's observed maximum only as preliminary study context, emits no threshold classification or natural-limit flag, and explicitly states that the value is not diagnostic, a biological limit, or proof of steroid use, and does not establish interpretation in other populations (**C021**, addressing **H010**).
 - SMI requires whole-body DXA-derived appendicular lean mass and contemporaneous measured height and weight in adults aged 65 or older, reports EWGSOP2 and FNIH classifications separately because they can disagree, avoids a "normal" or overall diagnostic label, and states that muscle quantity alone cannot diagnose or exclude sarcopenia (**C022**, addressing **H011**).
+- Resistance-training protein intake requires an adult healthy, non-energy-restricted source-context attestation; reports the authors' prudent 2.2 g/kg/day amount separately from the exploratory breakpoint and its confidence interval; retains the weak model statistics and studied intake range; and states that the interval is not a target range and 2.2 g/kg/day is not a safety ceiling (**C023**, addressing **H012**).
 - **Known residual gap:** the clipboard summary (`to_summary_text`) carries result, interpretation, and reference but **not** the input values - see §5 and H006.
 
 ### G1.5 - The correct calculator is unambiguously identifiable
@@ -202,12 +204,13 @@ No post-market surveillance process is yet defined. Recommended: a lightweight i
 | H009 | 3 | 4 | medium | BAI is constrained to the external-validation envelope, rounded to one decimal place, and always returned with prominent poor-agreement evidence, but a user can still mistake an anthropometric estimate for measured body composition. It must not be used to diagnose obesity or guide treatment; the residual risk requires CSO consideration before deployment. |
 | H010 | 3 | 4 | medium | FFMI retains the source study's preliminary observed maximum as contextual evidence but removes the diagnostic-style threshold flag and "natural limit" language. A user can still overinterpret the contextual value as evidence of steroid use, so the residual risk requires CSO consideration before deployment. |
 | H011 | 3 | 4 | medium | SMI constrains the source population and measurement method, reports the two threshold classifications separately, and states that muscle quantity alone cannot diagnose or exclude sarcopenia. A user can still overinterpret a below-cut-off result or ignore discordance, so the residual risk requires CSO consideration before deployment. |
+| H012 | 3 | 4 | medium | The protein-intake calculator enforces the studied adult context and distinguishes the source-authored prudent amount from the uncertain breakpoint, but a user can still treat a population estimate as an individual prescription or overlook a condition requiring dietetic assessment. The residual risk requires CSO consideration before deployment. |
 
 *The remaining hazards (H001, H003, H005, H007, H008) reduce to `low` residual risk after controls and are recorded as such in the Hazard Log.*
 
 ### Overall residual risk position
 
-*[PENDING - CSO judgement.]* On the evidence above, three principal residual risks are concentrated at the **host boundary** (units, optional-predicate semantics, and result provenance on copy-paste), while H009-H011 are calculator-specific risks of mistaking an estimate for a measurement, a preliminary observed maximum for a diagnostic threshold, or a muscle-quantity threshold for a standalone sarcopenia diagnosis or exclusion. Scoring itself is strongly controlled by primary-source verification, literature-vector testing, and mandatory evidenced provenance. The boundary risks are best closed by (a) the recommended `to_summary_text()` provenance improvement and (b) the corresponding DCB0160 deployer obligations; H009-H011 additionally depend on retaining BAI's, FFMI's, and SMI's applicability restrictions and limitations wherever their outputs are presented. The appointed CSO must make and record the overall judgement that the product, with these controls, is acceptably safe for its intended use - and should give particular attention, per calculator, to any high-stakes score whose worst-case severity exceeds the engine-wide assessment used here.
+*[PENDING - CSO judgement.]* On the evidence above, three principal residual risks are concentrated at the **host boundary** (units, optional-predicate semantics, and result provenance on copy-paste), while H009-H012 are calculator-specific risks of mistaking an estimate for a measurement, a preliminary observed maximum for a diagnostic threshold, a muscle-quantity threshold for a standalone sarcopenia diagnosis or exclusion, or an exploratory protein-intake breakpoint for an individual requirement or safety ceiling. Scoring itself is strongly controlled by primary-source verification, literature-vector testing, and mandatory evidenced provenance. The boundary risks are best closed by (a) the recommended `to_summary_text()` provenance improvement and (b) the corresponding DCB0160 deployer obligations; H009-H012 additionally depend on retaining each calculator's applicability restrictions and limitations wherever outputs are presented. The appointed CSO must make and record the overall judgement that the product, with these controls, is acceptably safe for its intended use - and should give particular attention, per calculator, to any high-stakes score whose worst-case severity exceeds the engine-wide assessment used here.
 
 ---
 
