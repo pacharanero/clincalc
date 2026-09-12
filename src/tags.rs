@@ -199,6 +199,10 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ),
     ("max_heart_rate", &["primary-care", "screening"]),
     ("one_rep_max", &["primary-care", "musculoskeletal"]),
+    (
+        "protein_target",
+        &["primary-care", "endocrinology", "musculoskeletal"],
+    ),
     ("wilks", &["musculoskeletal"]),
     ("findrisc", &["primary-care", "endocrinology", "screening"]),
     ("homa_ir", &["endocrinology", "screening"]),

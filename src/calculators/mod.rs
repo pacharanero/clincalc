@@ -91,6 +91,7 @@ pub mod pasi;
 pub mod perc;
 pub mod phq9;
 pub mod pitt_bacteraemia;
+pub mod protein_target;
 pub mod psa_density;
 pub mod qfracture;
 pub mod qrisk3;
