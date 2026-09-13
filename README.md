@@ -173,6 +173,7 @@ This table tracks every functioning calculation. `✓` means the language is ava
 | `homa_ir` | ✓ | - | - | ✓ |
 | `ipss` | ✓ | - | - | ✓ |
 | `isth_overt_dic` | ✓ | - | - | ✓ |
+| `jackson_pollock_skinfold` | ✓ | - | - | ✓ |
 | `khorana` | ✓ | - | - | ✓ |
 | `ldl_cholesterol` | ✓ | - | - | ✓ |
 | `lrinec` | ✓ | - | - | ✓ |
