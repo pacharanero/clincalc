@@ -51,6 +51,14 @@ See the design spec at [`gui.md`](gui.md) and the implementation guide at [`gui/
 
 ---
 
+## Governance & clinical deployment
+
+### Planned
+
+- [ ] **GOV-001 Establish the Open Health Technology Foundation and operating entity** - define ownership, governance, clinical-safety accountability, and the legal entity that will stand behind any future clinician-facing distribution. Until this is complete and the relevant safety and regulatory gates are approved, `clincalc` remains a development, research, education, and evaluation component rather than a finished medical device.
+
+---
+
 
 
 ## Engine & embedding
@@ -140,9 +148,11 @@ Open questions for comment:
 
 ### ENG-006 Printable / clipboard-friendly result formatting
 
-Status: Future
+Status: Planned
 
-Improve the copy-paste output beyond the existing plain text block, with richer formats that preserve the citation.
+Make every copied result independently traceable and reproducible before adding richer formats.
+
+- [ ] **ENG-006.6 Complete clipboard provenance** - include the `clincalc` version, calculator identifier, entered inputs with units, result, interpretation, working, and primary-source citation in the copyable text and Markdown summaries. Keep the output deterministic and add regression tests proving a pasted result contains enough information to reconstruct the calculation.
 
 - [ ] **ENG-006.4 Add `html` and `pdf` rendering** via a small template engine for the web/GUI surfaces.
 
@@ -168,7 +178,7 @@ Open questions for comment:
 
 ### ENG-008 Guideline-update registry
 
-Status: Future
+Status: Planned
 
 A mechanism to re-verify each calculator's licence and reference URL on a schedule, so dead links or superseded guidelines do not silently rot.
 
