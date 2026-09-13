@@ -87,9 +87,9 @@ done
 
 (
   cd "$tmp"
-  sha256sum --check --strict sha256.sum
+  sha256sum --check --strict <(awk 'NF' sha256.sum)
   for sidecar in ./*.sha256; do
-    sha256sum --check --strict "$sidecar"
+    sha256sum --check --strict <(awk 'NF' "$sidecar")
   done
 )
 
