@@ -4,13 +4,15 @@ Open source, community-auditable clinical calculators. One Rust crate is the sco
 
 A score is computed once, in the core library, and the result is identical wherever it appears. Every calculator cites primary literature, is tested against published vectors, and records the licence it is distributed under.
 
+> **Development status:** `clincalc` is published for software development, research, education, and evaluation. It is not a finished medical device and must not be used on its own to make decisions about an individual patient's care. Anyone incorporating it into a product or deploying it for clinical use is responsible for that product or deployment's clinical-safety and regulatory obligations.
+
 ## Why
 
-Clinicians need clinical digital tools to provide good care, but the incentives to build them into EHRs are weak and the compliance barriers are high. The result is a patchwork of calculators scattered across the web, often behind paywalls or implemented inconsistently. This project makes them **open source, free to use, evidence-based, and auditable** - each cites primary literature, is tested against published vectors, and records the licence it is distributed under.
+Clinical software developers need reliable implementations of published clinical scores, but rebuilding them separately in every product invites inconsistency. This project provides **open source, evidence-based, auditable reference implementations** - each cites primary literature, is tested against published vectors, and records the licence it is distributed under.
 
 ### 'Soft interoperability'
 
-'Soft interoperability' is a phrase coined by Marcus Baw (@pacharanero) to describe the everyday copy-and-paste interop which is used by clincians as a substitute for 'proper' interoperability: it lets clinicians use the tools they want without being constrained by their EHR. Copy-and-paste is derided as a kludge, but it is what clinicians actually use, so every calculator produces a clean, editable text summary as a first-class output - while also dispatching structured results when embedded in a host.
+'Soft interoperability' is a phrase coined by Marcus Baw (@pacharanero) to describe everyday copy-and-paste interop as a complement to structured integration. The project treats a clean, editable text summary as a first-class output while also dispatching structured results when embedded in a host. Any clinician-facing deployment must validate this workflow and meet its own clinical-safety obligations.
 
 ## Install and use the `clincalc` CLI
 

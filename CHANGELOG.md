@@ -4,6 +4,108 @@ All notable changes to `calc` are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] - 2026-09-13
+
+### Added
+
+- **calc**: Add Jackson-Pollock 3-site skinfold body fat % (CALC-048) ([#77](https://github.com/pacharanero/clincalc/issues/77)) ([aee3d11](https://github.com/pacharanero/clincalc/commit/aee3d11eea74160a9dbd30aaefad17494fdb2f30))
+
+- **calc**: Add resistance-training protein intake ([#76](https://github.com/pacharanero/clincalc/issues/76)) ([1fc8375](https://github.com/pacharanero/clincalc/commit/1fc83756db1d49071f987ef644bbb2dd7062aaad))
+
+- **calc**: Add Skeletal Muscle Mass Index (CALC-052) ([#75](https://github.com/pacharanero/clincalc/issues/75)) ([b4dd457](https://github.com/pacharanero/clincalc/commit/b4dd4574c1bfcc29a80a951961c41856661fbdf9))
+
+- **calc**: Add Fat-Free Mass Index (CALC-051) ([#73](https://github.com/pacharanero/clincalc/issues/73)) ([28730d2](https://github.com/pacharanero/clincalc/commit/28730d2775d407a2e4f5e7c8b13bf61146f475b5))
+
+- **cli**: Add markdown output format for computed results ([#70](https://github.com/pacharanero/clincalc/issues/70)) ([5110e7d](https://github.com/pacharanero/clincalc/commit/5110e7d5a15db96cc01102ca4a17d051a02c9529))
+
+- **calc**: Add Body Adiposity Index (CALC-049) ([#69](https://github.com/pacharanero/clincalc/issues/69)) ([e921917](https://github.com/pacharanero/clincalc/commit/e921917a1322a54960a0f22334753bb45e526b0e))
+
+- **calc**: Add NYHA functional classification ([4c78971](https://github.com/pacharanero/clincalc/commit/4c78971e3c95492276c16a4dce7c6befcac3406d))
+
+- **calc**: Add ORBIT bleeding score ([0624d96](https://github.com/pacharanero/clincalc/commit/0624d961764e5497457d65812a4a5c71b3945e85))
+
+- **calc**: Register unavailable parity gaps ([0c42354](https://github.com/pacharanero/clincalc/commit/0c42354243da14d2dd6080d37162c7091a0e7cc8))
+
+- **calc**: Add ARDSNet predicted body weight ([86c48b8](https://github.com/pacharanero/clincalc/commit/86c48b83145e381bbafdf39342d30169fb48c8c3))
+
+- **calc**: Register NYHA as unavailable ([f9c4a6c](https://github.com/pacharanero/clincalc/commit/f9c4a6c592f7bbe7c1d86f0452b46b9826e2867c))
+
+- **calc**: Add Duke-ISCVID criteria ([0dfcf93](https://github.com/pacharanero/clincalc/commit/0dfcf93dec3f864df384da62e6512537dae89bf9))
+
+- **calc**: Add NIH Stroke Scale ([e4e7de2](https://github.com/pacharanero/clincalc/commit/e4e7de2488d4f42501fb1498354d6150605d2251))
+
+- **calc**: Add PASI and Pitt Bacteraemia ([5d411f2](https://github.com/pacharanero/clincalc/commit/5d411f233501ae5ae5db745938d85ef0546878d1))
+
+- **calc**: Add MELD 3.0 and PSA density ([0a6c1ab](https://github.com/pacharanero/clincalc/commit/0a6c1ab5a63fef57ceffceb90289a7576e5c951b))
+
+- **calc**: Add CIWA-Ar and COWS ([b4eb6b8](https://github.com/pacharanero/clincalc/commit/b4eb6b8eb84cb0792f919d2b2914020673cebcb9))
+
+- **calc**: Add free-water deficit and ISTH DIC ([58a7c55](https://github.com/pacharanero/clincalc/commit/58a7c5528fa438327cc3c06275aed13252eb5659))
+
+- **calc**: Add 4Ts and Khorana calculators ([e72e0d4](https://github.com/pacharanero/clincalc/commit/e72e0d4a390be6b1846416c1a61632252de70112))
+
+- **calc**: Add Apgar and Binet calculators ([70cc03a](https://github.com/pacharanero/clincalc/commit/70cc03a30852ca717312a5ac266b9d40a7c1879b))
+
+- **calc**: Add BSA and HOMA-IR calculators ([0aaa094](https://github.com/pacharanero/clincalc/commit/0aaa094fdeadf8d0b8e74e2ad770c1d61453b8de))
+
+- **calc**: Add LDL and non-HDL cholesterol (CALC-041) ([4079b6e](https://github.com/pacharanero/clincalc/commit/4079b6e22b6c04d11c010ac76ccc3ae81a6db3bc))
+
+- **api**: Add REST locale negotiation (ENG-001.6) ([6dca687](https://github.com/pacharanero/clincalc/commit/6dca687387f6407da75fefa3fe3554cf5c997aef))
+
+- **calc**: Add modified Hinchey classification (CALC-019) ([4353168](https://github.com/pacharanero/clincalc/commit/43531687f29d003b986d443c8579f63c310e7eb7))
+
+- **calc**: Add Glasgow-Blatchford bleeding score (CALC-018) ([03c138d](https://github.com/pacharanero/clincalc/commit/03c138d42bd0c9e7716ce8df920384ea62e034ef))
+
+- **calc**: Add RCRI perioperative cardiac risk score (CALC-033) ([51df1c2](https://github.com/pacharanero/clincalc/commit/51df1c211f230fb5af13798399c6901c9344afbb))
+
+- **calc**: Add LRINEC score for necrotizing fasciitis risk (CALC-021) ([#63](https://github.com/pacharanero/clincalc/issues/63)) ([734f0ac](https://github.com/pacharanero/clincalc/commit/734f0acd712e5f45e901881be813c44c3888c418))
+
+- **calc**: Add Wilks score for bodyweight-adjusted strength comparison (CALC-046) ([#62](https://github.com/pacharanero/clincalc/issues/62)) ([13ea365](https://github.com/pacharanero/clincalc/commit/13ea365fd76d86e7843d215a8898ce7ea7979532))
+
+- **calc**: Add relative fat mass (RFM) (CALC-050) ([#61](https://github.com/pacharanero/clincalc/issues/61)) ([c4b1e91](https://github.com/pacharanero/clincalc/commit/c4b1e91cbadf70d178523e3e37b6602804005ce4))
+
+- **calc**: Add waist-to-hip ratio (WHR) (CALC-047) ([#60](https://github.com/pacharanero/clincalc/issues/60)) ([00f90cb](https://github.com/pacharanero/clincalc/commit/00f90cb4dbe29a418238b972fb956ef274d5be60))
+
+- **calc**: Add PERC rule for PE exclusion (CALC-029) ([#55](https://github.com/pacharanero/clincalc/issues/55)) ([694914f](https://github.com/pacharanero/clincalc/commit/694914f842e987bd69ee95487e4a3c01a46f61c7))
+
+- **python**: Add keyword-only locale to Python bindings (ENG-001.6) ([#54](https://github.com/pacharanero/clincalc/issues/54)) ([36cd109](https://github.com/pacharanero/clincalc/commit/36cd10915a8e4e13ec2468392be28041eb767351))
+
+- **calc**: Add hyperglycaemia-corrected sodium (CALC-020) ([#46](https://github.com/pacharanero/clincalc/issues/46)) ([83b8b41](https://github.com/pacharanero/clincalc/commit/83b8b4199c4401dd968eddfb425001c8fee4471a))
+
+### Dependencies
+
+- **deps**: Bump the routine-minor-and-patch group ([#71](https://github.com/pacharanero/clincalc/issues/71)) ([56a7582](https://github.com/pacharanero/clincalc/commit/56a7582d7a2da0f7b02ecbfefef709264a864aec))
+
+- **deps**: Bump tauri-plugin-opener in /gui/src-tauri ([#72](https://github.com/pacharanero/clincalc/issues/72)) ([b34b6ad](https://github.com/pacharanero/clincalc/commit/b34b6addfeee91789b23754c1423382160d1469c))
+
+- **deps**: Bump taiki-e/install-action from 2.86.3 to 2.86.7 in the github-actions-minor-and-patch group ([#67](https://github.com/pacharanero/clincalc/issues/67)) ([18e466a](https://github.com/pacharanero/clincalc/commit/18e466ad6c2d87d6483630109e57b4c8bd5b08be))
+
+- **deps**: Bump the routine-minor-and-patch group ([#68](https://github.com/pacharanero/clincalc/issues/68)) ([0192664](https://github.com/pacharanero/clincalc/commit/0192664b55d1d714301c811b6025a6f5805b4a67))
+
+- **deps**: Bump zensical from 0.0.55 to 0.0.57 ([#57](https://github.com/pacharanero/clincalc/issues/57)) ([e6c6b51](https://github.com/pacharanero/clincalc/commit/e6c6b51dea1e0d3d55354820651351fb7a6f712f))
+
+- **deps**: Upgrade Mantine packages to 9.5.1 ([#50](https://github.com/pacharanero/clincalc/issues/50)) ([05ab1fe](https://github.com/pacharanero/clincalc/commit/05ab1fef9dadf0fff79ad4060eb81105e34c1525))
+
+- **deps**: Bump the routine-minor-and-patch group ([#48](https://github.com/pacharanero/clincalc/issues/48)) ([d954f3b](https://github.com/pacharanero/clincalc/commit/d954f3b5c68cf909b4f2deb215875a58594d1b72))
+
+- **deps**: Bump zensical in / ([#47](https://github.com/pacharanero/clincalc/issues/47)) ([760358a](https://github.com/pacharanero/clincalc/commit/760358a053d01d1e81659821811f0e340b3a0083))
+
+### Documentation
+
+- Clarify development-only positioning ([dde2d90](https://github.com/pacharanero/clincalc/commit/dde2d90902c49ccd720562c086df672242e414d5))
+
+- **roadmap**: Track MedikQuantis parity ([0468eb0](https://github.com/pacharanero/clincalc/commit/0468eb008e4f428b2894c765e8e2e996a177bf63))
+
+- Add contributing-a-translation guide ([#53](https://github.com/pacharanero/clincalc/issues/53)) ([7292305](https://github.com/pacharanero/clincalc/commit/7292305a0273c5527854f51923b7351be784a507))
+
+### Fixed
+
+- **calc**: Pin CHA2DS2-VASc S2 systemic-embolism boundary ([#74](https://github.com/pacharanero/clincalc/issues/74)) ([d24b5cb](https://github.com/pacharanero/clincalc/commit/d24b5cbdff601092571389e9e270edc0ad50a7e6))
+
+- **api**: Correct locale negotiation semantics ([52749e9](https://github.com/pacharanero/clincalc/commit/52749e9a14089950d6279e60fa50956ddb231a01))
+
+- **api**: Satisfy clippy::unnecessary_sort_by on CI's newer toolchain ([d1c12f4](https://github.com/pacharanero/clincalc/commit/d1c12f483d4be1d014c16ec009d9e40c0c205814))
+
 ## [0.3.0] - 2026-08-20
 
 ### Added
@@ -239,4 +341,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 - **calc-cli**: Show real response for inputless calculators ([f6cfb3a](https://github.com/pacharanero/clincalc/commit/f6cfb3aab8b263a95428c805ba58f78abb8b1cae))
 
 - **calc-core,calc-cli**: Templates round-trip for every calculator ([53120ce](https://github.com/pacharanero/clincalc/commit/53120ce86b14e6cf095f51adced7b7bbc37155df))
+
 
