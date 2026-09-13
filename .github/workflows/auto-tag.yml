@@ -7,11 +7,12 @@ name: Auto-tag on version bump
 # the matching `v<version>` tag, run the binary/Homebrew release, then dispatch
 # the crates.io and PyPI publishers at that tag.
 #
-# The cargo-dist workflow remains a reusable workflow. Registry publishers are
-# top-level workflow_dispatch runs because Trusted Publishing identifies the
-# top-level workflow, and PyPI does not support OIDC from reusable workflows.
-# Dispatch is an explicit exception to GitHub's GITHUB_TOKEN anti-recursion
-# guard. This is the auto-tag cascade documented in house style.
+# Release and registry publishers are top-level workflow_dispatch runs. This
+# keeps environment-scoped release secrets in their top-level workflow, and is
+# required for Trusted Publishing because PyPI does not support OIDC from
+# reusable workflows. Dispatch is an explicit exception to GitHub's
+# GITHUB_TOKEN anti-recursion guard. This is the auto-tag cascade documented in
+# house style.
 
 on:
   push:
@@ -148,13 +149,54 @@ jobs:
           exit 1
 
   release:
+    name: Release binaries and Homebrew formula
     needs: tag
     if: needs.tag.outputs.ready == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 125
     permissions:
-      contents: write
-    uses: ./.github/workflows/release.yml
-    with:
-      tag: ${{ needs.tag.outputs.tag }}
+      actions: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ needs.tag.outputs.tag }}
+    steps:
+      - name: Dispatch release and wait for completion
+        run: |
+          payload=$(jq -n --arg tag "$RELEASE_TAG" \
+            '{ref: $tag, inputs: {tag: $tag}, return_run_details: true}')
+          response=$(gh api --method POST \
+            -H "X-GitHub-Api-Version: 2026-03-10" \
+            "/repos/$GITHUB_REPOSITORY/actions/workflows/release.yml/dispatches" \
+            --input - <<<"$payload")
+
+          run_url=$(jq -er '.run_url' <<<"$response")
+          html_url=$(jq -er '.html_url' <<<"$response")
+          echo "Release run: $html_url"
+
+          for _attempt in $(seq 1 720); do
+            if ! run=$(gh api -H "X-GitHub-Api-Version: 2026-03-10" "$run_url"); then
+              sleep 10
+              continue
+            fi
+
+            status=$(jq -r '.status' <<<"$run")
+            if [ "$status" != "completed" ]; then
+              sleep 10
+              continue
+            fi
+
+            conclusion=$(jq -r '.conclusion' <<<"$run")
+            if [ "$conclusion" = "success" ]; then
+              echo "Release completed successfully: $html_url"
+              exit 0
+            fi
+
+            echo "Release concluded with $conclusion: $html_url" >&2
+            exit 1
+          done
+
+          echo "Timed out waiting for release: $html_url" >&2
+          exit 1
 
   publish-packages:
     name: Publish ${{ matrix.registry }}
