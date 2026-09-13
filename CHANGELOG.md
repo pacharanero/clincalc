@@ -4,6 +4,12 @@ All notable changes to `calc` are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.2] - 2026-09-13
+
+### Fixed
+
+- **release**: Unblock distribution without MSI ([7fc1926](https://github.com/pacharanero/clincalc/commit/7fc19268aff94e13bc3da862db0febf722cab139))
+
 ## [0.3.1] - 2026-09-13
 
 ### Added
