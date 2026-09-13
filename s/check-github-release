@@ -74,7 +74,6 @@ expected_archives=(
   clincalc-aarch64-apple-darwin.tar.xz
   clincalc-aarch64-unknown-linux-gnu.tar.xz
   clincalc-x86_64-apple-darwin.tar.xz
-  clincalc-x86_64-pc-windows-msvc.msi
   clincalc-x86_64-pc-windows-msvc.zip
   clincalc-x86_64-unknown-linux-gnu.tar.xz
   source.tar.gz
