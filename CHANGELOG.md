@@ -4,6 +4,12 @@ All notable changes to `calc` are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.3] - 2026-09-13
+
+### Fixed
+
+- **release**: Align validation with shipped artifacts ([90d6d92](https://github.com/pacharanero/clincalc/commit/90d6d92cf717032a17e5d2bc575d56539e928671))
+
 ## [0.3.2] - 2026-09-13
 
 ### Fixed
