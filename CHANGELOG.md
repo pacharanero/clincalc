@@ -4,6 +4,12 @@ All notable changes to `calc` are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.4] - 2026-09-13
+
+### Fixed
+
+- **release**: Accept cargo-dist checksum spacing ([4246b40](https://github.com/pacharanero/clincalc/commit/4246b4090388c00ea2d15bdbc5766a31367be404))
+
 ## [0.3.3] - 2026-09-13
 
 ### Fixed
