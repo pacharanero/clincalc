@@ -376,7 +376,7 @@ dependencies = [
 
 [[package]]
 name = "calc-gui"
-version = "0.3.2"
+version = "0.3.3"
 dependencies = [
  "clincalc",
  "serde",
@@ -485,7 +485,7 @@ dependencies = [
 
 [[package]]
 name = "clincalc"
-version = "0.3.2"
+version = "0.3.3"
 dependencies = [
  "serde",
  "serde_json",
