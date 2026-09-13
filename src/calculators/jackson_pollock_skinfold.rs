@@ -5,14 +5,13 @@
 //!
 //! Caliper-derived body density from three sex-specific skinfold sites, then
 //! converted to body fat percentage by the Siri equation. Jackson & Pollock
-//! (1978) derived the men's equation from 308 and 95 adult men aged 18-61,
-//! validated against hydrostatic (underwater) weighing. Jackson, Pollock &
-//! Ward (1980) derived the women's equation from 249 women aged 18-55 by the
-//! same hydrostatic method, and cautioned that accuracy needs care above age
-//! 40. Both equations report a standard error of estimate of roughly 3-4%
-//! body fat and were developed in largely Caucasian North American samples;
-//! they are not universally validated across all body types, and are known to
-//! progressively underestimate body fat in obese individuals.
+//! (1978) derived the men's equation in 308 men aged 18-61 and cross-validated
+//! it in 95 further men against hydrostatic (underwater) weighing. Jackson,
+//! Pollock & Ward (1980) derived the women's equation in 249 women aged 18-55
+//! and cross-validated it in 82 further women by the same method; they cautioned
+//! that care is needed above age 40. Later reanalysis reported that nearly all
+//! participants were non-Hispanic white and advised against using the quadratic
+//! equations when the three-site sum exceeds 120 mm.
 //!
 //! Men (chest, abdomen, thigh):
 //!   Body density = 1.10938 - 0.0008267 x S + 0.0000016 x S^2 - 0.0002574 x age
@@ -25,8 +24,8 @@
 //! equation: %BF = (495 / body density) - 450.
 //!
 //! Each skinfold is a vertical or diagonal pinch of skin and subcutaneous fat
-//! (not muscle), read to the nearest 0.5 mm on a calibrated caliper roughly
-//! one second after the jaws close, always on the right side of the body:
+//! (not muscle), measured by a trained assessor using a calibrated caliper and
+//! a consistent standardised protocol:
 //! - Chest: diagonal fold, halfway between the anterior axillary line and the
 //!   nipple.
 //! - Abdomen: vertical fold, 2 cm to the right of the umbilicus.
@@ -43,7 +42,10 @@
 //! equations for predicting body density of women. Med Sci Sports Exerc.
 //! 1980;12(3):175-181. Siri WE. Body composition from fluid spaces and
 //! density: analysis of methods. 1961. Reprinted in Nutrition.
-//! 1993;9(5):480-491; discussion 480, 492.
+//! 1993;9(5):480-491; discussion 480, 492. Nevill AM, Metsios GS, Jackson AS,
+//! et al. Can we use the Jackson and Pollock equations to predict body
+//! density/fat of obese individuals in the 21st century? Int J Body Compos Res.
+//! 2008;6(3):114-121. PMID:20582331.
 
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value, json};
@@ -54,7 +56,7 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "jackson_pollock_skinfold";
 
-pub const REFERENCE: &str = "Jackson AS, Pollock ML. Generalized equations for predicting body density of men. Br J Nutr. 1978;40(3):497-504. doi:10.1079/bjn19780152. Jackson AS, Pollock ML, Ward A. Generalized equations for predicting body density of women. Med Sci Sports Exerc. 1980;12(3):175-181. Siri WE. Body composition from fluid spaces and density: analysis of methods. 1961. Reprinted in Nutrition. 1993;9(5):480-491; discussion 480, 492.";
+pub const REFERENCE: &str = "Jackson AS, Pollock ML. Generalized equations for predicting body density of men. Br J Nutr. 1978;40(3):497-504. doi:10.1079/bjn19780152. Jackson AS, Pollock ML, Ward A. Generalized equations for predicting body density of women. Med Sci Sports Exerc. 1980;12(3):175-181. PMID:7402053. Siri WE. Body composition from fluid spaces and density: analysis of methods. 1961. Reprinted in Nutrition. 1993;9(5):480-491; discussion 480, 492. Nevill AM, Metsios GS, Jackson AS, et al. Can we use the Jackson and Pollock equations to predict body density/fat of obese individuals in the 21st century? Int J Body Compos Res. 2008;6(3):114-121. PMID:20582331.";
 
 pub const LICENSE: CalculatorLicense = CalculatorLicense {
     license: "Published mathematical method - independently implemented; formulas and algorithms are not protected by US copyright",
@@ -69,26 +71,20 @@ pub enum Sex {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct JacksonPollockSkinfoldInput {
-    pub sex: Sex,
-    /// Age in years; restricted to each equation's validation cohort range.
-    pub age_years: u32,
-    /// Anterior thigh skinfold in mm, midway between patella and inguinal
-    /// crease. Required for both sexes.
-    pub thigh_mm: f64,
-    /// Chest skinfold in mm, diagonal, halfway between the anterior axillary
-    /// line and the nipple. Required for male; not used for female.
-    pub chest_mm: Option<f64>,
-    /// Abdominal skinfold in mm, vertical, 2 cm right of the umbilicus.
-    /// Required for male; not used for female.
-    pub abdomen_mm: Option<f64>,
-    /// Triceps skinfold in mm, vertical, midway between acromion and
-    /// olecranon. Required for female; not used for male.
-    pub triceps_mm: Option<f64>,
-    /// Suprailiac skinfold in mm, diagonal, immediately above the iliac
-    /// crest. Required for female; not used for male.
-    pub suprailiac_mm: Option<f64>,
+#[serde(tag = "sex", rename_all = "lowercase", deny_unknown_fields)]
+pub enum JacksonPollockSkinfoldInput {
+    Male {
+        age_years: u32,
+        thigh_mm: f64,
+        chest_mm: f64,
+        abdomen_mm: f64,
+    },
+    Female {
+        age_years: u32,
+        thigh_mm: f64,
+        triceps_mm: f64,
+        suprailiac_mm: f64,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -100,55 +96,73 @@ pub struct JacksonPollockSkinfoldOutcome {
 }
 
 const SKINFOLD_RANGE_MM: std::ops::RangeInclusive<f64> = 2.0..=100.0;
+const MAX_SUM_SKINFOLDS_MM: f64 = 120.0;
 
-fn require_skinfold(value: Option<f64>, field: &str) -> Result<f64, CalcError> {
-    let v = value.ok_or_else(|| CalcError::InvalidInput(format!("{field} is required")))?;
-    if !SKINFOLD_RANGE_MM.contains(&v) || !v.is_finite() {
+fn validate_skinfold(value: f64, field: &str) -> Result<(), CalcError> {
+    if !SKINFOLD_RANGE_MM.contains(&value) || !value.is_finite() {
         return Err(CalcError::InvalidInput(format!(
             "{field} must be finite and between 2 and 100 mm"
         )));
     }
-    Ok(v)
+    Ok(())
 }
 
 pub fn compute(
     input: &JacksonPollockSkinfoldInput,
 ) -> Result<JacksonPollockSkinfoldOutcome, CalcError> {
-    if !SKINFOLD_RANGE_MM.contains(&input.thigh_mm) || !input.thigh_mm.is_finite() {
-        return Err(CalcError::InvalidInput(
-            "thigh_mm must be finite and between 2 and 100 mm".into(),
-        ));
-    }
+    let (
+        sex,
+        age_years,
+        sum,
+        age_range,
+        age_coefficient,
+        constant,
+        linear_coefficient,
+        quadratic_coefficient,
+    ) = match *input {
+        JacksonPollockSkinfoldInput::Male {
+            age_years,
+            thigh_mm,
+            chest_mm,
+            abdomen_mm,
+        } => {
+            validate_skinfold(thigh_mm, "thigh_mm")?;
+            validate_skinfold(chest_mm, "chest_mm")?;
+            validate_skinfold(abdomen_mm, "abdomen_mm")?;
+            (
+                Sex::Male,
+                age_years,
+                chest_mm + abdomen_mm + thigh_mm,
+                18..=61,
+                0.0002574,
+                1.10938,
+                0.0008267,
+                0.0000016,
+            )
+        }
+        JacksonPollockSkinfoldInput::Female {
+            age_years,
+            thigh_mm,
+            triceps_mm,
+            suprailiac_mm,
+        } => {
+            validate_skinfold(thigh_mm, "thigh_mm")?;
+            validate_skinfold(triceps_mm, "triceps_mm")?;
+            validate_skinfold(suprailiac_mm, "suprailiac_mm")?;
+            (
+                Sex::Female,
+                age_years,
+                triceps_mm + suprailiac_mm + thigh_mm,
+                18..=55,
+                0.0001392,
+                1.0994921,
+                0.0009929,
+                0.0000023,
+            )
+        }
+    };
 
-    let (sum, age_range, age_coefficient, constant, linear_coefficient, quadratic_coefficient) =
-        match input.sex {
-            Sex::Male => {
-                let chest = require_skinfold(input.chest_mm, "chest_mm")?;
-                let abdomen = require_skinfold(input.abdomen_mm, "abdomen_mm")?;
-                (
-                    chest + abdomen + input.thigh_mm,
-                    18..=61,
-                    0.0002574,
-                    1.10938,
-                    0.0008267,
-                    0.0000016,
-                )
-            }
-            Sex::Female => {
-                let triceps = require_skinfold(input.triceps_mm, "triceps_mm")?;
-                let suprailiac = require_skinfold(input.suprailiac_mm, "suprailiac_mm")?;
-                (
-                    triceps + suprailiac + input.thigh_mm,
-                    18..=55,
-                    0.0001392,
-                    1.0994921,
-                    0.0009929,
-                    0.0000023,
-                )
-            }
-        };
-
-    if !age_range.contains(&input.age_years) {
+    if !age_range.contains(&age_years) {
         return Err(CalcError::InvalidInput(format!(
             "age_years must be between {} and {} - the range evaluated in the validation cohort for this sex",
             age_range.start(),
@@ -156,7 +170,13 @@ pub fn compute(
         )));
     }
 
-    let age = input.age_years as f64;
+    if sum > MAX_SUM_SKINFOLDS_MM {
+        return Err(CalcError::InvalidInput(
+            "sum of the three skinfolds must not exceed 120 mm - later validation found that the Jackson-Pollock quadratic equations underestimate body fat above this boundary".into(),
+        ));
+    }
+
+    let age = age_years as f64;
     let body_density = constant - linear_coefficient * sum + quadratic_coefficient * sum * sum
         - age_coefficient * age;
 
@@ -174,13 +194,13 @@ pub fn compute(
         ));
     }
 
-    let sex_label = match input.sex {
+    let sex_label = match sex {
         Sex::Male => "male",
         Sex::Female => "female",
     };
 
     let interpretation = format!(
-        "Estimated body fat {body_fat_percent:.1}% by the Jackson-Pollock 3-site skinfold method ({sex_label}), converting predicted body density to fat percentage via the Siri equation. The source regression equations report a standard error of roughly 3-4% body fat against hydrostatic weighing in largely Caucasian North American adults, and Jackson, Pollock & Ward advised particular care applying the women's equation above age 40. These equations are known to progressively underestimate body fat in obese individuals and are not universally validated across all body types or ethnicities; accuracy also depends on measurement technique and inter-rater consistency."
+        "Estimated body fat {body_fat_percent:.1}% by the Jackson-Pollock 3-site skinfold method ({sex_label}), converting predicted body density to fat percentage via the Siri equation. In cross-validation, the men's source reported a body-density standard error of 0.0077 g/mL; the women's source reported 3.7-4.0 percentage points across its equations. These model-level errors are not individual accuracy bounds. The source samples were nearly all non-Hispanic white, the women's source advised care above age 40, and later evidence found underestimation above a 120 mm three-site sum. Accuracy also depends on trained measurement technique and inter-rater consistency. This is an estimate, not a direct body-composition measurement, diagnosis, or treatment rule."
     );
 
     Ok(JacksonPollockSkinfoldOutcome {
@@ -198,17 +218,30 @@ pub fn build_response(
     let rounded_bf = round1(o.body_fat_percent);
 
     let mut working = Map::new();
-    working.insert("sex".into(), json!(input.sex));
-    working.insert("age_years".into(), json!(input.age_years));
-    working.insert("thigh_mm".into(), json!(input.thigh_mm));
-    match input.sex {
-        Sex::Male => {
-            working.insert("chest_mm".into(), json!(input.chest_mm));
-            working.insert("abdomen_mm".into(), json!(input.abdomen_mm));
+    match *input {
+        JacksonPollockSkinfoldInput::Male {
+            age_years,
+            thigh_mm,
+            chest_mm,
+            abdomen_mm,
+        } => {
+            working.insert("sex".into(), json!(Sex::Male));
+            working.insert("age_years".into(), json!(age_years));
+            working.insert("thigh_mm".into(), json!(thigh_mm));
+            working.insert("chest_mm".into(), json!(chest_mm));
+            working.insert("abdomen_mm".into(), json!(abdomen_mm));
         }
-        Sex::Female => {
-            working.insert("triceps_mm".into(), json!(input.triceps_mm));
-            working.insert("suprailiac_mm".into(), json!(input.suprailiac_mm));
+        JacksonPollockSkinfoldInput::Female {
+            age_years,
+            thigh_mm,
+            triceps_mm,
+            suprailiac_mm,
+        } => {
+            working.insert("sex".into(), json!(Sex::Female));
+            working.insert("age_years".into(), json!(age_years));
+            working.insert("thigh_mm".into(), json!(thigh_mm));
+            working.insert("triceps_mm".into(), json!(triceps_mm));
+            working.insert("suprailiac_mm".into(), json!(suprailiac_mm));
         }
     }
     working.insert("sum_skinfolds_mm".into(), json!(o.sum_skinfolds_mm));
@@ -244,7 +277,7 @@ impl Calculator for JacksonPollockSkinfold {
     }
 
     fn description(&self) -> &'static str {
-        "Caliper-derived body fat percentage from three sex-specific skinfold sites (chest, abdomen, thigh for men; triceps, suprailiac, thigh for women) via the Jackson-Pollock generalized body density equations and the Siri conversion. Standard error ~3-4% against hydrostatic weighing; not universally validated across all body types."
+        "Caliper-derived body fat estimate from three sex-specific skinfold sites via the Jackson-Pollock generalized body-density equations and Siri conversion. Restricted to the source age ranges and a three-site sum of at most 120 mm; model error is not an individual accuracy bound."
     }
 
     fn reference(&self) -> &'static str {
@@ -259,10 +292,29 @@ impl Calculator for JacksonPollockSkinfold {
         json!({
             "$schema": "https://json-schema.org/draft/2020-12/schema",
             "title": "JacksonPollockSkinfoldInput",
-            "description": "Jackson-Pollock 3-site skinfold body fat percentage. Men supply chest_mm and abdomen_mm; women supply triceps_mm and suprailiac_mm; both supply thigh_mm. Age is restricted to each equation's validation cohort (men 18-61, women 18-55); the women's equation additionally warrants care above age 40 per the source study.",
+            "description": "Jackson-Pollock 3-site skinfold body fat estimate. Supply exactly the site measurements for the selected sex, obtained by a trained assessor with a calibrated caliper and consistent standardised technique. Restricted to the source age ranges (men 18-61, women 18-55) and a three-site sum of at most 120 mm; the women's source additionally advises care above age 40.",
             "type": "object",
             "additionalProperties": false,
-            "required": ["sex", "age_years", "thigh_mm"],
+            "oneOf": [
+                {
+                    "title": "Male equation",
+                    "properties": { "sex": { "const": "male" } },
+                    "required": ["sex", "age_years", "thigh_mm", "chest_mm", "abdomen_mm"],
+                    "not": { "anyOf": [
+                        { "required": ["triceps_mm"] },
+                        { "required": ["suprailiac_mm"] }
+                    ] }
+                },
+                {
+                    "title": "Female equation",
+                    "properties": { "sex": { "const": "female" } },
+                    "required": ["sex", "age_years", "thigh_mm", "triceps_mm", "suprailiac_mm"],
+                    "not": { "anyOf": [
+                        { "required": ["chest_mm"] },
+                        { "required": ["abdomen_mm"] }
+                    ] }
+                }
+            ],
             "properties": {
                 "sex": {
                     "type": "string",
@@ -273,48 +325,65 @@ impl Calculator for JacksonPollockSkinfold {
                     "type": "integer",
                     "minimum": 18,
                     "maximum": 61,
-                    "description": "Age in years. Validated range is 18-61 for the male equation and 18-55 for the female equation; out-of-range values for the selected sex are rejected."
+                    "description": "Age in completed years. Source range: 18-61 for the male equation and 18-55 for the female equation; out-of-range values for the selected sex are rejected."
                 },
                 "thigh_mm": {
                     "type": "number",
                     "minimum": 2,
                     "maximum": 100,
                     "unit": "mm",
-                    "description": "Anterior thigh skinfold in mm: vertical fold on the anterior midline, midway between the proximal border of the patella and the inguinal crease. Required for both sexes."
+                    "description": "Anterior thigh skinfold in mm: vertical fold on the anterior midline, midway between the proximal border of the patella and the inguinal crease. Measure with a calibrated caliper and consistent standardised technique. The 2-100 mm per-site bounds are broad input-safety guards; the three-site sum must not exceed the later evidence-based 120 mm boundary."
                 },
                 "chest_mm": {
-                    "type": ["number", "null"],
+                    "type": "number",
                     "minimum": 2,
                     "maximum": 100,
                     "unit": "mm",
-                    "description": "Chest skinfold in mm: diagonal fold halfway between the anterior axillary line and the nipple. Required for male, ignored for female."
+                    "description": "Male equation only. Chest skinfold in mm: diagonal fold halfway between the anterior axillary line and the nipple."
                 },
                 "abdomen_mm": {
-                    "type": ["number", "null"],
+                    "type": "number",
                     "minimum": 2,
                     "maximum": 100,
                     "unit": "mm",
-                    "description": "Abdominal skinfold in mm: vertical fold 2 cm to the right of the umbilicus. Required for male, ignored for female."
+                    "description": "Male equation only. Abdominal skinfold in mm: vertical fold 2 cm to the right of the umbilicus."
                 },
                 "triceps_mm": {
-                    "type": ["number", "null"],
+                    "type": "number",
                     "minimum": 2,
                     "maximum": 100,
                     "unit": "mm",
-                    "description": "Triceps skinfold in mm: vertical fold on the posterior midline of the upper arm, midway between the acromion and olecranon processes. Required for female, ignored for male."
+                    "description": "Female equation only. Triceps skinfold in mm: vertical fold on the posterior midline of the upper arm, midway between the acromion and olecranon processes."
                 },
                 "suprailiac_mm": {
-                    "type": ["number", "null"],
+                    "type": "number",
                     "minimum": 2,
                     "maximum": 100,
                     "unit": "mm",
-                    "description": "Suprailiac skinfold in mm: diagonal fold immediately above the iliac crest, following its natural angle. Required for female, ignored for male."
+                    "description": "Female equation only. Suprailiac skinfold in mm: diagonal fold immediately above the iliac crest at the anterior axillary line, following its natural angle."
                 }
             }
         })
     }
 
     fn calculate(&self, input: &Value) -> Result<CalculationResponse, CalcError> {
+        if let Some(field) = input.as_object().and_then(|object| {
+            object.keys().find(|field| {
+                !matches!(
+                    field.as_str(),
+                    "sex"
+                        | "age_years"
+                        | "thigh_mm"
+                        | "chest_mm"
+                        | "abdomen_mm"
+                        | "triceps_mm"
+                        | "suprailiac_mm"
+                )
+            })
+        }) {
+            return Err(CalcError::InvalidInput(format!("unknown field `{field}`")));
+        }
+
         let parsed: JacksonPollockSkinfoldInput = serde_json::from_value(input.clone())
             .map_err(|e| CalcError::InvalidInput(e.to_string()))?;
         build_response(&parsed)
@@ -326,96 +395,41 @@ mod tests {
     use super::*;
 
     fn male(age: u32, chest: f64, abdomen: f64, thigh: f64) -> JacksonPollockSkinfoldInput {
-        JacksonPollockSkinfoldInput {
-            sex: Sex::Male,
+        JacksonPollockSkinfoldInput::Male {
             age_years: age,
             thigh_mm: thigh,
-            chest_mm: Some(chest),
-            abdomen_mm: Some(abdomen),
-            triceps_mm: None,
-            suprailiac_mm: None,
+            chest_mm: chest,
+            abdomen_mm: abdomen,
         }
     }
 
     fn female(age: u32, triceps: f64, suprailiac: f64, thigh: f64) -> JacksonPollockSkinfoldInput {
-        JacksonPollockSkinfoldInput {
-            sex: Sex::Female,
+        JacksonPollockSkinfoldInput::Female {
             age_years: age,
             thigh_mm: thigh,
-            chest_mm: None,
-            abdomen_mm: None,
-            triceps_mm: Some(triceps),
-            suprailiac_mm: Some(suprailiac),
+            triceps_mm: triceps,
+            suprailiac_mm: suprailiac,
         }
     }
 
     #[test]
     fn male_equation_conformance_vector() {
-        // Sum = 15 + 20 + 15 = 50 mm, age 30.
-        let sum: f64 = 50.0;
-        let age: f64 = 30.0;
-        let expected_density = 1.10938 - 0.0008267 * sum + 0.0000016 * sum * sum - 0.0002574 * age;
-        let expected_bf = 495.0 / expected_density - 450.0;
-
+        // Fixed regression vector independently calculated from Jackson &
+        // Pollock (1978) equation and Siri (1961), not recomputed in the test.
         let o = compute(&male(30, 15.0, 20.0, 15.0)).unwrap();
-        assert!((o.sum_skinfolds_mm - sum).abs() < 1e-9);
-        assert!(
-            (o.body_density - expected_density).abs() < 1e-12,
-            "got {}",
-            o.body_density
-        );
-        assert!(
-            (o.body_fat_percent - expected_bf).abs() < 1e-9,
-            "got {} vs {}",
-            o.body_fat_percent,
-            expected_bf
-        );
+        assert!((o.sum_skinfolds_mm - 50.0).abs() < 1e-9);
+        assert!((o.body_density - 1.064323).abs() < 1e-12);
+        assert!((o.body_fat_percent - 15.084377580865919).abs() < 1e-9);
     }
 
     #[test]
     fn female_equation_conformance_vector() {
-        // Sum = 18 + 22 + 25 = 65 mm, age 35.
-        let sum: f64 = 65.0;
-        let age: f64 = 35.0;
-        let expected_density =
-            1.0994921 - 0.0009929 * sum + 0.0000023 * sum * sum - 0.0001392 * age;
-        let expected_bf = 495.0 / expected_density - 450.0;
-
+        // Fixed regression vector independently calculated from Jackson,
+        // Pollock & Ward (1980) equation and Siri (1961).
         let o = compute(&female(35, 18.0, 22.0, 25.0)).unwrap();
-        assert!((o.sum_skinfolds_mm - sum).abs() < 1e-9);
-        assert!(
-            (o.body_density - expected_density).abs() < 1e-12,
-            "got {}",
-            o.body_density
-        );
-        assert!(
-            (o.body_fat_percent - expected_bf).abs() < 1e-9,
-            "got {} vs {}",
-            o.body_fat_percent,
-            expected_bf
-        );
-    }
-
-    #[test]
-    fn male_requires_chest_and_abdomen() {
-        let mut input = male(30, 15.0, 20.0, 15.0);
-        input.chest_mm = None;
-        assert!(compute(&input).is_err());
-
-        let mut input = male(30, 15.0, 20.0, 15.0);
-        input.abdomen_mm = None;
-        assert!(compute(&input).is_err());
-    }
-
-    #[test]
-    fn female_requires_triceps_and_suprailiac() {
-        let mut input = female(30, 15.0, 20.0, 15.0);
-        input.triceps_mm = None;
-        assert!(compute(&input).is_err());
-
-        let mut input = female(30, 15.0, 20.0, 15.0);
-        input.suprailiac_mm = None;
-        assert!(compute(&input).is_err());
+        assert!((o.sum_skinfolds_mm - 65.0).abs() < 1e-9);
+        assert!((o.body_density - 1.0397991).abs() < 1e-12);
+        assert!((o.body_fat_percent - 26.05349918075524).abs() < 1e-9);
     }
 
     #[test]
@@ -442,15 +456,20 @@ mod tests {
     }
 
     #[test]
+    fn rejects_sum_above_later_validation_boundary() {
+        assert!(compute(&male(30, 40.0, 40.0, 40.0)).is_ok());
+        assert!(compute(&male(30, 40.0, 40.0, 40.1)).is_err());
+        assert!(compute(&female(30, 40.0, 40.0, 40.1)).is_err());
+    }
+
+    #[test]
     fn dynamic_calculate_matches_typed() {
         let value = json!({
             "sex": "male",
             "age_years": 30,
             "thigh_mm": 15.0,
             "chest_mm": 15.0,
-            "abdomen_mm": 20.0,
-            "triceps_mm": null,
-            "suprailiac_mm": null
+            "abdomen_mm": 20.0
         });
         let dynamic = JacksonPollockSkinfold.calculate(&value).unwrap();
         let typed = build_response(&male(30, 15.0, 20.0, 15.0)).unwrap();
@@ -471,6 +490,19 @@ mod tests {
     }
 
     #[test]
+    fn dynamic_surface_rejects_wrong_equation_fields() {
+        let invalid = json!({
+            "sex": "male",
+            "age_years": 30,
+            "thigh_mm": 15.0,
+            "chest_mm": 15.0,
+            "abdomen_mm": 20.0,
+            "triceps_mm": 18.0
+        });
+        assert!(JacksonPollockSkinfold.calculate(&invalid).is_err());
+    }
+
+    #[test]
     fn response_preserves_inputs_and_equation_working() {
         let response = build_response(&male(30, 15.0, 20.0, 15.0)).unwrap();
         assert_eq!(response.working["sex"], json!("male"));
@@ -483,7 +515,11 @@ mod tests {
         assert_eq!(response.working["sum_skinfolds_mm"], json!(50.0));
         assert_eq!(response.result, response.working["body_fat_percent"]);
         assert!(response.interpretation.contains("Siri equation"));
-        assert!(response.interpretation.contains("3-4% body fat"));
+        assert!(
+            response
+                .interpretation
+                .contains("not individual accuracy bounds")
+        );
     }
 
     #[test]
@@ -493,5 +529,13 @@ mod tests {
         assert_eq!(schema["properties"]["chest_mm"]["unit"], json!("mm"));
         let description = schema["description"].as_str().unwrap();
         assert!(description.contains("men 18-61, women 18-55"));
+        assert_eq!(
+            schema["oneOf"][0]["properties"]["sex"]["const"],
+            json!("male")
+        );
+        let template = JacksonPollockSkinfold.input_template();
+        assert!(template.get("chest_mm").is_some());
+        assert!(template.get("abdomen_mm").is_some());
+        assert!(template.get("triceps_mm").is_none());
     }
 }
