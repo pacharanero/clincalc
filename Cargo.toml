@@ -75,13 +75,16 @@ eula = false
 exclude = ["gui/src-tauri", "python"]
 
 # cargo-dist builds and ships the `clincalc` binary (archives + shell / powershell /
-# homebrew / msi installers) from the vX.Y.Z tag. Regenerate
+# homebrew installers) from the vX.Y.Z tag. Regenerate
 # .github/workflows/release.yml with `dist generate --mode ci` after config
 # edits. Version pinned to the house-style known-good line.
 [workspace.metadata.dist]
 cargo-dist-version = "0.31.0"
 ci = "github"
-installers = ["shell", "powershell", "homebrew", "msi"]
+# The custom legal-sidecar WiX fragment currently fails under cargo-dist's
+# captured Candle invocation. Keep Windows ZIP/PowerShell distribution live
+# while REL-005 restores MSI packaging with its required notices.
+installers = ["shell", "powershell", "homebrew"]
 targets = [
     "aarch64-apple-darwin",
     "aarch64-unknown-linux-gnu",

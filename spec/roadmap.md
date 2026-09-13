@@ -16,6 +16,10 @@ Completed items are removed from this file rather than kept as a historical chan
 
 ## Distribution & release
 
+### In-progress
+
+- [~] **REL-005 Restore the Windows CLI MSI** - cargo-dist's WiX build fails while compiling `wix/legal.wxs`, and cargo-dist 0.31.0 captures the underlying Candle diagnostic. Windows ZIP and PowerShell installation remain available. Restore MSI only after reproducing the compiler error with uncaptured output and verifying that `LICENSE`, `third-party-notices.md`, and the required licence texts ship in the installer.
+
 ### Planned
 
 - [ ] **REL-002 Windows code-signing** - EV cert from Sectigo / SSL.com once procured. The cert covers `sct`, `dsc`, **and** `clincalc` in one purchase; see [`gui.md`](gui.md#windows-code-signing). Until then the GUI installer triggers SmartScreen on first run.
