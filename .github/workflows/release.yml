@@ -39,15 +39,8 @@ permissions:
 # If there's a prerelease-style suffix to the version, then the release(s)
 # will be marked as a prerelease.
 on:
-  # Invoked by auto-tag.yml (workflow_call) after a version bump lands on main -
-  # the auto-tag cascade documented in ~/code/house-style/distribution.md. Still
-  # runs on a manual tag push and on PRs (as a dry-run plan).
-  workflow_call:
-    inputs:
-      tag:
-        description: "Tag to release, e.g. v0.1.0"
-        required: true
-        type: string
+  # Dispatched at the release tag by auto-tag.yml after a version bump lands on
+  # main. Still runs on a manual tag push and on PRs (as a dry-run plan).
   workflow_dispatch:
     inputs:
       tag:
