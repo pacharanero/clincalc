@@ -197,6 +197,15 @@ pub const TAGS: &[(&str, &[&str])] = &[
         "skeletal_muscle_mass_index",
         &["primary-care", "geriatrics", "musculoskeletal", "screening"],
     ),
+    (
+        "jackson_pollock_skinfold",
+        &[
+            "primary-care",
+            "endocrinology",
+            "musculoskeletal",
+            "screening",
+        ],
+    ),
     ("max_heart_rate", &["primary-care", "screening"]),
     ("one_rep_max", &["primary-care", "musculoskeletal"]),
     (

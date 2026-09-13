@@ -72,6 +72,7 @@ pub mod hinchey;
 pub mod homa_ir;
 pub mod ipss;
 pub mod isth_overt_dic;
+pub mod jackson_pollock_skinfold;
 pub mod khorana;
 pub mod ldl_cholesterol;
 pub mod lrinec;

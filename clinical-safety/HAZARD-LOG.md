@@ -254,7 +254,7 @@ controls:
   - id: C019
     description: "Integer arithmetic is used for integer scores; explicit banding/threshold tests assert the correct band on both sides of each cutoff."
   - id: C020
-    description: "Regression-derived estimates with poor individual agreement are labelled as estimates rather than measurements, retain later validation evidence in every interpretation, exclude unsupported diagnostic cut-points, and constrain inputs to a source-observed validation envelope."
+    description: "Regression-derived estimates with poor individual agreement are labelled as estimates rather than measurements, retain later validation evidence in every interpretation, exclude unsupported diagnostic cut-points, and constrain inputs to an evidence-supported validation envelope. Jackson-Pollock additionally requires exactly the sex-specific measurement sites and rejects three-site sums above the later-validated 120 mm boundary."
   - id: C021
     description: "FFMI reports the Kouri male-athlete subgroup's observed maximum only as preliminary study context, does not emit a threshold classification or natural-limit flag, and states that the value is not diagnostic, a biological limit, or proof of steroid use."
   - id: C022
@@ -276,9 +276,9 @@ controls:
 | **Project** | clincalc - open library of clinical calculators |
 | **Classification** | PUBLIC (open-source project) |
 | **Status** | DRAFT |
-| **Version** | 0.1.5 |
+| **Version** | 0.1.6 |
 | **Created Date** | 2026-07-03 |
-| **Last Modified** | 2026-09-12 |
+| **Last Modified** | 2026-09-13 |
 | **Review Cycle** | Monthly (hazard logs are *living* documents) |
 | **Next Review Date** | 2026-09-30 |
 | **Owner** | Marcus Baw, Maintainer / Product Owner (Baw Medical Ltd) |
@@ -339,7 +339,7 @@ controls:
 | C017 | CHANGELOG + SemVer + single-sourced version; CSO-owned review cadence against current guidelines |
 | C018 | Boundary-case literature vectors exercise banding cutoffs; a threshold flip fails a test |
 | C019 | Integer arithmetic for integer scores; explicit banding tests on both sides of each cutoff |
-| C020 | Poor-agreement regression outputs are labelled as estimates, carry later validation limitations, omit unsupported diagnostic cut-points, and accept only a source-observed validation envelope |
+| C020 | Poor-agreement regression outputs are labelled as estimates, carry later validation limitations, omit unsupported diagnostic cut-points, and use evidence-supported input envelopes; Jackson-Pollock requires exact sex-specific sites and a three-site sum <=120 mm |
 | C021 | FFMI retains the Kouri male-athlete subgroup's observed maximum only as preliminary study context, emits no threshold classification or natural-limit flag, and states that it is not diagnostic, a biological limit, or proof of steroid use |
 | C022 | SMI requires age >=65, whole-body DXA ALM, and contemporaneous measured height/weight; reports EWGSOP2 and FNIH classifications separately without a normal or overall diagnostic label; states that muscle quantity alone cannot diagnose or exclude sarcopenia |
 | C023 | Protein intake requires an adult healthy, non-energy-restricted source-context attestation; separates the prudent 2.2 g/kg/day amount from the uncertain breakpoint; retains model and population limits; states that the CI is not a target range and 2.2 is not a safety ceiling |
