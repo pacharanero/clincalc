@@ -1187,17 +1187,26 @@ fn emit(
     Ok(())
 }
 
-/// Labelled `key: value` lines for every entered input, or an explicit
-/// "(none)" marker - so a pasted result never silently omits the inputs that
-/// produced it (see `spec/roadmap.md` ENG-006.6).
-fn push_input_lines(out: &mut String, input: &serde_json::Value) {
-    match input.as_object() {
-        Some(map) if !map.is_empty() => {
-            for (k, v) in map {
-                out.push_str(&format!("\n  {k}: {}", value_to_string(v)));
-            }
+/// Appends `\n  key: value` lines for every entry in `map` (skipping
+/// `skip_key` if given), or an explicit `" (none)"` marker if none remain -
+/// so a pasted result never silently omits the data that produced it (see
+/// `spec/roadmap.md` ENG-006.6). Shared by the Inputs and Working sections of
+/// [`render_text`], which otherwise differ only in that heading and filter.
+fn push_text_key_value_lines(
+    out: &mut String,
+    map: Option<&serde_json::Map<String, serde_json::Value>>,
+    skip_key: Option<&str>,
+) {
+    let mut wrote_any = false;
+    for (k, v) in map.into_iter().flatten() {
+        if Some(k.as_str()) == skip_key {
+            continue;
         }
-        _ => out.push_str(" (none)"),
+        out.push_str(&format!("\n  {k}: {}", value_to_string(v)));
+        wrote_any = true;
+    }
+    if !wrote_any {
+        out.push_str(" (none)");
     }
 }
 
@@ -1221,19 +1230,14 @@ fn render_text(
         SupportedLocale::Ca => "Entrades",
     };
     out.push_str(&format!("\n\n{inputs_label}:"));
-    push_input_lines(&mut out, input);
+    push_text_key_value_lines(&mut out, input.as_object(), None);
     if !r.working.is_empty() {
         out.push_str(match locale {
             SupportedLocale::En => "\n\nWorking:",
             SupportedLocale::Es => "\n\nDesglose:",
             SupportedLocale::Ca => "\n\nDesglossament:",
         });
-        for (k, v) in &r.working {
-            if k == "result_label" {
-                continue;
-            }
-            out.push_str(&format!("\n  {k}: {}", value_to_string(v)));
-        }
+        push_text_key_value_lines(&mut out, Some(&r.working), Some("result_label"));
     }
     let reference_label = match locale {
         SupportedLocale::En => "Reference",
@@ -1271,18 +1275,7 @@ fn render_markdown(
         SupportedLocale::Ca => "Entrades",
     };
     out.push_str(&format!("\n### {inputs_heading}\n\n"));
-    match input.as_object() {
-        Some(map) if !map.is_empty() => {
-            for (k, v) in map {
-                out.push_str(&format!(
-                    "- **{}:** {}\n",
-                    escape_markdown_inline(k),
-                    escape_markdown_inline(&value_to_string(v))
-                ));
-            }
-        }
-        _ => out.push_str("_(none)_\n"),
-    }
+    push_markdown_key_value_lines(&mut out, input.as_object(), None);
     if !r.working.is_empty() {
         let working_heading = match locale {
             SupportedLocale::En => "Working",
@@ -1290,16 +1283,7 @@ fn render_markdown(
             SupportedLocale::Ca => "Desglossament",
         };
         out.push_str(&format!("\n### {working_heading}\n\n"));
-        for (k, v) in &r.working {
-            if k == "result_label" {
-                continue;
-            }
-            out.push_str(&format!(
-                "- **{}:** {}\n",
-                escape_markdown_inline(k),
-                escape_markdown_inline(&value_to_string(v))
-            ));
-        }
+        push_markdown_key_value_lines(&mut out, Some(&r.working), Some("result_label"));
     }
     let reference_label = match locale {
         SupportedLocale::En => "Reference",
@@ -1316,6 +1300,33 @@ fn render_markdown(
         escape_markdown_inline(&r.calculator)
     ));
     out
+}
+
+/// Appends `- **key:** value\n` bullet lines (Markdown-escaped) for every
+/// entry in `map` (skipping `skip_key` if given), or an explicit `_(none)_`
+/// marker if none remain. The Markdown counterpart of
+/// [`push_text_key_value_lines`], shared by the Inputs and Working sections
+/// of [`render_markdown`].
+fn push_markdown_key_value_lines(
+    out: &mut String,
+    map: Option<&serde_json::Map<String, serde_json::Value>>,
+    skip_key: Option<&str>,
+) {
+    let mut wrote_any = false;
+    for (k, v) in map.into_iter().flatten() {
+        if Some(k.as_str()) == skip_key {
+            continue;
+        }
+        out.push_str(&format!(
+            "- **{}:** {}\n",
+            escape_markdown_inline(k),
+            escape_markdown_inline(&value_to_string(v))
+        ));
+        wrote_any = true;
+    }
+    if !wrote_any {
+        out.push_str("_(none)_\n");
+    }
 }
 
 fn render_markdown_reference(reference: &str) -> String {
