@@ -129,9 +129,9 @@ This is separate from the licence of the original `clincalc` code (AGPL-3.0-or-l
 
 Output format for computed results, `list`, `tags`, and `version`.
 
-- `text` (default) - a clinician-facing block: result, interpretation, working, reference. Designed for the clipboard. Calculators may provide a more helpful headline label than their machine name, for example `BMR/RMR`, `TDEE`, or `Target intake` for `energy_requirement`.
+- `text` (default) - a clinician-facing block: result, interpretation, the entered inputs, working, and reference, with a trailing `clincalc <version> - <calculator>` line. Designed for the clipboard, and self-contained enough that a pasted result can be traced back to the exact inputs, calculator, and engine version that produced it (see `CalculationResponse::to_summary_text`). Calculators may provide a more helpful headline label than their machine name, for example `BMR/RMR`, `TDEE`, or `Target intake` for `energy_requirement`.
 - `json` - the `CalculationResponse` structure as machine-readable JSON. The same shape every surface (CLI, MCP, GUI) produces.
-- `markdown` - computed results use headings and bullet working steps; an explicit URL, DOI, or PMID in the clinical citation is linked directly. Catalogue and tag output use Markdown lists and tables. Designed for pasting into EHR free-text fields or notes apps that render Markdown.
+- `markdown` - computed results use headings and bullet working steps for the interpretation, inputs, and working sections; an explicit URL, DOI, or PMID in the clinical citation is linked directly; and a trailing italic `clincalc <version> - <calculator>` line records provenance. Catalogue and tag output use Markdown lists and tables. Designed for pasting into EHR free-text fields or notes apps that render Markdown.
 
 ```bash
 clincalc list --format json

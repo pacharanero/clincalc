@@ -90,7 +90,7 @@ hazards:
     date-closed:
   - id: H006
     description: "Naked result - a score is copied via the copy-paste / clipboard feature without its interpretation, provenance, or the inputs that produced it"
-    cause: "The clipboard summary (to_summary_text) is pasted into a free-text field; interpretation and reference travel with it but the input values do not; a downstream reader sees a number without the clinical context or the data behind it"
+    cause: "The clipboard summary (to_summary_text) or CLI text/Markdown output is pasted into a free-text field; clincalc now carries the entered inputs and a version stamp alongside interpretation and reference (see C014), but a host or user can still truncate, edit, or discard part of the pasted text before it reaches a permanent record"
     effect: "A result is trusted out of context - the reader cannot see which inputs produced it, whether it is current, or that it is a decision aid rather than a decision"
     severity: 3
     likelihood: 3
@@ -242,7 +242,7 @@ controls:
   - id: C013
     description: "CalculationResponse returns a human-readable interpretation alongside every numeric result, plus a working map giving the step-by-step breakdown - the number never travels alone within the engine's own output."
   - id: C014
-    description: "reference (the primary citation) is carried in every CalculationResponse and included in the clipboard summary (to_summary_text), so a pasted result names the guideline it came from."
+    description: "reference (the primary citation), the entered inputs, and a clincalc version stamp are all carried in the clipboard summary (to_summary_text) and the CLI's text/Markdown output, so a pasted result names the guideline, engine version, and inputs it came from, not just the reference (ENG-006.6)."
   - id: C015
     description: "Documentation (README, docs/how-it-works.md) states that calc outputs are decision aids, not autonomous clinical decisions; the responsible clinician remains accountable for interpretation and action."
   - id: C016
@@ -333,7 +333,7 @@ controls:
 | C011 | Unique stable `name()`/`title()`/`description()`; central tag taxonomy (`tags.rs`); `clincalc list --tag` |
 | C012 | Docs catalogue (`docs/calculators.md`) + per-calculator reference disambiguate similar scores |
 | C013 | `CalculationResponse.interpretation` + `working` returned with every numeric `result` |
-| C014 | `reference` (primary citation) carried in every response and in the clipboard summary (`to_summary_text`) |
+| C014 | `reference`, entered inputs, and a version stamp all carried in the clipboard summary (`to_summary_text`) and CLI text/Markdown output |
 | C015 | Documentation states outputs are decision aids, not autonomous decisions; clinician remains responsible |
 | C016 | Per-calculator `reference()` cites primary source; `license()` evidence URL identifies the algorithm version |
 | C017 | CHANGELOG + SemVer + single-sourced version; CSO-owned review cadence against current guidelines |
