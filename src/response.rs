@@ -32,16 +32,93 @@ pub struct CalculationResponse {
 impl CalculationResponse {
     /// A plain-text summary suitable for a clipboard / journal entry.
     ///
-    /// Intentionally free of any timestamp — the recording host adds that, so
-    /// this output stays deterministic.
-    pub fn to_summary_text(&self) -> String {
-        let result = match &self.result {
-            Value::String(s) => s.clone(),
-            other => other.to_string(),
+    /// `input` is the JSON object that was passed to
+    /// [`Calculator::calculate`](crate::calculator::Calculator::calculate) to
+    /// produce this response, so the pasted text alone is enough to
+    /// reconstruct the calculation: which version of `clincalc` ran it, which
+    /// calculator, what was entered, and what came out. Intentionally free of
+    /// any timestamp — the recording host adds that, so this output stays
+    /// deterministic for a given response and input.
+    pub fn to_summary_text(&self, input: &Value) -> String {
+        let mut out = format!(
+            "clincalc {}\nCalculator: {}\nInputs:",
+            env!("CARGO_PKG_VERSION"),
+            self.calculator
+        );
+        push_key_value_lines(&mut out, input.as_object());
+        out.push_str(&format!(
+            "\nResult: {}\nInterpretation: {}",
+            value_to_string(&self.result),
+            self.interpretation
+        ));
+        if !self.working.is_empty() {
+            out.push_str("\nWorking:");
+            push_key_value_lines(&mut out, Some(&self.working));
+        }
+        out.push_str(&format!("\nReference: {}", self.reference));
+        out
+    }
+}
+
+fn push_key_value_lines(out: &mut String, map: Option<&Map<String, Value>>) {
+    match map {
+        Some(map) if !map.is_empty() => {
+            for (key, value) in map {
+                out.push_str(&format!("\n  {key}: {}", value_to_string(value)));
+            }
+        }
+        _ => out.push_str(" (none)"),
+    }
+}
+
+fn value_to_string(value: &Value) -> String {
+    match value {
+        Value::String(s) => s.clone(),
+        other => other.to_string(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::CalculationResponse;
+    use serde_json::json;
+
+    #[test]
+    fn summary_text_carries_version_inputs_and_working_for_reconstruction() {
+        let response = CalculationResponse {
+            calculator: "curb65".to_string(),
+            result: json!(2),
+            interpretation: "Moderate severity.".to_string(),
+            working: serde_json::Map::from_iter([("confusion".to_string(), json!(false))]),
+            reference: "Lim WS, et al. Thorax. 2003;58(5):377-382.".to_string(),
         };
-        format!(
-            "Calculator: {}\nResult: {}\nInterpretation: {}\nReference: {}",
-            self.calculator, result, self.interpretation, self.reference
-        )
+        let input = json!({"age": 68, "confusion": false, "urea_mmol_l": 8.2});
+
+        let out = response.to_summary_text(&input);
+
+        assert!(out.starts_with(&format!("clincalc {}\n", env!("CARGO_PKG_VERSION"))));
+        assert!(out.contains("Calculator: curb65"));
+        assert!(out.contains("age: 68"));
+        assert!(out.contains("urea_mmol_l: 8.2"));
+        assert!(out.contains("Result: 2"));
+        assert!(out.contains("Interpretation: Moderate severity."));
+        assert!(out.contains("confusion: false"));
+        assert!(out.contains("Reference: Lim WS, et al. Thorax. 2003;58(5):377-382."));
+    }
+
+    #[test]
+    fn summary_text_marks_absent_inputs_and_working_explicitly() {
+        let response = CalculationResponse {
+            calculator: "example".to_string(),
+            result: json!("n/a"),
+            interpretation: "No inputs required.".to_string(),
+            working: serde_json::Map::new(),
+            reference: "Some Guideline.".to_string(),
+        };
+
+        let out = response.to_summary_text(&json!({}));
+
+        assert!(out.contains("Inputs: (none)"));
+        assert!(!out.contains("Working:"));
     }
 }

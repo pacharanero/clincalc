@@ -156,8 +156,6 @@ Status: Planned
 
 Make every copied result independently traceable and reproducible before adding richer formats.
 
-- [ ] **ENG-006.6 Complete clipboard provenance** - include the `clincalc` version, calculator identifier, entered inputs with units, result, interpretation, working, and primary-source citation in the copyable text and Markdown summaries. Keep the output deterministic and add regression tests proving a pasted result contains enough information to reconstruct the calculation.
-
 - [ ] **ENG-006.4 Add `html` and `pdf` rendering** via a small template engine for the web/GUI surfaces.
 
 Open questions for comment:

@@ -338,10 +338,11 @@ pub fn run_with_locale(cmd: CalcCommand, locale: SupportedLocale) -> Result<()> 
             // user sees the actual response (typically the proprietary
             // explanation and the open alternative).
             if template.as_object().is_some_and(serde_json::Map::is_empty) {
+                let input = serde_json::json!({});
                 let response = calc
-                    .calculate_for(&serde_json::json!({}), locale)
+                    .calculate_for(&input, locale)
                     .map_err(|e| anyhow!("{e}"))?;
-                return emit(&response, cmd.format, locale);
+                return emit(&response, &input, cmd.format, locale);
             }
             println!("{}", serde_json::to_string_pretty(&template)?);
             // If the schema has `oneOf` alternatives, the template shows only
@@ -384,7 +385,7 @@ pub fn run_with_locale(cmd: CalcCommand, locale: SupportedLocale) -> Result<()> 
             for (key, value) in cli_working {
                 response.working.insert(key, value);
             }
-            emit(&response, cmd.format, locale)
+            emit(&response, &input, cmd.format, locale)
         }
     }
 }
@@ -1174,19 +1175,38 @@ fn print_tags(format: OutputFormat) -> Result<()> {
 
 fn emit(
     response: &CalculationResponse,
+    input: &serde_json::Value,
     format: OutputFormat,
     locale: SupportedLocale,
 ) -> Result<()> {
     match format {
         OutputFormat::Json => println!("{}", serde_json::to_string_pretty(response)?),
-        OutputFormat::Text => println!("{}", render_text(response, locale)),
-        OutputFormat::Markdown => println!("{}", render_markdown(response, locale)),
+        OutputFormat::Text => println!("{}", render_text(response, input, locale)),
+        OutputFormat::Markdown => println!("{}", render_markdown(response, input, locale)),
     }
     Ok(())
 }
 
+/// Labelled `key: value` lines for every entered input, or an explicit
+/// "(none)" marker - so a pasted result never silently omits the inputs that
+/// produced it (see `spec/roadmap.md` ENG-006.6).
+fn push_input_lines(out: &mut String, input: &serde_json::Value) {
+    match input.as_object() {
+        Some(map) if !map.is_empty() => {
+            for (k, v) in map {
+                out.push_str(&format!("\n  {k}: {}", value_to_string(v)));
+            }
+        }
+        _ => out.push_str(" (none)"),
+    }
+}
+
 /// Render a result as a clinician-facing text block.
-fn render_text(r: &CalculationResponse, locale: SupportedLocale) -> String {
+fn render_text(
+    r: &CalculationResponse,
+    input: &serde_json::Value,
+    locale: SupportedLocale,
+) -> String {
     let mut out = String::new();
     out.push_str(&format!(
         "{} = {}{}\n\n",
@@ -1195,6 +1215,13 @@ fn render_text(r: &CalculationResponse, locale: SupportedLocale) -> String {
         result_unit(r)
     ));
     out.push_str(&r.interpretation);
+    let inputs_label = match locale {
+        SupportedLocale::En => "Inputs",
+        SupportedLocale::Es => "Entradas",
+        SupportedLocale::Ca => "Entrades",
+    };
+    out.push_str(&format!("\n\n{inputs_label}:"));
+    push_input_lines(&mut out, input);
     if !r.working.is_empty() {
         out.push_str(match locale {
             SupportedLocale::En => "\n\nWorking:",
@@ -1214,12 +1241,21 @@ fn render_text(r: &CalculationResponse, locale: SupportedLocale) -> String {
         SupportedLocale::Ca => "Referència",
     };
     out.push_str(&format!("\n\n{reference_label}: {}", r.reference));
+    out.push_str(&format!(
+        "\n\nclincalc {} - {}",
+        env!("CARGO_PKG_VERSION"),
+        r.calculator
+    ));
     out
 }
 
 /// Render a result as a Markdown block, for pasting into EHR free-text fields
 /// or notes apps that render Markdown.
-fn render_markdown(r: &CalculationResponse, locale: SupportedLocale) -> String {
+fn render_markdown(
+    r: &CalculationResponse,
+    input: &serde_json::Value,
+    locale: SupportedLocale,
+) -> String {
     let mut out = String::new();
     out.push_str(&format!(
         "## {} = {}{}\n\n",
@@ -1229,6 +1265,24 @@ fn render_markdown(r: &CalculationResponse, locale: SupportedLocale) -> String {
     ));
     out.push_str(&escape_markdown_inline(&r.interpretation));
     out.push('\n');
+    let inputs_heading = match locale {
+        SupportedLocale::En => "Inputs",
+        SupportedLocale::Es => "Entradas",
+        SupportedLocale::Ca => "Entrades",
+    };
+    out.push_str(&format!("\n### {inputs_heading}\n\n"));
+    match input.as_object() {
+        Some(map) if !map.is_empty() => {
+            for (k, v) in map {
+                out.push_str(&format!(
+                    "- **{}:** {}\n",
+                    escape_markdown_inline(k),
+                    escape_markdown_inline(&value_to_string(v))
+                ));
+            }
+        }
+        _ => out.push_str("_(none)_\n"),
+    }
     if !r.working.is_empty() {
         let working_heading = match locale {
             SupportedLocale::En => "Working",
@@ -1255,6 +1309,11 @@ fn render_markdown(r: &CalculationResponse, locale: SupportedLocale) -> String {
     out.push_str(&format!(
         "\n**{reference_label}:** {}",
         render_markdown_reference(&r.reference)
+    ));
+    out.push_str(&format!(
+        "\n\n_clincalc {} - `{}`_",
+        env!("CARGO_PKG_VERSION"),
+        escape_markdown_inline(&r.calculator)
     ));
     out
 }
@@ -1404,7 +1463,7 @@ fn oneof_alternatives_note(schema: &serde_json::Value) -> Option<String> {
 mod tests {
     use super::{
         closest_calculator_name, levenshtein, oneof_alternatives_note, render_markdown,
-        render_markdown_reference,
+        render_markdown_reference, render_text,
     };
     use crate::{CalculationResponse, SupportedLocale};
     use serde_json::json;
@@ -1456,16 +1515,57 @@ mod tests {
                 .to_string(),
         };
 
-        let out = render_markdown(&response, SupportedLocale::En);
+        let input = json!({"age": 68, "confusion": false});
+        let out = render_markdown(&response, &input, SupportedLocale::En);
 
         assert!(out.starts_with("## CURB-65 = 2\n\n"));
         assert!(out.contains("Moderate severity."));
+        assert!(out.contains("### Inputs\n\n"));
+        assert!(out.contains("- **age:** 68"));
         assert!(out.contains("### Working\n\n"));
         assert!(out.contains("- **confusion:** false"));
         assert!(!out.contains("- **result_label:**"));
         assert!(out.contains(
             "**Reference:** Lim WS, et al. Thorax. 2003;58(5):377-382. [doi:10.1136/thorax.58.5.377](<https://doi.org/10.1136/thorax.58.5.377>)."
         ));
+        assert!(out.contains(&format!(
+            "_clincalc {} - `curb65`_",
+            env!("CARGO_PKG_VERSION")
+        )));
+    }
+
+    #[test]
+    fn markdown_render_marks_absent_inputs_explicitly() {
+        let response = CalculationResponse {
+            calculator: "example".to_string(),
+            result: json!(1),
+            interpretation: "Fine.".to_string(),
+            working: serde_json::Map::new(),
+            reference: "Some Guideline.".to_string(),
+        };
+
+        let out = render_markdown(&response, &json!({}), SupportedLocale::En);
+
+        assert!(out.contains("### Inputs\n\n_(none)_\n"));
+    }
+
+    #[test]
+    fn text_render_includes_version_calculator_and_inputs() {
+        let response = CalculationResponse {
+            calculator: "curb65".to_string(),
+            result: json!(2),
+            interpretation: "Moderate severity.".to_string(),
+            working: serde_json::Map::new(),
+            reference: "Lim WS, et al. Thorax. 2003;58(5):377-382.".to_string(),
+        };
+        let input = json!({"age": 68, "confusion": false});
+
+        let out = render_text(&response, &input, SupportedLocale::En);
+
+        assert!(out.starts_with("curb65 = 2\n\n"));
+        assert!(out.contains("Inputs:\n  age: 68\n  confusion: false"));
+        assert!(out.contains("Reference: Lim WS, et al. Thorax. 2003;58(5):377-382."));
+        assert!(out.ends_with(&format!("clincalc {} - curb65", env!("CARGO_PKG_VERSION"))));
     }
 
     #[test]
@@ -1494,9 +1594,11 @@ mod tests {
             reference: "Unlinked [reference].".to_string(),
         };
 
-        let out = render_markdown(&response, SupportedLocale::En);
+        let input = json!({"note": "[raw]_value_"});
+        let out = render_markdown(&response, &input, SupportedLocale::En);
         assert!(out.starts_with("## example = a\\_b"));
         assert!(out.contains("Treat as \\<5, not \\*certain\\*."));
+        assert!(out.contains("- **note:** \\[raw\\]\\_value\\_"));
         assert!(out.contains("- **value:** \\[raw\\]"));
         assert!(out.contains("**Reference:** Unlinked \\[reference\\]."));
     }
