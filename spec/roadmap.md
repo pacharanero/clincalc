@@ -47,14 +47,6 @@ See the design spec at [`gui.md`](gui.md) and the implementation guide at [`gui/
 
 ---
 
-## Authoring workflow & docs
-
-### Future
-
-- [ ] **DOC-002 `docs/translating.md`** - contribution path for translators once multilingual lands.
-
----
-
 ## Governance & clinical deployment
 
 ### Planned
@@ -62,8 +54,6 @@ See the design spec at [`gui.md`](gui.md) and the implementation guide at [`gui/
 - [ ] **GOV-001 Establish the Open Health Technology Foundation and operating entity** - define ownership, governance, clinical-safety accountability, and the legal entity that will stand behind any future clinician-facing distribution. Until this is complete and the relevant safety and regulatory gates are approved, `clincalc` remains a development, research, education, and evaluation component rather than a finished medical device.
 
 ---
-
-
 
 ## Engine & embedding
 
