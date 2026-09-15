@@ -54,11 +54,11 @@ Revised 2005 card per judy-waterlow.co.uk. Risk bands: 10+ at risk, 15+ high, 20
 /// Distribution licence: the Waterlow card is made freely available by the
 /// author for clinical use and download. It is implemented here from the
 /// published card; the scoring method is a clinical algorithm.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Free for clinical use - Waterlow card made freely available by the author \
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Free for clinical use - Waterlow card made freely available by the author \
 (Judy Waterlow); implemented from the published card",
-    source_url: "http://www.judy-waterlow.co.uk/the-waterlow-score-card.htm",
-};
+    "http://www.judy-waterlow.co.uk/the-waterlow-score-card.htm",
+);
 
 /// Build / weight for height (BMI band). Mutually exclusive.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

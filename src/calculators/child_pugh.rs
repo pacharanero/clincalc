@@ -29,10 +29,10 @@ pub const NAME: &str = "child_pugh";
 
 /// Distribution licence: the Child-Pugh score is a published clinical method,
 /// implemented here from the primary literature.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://doi.org/10.1002/bjs.1800600817",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://doi.org/10.1002/bjs.1800600817",
+);
 
 /// Primary citation.
 pub const REFERENCE: &str = "Pugh RNH, Murray-Lyon IM, Dawson JL, Pietroni MC, Williams R. Transection of the oesophagus \

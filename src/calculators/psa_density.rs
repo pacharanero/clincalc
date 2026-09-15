@@ -15,10 +15,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "psa_density";
 pub const REFERENCE: &str = "Yusim I, Krenawi M, Mazor E, Novack V, Mabjeesh NJ. The use of prostate specific antigen density to predict clinically significant prostate cancer. Sci Rep. 2020;10:20015. doi:10.1038/s41598-020-76786-9. Benson MC, Whang IS, Pantuck A, et al. Prostate specific antigen density: a means of distinguishing benign prostatic hypertrophy and prostate cancer. J Urol. 1992;147(3 Pt 2):815-816. PMID:1371554.";
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "CC-BY-4.0 - formula and supporting clinical evidence adapted from Yusim et al. 2020",
-    source_url: "https://doi.org/10.1038/s41598-020-76786-9",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "CC-BY-4.0 - formula and supporting clinical evidence adapted from Yusim et al. 2020",
+    "https://doi.org/10.1038/s41598-020-76786-9",
+);
 
 const FORMULA: &str = "total_psa_ng_ml / prostate_volume_ml";
 const UNIT: &str = "ng/mL/cc";

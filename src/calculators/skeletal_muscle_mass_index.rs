@@ -44,10 +44,10 @@ pub const NAME: &str = "skeletal_muscle_mass_index";
 
 pub const REFERENCE: &str = "Cruz-Jentoft AJ, Bahat G, Bauer J, et al. Sarcopenia: revised European consensus on definition and diagnosis. Age Ageing. 2019;48(1):16-31. doi:10.1093/ageing/afy169; correction doi:10.1093/ageing/afz046. | Cawthon PM, Peters KW, Shardell MD, et al. Cutpoints for low appendicular lean mass that identify older adults with clinically significant weakness. J Gerontol A Biol Sci Med Sci. 2014;69(5):567-575. doi:10.1093/gerona/glu023. | McLean RR, Shardell MD, Alley DE, et al. Criteria for clinically relevant weakness and low lean mass and their longitudinal association with incident mobility impairment and mortality. J Gerontol A Biol Sci Med Sci. 2014;69(5):576-583. doi:10.1093/gerona/glu012.";
 
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://doi.org/10.1093/ageing/afy169",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://doi.org/10.1093/ageing/afy169",
+);
 
 const EWGSOP2_CUTOFF_MALE: f64 = 7.0;
 const EWGSOP2_CUTOFF_FEMALE: f64 = 5.5;

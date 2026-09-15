@@ -32,10 +32,10 @@ pub const NAME: &str = "rcri";
 pub const REFERENCE: &str = "Lee TH, Marcantonio ER, Mangione CM, et al. Derivation and prospective validation of a simple index for prediction of cardiac risk of major noncardiac surgery. Circulation. 1999;100(10):1043-1049. doi:10.1161/01.CIR.100.10.1043. Thompson A, Fleischmann KE, Smilowitz NR, et al. 2024 AHA/ACC/ACS/ASNC/HRS/SCA/SCCT/SCMR/SVM Guideline for Perioperative Cardiovascular Management for Noncardiac Surgery. Circulation. 2024;150(19):e351-e442. doi:10.1161/CIR.0000000000001285.";
 
 /// Distribution licence: independently implemented from the published method.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Published clinical scoring method - independently implemented from the primary literature",
-    source_url: "https://doi.org/10.1161/01.CIR.100.10.1043",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Published clinical scoring method - independently implemented from the primary literature",
+    "https://doi.org/10.1161/01.CIR.100.10.1043",
+);
 
 /// The primary paper's creatinine threshold: >2.0 mg/dL, converted using
 /// 1 mg/dL = 88.4 umol/L.

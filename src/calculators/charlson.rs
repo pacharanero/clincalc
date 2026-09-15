@@ -25,10 +25,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "charlson";
 
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://doi.org/10.1016/0021-9681(87)90171-8",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://doi.org/10.1016/0021-9681(87)90171-8",
+);
 
 pub const REFERENCE: &str = "Charlson ME, Pompei P, Ales KL, MacKenzie CR. A new method of classifying \
 prognostic comorbidity in longitudinal studies: development and validation. J Chronic Dis. \

@@ -18,10 +18,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "corrected_sodium";
 pub const REFERENCE: &str = "Katz MA. Hyperglycemia-induced hyponatremia--calculation of expected serum sodium depression. N Engl J Med. 1973;289(16):843-844. doi:10.1056/NEJM197310182891607; Hillier TA, Abbott RD, Barrett EJ. Hyponatremia: evaluating the correction factor for hyperglycemia. Am J Med. 1999;106(4):399-403. doi:10.1016/s0002-9343(99)00055-8";
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://doi.org/10.1056/NEJM197310182891607",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://doi.org/10.1056/NEJM197310182891607",
+);
 
 /// mg/dL per mmol/L for glucose (molar mass 180.16 g/mol).
 pub const MGDL_PER_MMOL_GLUCOSE: f64 = 18.016;

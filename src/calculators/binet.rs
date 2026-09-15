@@ -22,10 +22,10 @@ pub const NAME: &str = "binet";
 pub const REFERENCE: &str = "Binet JL, Auquier A, Dighiero G, et al. A new prognostic classification of chronic lymphocytic leukemia derived from a multivariate survival analysis. Cancer. 1981;48(1):198-206. PMID:7237385. Hallek M, Cheson BD, Catovsky D, et al. iwCLL guidelines for diagnosis, indications for treatment, response assessment, and supportive management of CLL. Blood. 2018;131(25):2745-2760. doi:10.1182/blood-2017-09-806398.";
 
 /// Distribution licence: independently implemented from the published method.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Published clinical method - independently implemented from the primary literature",
-    source_url: "https://pubmed.ncbi.nlm.nih.gov/7237385/",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Published clinical method - independently implemented from the primary literature",
+    "https://pubmed.ncbi.nlm.nih.gov/7237385/",
+);
 
 /// Inputs for Binet staging of established CLL.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]

@@ -39,10 +39,10 @@ pub const NAME: &str = "fat_free_mass_index";
 
 pub const REFERENCE: &str = "Kouri EM, Pope HG Jr, Katz DL, Oliva P. Fat-free mass index in users and nonusers of anabolic-androgenic steroids. Clin J Sport Med. 1995;5(4):223-228. doi:10.1097/00042752-199510000-00003.";
 
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Published mathematical method - independently implemented; formulas and algorithms are not protected by US copyright",
-    source_url: "https://www.copyright.gov/circs/circ31.pdf",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Published mathematical method - independently implemented; formulas and algorithms are not protected by US copyright",
+    "https://www.copyright.gov/circs/circ31.pdf",
+);
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]

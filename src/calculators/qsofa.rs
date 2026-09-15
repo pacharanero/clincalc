@@ -36,10 +36,10 @@ Sepsis and Septic Shock (Sepsis-3). JAMA. 2016;315(8):801-810.";
 
 /// Distribution licence: the score is a published clinical method from the
 /// open Sepsis-3 consensus, implemented here from the primary literature.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature (Sepsis-3 consensus)",
-    source_url: "https://doi.org/10.1001/jama.2016.0287",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature (Sepsis-3 consensus)",
+    "https://doi.org/10.1001/jama.2016.0287",
+);
 
 /// Threshold (inclusive) at or above which respiratory rate scores a point.
 const RESP_RATE_THRESHOLD: f64 = 22.0;

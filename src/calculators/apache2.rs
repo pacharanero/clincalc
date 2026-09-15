@@ -12,10 +12,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "apache2";
 pub const REFERENCE: &str = "Knaus WA, Draper EA, Wagner DP, Zimmerman JE. APACHE II: a severity of disease classification system. Crit Care Med. 1985;13(10):818-829.";
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Published clinical score - acute physiology point table implemented from the primary literature",
-    source_url: "https://pubmed.ncbi.nlm.nih.gov/3928249/",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Published clinical score - acute physiology point table implemented from the primary literature",
+    "https://pubmed.ncbi.nlm.nih.gov/3928249/",
+);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]

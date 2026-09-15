@@ -12,10 +12,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "anion_gap";
 pub const REFERENCE: &str = "Emmett M, Narins RG. Clinical use of the anion gap. Medicine (Baltimore). 1977;56(1):38-54. Albumin correction commonly attributed to Figge J, Jabor A, Kazda A, Fencl V. Anion gap and hypoalbuminemia. Crit Care Med. 1998;26(11):1807-1810.";
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://pubmed.ncbi.nlm.nih.gov/830929/",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://pubmed.ncbi.nlm.nih.gov/830929/",
+);
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]

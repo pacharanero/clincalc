@@ -41,10 +41,10 @@ guidance (CG176 / NG232).";
 /// Distribution licence: CHALICE is a published clinical decision rule,
 /// implemented here from the primary literature, which is not subject to
 /// copyright as an algorithm.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://doi.org/10.1136/adc.2005.083980",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://doi.org/10.1136/adc.2005.083980",
+);
 
 /// CHALICE inputs. Age is numeric; the `under 1 year` band is derived for the
 /// two age-dependent criteria (the GCS threshold and the bruise/swelling/

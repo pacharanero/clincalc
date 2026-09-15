@@ -16,10 +16,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "pasi";
 pub const REFERENCE: &str = "Fredriksson T, Pettersson U. Severe psoriasis - oral therapy with a new retinoid. Dermatologica. 1978;157(4):238-244. doi:10.1159/000250839. Berth-Jones J, Grotzinger K, Rainville C, et al. A study examining inter- and intrarater reliability of three scales for measuring severity of psoriasis: Psoriasis Area and Severity Index, Physician's Global Assessment and Lattice System Physician's Global Assessment. Br J Dermatol. 2006;155(4):707-713. doi:10.1111/j.1365-2133.2006.07389.x. Youn SW, Choi CW, Kim BR, Chae JB. Reduction of inter-rater and intra-rater variability in psoriasis area and severity index assessment by photographic training. Ann Dermatol. 2015;27(5):557-562. doi:10.5021/ad.2015.27.5.557.";
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Uncopyrightable method under 17 U.S.C. Section 102(b) - independently implemented from primary literature",
-    source_url: "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title17-section102&num=0&edition=prelim",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Uncopyrightable method under 17 U.S.C. Section 102(b) - independently implemented from primary literature",
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title17-section102&num=0&edition=prelim",
+);
 
 const FORMULA: &str = "sum(region_weight * area_grade * (erythema + induration + desquamation))";
 const LIMITATIONS: &str = "PASI is a clinician-rated severity measure. It does not diagnose psoriasis and is not a treatment rule. It does not measure itch, pain, quality of life, nail disease, psoriatic arthritis, or the disproportionate effect of disease at sensitive or functionally important sites. Its nonlinear area grades have limited sensitivity at low body-surface involvement, and area and intensity ratings vary between assessors; trained, consistent assessment is important. A low score can coexist with substantial individual burden. Absolute PASI thresholds and PASI 75/90/100 response targets are context-specific and are not calculated here.";

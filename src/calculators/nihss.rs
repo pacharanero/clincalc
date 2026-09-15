@@ -18,10 +18,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "nihss";
 pub const REFERENCE: &str = "National Institute of Neurological Disorders and Stroke. NIH Stroke Scale. Updated February 2024. https://www.ninds.nih.gov/health-information/stroke/assess-and-treat/nih-stroke-scale. Brott T, Adams HP Jr, Olinger CP, et al. Measurements of acute cerebral infarction: a clinical examination scale. Stroke. 1989;20(7):864-870. doi:10.1161/01.STR.20.7.864. Hills NK, Josephson SA, Lyden PD, Johnston SC. Is the NIHSS certification process too lenient? Cerebrovasc Dis. 2009;27(5):426-432. doi:10.1159/000209237.";
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "NINDS-prepared information is public domain and may be freely copied; scoring method independently implemented without third-party visual or training materials",
-    source_url: "https://www.ninds.nih.gov/publications/publications-help",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "NINDS-prepared information is public domain and may be freely copied; scoring method independently implemented without third-party visual or training materials",
+    "https://www.ninds.nih.gov/publications/publications-help",
+);
 
 const LIMITATIONS: &str = "NIHSS measures deficits detected by the standard examination; it does not diagnose or exclude stroke, measure every disabling deficit, or determine reperfusion treatment. A score of 0 can occur with imaging-confirmed stroke, particularly posterior-circulation stroke. The scale can underrepresent gait or truncal ataxia, vertigo, diplopia, dysphagia, and some right-hemisphere deficits. Treatment decisions require symptom timing, whether a deficit is disabling, imaging, contraindications, vascular findings, and specialist assessment. Use the separately validated PedNIHSS for children. Standardised training and correct administration remain essential.";
 

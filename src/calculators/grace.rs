@@ -43,10 +43,10 @@ doi:10.1001/archinte.163.19.2345";
 
 /// Distribution licence: the GRACE point-based score is a published method,
 /// implemented here from the primary literature (Granger 2003).
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature (GRACE 1.0, Granger 2003)",
-    source_url: "https://doi.org/10.1001/archinte.163.19.2345",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature (GRACE 1.0, Granger 2003)",
+    "https://doi.org/10.1001/archinte.163.19.2345",
+);
 
 /// umol/L per mg/dL for creatinine (molar mass 113.12 g/mol). Same factor as
 /// the eGFR calculator.

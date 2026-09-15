@@ -36,10 +36,10 @@ D-dimer. Thromb Haemost. 2000;83(3):416-420. Two-level thresholds per NICE NG158
 
 /// Distribution licence: the score is a published clinical method, implemented
 /// here from the primary literature.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://doi.org/10.1055/s-0037-1613830",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://doi.org/10.1055/s-0037-1613830",
+);
 
 /// Wells PE inputs: seven weighted, clinician-asserted boolean criteria.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

@@ -33,10 +33,10 @@ pub const NAME: &str = "abpi";
 
 /// Distribution licence: ABPI is a published bedside method (a simple ratio),
 /// implemented here from primary guidance. Not subject to copyright.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from published clinical guidance (NICE CG147)",
-    source_url: "https://www.nice.org.uk/guidance/cg147",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from published clinical guidance (NICE CG147)",
+    "https://www.nice.org.uk/guidance/cg147",
+);
 
 /// Primary citation.
 pub const REFERENCE: &str = "National Institute for Health and Care Excellence. Peripheral arterial disease: diagnosis \

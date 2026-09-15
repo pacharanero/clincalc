@@ -23,10 +23,10 @@ pub const NAME: &str = "hinchey";
 pub const REFERENCE: &str = "Hinchey EJ, Schaal PG, Richards GK. Treatment of perforated diverticular disease of the colon. Adv Surg. 1978;12:85-109. PMID:735943. Wasvary H, Turfah F, Kadro O, et al. Same hospitalization resection for acute diverticulitis. Am Surg. 1999;65(7):632-635. PMID:10399971. Kaiser AM, Jiang JK, Lake JP, et al. The management of complicated diverticulitis and the role of computed tomography. Am J Gastroenterol. 2005;100(4):910-917. doi:10.1111/j.1572-0241.2005.41154.x.";
 
 /// Distribution licence: independently implemented from published methods.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Published clinical classification - independently implemented from the primary literature",
-    source_url: "https://doi.org/10.1111/j.1572-0241.2005.41154.x",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Published clinical classification - independently implemented from the primary literature",
+    "https://doi.org/10.1111/j.1572-0241.2005.41154.x",
+);
 
 /// Evidence used to select the anatomical category.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

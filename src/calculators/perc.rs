@@ -31,10 +31,10 @@ pub const REFERENCE: &str = "Kline JA, Mitchell AM, Kabrhel C, Richman PB, Court
 
 /// Distribution licence: the rule is a published clinical method from the
 /// primary literature, implemented here from that source.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://doi.org/10.1111/j.1538-7836.2004.00790.x",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://doi.org/10.1111/j.1538-7836.2004.00790.x",
+);
 
 /// PERC eligibility and observations. Numeric boundaries are derived by the
 /// engine so callers cannot submit contradictory measurements and flags.

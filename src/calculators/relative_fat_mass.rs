@@ -31,10 +31,10 @@ pub const NAME: &str = "relative_fat_mass";
 
 pub const REFERENCE: &str = "Woolcott OO, Bergman RN. Relative fat mass (RFM) as a new estimator of whole-body fat percentage - A cross-sectional study in American adult individuals. Sci Rep. 2018;8(1):10980. doi:10.1038/s41598-018-29362-1.";
 
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://doi.org/10.1038/s41598-018-29362-1",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://doi.org/10.1038/s41598-018-29362-1",
+);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]

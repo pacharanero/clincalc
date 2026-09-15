@@ -100,10 +100,10 @@ impl Calculator for ProprietaryCalculator {
     }
 
     fn license(&self) -> CalculatorLicense {
-        CalculatorLicense {
-            license: "Proprietary / licence-locked - not freely distributable",
-            source_url: self.source_url,
-        }
+        CalculatorLicense::new(
+            "Proprietary / licence-locked - not freely distributable",
+            self.source_url,
+        )
     }
 
     fn input_schema(&self) -> Value {
@@ -169,10 +169,7 @@ impl Calculator for SafetyUnavailableCalculator {
     }
 
     fn license(&self) -> CalculatorLicense {
-        CalculatorLicense {
-            license: "Unavailable - clinical-safety exclusion",
-            source_url: self.source_url,
-        }
+        CalculatorLicense::new("Unavailable - clinical-safety exclusion", self.source_url)
     }
 
     fn input_schema(&self) -> Value {
@@ -236,10 +233,10 @@ impl Calculator for RightsReviewUnavailableCalculator {
     }
 
     fn license(&self) -> CalculatorLicense {
-        CalculatorLicense {
-            license: "Unavailable - redistribution rights unresolved",
-            source_url: self.source_url,
-        }
+        CalculatorLicense::new(
+            "Unavailable - redistribution rights unresolved",
+            self.source_url,
+        )
     }
 
     fn input_schema(&self) -> Value {

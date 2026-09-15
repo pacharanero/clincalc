@@ -37,10 +37,10 @@ pub const NAME: &str = "wilks";
 
 pub const REFERENCE: &str = "Wilks R. Wilks Formula coefficient table. European Powerlifting Federation. https://www.europowerlifting.org/fileadmin/data/wilks_formula/Wilksformula_01.pdf. Vanderburgh PM, Batterham AM. Validation of the Wilks powerlifting formula. Med Sci Sports Exerc. 1999;31(12):1869-1875. doi:10.1097/00005768-199912000-00027. Marksteiner J. IPF Points - Proposed Replacement for Wilks Coefficients. International Powerlifting Federation, 2018. https://www.powerlifting.sport/fileadmin/ipf/data/ipf-formula/IPF_Points_Proposal.pdf.";
 
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain mathematical formula - coefficients published by the European Powerlifting Federation",
-    source_url: "https://www.europowerlifting.org/fileadmin/data/wilks_formula/Wilksformula_01.pdf",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain mathematical formula - coefficients published by the European Powerlifting Federation",
+    "https://www.europowerlifting.org/fileadmin/data/wilks_formula/Wilksformula_01.pdf",
+);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]

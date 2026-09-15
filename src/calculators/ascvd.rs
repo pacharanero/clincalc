@@ -12,10 +12,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "ascvd";
 pub const REFERENCE: &str = "Goff DC Jr, Lloyd-Jones DM, Bennett G, et al. 2013 ACC/AHA Guideline on the Assessment of Cardiovascular Risk. Circulation. 2014;129(25 Suppl 2):S49-S73. Pooled Cohort Equations coefficients from the guideline risk-assessment report.";
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain guideline equation - implemented from ACC/AHA published coefficients",
-    source_url: "https://doi.org/10.1161/01.cir.0000437741.48606.98",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain guideline equation - implemented from ACC/AHA published coefficients",
+    "https://doi.org/10.1161/01.cir.0000437741.48606.98",
+);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]

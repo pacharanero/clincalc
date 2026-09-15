@@ -20,10 +20,10 @@ pub const NAME: &str = "fib4";
 
 /// Distribution licence: FIB-4 is a published method, implemented here from the
 /// primary literature.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://doi.org/10.1002/hep.21178",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://doi.org/10.1002/hep.21178",
+);
 
 /// Primary citation.
 pub const REFERENCE: &str = "Sterling RK, Lissen E, Clumeck N, et al. Development of a simple noninvasive index to predict \

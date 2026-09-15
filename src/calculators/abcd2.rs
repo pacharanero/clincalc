@@ -38,10 +38,10 @@ NICE NG128 advises against using ABCD2 to guide referral urgency.";
 
 /// Distribution licence: the score is a published clinical method, implemented
 /// here from the primary literature.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://doi.org/10.1016/S0140-6736(07)60150-0",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://doi.org/10.1016/S0140-6736(07)60150-0",
+);
 
 /// Clinical features of the TIA (C). Mutually exclusive: unilateral weakness
 /// takes precedence over (and subsumes) any speech disturbance.

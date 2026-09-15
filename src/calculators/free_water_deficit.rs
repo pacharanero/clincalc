@@ -16,10 +16,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "free_water_deficit";
 pub const REFERENCE: &str = "Yun G, Baek SH, Kim S. Evaluation and management of hypernatremia in adults: clinical perspectives. Korean J Intern Med. 2023;38(3):290-302. doi:10.3904/kjim.2022.346. Adrogue HJ, Madias NE. Hypernatremia. N Engl J Med. 2000;342(20):1493-1499. doi:10.1056/NEJM200005183422006.";
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Published clinical calculation method - independently implemented from the literature",
-    source_url: "https://doi.org/10.3904/kjim.2022.346",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Published clinical calculation method - independently implemented from the literature",
+    "https://doi.org/10.3904/kjim.2022.346",
+);
 
 const LIMITATIONS: &str = "Static estimate only, not a fluid prescription or correction rate. It excludes ongoing and insensible losses, intake, sodium and potassium losses or gains, and the fluid needed to restore extracellular volume. Correct sodium for substantial hyperglycaemia before use. Assess the cause, extracellular volume, renal function, acuity, and serial sodium response; predictive equations may be inaccurate in severe volume depletion or markedly reduced renal function.";
 

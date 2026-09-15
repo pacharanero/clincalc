@@ -12,10 +12,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "ardsnet_predicted_body_weight";
 pub const REFERENCE: &str = "NIH-NHLBI ARDS Network. ARDSNet tools and mechanical ventilation protocol. https://www.ardsnet.org/tools.html. The Acute Respiratory Distress Syndrome Network. Ventilation with lower tidal volumes as compared with traditional tidal volumes for acute lung injury and the acute respiratory distress syndrome. N Engl J Med. 2000;342(18):1301-1308. doi:10.1056/NEJM200005043421801. PMID: 10793162.";
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Free use with attribution - cite the NIH-NHLBI ARDS Network as source",
-    source_url: "https://www.ardsnet.org/tools.html",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Free use with attribution - cite the NIH-NHLBI ARDS Network as source",
+    "https://www.ardsnet.org/tools.html",
+);
 
 const MIN_TABLE_HEIGHT_IN: f64 = 48.0;
 const MAX_TABLE_HEIGHT_IN: f64 = 84.0;

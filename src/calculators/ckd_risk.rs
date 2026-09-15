@@ -43,10 +43,10 @@ pub const NAME: &str = "ckd_risk";
 /// guideline. The KDIGO guideline text is CC BY-NC-ND, but the categorical
 /// staging grid is a fact/method rather than copyrightable content - the same
 /// treatment as the `egfr` G-stages and the `uacr` A-stages.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary guideline (KDIGO 2024 G/A risk classification heatmap)",
-    source_url: "https://kdigo.org/wp-content/uploads/2024/03/KDIGO-2024-CKD-Guideline.pdf",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary guideline (KDIGO 2024 G/A risk classification heatmap)",
+    "https://kdigo.org/wp-content/uploads/2024/03/KDIGO-2024-CKD-Guideline.pdf",
+);
 
 /// Primary citation.
 pub const REFERENCE: &str = "Kidney Disease: Improving Global Outcomes (KDIGO) CKD Work Group. KDIGO 2024 Clinical \

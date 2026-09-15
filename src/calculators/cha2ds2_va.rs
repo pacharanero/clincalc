@@ -25,10 +25,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "cha2ds2_va";
 
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://doi.org/10.1093/eurheartj/ehae176",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://doi.org/10.1093/eurheartj/ehae176",
+);
 
 pub const REFERENCE: &str = "Van Gelder IC, Rienstra M, Bunting KV, et al. 2024 ESC Guidelines for the management of atrial \
 fibrillation. Eur Heart J. 2024;45(36):3314-3414. doi:10.1093/eurheartj/ehae176";

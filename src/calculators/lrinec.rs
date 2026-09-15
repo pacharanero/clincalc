@@ -44,10 +44,10 @@ pub const REFERENCE: &str = "Wong CH, Khin LW, Heng KS, Tan KC, Low CO. The LRIN
 
 /// Distribution licence: the score is a published clinical method from the
 /// primary literature, implemented here from that source.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Published clinical scoring method - independently implemented from the primary literature",
-    source_url: "https://doi.org/10.1097/01.CCM.0000129486.35458.7D",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Published clinical scoring method - independently implemented from the primary literature",
+    "https://doi.org/10.1097/01.CCM.0000129486.35458.7D",
+);
 
 /// LRINEC inputs. Every value is fixed to the unit the original paper reports
 /// it in - see the module docs for the conversions a caller must apply first.

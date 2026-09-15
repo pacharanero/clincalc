@@ -29,10 +29,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "centor";
 
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://doi.org/10.1001/archinte.1998.00380200109013",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://doi.org/10.1001/archinte.1998.00380200109013",
+);
 
 pub const REFERENCE: &str = "McIsaac WJ, White D, Tannenbaum D, Low DE. A clinical score to reduce unnecessary antibiotic use \
 in patients with sore throat. CMAJ. 1998;158(1):75-83. | Centor RM et al. Ann Intern Med. 1981;94(1):31-35. \

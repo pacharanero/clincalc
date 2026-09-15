@@ -16,10 +16,10 @@ use crate::response::CalculationResponse;
 pub const NAME: &str = "energy_requirement";
 
 /// Distribution licence: these are published predictive equations, implemented here from the cited primary sources and official reports.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain published equations - implemented from primary literature and official reports; see reference() for all sources",
-    source_url: "https://doi.org/10.1093/ajcn/51.2.241",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain published equations - implemented from primary literature and official reports; see reference() for all sources",
+    "https://doi.org/10.1093/ajcn/51.2.241",
+);
 
 /// Primary citations.
 pub const REFERENCE: &str = "Mifflin MD, St Jeor ST, Hill LA, Scott BJ, Daugherty SA, Koh YO. A new predictive equation for resting energy expenditure in healthy individuals. Am J Clin Nutr. 1990;51(2):241-247. doi:10.1093/ajcn/51.2.241; Harris JA, Benedict FG. A biometric study of human basal metabolism in man. Carnegie Institution of Washington; 1919; Roza AM, Shizgal HM. The Harris Benedict equation reevaluated: resting energy requirements and the body cell mass. Am J Clin Nutr. 1984;40(1):168-182. doi:10.1093/ajcn/40.1.168; Schofield WN. Predicting basal metabolic rate, new standards and review of previous work. Hum Nutr Clin Nutr. 1985;39 Suppl 1:5-41; Cunningham JJ. A reanalysis of the factors influencing basal metabolic rate in normal adults. Am J Clin Nutr. 1980;33(11):2372-2374. doi:10.1093/ajcn/33.11.2372";

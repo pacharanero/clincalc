@@ -22,10 +22,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "body_fat_circumference";
 
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://apps.dtic.mil/sti/citations/ADA148757",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://apps.dtic.mil/sti/citations/ADA148757",
+);
 
 pub const REFERENCE: &str = "Hodgdon JA, Beckett MB. Prediction of percent body fat for US Navy men and women \
 from body circumference and height. Report No. 84-29. Naval Health Research Center; 1984.";

@@ -12,10 +12,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "alcohol_units";
 pub const REFERENCE: &str = "UK Chief Medical Officers. UK Chief Medical Officers' Low Risk Drinking Guidelines. Department of Health; 2016. UK alcohol unit definition: 10 mL / 8 g pure alcohol.";
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain public-health method - implemented from UK Chief Medical Officers' guidance",
-    source_url: "https://www.gov.uk/government/publications/alcohol-consumption-advice-on-low-risk-drinking",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain public-health method - implemented from UK Chief Medical Officers' guidance",
+    "https://www.gov.uk/government/publications/alcohol-consumption-advice-on-low-risk-drinking",
+);
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]

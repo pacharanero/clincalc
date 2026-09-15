@@ -19,10 +19,10 @@ pub const NAME: &str = "ldl_cholesterol";
 
 pub const REFERENCE: &str = "Friedewald WT, Levy RI, Fredrickson DS. Estimation of the concentration of low-density lipoprotein cholesterol in plasma, without use of the preparative ultracentrifuge. Clin Chem. 1972;18(6):499-502. doi:10.1093/clinchem/18.6.499; Martin SS, Blaha MJ, Elshazly MB, et al. Comparison of a novel method vs the Friedewald equation for estimating low-density lipoprotein cholesterol levels from the standard lipid profile. JAMA. 2013;310(19):2061-2068. doi:10.1001/jama.2013.280532; Sampson M, Ling C, Sun Q, et al. A new equation for calculation of low-density lipoprotein cholesterol in patients with normolipidemia and/or hypertriglyceridemia. JAMA Cardiol. 2020;5(5):540-548. doi:10.1001/jamacardio.2020.0013; Sajja A, Park J, Sathiyakumar V, et al. Comparison of methods to estimate low-density lipoprotein cholesterol in patients with high triglyceride levels. JAMA Netw Open. 2021;4(10):e2128817. doi:10.1001/jamanetworkopen.2021.28817";
 
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain methods - Martin-Hopkins patent application was abandoned to enable use without intellectual property restrictions",
-    source_url: "https://www.hopkinsmedicine.org/news/newsroom/news-releases/2023/06/martinhopkins-method-to-calculate-ldl-or-bad-cholesterol-outperforms-other-equations-study-shows",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain methods - Martin-Hopkins patent application was abandoned to enable use without intellectual property restrictions",
+    "https://www.hopkinsmedicine.org/news/newsroom/news-releases/2023/06/martinhopkins-method-to-calculate-ldl-or-bad-cholesterol-outperforms-other-equations-study-shows",
+);
 
 const CHOLESTEROL_MGDL_PER_MMOLL: f64 = 38.67;
 const TRIGLYCERIDE_MGDL_PER_MMOLL: f64 = 88.57;

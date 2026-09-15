@@ -26,10 +26,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "max_heart_rate";
 pub const REFERENCE: &str = "Tanaka H, Monahan KD, Seals DR. Age-predicted maximal heart rate revisited. J Am Coll Cardiol. 2001;37(1):153-156. Karvonen MJ, Kentala E, Mustala O. The effects of training on heart rate. Ann Med Exp Biol Fenn. 1957;35(3):307-315. ACSM's Guidelines for Exercise Testing and Prescription. 11th ed. 2021.";
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - exercise physiology formulae",
-    source_url: "https://doi.org/10.1016/S0735-1097(00)01054-8",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - exercise physiology formulae",
+    "https://doi.org/10.1016/S0735-1097(00)01054-8",
+);
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]

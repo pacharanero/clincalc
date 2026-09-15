@@ -17,10 +17,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "nyha";
 pub const REFERENCE: &str = "The Criteria Committee of the New York Heart Association. Nomenclature and Criteria for Diagnosis of Diseases of the Heart and Blood Vessels. 5th ed. New York Heart Association; 1953. Current licensed definitions: NCI Thesaurus concepts C1882084-C1882087, adapted from the 9th ed. (1994:253-256). Limitations: Raphael C, Briscoe C, Davies J, et al. Heart. 2007;93(4):476-482. doi:10.1136/hrt.2006.089656. PMID:17005715.";
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "CC-BY-4.0 - functional-class definitions adapted from NCI Thesaurus concepts C1882084-C1882087 with attribution",
-    source_url: "https://evs.nci.nih.gov/ftp1/NCI_Thesaurus/ThesaurusTermsofUse.htm",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "CC-BY-4.0 - functional-class definitions adapted from NCI Thesaurus concepts C1882084-C1882087 with attribution",
+    "https://evs.nci.nih.gov/ftp1/NCI_Thesaurus/ThesaurusTermsofUse.htm",
+);
 
 const LIMITATIONS: &str = "NYHA class is a subjective functional classification, not an objective exercise-capacity measurement, diagnosis, prognosis, or treatment rule. The terms ordinary activity, slight limitation, and marked limitation require clinical judgement. Raphael et al. found only 54% agreement when two cardiologists independently classified the same 50 patients, principally across Classes II and III. Record the symptoms and activities used to assign the class, consider non-cardiac causes of limitation, reassess when clinical status changes, and do not infer a medication, device, referral, admission, or discharge decision from this class alone.";
 

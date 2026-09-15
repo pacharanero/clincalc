@@ -27,10 +27,10 @@ pub const NAME: &str = "das28";
 
 /// Distribution licence: DAS28 is a published method, implemented here from the
 /// primary literature.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://doi.org/10.1002/art.1780380107",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://doi.org/10.1002/art.1780380107",
+);
 
 /// Primary citation.
 pub const REFERENCE: &str = "Prevoo MLL, van 't Hof MA, Kuper HH, et al. Modified disease activity scores that include \

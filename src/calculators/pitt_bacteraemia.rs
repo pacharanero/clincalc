@@ -12,10 +12,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "pitt_bacteraemia";
 pub const REFERENCE: &str = "Henderson H, Luterbach CL, Cober E, et al. The Pitt Bacteremia Score Predicts Mortality in Nonbacteremic Infections. Clin Infect Dis. 2020;70(9):1826-1833. doi:10.1093/cid/ciz528. Hilf M, Yu VL, Sharp J, Zuravleff JJ, Korvick JA, Muder RR. Antibiotic therapy for Pseudomonas aeruginosa bacteremia: outcome correlations in a prospective study of 200 patients. Am J Med. 1989;87(5):540-546. PMID:2816969.";
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Uncopyrightable method under 17 U.S.C. Section 102(b) - independently implemented from primary literature",
-    source_url: "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title17-section102&num=0&edition=prelim",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Uncopyrightable method under 17 U.S.C. Section 102(b) - independently implemented from primary literature",
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title17-section102&num=0&edition=prelim",
+);
 
 const LIMITATIONS: &str = "The Pitt Bacteraemia Score is an acute severity and mortality-risk stratification measure, primarily established in hospitalised infection and bloodstream-infection cohorts. It is not a diagnosis, patient-specific mortality probability, antibiotic recommendation, ICU-admission rule, or goals-of-care decision. The score must not replace assessment of infection source, organ dysfunction, comorbidity, treatment response, or clinical trajectory.";
 

@@ -12,10 +12,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "asa_physical_status";
 pub const REFERENCE: &str = "American Society of Anesthesiologists. ASA Physical Status Classification System. Last amended Dec 13, 2020.";
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public professional classification - implemented from ASA published definitions",
-    source_url: "https://www.asahq.org/standards-and-practice-parameters/statement-on-asa-physical-status-classification-system",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public professional classification - implemented from ASA published definitions",
+    "https://www.asahq.org/standards-and-practice-parameters/statement-on-asa-physical-status-classification-system",
+);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]

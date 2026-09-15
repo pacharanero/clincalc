@@ -35,10 +35,10 @@ assessment of acute-illness severity in the NHS. Updated report of a working par
 /// Distribution licence: the RCP places no copyright restriction on NEWS2 to
 /// encourage its use; reproduction requires attribution and that the content is
 /// not modified.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Free to use, no copyright restriction (RCP) - attribution required, content unmodified",
-    source_url: "https://www.rcp.ac.uk/resources/national-early-warning-score-news-2/",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Free to use, no copyright restriction (RCP) - attribution required, content unmodified",
+    "https://www.rcp.ac.uk/resources/national-early-warning-score-news-2/",
+);
 
 /// Which SpO2 scale to score against.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]

@@ -16,10 +16,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "isth_overt_dic";
 pub const REFERENCE: &str = "Iba T, Levy JH, Maier CL, et al. Updated definition and scoring of disseminated intravascular coagulation in 2025: communication from the ISTH SSC Subcommittee on Disseminated Intravascular Coagulation. J Thromb Haemost. 2025;23(7):2356-2362. doi:10.1016/j.jtha.2025.03.038. PMID:40216223.";
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Published clinical scoring method - independently implemented from the primary literature",
-    source_url: "https://doi.org/10.1016/j.jtha.2025.03.038",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Published clinical scoring method - independently implemented from the primary literature",
+    "https://doi.org/10.1016/j.jtha.2025.03.038",
+);
 
 const SERIAL_GUIDANCE: &str = "Recalculate when clinically indicated after repeat laboratory testing. The 2025 communication does not specify a fixed interval; repeat sooner when the clinical condition or laboratory trend changes.";
 const PREGNANCY_WARNING: &str = "In pregnancy, physiologic changes in D-dimer and fibrinogen can alter this generic score; use specialist interpretation and pregnancy-specific obstetric DIC criteria where available.";
