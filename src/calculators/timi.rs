@@ -35,10 +35,10 @@ elevation MI: a method for prognostication and therapeutic decision making. JAMA
 
 /// Distribution licence: the score is a published clinical method, implemented
 /// here from the primary literature.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://doi.org/10.1001/jama.284.7.835",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://doi.org/10.1001/jama.284.7.835",
+);
 
 /// TIMI UA/NSTEMI inputs. Age is numeric; the ">=65" point is derived.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]

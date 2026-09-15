@@ -15,10 +15,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "orbit";
 pub const REFERENCE: &str = "O'Brien EC, Simon DN, Thomas LE, et al. The ORBIT bleeding score: a simple bedside score to assess bleeding risk in atrial fibrillation. Eur Heart J. 2015;36(46):3258-3264. doi:10.1093/eurheartj/ehv476. PMID:26424865.";
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "No third-party licence required - factual method and observed rates independently encoded under the expression-method distinction in WIPO Copyright Treaty Article 2; article expression is not redistributed",
-    source_url: "https://www.wipo.int/wipolex/en/text/295166",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "No third-party licence required - factual method and observed rates independently encoded under the expression-method distinction in WIPO Copyright Treaty Article 2; article expression is not redistributed",
+    "https://www.wipo.int/wipolex/en/text/295166",
+);
 
 const LIMITATIONS: &str = "Use only for major-bleeding risk stratification in an adult with electrocardiographically confirmed atrial fibrillation who is receiving oral anticoagulation. The score does not determine whether anticoagulation should be started, stopped, or withheld. Address modifiable bleeding risks and consider stroke risk, treatment indication, patient preferences, and clinical judgement. Published rates are observed derivation-cohort incidence rates, not personalised annual probabilities. Discrimination was modest, the US outpatient derivation cohort was predominantly warfarin-treated, and external validation used a selected clinical-trial population.";
 const MAX_AGE_YEARS: u16 = 120;

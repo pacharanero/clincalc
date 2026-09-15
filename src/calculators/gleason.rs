@@ -37,10 +37,10 @@ pub const NAME: &str = "gleason";
 /// Distribution licence: the ISUP 2014 / WHO 2016 Grade Group mapping is a
 /// published classification, implemented here from the primary literature and
 /// not subject to copyright.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - Grade Group classification implemented from the primary literature (ISUP 2014 / WHO 2016)",
-    source_url: "https://pubmed.ncbi.nlm.nih.gov/26492179/",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - Grade Group classification implemented from the primary literature (ISUP 2014 / WHO 2016)",
+    "https://pubmed.ncbi.nlm.nih.gov/26492179/",
+);
 
 /// Primary citation.
 pub const REFERENCE: &str = "Epstein JI, Egevad L, Amin MB, et al. The 2014 International Society of \

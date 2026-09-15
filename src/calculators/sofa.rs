@@ -41,10 +41,10 @@ doi:10.1007/BF01709751. Sepsis-3: Singer M, et al. JAMA. 2016;315(8):801-810.";
 
 /// Distribution licence: SOFA is a published clinical method, implemented here
 /// from the primary literature.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature (SOFA, Vincent et al. 1996)",
-    source_url: "https://doi.org/10.1007/BF01709751",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature (SOFA, Vincent et al. 1996)",
+    "https://doi.org/10.1007/BF01709751",
+);
 
 /// umol/L per mg/dL for bilirubin (molar mass 584.66 g/mol).
 pub const BILIRUBIN_UMOL_PER_MGDL: f64 = 17.1;

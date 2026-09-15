@@ -123,7 +123,9 @@ fn calculate(
 ///     Each dict has keys: ``name``, ``title``, ``description``,
 ///     ``supported_locales``, ``license``, ``license_source``, and ``tags``.
 ///     When ``locale`` is supplied, each dict also reports the
-///     ``content_locale`` actually used for its prose.
+///     ``content_locale`` actually used for its prose. Calculators whose
+///     licence evidence has been reverified also carry ``last_verified``
+///     (and ``verification_url`` when the checked URL differs).
 ///
 /// Raises
 /// ------
@@ -149,6 +151,12 @@ fn list_calculators(py: Python<'_>, locale: Option<&str>) -> PyResult<Py<PyAny>>
                 "license_source": lic.source_url,
                 "tags": c.tags(),
             });
+            if let Some(date) = lic.last_verified {
+                item["last_verified"] = serde_json::json!(date);
+            }
+            if let Some(url) = lic.verification_url {
+                item["verification_url"] = serde_json::json!(url);
+            }
             if locale.is_some() {
                 item["content_locale"] = serde_json::json!(content_locale);
             }

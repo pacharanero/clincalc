@@ -17,10 +17,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "duke_iscvid";
 pub const REFERENCE: &str = "Fowler VG Jr, Durack DT, Selton-Suty C, et al. The 2023 Duke-International Society for Cardiovascular Infectious Diseases Criteria for Infective Endocarditis: Updating the Modified Duke Criteria. Clin Infect Dis. 2023;77(4):518-526. doi:10.1093/cid/ciad271. PMCID:PMC10681650. Correction: Clin Infect Dis. 2023;77(8):1222. doi:10.1093/cid/ciad510. PMCID:PMC10893910.";
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Uncopyrightable method under 17 U.S.C. Section 102(b) - factual criteria independently expressed from an all-rights-reserved source publication; source prose and tables are not redistributed",
-    source_url: "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title17-section102&num=0&edition=prelim",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Uncopyrightable method under 17 U.S.C. Section 102(b) - factual criteria independently expressed from an all-rights-reserved source publication; source prose and tables are not redistributed",
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title17-section102&num=0&edition=prelim",
+);
 
 const VERSION: &str = "corrected_2023_duke_iscvid_ciad271_with_ciad510_correction";
 const LIMITATIONS: &str = "This is a research case-definition classification that supplements but never replaces clinical judgement. It is not a screening tool, diagnosis substitute, exclusion rule, mortality estimate, indication for surgery, antibiotic choice, or duration rule. Advanced molecular tests, cardiac CT, and FDG PET/CT may be unavailable, particularly in resource-limited settings, and the criteria have recognised sensitivity and specificity limitations.";

@@ -21,10 +21,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "caprini";
 
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://doi.org/10.1016/j.dmon.2005.02.003",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://doi.org/10.1016/j.dmon.2005.02.003",
+);
 
 pub const REFERENCE: &str = "Caprini JA. Thrombosis risk assessment as a guide to quality patient care. \
 Dis Mon. 2005;51(2-3):70-78. doi:10.1016/j.dmon.2005.02.003 | \

@@ -44,11 +44,11 @@ pub const REFERENCE: &str = "Nashef SAM, Roques F, Sharples LD, et al. EuroSCORE
 /// authors (Papworth Hospital / EuroSCORE Project Group) and the equation and
 /// coefficients are openly available; implemented here from the primary
 /// literature and the official euroscore.org publication.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Freely usable clinical model - published openly by the EuroSCORE Project Group; \
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Freely usable clinical model - published openly by the EuroSCORE Project Group; \
 implemented from the primary literature",
-    source_url: "https://www.euroscore.org/index.php?fid=201",
-};
+    "https://www.euroscore.org/index.php?fid=201",
+);
 
 // --- Published coefficients (Nashef 2012, Table 6) --------------------------
 

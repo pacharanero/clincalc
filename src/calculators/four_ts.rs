@@ -22,10 +22,10 @@ pub const NAME: &str = "four_ts";
 pub const REFERENCE: &str = "Lo GK, Juhl D, Warkentin TE, Sigouin CS, Eichler P, Greinacher A. Evaluation of pretest clinical score (4 T's) for the diagnosis of heparin-induced thrombocytopenia in two clinical settings. J Thromb Haemost. 2006;4(4):759-765. doi:10.1111/j.1538-7836.2006.01787.x. Cuker A, Gimotty PA, Crowther MA, Warkentin TE. Predictive value of the 4Ts scoring system for heparin-induced thrombocytopenia: a systematic review and meta-analysis. Blood. 2012;120(20):4160-4167. doi:10.1182/blood-2012-07-443051. Cuker A, Arepally GM, Chong BH, et al. American Society of Hematology 2018 guidelines for management of venous thromboembolism: heparin-induced thrombocytopenia. Blood Adv. 2018;2(22):3360-3392. doi:10.1182/bloodadvances.2018024489. May J, Cuker A. Practical guide to the diagnosis and management of heparin-induced thrombocytopenia. Hematology Am Soc Hematol Educ Program. 2024;2024(1):388-395. doi:10.1182/hematology.2024000566.";
 
 /// Distribution licence: independently implemented from the published method.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Published clinical scoring method - independently implemented from the primary literature",
-    source_url: "https://doi.org/10.1111/j.1538-7836.2006.01787.x",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Published clinical scoring method - independently implemented from the primary literature",
+    "https://doi.org/10.1111/j.1538-7836.2006.01787.x",
+);
 
 /// Magnitude of platelet-count fall and the platelet nadir.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

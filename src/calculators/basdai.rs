@@ -12,10 +12,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "basdai";
 pub const REFERENCE: &str = "Garrett S, Jenkinson T, Kennedy LG, Whitelock H, Gaisford P, Calin A. A new approach to defining disease status in ankylosing spondylitis: the Bath Ankylosing Spondylitis Disease Activity Index. J Rheumatol. 1994;21(12):2286-2291.";
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Published clinical index - implemented from the primary literature",
-    source_url: "https://pubmed.ncbi.nlm.nih.gov/7699630/",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Published clinical index - implemented from the primary literature",
+    "https://pubmed.ncbi.nlm.nih.gov/7699630/",
+);
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]

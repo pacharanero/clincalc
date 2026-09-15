@@ -23,10 +23,10 @@ pub const NAME: &str = "audit";
 /// domain; no permission is needed for any non-commercial use, and it may be
 /// reproduced provided it is not materially changed and is noted as a
 /// WHO-approved instrument.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public domain - WHO-approved instrument; no permission required for non-commercial use, reproduce unaltered with a note that it is a WHO-approved instrument",
-    source_url: "https://auditscreen.org/about/faqs",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public domain - WHO-approved instrument; no permission required for non-commercial use, reproduce unaltered with a note that it is a WHO-approved instrument",
+    "https://auditscreen.org/about/faqs",
+);
 
 /// Primary citation.
 pub const REFERENCE: &str = "Saunders JB, Aasland OG, Babor TF, de la Fuente JR, Grant M. Development of the Alcohol Use \

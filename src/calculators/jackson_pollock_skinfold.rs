@@ -58,10 +58,10 @@ pub const NAME: &str = "jackson_pollock_skinfold";
 
 pub const REFERENCE: &str = "Jackson AS, Pollock ML. Generalized equations for predicting body density of men. Br J Nutr. 1978;40(3):497-504. doi:10.1079/bjn19780152. Jackson AS, Pollock ML, Ward A. Generalized equations for predicting body density of women. Med Sci Sports Exerc. 1980;12(3):175-181. PMID:7402053. Siri WE. Body composition from fluid spaces and density: analysis of methods. 1961. Reprinted in Nutrition. 1993;9(5):480-491; discussion 480, 492. Nevill AM, Metsios GS, Jackson AS, et al. Can we use the Jackson and Pollock equations to predict body density/fat of obese individuals in the 21st century? Int J Body Compos Res. 2008;6(3):114-121. PMID:20582331.";
 
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Published mathematical method - independently implemented; formulas and algorithms are not protected by US copyright",
-    source_url: "https://www.copyright.gov/circs/circ31.pdf",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Published mathematical method - independently implemented; formulas and algorithms are not protected by US copyright",
+    "https://www.copyright.gov/circs/circ31.pdf",
+);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]

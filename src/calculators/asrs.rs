@@ -19,10 +19,10 @@ pub const NAME: &str = "asrs";
 
 /// The rights holder permits electronic versions of the six-question screener
 /// with attribution, but does not permit other modifications.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "© New York University and the President and Fellows of Harvard College. Free clinical and non-clinical use, including commercial use, with attribution; electronic versions permitted; no other modifications.",
-    source_url: "https://license.tov.med.nyu.edu/product/asrs6Qscreener",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "© New York University and the President and Fellows of Harvard College. Free clinical and non-clinical use, including commercial use, with attribution; electronic versions permitted; no other modifications.",
+    "https://license.tov.med.nyu.edu/product/asrs6Qscreener",
+);
 
 /// Attribution required by the rights holder.
 pub const ATTRIBUTION: &str = "The 6-question Adult Self-Report Scale-Version1.1 (ASRS-V1.1) Screener is a subset of the 18-question Adult ADHD Self-Report Scale-Version1.1 (Adult ASRSV1.1) Symptom Checklist. © New York University and the President and Fellows of Harvard College.";

@@ -20,10 +20,10 @@ pub const NAME: &str = "feverpain";
 
 /// Distribution licence for the algorithm (the score is a published clinical
 /// method, implemented here from the open-access NIHR HTA report).
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature (NIHR HTA, open access)",
-    source_url: "https://www.ncbi.nlm.nih.gov/books/NBK261544/",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature (NIHR HTA, open access)",
+    "https://www.ncbi.nlm.nih.gov/books/NBK261544/",
+);
 
 /// Primary citation (matches the payload dispatched by the web calculator).
 pub const REFERENCE: &str = "Little P, Stuart B, Hobbs FDR, et al. Lancet Infect Dis. 2014. \

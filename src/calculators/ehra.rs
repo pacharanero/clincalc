@@ -24,10 +24,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "ehra";
 
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://doi.org/10.1093/europace/eut365",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://doi.org/10.1093/europace/eut365",
+);
 
 pub const REFERENCE: &str = "Kirchhof P, Benussi S, Kotecha D, et al. 2016 ESC Guidelines for the management of \
 atrial fibrillation. Eur Heart J. 2016;37(38):2893-2962. doi:10.1093/eurheartj/ehw210 | \

@@ -38,10 +38,10 @@ to predict 30 day mortality in patients undergoing hip fracture surgery. Br J An
 /// here from the primary literature. The scoring algorithm carries no
 /// proprietary licence and is reproduced freely in clinical practice and
 /// national audit (e.g. the UK National Hip Fracture Database).
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://doi.org/10.1093/bja/aen236",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://doi.org/10.1093/bja/aen236",
+);
 
 /// Upper bound of the lower age band: at or below this, age scores 0 points.
 pub const AGE_NONE_MAX: u8 = 65;

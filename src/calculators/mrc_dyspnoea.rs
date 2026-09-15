@@ -28,10 +28,10 @@ pub const NAME: &str = "mrc_dyspnoea";
 /// Distribution licence: the MRC Dyspnoea Scale is published by the Medical
 /// Research Council and made freely available for use, asking only that the
 /// source is acknowledged.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Free to use - published by the Medical Research Council; reproduction permitted with acknowledgement of the source",
-    source_url: "https://www.ukri.org/councils/mrc/facilities-and-resources/find-an-mrc-facility-or-resource/mrc-dyspnoea-scale/",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Free to use - published by the Medical Research Council; reproduction permitted with acknowledgement of the source",
+    "https://www.ukri.org/councils/mrc/facilities-and-resources/find-an-mrc-facility-or-resource/mrc-dyspnoea-scale/",
+);
 
 /// Primary citation.
 pub const REFERENCE: &str = "Fletcher CM, Elmes PC, Fairbairn AS, Wood CH. The significance of respiratory symptoms and \

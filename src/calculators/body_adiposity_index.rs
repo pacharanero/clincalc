@@ -31,10 +31,10 @@ pub const NAME: &str = "body_adiposity_index";
 
 pub const REFERENCE: &str = "Equation: Bergman RN, Stefanovski D, Buchanan TA, et al. A better index of body adiposity. Obesity (Silver Spring). 2011;19(5):1083-1089. doi:10.1038/oby.2011.38. Validation limitations: Cerqueira M, Amorim P, Magalhaes F, et al. Validity of body adiposity index in predicting body fat in adults: a systematic review. Adv Nutr. 2018;9(5):617-624. doi:10.1093/advances/nmy043. PMID:30239583.";
 
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Published mathematical method - independently implemented; formulas and algorithms are not protected by US copyright",
-    source_url: "https://www.copyright.gov/circs/circ31.pdf",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Published mathematical method - independently implemented; formulas and algorithms are not protected by US copyright",
+    "https://www.copyright.gov/circs/circ31.pdf",
+);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]

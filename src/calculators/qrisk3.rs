@@ -59,10 +59,10 @@ algorithms to estimate future risk of cardiovascular disease: prospective cohort
 /// Distribution licence: ClinRisk Ltd. released the QRISK3-2017 algorithm source
 /// under the LGPL v3+ specifically to enable faithful reimplementation; the
 /// coefficients here are transcribed verbatim from that source.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "LGPL-3.0-or-later - QRISK3-2017 algorithm Copyright 2017 ClinRisk Ltd.",
-    source_url: "https://web.archive.org/web/20240418114046id_/https://qrisk.org/src.php",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "LGPL-3.0-or-later - QRISK3-2017 algorithm Copyright 2017 ClinRisk Ltd.",
+    "https://web.archive.org/web/20240418114046id_/https://qrisk.org/src.php",
+);
 
 /// ClinRisk's required disclaimer, carried alongside every score per the licence
 /// terms. Inaccurate implementations can lead to wrong treatment, so the result

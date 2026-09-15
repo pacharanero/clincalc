@@ -21,10 +21,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "waist_to_height_ratio";
 pub const REFERENCE: &str = "Ashwell M, Gibson S. Waist-to-height ratio as an indicator of 'early health risk': simpler and more predictive than using a 'matrix' based on BMI and waist circumference. BMJ Open. 2016;6(3):e010159. doi:10.1136/bmjopen-2015-010159.";
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - standard anthropometric ratio",
-    source_url: "https://doi.org/10.1136/bmjopen-2015-010159",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - standard anthropometric ratio",
+    "https://doi.org/10.1136/bmjopen-2015-010159",
+);
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]

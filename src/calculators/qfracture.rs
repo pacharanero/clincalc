@@ -73,10 +73,10 @@ cohort study. BMJ. 2012;344:e3427. doi:10.1136/bmj.e3427. Open UK alternative to
 /// Distribution licence: ClinRisk Ltd. released the QFracture-2012 algorithm
 /// source under the LGPL v3+ specifically to enable faithful reimplementation;
 /// the coefficients here are transcribed verbatim from that source.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "LGPL-3.0-or-later - QFracture-2012 algorithm Copyright 2012 ClinRisk Ltd.",
-    source_url: "https://github.com/nhsland/clinrisk-modules/blob/8145002092a54cb3b37d4e2631b228921fa6f9a7/qFracture/Readme.txt",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "LGPL-3.0-or-later - QFracture-2012 algorithm Copyright 2012 ClinRisk Ltd.",
+    "https://github.com/nhsland/clinrisk-modules/blob/8145002092a54cb3b37d4e2631b228921fa6f9a7/qFracture/Readme.txt",
+);
 
 /// ClinRisk's required disclaimer, carried alongside every score per the licence
 /// terms. Inaccurate implementations can lead to wrong treatment, so the result

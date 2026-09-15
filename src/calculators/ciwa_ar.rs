@@ -15,10 +15,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "ciwa_ar";
 pub const REFERENCE: &str = "Sullivan JT, Sykora K, Schneiderman J, Naranjo CA, Sellers EM. Assessment of alcohol withdrawal: the revised Clinical Institute Withdrawal Assessment for Alcohol scale (CIWA-Ar). Br J Addict. 1989;84(11):1353-1357. doi:10.1111/j.1360-0443.1989.tb00737.x. The ASAM Clinical Practice Guideline on Alcohol Withdrawal Management. J Addict Med. 2020;14(3S Suppl 1):1-72.";
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Not copyrighted - the CIWA-Ar may be reproduced freely",
-    source_url: "https://www.ci2i.research.va.gov/paws/pdfs/ciwa-ar.pdf",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Not copyrighted - the CIWA-Ar may be reproduced freely",
+    "https://www.ci2i.research.va.gov/paws/pdfs/ciwa-ar.pdf",
+);
 
 const LIMITATIONS: &str = "CIWA-Ar measures current symptom severity after alcohol withdrawal has been clinically identified. It does not diagnose withdrawal, independently predict future seizures or delirium, or prescribe treatment; a high initial score may contribute to risk assessment but must not be used alone. Seven components require reliable patient communication. Do not use a total when delirium, dementia, psychosis, intubation, severe cognitive impairment, a mechanical communication barrier, or an unmanaged language barrier prevents reliable participation. Pain, head injury, psychiatric symptoms, intoxication, baseline tremor, infection, and medication effects can confound scores.";
 

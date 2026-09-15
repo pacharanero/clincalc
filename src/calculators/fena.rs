@@ -28,10 +28,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "fena";
 
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://doi.org/10.1001/jama.1976.03270060029020",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://doi.org/10.1001/jama.1976.03270060029020",
+);
 
 pub const REFERENCE: &str = "Espinel CH. The FENa test. Use in the differential diagnosis of acute renal failure. \
 JAMA. 1976;236(6):579-581. doi:10.1001/jama.1976.03270060029020";

@@ -34,10 +34,10 @@ pub const NAME: &str = "npi";
 
 /// Distribution licence: the NPI is a published clinical method, implemented
 /// here from the primary literature.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature (Nottingham Prognostic Index)",
-    source_url: "https://doi.org/10.1007/BF01840834",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature (Nottingham Prognostic Index)",
+    "https://doi.org/10.1007/BF01840834",
+);
 
 /// Primary citation.
 pub const REFERENCE: &str = "Galea MH, Blamey RW, Elston CE, Ellis IO. The Nottingham Prognostic Index in primary breast \

@@ -34,10 +34,10 @@ pub const NAME: &str = "epds";
 /// Distribution licence: the EPDS may be reproduced free of charge for clinical
 /// or research use provided it is copied in full and the source is cited; no
 /// further permission is required (Cox, Holden & Sagovsky 1987).
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Free to reproduce in full for clinical or research use with the source citation; no further permission required (Cox, Holden & Sagovsky 1987)",
-    source_url: "https://doi.org/10.1192/bjp.150.6.782",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Free to reproduce in full for clinical or research use with the source citation; no further permission required (Cox, Holden & Sagovsky 1987)",
+    "https://doi.org/10.1192/bjp.150.6.782",
+);
 
 /// Primary citation.
 pub const REFERENCE: &str = "Cox JL, Holden JM, Sagovsky R. Detection of postnatal depression: development of the \

@@ -31,10 +31,10 @@ pub const NAME: &str = "ukeld";
 
 /// Distribution licence: the UKELD equation is a published method, implemented
 /// here from the primary literature.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature (UKELD, Barber et al. 2011)",
-    source_url: "https://doi.org/10.1097/TP.0b013e318225db4d",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature (UKELD, Barber et al. 2011)",
+    "https://doi.org/10.1097/TP.0b013e318225db4d",
+);
 
 /// Primary citation.
 pub const REFERENCE: &str = "Barber K, Madden S, Allen J, et al. Elective liver transplant list mortality: development of a \

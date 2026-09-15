@@ -37,10 +37,10 @@ validation of the HEART score for chest pain patients at the emergency departmen
 
 /// Distribution licence: the score is a published clinical method, implemented
 /// here from the primary literature.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://doi.org/10.1007/BF03086144",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://doi.org/10.1007/BF03086144",
+);
 
 /// History (clinical suspicion) component - a subjective gestalt of how
 /// suspicious the presentation is for an acute coronary syndrome.

@@ -21,10 +21,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "familial_hypercholesterolaemia";
 
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://doi.org/10.1093/eurheartj/ehu531",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://doi.org/10.1093/eurheartj/ehu531",
+);
 
 pub const REFERENCE: &str = "Nordestgaard BG et al. Familial hypercholesterolaemia is underdiagnosed and \
 undertreated in the general population: guidance for clinicians to prevent coronary heart disease. \

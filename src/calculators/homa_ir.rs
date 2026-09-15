@@ -16,10 +16,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "homa_ir";
 pub const REFERENCE: &str = "Matthews DR, Hosker JP, Rudenski AS, Naylor BA, Treacher DF, Turner RC. Homeostasis model assessment: insulin resistance and beta-cell function from fasting plasma glucose and insulin concentrations in man. Diabetologia. 1985;28:412-419. PMID: 3899825. doi:10.1007/BF00280883";
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://doi.org/10.1007/BF00280883",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://doi.org/10.1007/BF00280883",
+);
 
 const MGDL_PER_MMOLL_GLUCOSE: f64 = 18.0;
 const MIN_GLUCOSE_MMOLL: f64 = 1.7;

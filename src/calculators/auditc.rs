@@ -31,10 +31,10 @@ pub const NAME: &str = "auditc";
 /// reviewed, abstracted, reproduced and translated, in part or in whole, but
 /// not for sale or for use in conjunction with commercial purposes". No
 /// permission is required for non-commercial reproduction.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "WHO instrument - may be freely reviewed, abstracted, reproduced and translated, in part or in whole, but not for sale or for commercial purposes (WHO AUDIT manual, Babor et al. 2001)",
-    source_url: "https://iris.who.int/handle/10665/67205",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "WHO instrument - may be freely reviewed, abstracted, reproduced and translated, in part or in whole, but not for sale or for commercial purposes (WHO AUDIT manual, Babor et al. 2001)",
+    "https://iris.who.int/handle/10665/67205",
+);
 
 /// Primary citation.
 pub const REFERENCE: &str = "Bush K, Kivlahan DR, McDonell MB, Fihn SD, Bradley KA. The AUDIT alcohol consumption \

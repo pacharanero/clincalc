@@ -20,10 +20,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "meld_3";
 pub const REFERENCE: &str = "Kim WR, Mannalithara A, Heimbach JK, et al. MELD 3.0: The Model for End-Stage Liver Disease Updated for the Modern Era. Gastroenterology. 2021;161(6):1887-1895.e4. doi:10.1053/j.gastro.2021.08.050. Allocation bounds and age handling per current OPTN MELD calculator policy.";
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Uncopyrightable method under 17 U.S.C. Section 102(b) - independently implemented from primary literature",
-    source_url: "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title17-section102&num=0&edition=prelim",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Uncopyrightable method under 17 U.S.C. Section 102(b) - independently implemented from primary literature",
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title17-section102&num=0&edition=prelim",
+);
 
 pub const BILIRUBIN_UMOL_PER_MGDL: f64 = 17.1;
 pub const CREATININE_UMOL_PER_MGDL: f64 = 88.4;

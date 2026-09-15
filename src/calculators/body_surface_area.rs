@@ -14,10 +14,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "body_surface_area";
 pub const REFERENCE: &str = "Mosteller RD. Simplified calculation of body-surface area. N Engl J Med. 1987;317:1098. PMID: 3657876. doi:10.1056/NEJM198710223171717.";
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://doi.org/10.1056/NEJM198710223171717",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://doi.org/10.1056/NEJM198710223171717",
+);
 
 const FORMULA: &str = "sqrt(height_cm * weight_kg / 3600)";
 

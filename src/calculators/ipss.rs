@@ -30,10 +30,10 @@ pub const NAME: &str = "ipss";
 /// implemented here from the primary literature and not subject to copyright.
 /// The verbatim official questionnaire wording is separately copyrighted and
 /// distributed by the Mapi Research Trust; it is **not** reproduced here.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - scoring algorithm implemented from the primary literature (Barry et al., J Urol 1992); verbatim official questionnaire wording is separately licensed via Mapi Research Trust and is not reproduced",
-    source_url: "https://eprovide.mapi-trust.org/instruments/international-prostate-symptom-score",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - scoring algorithm implemented from the primary literature (Barry et al., J Urol 1992); verbatim official questionnaire wording is separately licensed via Mapi Research Trust and is not reproduced",
+    "https://eprovide.mapi-trust.org/instruments/international-prostate-symptom-score",
+);
 
 /// Primary citation.
 pub const REFERENCE: &str = "Barry MJ, Fowler FJ Jr, O'Leary MP, et al. The American Urological \

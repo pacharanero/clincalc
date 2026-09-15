@@ -36,10 +36,10 @@ J Thromb Haemost. 2010;8(11):2450-2457. Threshold and prophylaxis guidance per N
 
 /// Distribution licence: the score is a published clinical method, implemented
 /// here from the primary literature.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://doi.org/10.1111/j.1538-7836.2010.04044.x",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://doi.org/10.1111/j.1538-7836.2010.04044.x",
+);
 
 /// The high-risk threshold: a total score of this value or above.
 const HIGH_RISK_THRESHOLD: u8 = 4;

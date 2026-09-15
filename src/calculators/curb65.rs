@@ -39,10 +39,10 @@ NICE NG250, with critical-care transfer assessment per BTS 2009.";
 
 /// Distribution licence: the score is a published clinical method, implemented
 /// here from the primary literature.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://doi.org/10.1136/thorax.58.5.377",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://doi.org/10.1136/thorax.58.5.377",
+);
 
 struct TranslationBundle {
     title: &'static str,

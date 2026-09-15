@@ -29,10 +29,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "braden";
 
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://doi.org/10.1097/00006199-198709000-00015",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://doi.org/10.1097/00006199-198709000-00015",
+);
 
 pub const REFERENCE: &str = "Bergstrom N, Braden BJ, Laguzza A, Holman V. The Braden Scale for predicting \
 pressure sore risk. Nurs Res. 1987;36(4):205-210. doi:10.1097/00006199-198709000-00015";

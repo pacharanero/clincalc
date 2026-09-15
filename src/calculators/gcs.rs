@@ -57,11 +57,11 @@ doi:10.1016/S1474-4422(14)70120-6";
 /// of Glasgow and Sir Graham Teasdale, free to use for clinical care,
 /// teaching, and research with no licence required, subject to
 /// acknowledgement; implemented here from the primary literature.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Free to use for clinical care, teaching, and research, no licence required - copyright \
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Free to use for clinical care, teaching, and research, no licence required - copyright \
 University of Glasgow and Sir Graham Teasdale, acknowledgement requested",
-    source_url: "https://www.glasgowcomascale.org/permissions/",
-};
+    "https://www.glasgowcomascale.org/permissions/",
+);
 
 /// Shared source citation for the per-component schema `definition` blocks.
 const COMPONENT_SOURCE_CITATION: &str = "Teasdale G, Jennett B. Lancet. 1974;2(7872):81-84. | Teasdale \

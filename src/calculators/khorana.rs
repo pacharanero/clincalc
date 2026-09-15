@@ -24,10 +24,10 @@ pub const NAME: &str = "khorana";
 pub const REFERENCE: &str = "Khorana AA, Kuderer NM, Culakova E, Lyman GH, Francis CW. Development and validation of a predictive model for chemotherapy-associated thrombosis. Blood. 2008;111(10):4902-4907. doi:10.1182/blood-2007-10-116327. PMID:18216292. Key NS, Khorana AA, Kuderer NM, et al. Venous Thromboembolism Prophylaxis and Treatment in Patients With Cancer: ASCO Clinical Practice Guideline Update. J Clin Oncol. 2020;38(5):496-520. doi:10.1200/JCO.19.01461. Farge D, Frere C, Connors JM, et al. 2022 international clinical practice guidelines for the treatment and prophylaxis of venous thromboembolism in patients with cancer, including patients with COVID-19. Lancet Oncol. 2022;23(7):e334-e347. doi:10.1016/S1470-2045(22)00160-7.";
 
 /// Distribution licence: independently implemented from the published method.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Published clinical scoring method - independently implemented from the primary literature",
-    source_url: "https://doi.org/10.1182/blood-2007-10-116327",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Published clinical scoring method - independently implemented from the primary literature",
+    "https://doi.org/10.1182/blood-2007-10-116327",
+);
 
 /// The sole assessment context supported by this implementation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

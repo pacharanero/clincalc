@@ -15,10 +15,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "cows";
 pub const REFERENCE: &str = "Wesson DR, Ling W. The Clinical Opiate Withdrawal Scale (COWS). J Psychoactive Drugs. 2003;35(2):253-259. doi:10.1080/02791072.2003.10400007. PMID:12924748. Tompkins DA, Bigelow GE, Harrison JA, Johnson RE, Fudala PJ, Strain EC. Concurrent validation of the Clinical Opiate Withdrawal Scale against the Clinical Institute Narcotic Assessment. Drug Alcohol Depend. 2009;105(1-2):154-159. doi:10.1016/j.drugalcdep.2009.07.001.";
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "No copyright indicated by NIH; the published COWS template may be copied and used clinically",
-    source_url: "https://www.nih.gov/node/21071",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "No copyright indicated by NIH; the published COWS template may be copied and used clinically",
+    "https://www.nih.gov/node/21071",
+);
 
 const LIMITATIONS: &str = "COWS quantifies current clinician-assessed signs and symptoms apparently attributable to opioid withdrawal. It does not independently diagnose withdrawal, establish opioid tolerance, distinguish every alternative cause, or determine medication timing or dosage. Account for exercise and other causes of tachycardia, room temperature or activity causing sweating, allergy or infection causing rhinorrhoea, pre-existing pain, other substances, medications, anxiety, gastrointestinal illness, and autonomic disorders. Never infer that a score makes buprenorphine administration safe.";
 

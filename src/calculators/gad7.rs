@@ -21,10 +21,10 @@ pub const NAME: &str = "gad7";
 /// Distribution licence: Pfizer released the GAD-7 into the public domain in
 /// 2010; no permission is required to reproduce, translate, display, or
 /// distribute.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public domain - released by Pfizer (2010); no permission required to reproduce, translate, display, or distribute",
-    source_url: "https://www.pfizer.com/news/press-release/press-release-detail/pfizer_to_offer_free_public_access_to_mental_health_assessment_tools_to_improve_diagnosis_and_patient_care",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public domain - released by Pfizer (2010); no permission required to reproduce, translate, display, or distribute",
+    "https://www.pfizer.com/news/press-release/press-release-detail/pfizer_to_offer_free_public_access_to_mental_health_assessment_tools_to_improve_diagnosis_and_patient_care",
+);
 
 /// Primary citation.
 pub const REFERENCE: &str = "Spitzer RL, Kroenke K, Williams JBW, Löwe B. A brief measure for assessing generalized \

@@ -28,10 +28,10 @@ pub const NAME: &str = "bode";
 
 /// Distribution licence: the BODE index is a published clinical method,
 /// implemented here from the primary literature.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature (BODE index, Celli et al. 2004)",
-    source_url: "https://doi.org/10.1056/NEJMoa021322",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature (BODE index, Celli et al. 2004)",
+    "https://doi.org/10.1056/NEJMoa021322",
+);
 
 /// Primary citation.
 pub const REFERENCE: &str = "Celli BR, Cote CG, Marin JM, et al. The body-mass index, airflow obstruction, dyspnea, and \

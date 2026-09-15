@@ -1075,7 +1075,7 @@ fn print_list(
                 .filter(|c| passes(c.as_ref()))
                 .map(|c| {
                     let lic = c.license();
-                    serde_json::json!({
+                    let mut item = serde_json::json!({
                         "name": c.name(),
                         "title": c.title_for(locale),
                         "description": c.description_for(locale),
@@ -1084,7 +1084,9 @@ fn print_list(
                         "license_source": lic.source_url,
                         "tags": c.tags(),
                         "aliases": aliases_for(c.name()),
-                    })
+                    });
+                    push_licence_verification(&mut item, &lic);
+                    item
                 })
                 .collect();
             println!("{}", serde_json::to_string_pretty(&items)?);
@@ -1137,6 +1139,22 @@ fn print_list(
         }
     }
     Ok(())
+}
+
+/// Copies the licence-reverification fields onto a catalogue entry whenever
+/// they are recorded, so `list --format json` reports them without inventing
+/// `null`s for calculators that have not been reverified yet.
+fn push_licence_verification(
+    item: &mut serde_json::Value,
+    lic: &crate::license::CalculatorLicense,
+) {
+    let object = item.as_object_mut().expect("catalogue item is an object");
+    if let Some(date) = lic.last_verified {
+        object.insert("last_verified".to_string(), serde_json::json!(date));
+    }
+    if let Some(url) = lic.verification_url {
+        object.insert("verification_url".to_string(), serde_json::json!(url));
+    }
 }
 
 /// `clincalc list --tags`: enumerate every tag in the registry with a count.

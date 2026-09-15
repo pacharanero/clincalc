@@ -28,10 +28,10 @@ pub const NAME: &str = "protein_target";
 
 pub const REFERENCE: &str = "Morton RW, Murphy KT, McKellar SR, et al. A systematic review, meta-analysis and meta-regression of the effect of protein supplementation on resistance training-induced gains in muscle mass and strength in healthy adults. Br J Sports Med. 2018;52(6):376-384. doi:10.1136/bjsports-2017-097608. Correction: Br J Sports Med. 2020;54(19):e7. doi:10.1136/bjsports-2017-097608corr1.";
 
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Published mathematical method - independently implemented; formulas and algorithms are not protected by US copyright",
-    source_url: "https://www.copyright.gov/circs/circ31.pdf",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Published mathematical method - independently implemented; formulas and algorithms are not protected by US copyright",
+    "https://www.copyright.gov/circs/circ31.pdf",
+);
 
 const BREAKPOINT_G_PER_KG: f64 = 1.62;
 const BREAKPOINT_CI_LOW_G_PER_KG: f64 = 1.03;

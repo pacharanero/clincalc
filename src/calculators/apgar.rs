@@ -21,10 +21,10 @@ pub const NAME: &str = "apgar";
 pub const REFERENCE: &str = "Apgar V. A proposal for a new method of evaluation of the newborn infant. Curr Res Anesth Analg. 1953;32(4):260-267. PMID:13083014. American Academy of Pediatrics Committee on Fetus and Newborn; American College of Obstetricians and Gynecologists Committee on Obstetric Practice. The Apgar Score. Pediatrics. 2015;136(4):819-822. doi:10.1542/peds.2015-2651. American Heart Association; American Academy of Pediatrics. Part 5: Neonatal Resuscitation: 2025 American Heart Association and American Academy of Pediatrics Guidelines for Cardiopulmonary Resuscitation and Emergency Cardiovascular Care. Pediatrics. 2026;157(1):e2025074352. doi:10.1542/peds.2025-074352.";
 
 /// Distribution licence: independently implemented from the published method.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Published clinical scoring method - independently implemented from the primary literature",
-    source_url: "https://collections.nlm.nih.gov/catalog/nlm:nlmuid-101584647X152-doc",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Published clinical scoring method - independently implemented from the primary literature",
+    "https://collections.nlm.nih.gov/catalog/nlm:nlmuid-101584647X152-doc",
+);
 
 /// Gestational context relevant to interpretation of the 5-minute total.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

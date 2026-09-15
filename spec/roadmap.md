@@ -174,7 +174,7 @@ Status: Planned
 
 A mechanism to re-verify each calculator's licence and reference URL on a schedule, so dead links or superseded guidelines do not silently rot.
 
-- [ ] **ENG-008.1 Add `last_verified` date and `verification_url`** to `CalculatorLicense`.
+- [x] **ENG-008.1 Add `last_verified` date and `verification_url`** to `CalculatorLicense`.
 - [ ] **ENG-008.2 Provide a `clincalc audit` command** (or `cargo xtask audit-references`) that HEAD-requests every `source_url`, reports 404s/redirects, and flags calculators whose `last_verified` is older than a threshold.
 - [ ] **ENG-008.3 Integrate with CI as a scheduled job** (monthly) that opens an issue or fails a build if references go stale.
 - [ ] **ENG-008.4 Keep this out of the hot path**; it is a maintenance tool, not part of scoring.

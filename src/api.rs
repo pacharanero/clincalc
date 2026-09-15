@@ -39,6 +39,7 @@ use axum::{
     routing::{get, post},
 };
 
+use crate::license::CalculatorLicense;
 use crate::locale::SupportedLocale;
 
 type ApiResult<T> = Result<Json<T>, (StatusCode, Json<serde_json::Value>)>;
@@ -261,7 +262,7 @@ async fn list_calculators(
             } else {
                 SupportedLocale::En
             };
-            serde_json::json!({
+            let mut item = serde_json::json!({
                 "name": c.name(),
                 "title": c.title_for(content_locale),
                 "description": c.description_for(content_locale),
@@ -270,7 +271,9 @@ async fn list_calculators(
                 "license": lic.license,
                 "license_source": lic.source_url,
                 "tags": c.tags(),
-            })
+            });
+            push_licence_verification(&mut item, &lic);
+            item
         })
         .collect();
     // No single Content-Language: the catalogue mixes calculators that may
@@ -382,6 +385,19 @@ async fn get_openapi_spec() -> Json<serde_json::Value> {
     Json(openapi_spec())
 }
 
+/// Copies the licence-reverification fields onto a catalogue entry whenever
+/// they are recorded, so summary surfaces surface them without inventing
+/// `null`s for calculators that have not been reverified yet.
+fn push_licence_verification(item: &mut serde_json::Value, lic: &CalculatorLicense) {
+    let object = item.as_object_mut().expect("catalogue item is an object");
+    if let Some(date) = lic.last_verified {
+        object.insert("last_verified".to_string(), serde_json::json!(date));
+    }
+    if let Some(url) = lic.verification_url {
+        object.insert("verification_url".to_string(), serde_json::json!(url));
+    }
+}
+
 fn openapi_spec() -> serde_json::Value {
     let calcs = crate::all();
 
@@ -400,6 +416,8 @@ fn openapi_spec() -> serde_json::Value {
                 "supported_locales": {"type": "array", "items": {"type": "string"}},
                 "license": {"type": "string"},
                 "license_source": {"type": "string", "format": "uri"},
+                "last_verified": {"type": "string", "format": "date", "description": "Date source_url was last confirmed to still evidence license; absent until recorded"},
+                "verification_url": {"type": "string", "format": "uri", "description": "URL actually requested for the last_verified check, when it differs from license_source"},
                 "tags": {"type": "array", "items": {"type": "string"}}
             }
         }),
@@ -695,6 +713,10 @@ mod tests {
         assert!(first["license"].is_string());
         assert!(first["license_source"].is_string());
         assert!(first["tags"].is_array());
+        // No calculator has been through a reverification pass yet, so the
+        // optional provenance fields must be absent rather than null.
+        assert!(first.get("last_verified").is_none());
+        assert!(first.get("verification_url").is_none());
     }
 
     #[tokio::test]

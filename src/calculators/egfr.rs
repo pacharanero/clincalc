@@ -23,10 +23,10 @@ pub const NAME: &str = "egfr";
 
 /// Distribution licence: the CKD-EPI 2021 equation is a published method,
 /// implemented here from the primary literature.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature (CKD-EPI 2021 equation)",
-    source_url: "https://doi.org/10.1056/NEJMoa2102953",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature (CKD-EPI 2021 equation)",
+    "https://doi.org/10.1056/NEJMoa2102953",
+);
 
 /// Primary citation.
 pub const REFERENCE: &str = "Inker LA, Eneanya ND, Coresh J, et al. New creatinine- and cystatin C-based equations to \

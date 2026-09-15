@@ -27,10 +27,10 @@ pub const NAME: &str = "uacr";
 /// staging method; the thresholds and the ACR itself are implemented here from
 /// the primary guideline. The KDIGO guideline text is CC BY-NC-ND, but the
 /// numeric staging thresholds are facts/method rather than copyrightable content.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary guideline (KDIGO 2024 albuminuria categories A1-A3)",
-    source_url: "https://kdigo.org/wp-content/uploads/2024/03/KDIGO-2024-CKD-Guideline.pdf",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary guideline (KDIGO 2024 albuminuria categories A1-A3)",
+    "https://kdigo.org/wp-content/uploads/2024/03/KDIGO-2024-CKD-Guideline.pdf",
+);
 
 /// Primary citation.
 pub const REFERENCE: &str = "Kidney Disease: Improving Global Outcomes (KDIGO) CKD Work Group. KDIGO 2024 Clinical \

@@ -36,11 +36,11 @@ BMC Med. 2019;17:138. https://www.the4at.com";
 /// Creative Commons Attribution (CC-BY-4.0), with no permission, payment, or
 /// registration required, and is explicitly free to incorporate into EHR/EMR
 /// systems. Attribution is to www.the4at.com.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "CC-BY-4.0 - free to use, reproduce, and incorporate into clinical software with \
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "CC-BY-4.0 - free to use, reproduce, and incorporate into clinical software with \
 attribution to www.the4at.com; no permission or payment required",
-    source_url: "https://www.the4at.com/4at-faq",
-};
+    "https://www.the4at.com/4at-faq",
+);
 
 /// Item 1: alertness, scored from observation.
 ///

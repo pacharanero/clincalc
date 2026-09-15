@@ -38,10 +38,10 @@ pub const NAME: &str = "cockcroft_gault";
 pub const REFERENCE: &str = "Cockcroft DW, Gault MH. Prediction of creatinine clearance from serum creatinine. \
 Nephron. 1976;16(1):31-41. doi:10.1159/000180580";
 
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://doi.org/10.1159/000180580",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://doi.org/10.1159/000180580",
+);
 
 pub const UMOL_PER_MGDL: f64 = 88.4;
 

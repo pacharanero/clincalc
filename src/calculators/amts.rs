@@ -27,10 +27,10 @@ pub const NAME: &str = "amts";
 /// Distribution licence: the score is a published clinical method, implemented
 /// here from the primary literature. The 10-item test carries no proprietary
 /// licence and is reproduced freely in clinical practice and guidance.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://doi.org/10.1093/ageing/1.4.233",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://doi.org/10.1093/ageing/1.4.233",
+);
 
 /// Primary citation.
 pub const REFERENCE: &str = "Hodkinson HM. Evaluation of a mental test score for assessment of mental impairment in the \

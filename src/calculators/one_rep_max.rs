@@ -31,10 +31,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "one_rep_max";
 pub const REFERENCE: &str = "Epley B. Poundage chart. Boyd Epley Workout. 1985. Brzycki M. Strength testing: predicting a one-rep max from a reps-to-fatigue chart. J Phys Ed Rec Dance. 1993;64(1):88-90. Lombardi VP. Beginning Weight Training. Brown & Benchmark. 1989.";
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain formulae - exercise physiology",
-    source_url: "https://doi.org/10.1080%2F07303084.1993.10607288",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain formulae - exercise physiology",
+    "https://doi.org/10.1080%2F07303084.1993.10607288",
+);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]

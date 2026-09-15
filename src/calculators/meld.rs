@@ -36,10 +36,10 @@ pub const NAME: &str = "meld";
 
 /// Distribution licence: the MELD equation is a published method, implemented
 /// here from the primary literature.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature (original MELD, 2001)",
-    source_url: "https://doi.org/10.1053/jhep.2001.22172",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature (original MELD, 2001)",
+    "https://doi.org/10.1053/jhep.2001.22172",
+);
 
 /// Primary citation.
 pub const REFERENCE: &str = "Kamath PS, Wiesner RH, Malinchoc M, et al. A model to predict survival in patients with \

@@ -23,10 +23,10 @@ pub const NAME: &str = "glasgow_blatchford";
 pub const REFERENCE: &str = "Blatchford O, Murray WR, Blatchford M. A risk score to predict need for treatment for upper-gastrointestinal haemorrhage. Lancet. 2000;356(9238):1318-1321. doi:10.1016/S0140-6736(00)02816-6. NICE CG141: Acute upper gastrointestinal bleeding in over 16s: management (updated 2016). Laine L, Barkun AN, Saltzman JR, et al. ACG Clinical Guideline: Upper Gastrointestinal and Ulcer Bleeding. Am J Gastroenterol. 2021;116(5):899-917. doi:10.14309/ajg.0000000000001245.";
 
 /// Distribution licence: independently implemented from the published method.
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Published clinical scoring method - independently implemented from the primary literature",
-    source_url: "https://doi.org/10.1016/S0140-6736(00)02816-6",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Published clinical scoring method - independently implemented from the primary literature",
+    "https://doi.org/10.1016/S0140-6736(00)02816-6",
+);
 
 /// Sex category used by the published sex-specific haemoglobin bands.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

@@ -29,10 +29,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "findrisc";
 
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - implemented from the primary literature",
-    source_url: "https://doi.org/10.2337/diacare.26.3.725",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - implemented from the primary literature",
+    "https://doi.org/10.2337/diacare.26.3.725",
+);
 
 pub const REFERENCE: &str = "Lindstrom J, Tuomilehto J. The diabetes risk score: a practical tool to predict \
 type 2 diabetes risk. Diabetes Care. 2003;26(3):725-731. doi:10.2337/diacare.26.3.725";

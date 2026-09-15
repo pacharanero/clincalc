@@ -12,10 +12,10 @@ use crate::response::CalculationResponse;
 
 pub const NAME: &str = "bmi";
 pub const REFERENCE: &str = "World Health Organization. Obesity: preventing and managing the global epidemic. WHO Technical Report Series 894. 2000. BMI = weight(kg) / height(m)^2.";
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - standard anthropometric index",
-    source_url: "https://apps.who.int/iris/handle/10665/42330",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - standard anthropometric index",
+    "https://apps.who.int/iris/handle/10665/42330",
+);
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]

@@ -24,10 +24,10 @@ pub const NAME: &str = "waist_to_hip_ratio";
 
 pub const REFERENCE: &str = "World Health Organization. Waist Circumference and Waist-Hip Ratio: Report of a WHO Expert Consultation, Geneva, 8-11 December 2008. Geneva: WHO Press; 2011. Annex A, Table A1 collates the commonly WHO-attributed >=0.90 male and >=0.85 female cut-offs; the underlying WHO 1999 metabolic-syndrome working definition used >0.90 and >0.85.";
 
-pub const LICENSE: CalculatorLicense = CalculatorLicense {
-    license: "Public-domain method - standard anthropometric ratio; WHO-attributed adult cut-offs",
-    source_url: "https://www.who.int/publications/i/item/9789241501491",
-};
+pub const LICENSE: CalculatorLicense = CalculatorLicense::new(
+    "Public-domain method - standard anthropometric ratio; WHO-attributed adult cut-offs",
+    "https://www.who.int/publications/i/item/9789241501491",
+);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
