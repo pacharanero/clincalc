@@ -21,6 +21,7 @@ clincalc [COMMAND]
 | `clincalc completions install` | Install shell completions for the current user. |
 | `clincalc mcp` | Start the local stdio MCP server when compiled with `--features mcp`. |
 | `clincalc api` | Start the REST API when compiled with the default-enabled `rest-api` feature. |
+| `clincalc audit-references` | Check every calculator licence's reference URL and reverification age when compiled with `--features audit-references`. |
 
 `clincalc <name>` remains supported as shorthand for `clincalc calc <name>`, so existing scripts continue to work. Common aliases such as `bmr`, `rmr`, `ree`, and `tdee` resolve to `energy_requirement`; `ckd-epi` / `ckdepi` resolve to `egfr`. `clincalc list` shows aliases, and unknown calculator names include a small "did you mean" hint when there is a close match. Computing always requires an explicit `--input`, so template mode never blocks waiting on stdin.
 
@@ -167,6 +168,18 @@ clincalc api --host 127.0.0.1 --port 8080
 ```
 
 The API exposes `GET /calculators`, calculator schema/template/licence routes, `POST /calculators/{name}`, and `GET /openapi.json`. It currently serves canonical English content; locale query/header negotiation remains tracked in the multilingual roadmap.
+
+## Reference auditing
+
+`clincalc audit-references` HEAD-requests every distinct licence `source_url` in the registry and reports non-2xx responses and redirects, and separately flags every calculator whose `last_verified` date is missing or older than a threshold (default 365 days). It requires the optional `audit-references` feature:
+
+```bash
+cargo install clincalc --features audit-references
+clincalc audit-references
+clincalc audit-references --max-age-days 180 --timeout-secs 5
+```
+
+Calculators that cite the same `source_url` (for example a shared guideline) are checked once. The command exits non-zero if any reference URL fails to resolve to a 2xx response; stale licences are reported but do not affect the exit code. A binary compiled without the `audit-references` feature reserves the command and prints a targeted reinstall hint. This is a maintenance tool for reverifying licence evidence (see roadmap item ENG-008) - it never runs as part of scoring.
 
 ## Shell completions
 

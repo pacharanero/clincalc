@@ -12,6 +12,9 @@
 //!   exposes the reusable [`cli`] module, and enables `clincalc api`.
 //! - `mcp` adds the optional local stdio MCP server used by `clincalc mcp`. It
 //!   pulls in the MCP SDK and async runtime behind the feature gate.
+//! - `audit-references` adds the optional `clincalc audit-references`
+//!   maintenance command, which HEAD-requests every calculator licence's
+//!   `source_url` and flags stale `last_verified` dates (ENG-008.2).
 //! - `default-features = false` builds only the leaf engine: calculators,
 //!   registry, schemas, tags, licences, and [`CalculationResponse`]. This mode
 //!   depends only on `serde` and `serde_json`.
@@ -82,6 +85,11 @@ pub mod mcp;
 /// The HTTP REST API surface, behind the optional `rest-api` feature.
 #[cfg(feature = "rest-api")]
 pub mod api;
+
+/// Reference-link auditing (`clincalc audit-references`), behind the optional
+/// `audit-references` feature. See roadmap item ENG-008.
+#[cfg(feature = "audit-references")]
+pub mod audit;
 
 pub use calculator::{CalcError, Calculator};
 pub use license::CalculatorLicense;
