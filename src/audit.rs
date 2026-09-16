@@ -3,7 +3,7 @@
 
 //! Reference-link auditing for calculator licences (roadmap item ENG-008).
 //!
-//! [`run`] HEAD-requests every distinct licence `source_url` in the registry,
+//! [`run`](crate::audit::run) HEAD-requests every distinct licence `source_url` in the registry,
 //! reports non-2xx responses and redirects, and separately flags every
 //! calculator whose `last_verified` date is missing or older than a
 //! configurable threshold. This is a maintenance command invoked explicitly
