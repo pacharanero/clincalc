@@ -31,6 +31,19 @@ struct ApiCommand {
     host: String,
 }
 
+/// Arguments for `clincalc audit-references`.
+#[derive(Debug, Args)]
+struct AuditReferencesCommand {
+    /// Flag a licence whose evidence was last reverified more than this many
+    /// days ago (or never reverified at all).
+    #[arg(long, default_value = "365")]
+    max_age_days: u32,
+
+    /// Timeout, in seconds, for each reference URL request.
+    #[arg(long, default_value = "10")]
+    timeout_secs: u64,
+}
+
 /// Open, auditable clinical calculators.
 #[derive(Debug, Parser)]
 #[command(
@@ -83,6 +96,10 @@ enum Commands {
 
     /// Start the local HTTP REST API server (default port 8080).
     Api(ApiCommand),
+
+    /// Check every calculator licence's reference URL and reverification age
+    /// when compiled with `--features audit-references`.
+    AuditReferences(AuditReferencesCommand),
 }
 
 #[derive(Debug, Args)]
@@ -150,6 +167,8 @@ fn main() -> anyhow::Result<()> {
         Some(Commands::Completions(args)) => run_completions(args),
         Some(Commands::Mcp) => reject_surface_locale(locale, "mcp").and_then(|()| run_mcp()),
         Some(Commands::Api(cmd)) => run_api(cmd, clincalc::cli::resolve_cli_locale(locale)?),
+        Some(Commands::AuditReferences(cmd)) => reject_surface_locale(locale, "audit-references")
+            .and_then(|()| run_audit_references(cmd)),
     }
 }
 
@@ -221,7 +240,16 @@ fn starts_with_dash(arg: &OsStr) -> bool {
 fn is_known_top_command(arg: &OsStr) -> bool {
     matches!(
         arg.to_string_lossy().as_ref(),
-        "calc" | "list" | "ls" | "tags" | "version" | "completions" | "mcp" | "api" | "help"
+        "calc"
+            | "list"
+            | "ls"
+            | "tags"
+            | "version"
+            | "completions"
+            | "mcp"
+            | "api"
+            | "audit-references"
+            | "help"
     )
 }
 
@@ -262,6 +290,70 @@ fn run_api(_cmd: ApiCommand, _default_locale: clincalc::SupportedLocale) -> Resu
     Err(anyhow!(
         "REST API support was not compiled into this clincalc binary.\nReinstall with it enabled, for example: cargo install clincalc --features rest-api"
     ))
+}
+
+#[cfg(feature = "audit-references")]
+fn run_audit_references(cmd: AuditReferencesCommand) -> Result<()> {
+    let report = clincalc::audit::run(
+        cmd.max_age_days,
+        std::time::Duration::from_secs(cmd.timeout_secs),
+    );
+    print_audit_report(&report, cmd.max_age_days);
+    if report.has_url_problems() {
+        Err(anyhow!(
+            "one or more calculator licence reference URLs did not resolve"
+        ))
+    } else {
+        Ok(())
+    }
+}
+
+#[cfg(not(feature = "audit-references"))]
+fn run_audit_references(_cmd: AuditReferencesCommand) -> Result<()> {
+    Err(anyhow!(
+        "Reference auditing was not compiled into this clincalc binary.\nReinstall with it enabled, for example: cargo install clincalc --features audit-references"
+    ))
+}
+
+#[cfg(feature = "audit-references")]
+fn print_audit_report(report: &clincalc::audit::AuditReport, max_age_days: u32) {
+    use clincalc::audit::UrlStatus;
+
+    println!(
+        "Reference URL checks ({} distinct URLs):",
+        report.url_checks.len()
+    );
+    for check in &report.url_checks {
+        let names = check.calculators.join(", ");
+        match &check.status {
+            UrlStatus::Ok(status) => println!("  OK {status} - {} [{names}]", check.source_url),
+            UrlStatus::Redirect { status, location } => {
+                let location = location.as_deref().unwrap_or("<no Location header>");
+                println!(
+                    "  REDIRECT {status} - {} -> {location} [{names}]",
+                    check.source_url
+                );
+            }
+            UrlStatus::HttpError(status) => {
+                println!("  ERROR {status} - {} [{names}]", check.source_url)
+            }
+            UrlStatus::RequestFailed(err) => {
+                println!("  FAILED - {} ({err}) [{names}]", check.source_url)
+            }
+        }
+    }
+
+    println!(
+        "\nStale licences (never reverified, or older than {max_age_days} days): {}",
+        report.stale_licenses.len()
+    );
+    for stale in &report.stale_licenses {
+        let last_verified = stale.last_verified.unwrap_or("never");
+        println!(
+            "  {} - last verified {last_verified} - {}",
+            stale.calculator, stale.source_url
+        );
+    }
 }
 
 fn run_completions(args: CompletionsArgs) -> Result<()> {

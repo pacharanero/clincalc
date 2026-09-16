@@ -175,9 +175,9 @@ Status: Planned
 A mechanism to re-verify each calculator's licence and reference URL on a schedule, so dead links or superseded guidelines do not silently rot.
 
 - [x] **ENG-008.1 Add `last_verified` date and `verification_url`** to `CalculatorLicense`.
-- [ ] **ENG-008.2 Provide a `clincalc audit` command** (or `cargo xtask audit-references`) that HEAD-requests every `source_url`, reports 404s/redirects, and flags calculators whose `last_verified` is older than a threshold.
+- [x] **ENG-008.2 Provide a `clincalc audit-references` command**, behind the optional `audit-references` feature (`dep:ureq`, off by default), that HEAD-requests every distinct `source_url`, reports 404s/redirects, and flags calculators whose `last_verified` is missing or older than a configurable threshold (`--max-age-days`, default 365). Named `audit-references` rather than `audit` because `audit` is already a shipped calculator's machine name (the AUDIT alcohol-use screening tool).
 - [ ] **ENG-008.3 Integrate with CI as a scheduled job** (monthly) that opens an issue or fails a build if references go stale.
-- [ ] **ENG-008.4 Keep this out of the hot path**; it is a maintenance tool, not part of scoring.
+- [x] **ENG-008.4 Keep this out of the hot path**; it is a maintenance tool, not part of scoring. The command lives behind its own opt-in feature and is never invoked by any calculator or by the default build.
 
 Open questions for comment:
 - Should stale references fail CI or just open a tracking issue?
