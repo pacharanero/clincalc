@@ -176,11 +176,13 @@ A mechanism to re-verify each calculator's licence and reference URL on a schedu
 
 - [x] **ENG-008.1 Add `last_verified` date and `verification_url`** to `CalculatorLicense`.
 - [x] **ENG-008.2 Provide a `clincalc audit-references` command**, behind the optional `audit-references` feature (`dep:ureq`, off by default), that HEAD-requests every distinct `source_url`, reports 404s/redirects, and flags calculators whose `last_verified` is missing or older than a configurable threshold (`--max-age-days`, default 365). Named `audit-references` rather than `audit` because `audit` is already a shipped calculator's machine name (the AUDIT alcohol-use screening tool).
-- [ ] **ENG-008.3 Integrate with CI as a scheduled job** (monthly) that opens an issue or fails a build if references go stale.
+- [x] **ENG-008.3 Integrate with CI as a scheduled job** (monthly, [`audit-references.yml`](../.github/workflows/audit-references.yml)) that opens or updates a labelled tracking issue when a reference URL fails to resolve or a licence's `last_verified` date is stale, and closes it automatically once a later run is clean.
 - [x] **ENG-008.4 Keep this out of the hot path**; it is a maintenance tool, not part of scoring. The command lives behind its own opt-in feature and is never invoked by any calculator or by the default build.
 
+Decisions:
+- Stale references and unresolved URLs open/update a tracking issue rather than failing a required check: a dead reference link does not mean shipped scoring is wrong, so it should not block unrelated pull requests.
+
 Open questions for comment:
-- Should stale references fail CI or just open a tracking issue?
 - Do we also diff guideline PDFs/texts, or is URL liveness + `last_verified` enough?
 
 ### ENG-009 High-risk-score alerts
