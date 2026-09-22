@@ -1,0 +1,137 @@
+# SPDX-FileCopyrightText: 2026 Marcus Baw and Baw Medical Ltd
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+name: Reference audit
+
+# Monthly maintenance job for roadmap item ENG-008 (spec/roadmap.md): re-verify
+# every calculator licence's reference URL and flag `last_verified` dates
+# older than the default threshold. This never gates a build - a dead link or
+# a stale reverification date does not mean the shipped scoring logic is
+# wrong - so problems are tracked as an issue, not a failing required check.
+# See docs/cli-reference.md for `clincalc audit-references` itself.
+
+on:
+  schedule:
+    # 04:17 UTC on the 1st of every month. An off-the-hour minute avoids the
+    # top-of-hour thundering herd of scheduled Actions runs.
+    - cron: "17 4 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  TRACKING_LABEL: reference-audit
+  # Hidden marker so the job can find its own tracking issue across runs
+  # without depending on a fixed, human-editable title.
+  MARKER: <!-- clincalc-reference-audit -->
+
+jobs:
+  audit-references:
+    name: Audit calculator reference URLs
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Rust toolchain (stable)
+        uses: dtolnay/rust-toolchain@02cb101ec7c40f2c49e1d9714d64511d8e1b74de # v1
+        with:
+          toolchain: stable
+
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+
+      - name: Run clincalc audit-references
+        id: audit
+        run: |
+          set +e
+          cargo run --quiet --no-default-features --features audit-references -- \
+            audit-references --max-age-days 365 >audit-report.txt 2>&1
+          exit_code=$?
+          set -e
+
+          cat audit-report.txt
+
+          stale_count=$(grep -oP 'Stale licences[^:]*: \K[0-9]+' audit-report.txt || echo 0)
+
+          if [ "$exit_code" -ne 0 ] || [ "$stale_count" -gt 0 ]; then
+            has_problems=true
+          else
+            has_problems=false
+          fi
+
+          echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"
+          echo "stale_count=$stale_count" >> "$GITHUB_OUTPUT"
+          echo "has_problems=$has_problems" >> "$GITHUB_OUTPUT"
+
+      - name: Ensure tracking label exists
+        if: steps.audit.outputs.has_problems == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create "$TRACKING_LABEL" \
+            --color B60205 \
+            --description "Opened by the monthly reference-audit workflow (ENG-008)" \
+            --force
+
+      - name: Open or update the tracking issue
+        if: steps.audit.outputs.has_problems == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          EXIT_CODE: ${{ steps.audit.outputs.exit_code }}
+          STALE_COUNT: ${{ steps.audit.outputs.stale_count }}
+        run: |
+          {
+            echo "$MARKER"
+            echo
+            echo "Automated monthly reference audit (roadmap item ENG-008) found a problem:"
+            echo
+            if [ "$EXIT_CODE" -ne 0 ]; then
+              echo "- one or more licence reference URLs did not resolve to a 2xx response"
+            fi
+            if [ "$STALE_COUNT" -gt 0 ]; then
+              echo "- $STALE_COUNT calculator licence(s) have not been reverified within the last 365 days"
+            fi
+            echo
+            echo "Run: $RUN_URL"
+            echo
+            echo '```'
+            cat audit-report.txt
+            echo '```'
+            echo
+            echo "This does not mean shipped scoring is wrong - it means a reference URL"
+            echo "or a \`last_verified\` date needs a human look. See \`clincalc audit-references\`"
+            echo "in \`docs/cli-reference.md\` and roadmap item ENG-008 in \`spec/roadmap.md\`."
+          } >issue-body.md
+
+          existing=$(gh issue list --search "\"$MARKER\" in:body is:open" \
+            --json number --jq '.[0].number // empty')
+
+          if [ -n "$existing" ]; then
+            gh issue edit "$existing" --body-file issue-body.md
+            echo "Updated existing tracking issue #$existing"
+          else
+            gh issue create \
+              --title "Reference audit: stale or unresolved calculator licence references" \
+              --label "$TRACKING_LABEL" \
+              --body-file issue-body.md
+          fi
+
+      - name: Close the tracking issue if everything is clean
+        if: steps.audit.outputs.has_problems == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          existing=$(gh issue list --search "\"$MARKER\" in:body is:open" \
+            --json number --jq '.[0].number // empty')
+
+          if [ -n "$existing" ]; then
+            gh issue close "$existing" \
+              --comment "All reference URLs resolved and every licence is within the freshness window as of this run. Closing."
+            echo "Closed resolved tracking issue #$existing"
+          fi
