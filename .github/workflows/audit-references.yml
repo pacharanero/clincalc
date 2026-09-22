@@ -17,6 +17,12 @@ on:
     - cron: "17 4 1 * *"
   workflow_dispatch:
 
+# A scheduled audit is only worth running against the current state of main,
+# so a newly triggered run supersedes any still in progress.
+concurrency:
+  group: audit-references
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -32,6 +38,7 @@ jobs:
     name: Audit calculator reference URLs
     runs-on: ubuntu-latest
     permissions:
+      # Only to open/update/close this workflow's own tracking issue.
       issues: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -109,8 +116,11 @@ jobs:
             echo "in \`docs/cli-reference.md\` and roadmap item ENG-008 in \`spec/roadmap.md\`."
           } >issue-body.md
 
-          existing=$(gh issue list --search "\"$MARKER\" in:body is:open" \
-            --json number --jq '.[0].number // empty')
+          # GitHub full-text search is unreliable for content inside HTML
+          # comments, so find the tracking issue by scanning open issue bodies
+          # for the marker instead of searching for it.
+          existing=$(gh issue list --state open --limit 200 --json number,body \
+            --jq ".[] | select(.body | contains(\"$MARKER\")) | .number" | head -1)
 
           if [ -n "$existing" ]; then
             gh issue edit "$existing" --body-file issue-body.md
@@ -127,8 +137,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          existing=$(gh issue list --search "\"$MARKER\" in:body is:open" \
-            --json number --jq '.[0].number // empty')
+          # Same body-scan as above: search is unreliable for HTML comments.
+          existing=$(gh issue list --state open --limit 200 --json number,body \
+            --jq ".[] | select(.body | contains(\"$MARKER\")) | .number" | head -1)
 
           if [ -n "$existing" ]; then
             gh issue close "$existing" \
