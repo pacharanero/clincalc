@@ -6,7 +6,7 @@ If you are looking for the architecture and standards behind translation (BCP 47
 
 ## Current status
 
-The dependency-free locale foundation and CLI locale selection are implemented, but no calculator advertises a reviewed non-English locale yet. Generic complete-bundle enforcement is still tracked as ENG-001.4 in [`spec/roadmap.md`](https://github.com/pacharanero/clincalc/blob/main/spec/roadmap.md). Until that registry-wide gate lands, the first translation pull request must add calculator-specific completeness tests and must not add a locale to `supported_locales()` until every layer and review requirement below is satisfied.
+The dependency-free locale foundation and CLI locale selection are implemented, but no calculator advertises a reviewed non-English locale yet. Generic complete-bundle enforcement (ENG-001.4) is now implemented as the blocking registry test `every_advertised_locale_is_a_complete_bundle` in `src/lib.rs`: a calculator cannot advertise a locale unless its localized schema reaches key parity with English, carries no empty prose, and is visibly translated rather than byte-identical English. Calculator-specific completeness tests remain mandatory - the registry gate covers the metadata and schema-prose layers; computed prose (interpretations and recommendations) needs a valid input per calculator and is still verified by the calculator's own tests, per step 4 of the workflow below.
 
 ## What gets translated
 
@@ -28,9 +28,9 @@ Machine identifiers never change: calculator names, schema property names, enum 
 ## Workflow
 
 1. **Implement the locale-specific companion methods and renderers** in the calculator's existing Rust module, following the message-ID and named-argument conventions in `spec/multilingual.md` ("Messages and formatting" and "Structured interpretation"). Stable message IDs (`curb65.interpretation.high`), never English source text, are the keys. A "bundle" currently means the complete set of locale-specific metadata, schema prose, and rendering functions - there is no generic bundle file or parallel translation-only directory.
-2. **Translate all three layers** (metadata, schema prose, computed prose) for the locale. A calculator cannot advertise a locale with any layer incomplete - key parity must be demonstrated by tests even before the generic registry gate lands.
+2. **Translate all three layers** (metadata, schema prose, computed prose) for the locale. A calculator cannot advertise a locale with any layer incomplete - the registry gate enforces metadata and schema-prose parity automatically; computed prose parity must still be demonstrated by the calculator's own tests.
 3. **Leave numeric and machine fields untouched.** Scores, thresholds, risk-band codes, recommendation codes, and citation text are identical across locales by construction; only display prose changes.
-4. **Add calculator-specific completeness and conformance tests** for the new locale. Until ENG-001.4 supplies the generic registry gate, the test must enumerate every translated metadata field, governed schema-prose field, message ID, and rendered risk or recommendation band. Also cover exact lookup, regional fallback (for example, `es-MX` resolving to `es`), whole-response English fallback in the engine, and the CLI's unsupported-locale error path.
+4. **Add calculator-specific completeness and conformance tests** for the new locale. The registry gate (`every_advertised_locale_is_a_complete_bundle` in `src/lib.rs`) already blocks advertised locales whose schema prose is not at key parity with English, carries empty prose, or is byte-identical English; your tests must cover the layer the gate cannot: enumerate every translated metadata field, message ID, and rendered risk or recommendation band by running real calculations in the locale. Also cover exact lookup, regional fallback (for example, `es-MX` resolving to `es`), whole-response English fallback in the engine, and the CLI's unsupported-locale error path.
 5. **Record provenance beside the implementation and in the PR description**: whether the wording is original or adapted, the upstream repository and file path when reused, the exact upstream commit or release, the source-English `clincalc` commit, translator name, reviewer name, review date, and applicable licence.
 6. **Open the pull request** against the calculator's existing files. Do not introduce a parallel translation-only file layout - translations live in-tree beside the clinical context, source attribution, and tests they translate, per `spec/multilingual.md`.
 
@@ -51,7 +51,7 @@ A translation is not merged on linguistic accuracy alone.
 
 ## Key parity
 
-Locale-key parity is the required invariant: every message ID and schema-prose key present in the English representation must be present in every advertised locale, and vice versa. Generic registry enforcement is ENG-001.4 and is not implemented yet. Until it lands, each translated calculator must carry an explicit completeness test, and reviewers must compare that test with all three translatable layers rather than assuming the registry already guarantees parity.
+Locale-key parity is the required invariant: every message ID and schema-prose key present in the English representation must be present in every advertised locale, and vice versa. The registry test `every_advertised_locale_is_a_complete_bundle` in `src/lib.rs` enforces schema-prose parity, non-empty prose, and visible translation for every advertised locale; message-ID and computed-prose parity are still verified by each calculator's own completeness tests, so reviewers must check that test against the computed-prose layer rather than assuming the registry already guarantees it.
 
 If your PR adds a new English message ID to a calculator that already has translations, that PR must also either:
 
