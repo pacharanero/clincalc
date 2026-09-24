@@ -72,6 +72,7 @@ pub mod proprietary;
 pub mod response;
 pub mod tags;
 pub mod template;
+pub mod translation;
 
 /// The command-line surface (`CalcCommand`, `run`), behind the `cli` feature.
 /// Embeddable by host CLIs such as GitEHR's `gitehr calc`.
@@ -103,6 +104,7 @@ pub use proprietary::{
 pub use response::CalculationResponse;
 pub use tags::{all_tags, for_name as tags_for_name};
 pub use template::template_from_schema;
+pub use translation::{parity_issues, structural_issues};
 
 /// Every calculator known to the engine, in display order.
 ///
@@ -335,6 +337,52 @@ mod registry_tests {
                 assert!(
                     !locales[..index].contains(locale),
                     "{}: locale {locale} is listed more than once",
+                    calc.name()
+                );
+            }
+        }
+    }
+
+    /// Blocking translation gate (roadmap item ENG-001.4): a calculator may
+    /// advertise a locale only when the complete bundle is translated.
+    ///
+    /// Metadata and governed schema prose are checked generically here: for
+    /// every advertised locale, the localized schema must carry exactly the
+    /// same translatable prose keys as the English schema (key parity), none of
+    /// them empty, and the localized metadata and schema prose must not be the
+    /// untouched English text (an English-placeholder bundle). Computed prose
+    /// cannot be exercised generically without a valid input per calculator, so
+    /// it stays under each calculator's own completeness tests, which
+    /// `docs/translating.md` requires.
+    #[test]
+    fn every_advertised_locale_is_a_complete_bundle() {
+        for calc in all() {
+            let english_schema = calc.input_schema();
+            for locale in calc.supported_locales() {
+                if *locale == SupportedLocale::En {
+                    continue;
+                }
+
+                let schema = calc.input_schema_for(*locale);
+                let issues = crate::translation::parity_issues(&english_schema, &schema);
+                assert!(
+                    issues.is_empty(),
+                    "{}: schema prose for locale {locale} is not at key parity with English: {issues:?}",
+                    calc.name()
+                );
+
+                // An advertised bundle must be visibly translated somewhere.
+                // This catches the failure mode where `supported_locales()`
+                // lists a locale but the companion methods still fall back to
+                // the untouched English text. A locale whose every translatable
+                // string is identical to English is not a translation.
+                let schema_differs = schema != english_schema;
+                let metadata_differs = calc.title_for(*locale) != calc.title()
+                    || calc.description_for(*locale) != calc.description();
+                assert!(
+                    schema_differs || metadata_differs,
+                    "{}: locale {locale} is advertised but its bundle is byte-identical to \
+                     English - either translate it or remove it from supported_locales()",
                     calc.name()
                 );
             }
