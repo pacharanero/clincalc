@@ -66,6 +66,7 @@
 pub mod calculator;
 pub mod calculators;
 pub mod license;
+pub mod lms;
 pub mod locale;
 pub mod message;
 pub mod proprietary;
