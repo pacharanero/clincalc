@@ -224,6 +224,25 @@ Key lessons from the RCPCH library (avoid these pitfalls):
 - Prematurity correction is reference-specific - UK-WHO corrects for all gestations lifelong; CDC and WHO stop correcting at 2y.
 - Overlap ages where two sub-references meet are a recurring bug source - the reference trait must handle disjunctions, not the engine.
 
+### ENG-011 Source and software citation export
+
+Status: Future
+
+Recorded 2026-10-01 after reviewing Oli Evans's [`ods cite`](https://github.com/olizilla/ods/blob/7f95000/src/commands/cite.rs). Adopt its separation of upstream source and implementing software: proposed `clincalc cite <calculator> --format text|bibtex|csljson`, driven by the existing calculator registry, `reference()` and `license()` metadata. Credit Oli and `ods` in user documentation when shipped.
+
+- [ ] **ENG-011.1 Define structured bibliography metadata** for primary papers/guidelines, coordinating with ENG-002.2's shared citation shape rather than creating a competing schema. Preserve existing references, distinguish algorithm provenance from software licensing, record unknown fields honestly, and do not invent publication dates or identifiers by parsing prose heuristically. Keep metadata pure and compatible with the engine's serde-only leaf rule.
+- [ ] **ENG-011.2 Add registry-driven citation export** that emits the selected calculator's source entries separately from the versioned software entry. Keep formatting/I/O at the optional CLI boundary; use typed formats, syntax-aware escaping, clean stdout and offline operation. Reuse the metadata in host surfaces rather than wiring each calculator separately.
+- [ ] **ENG-011.3 Verify citation completeness and identity** across supported formats, including sources with missing DOI/date and adversarial text. Add or align software `CITATION.cff`, documentation and attribution. Do not mistake a software citation for independent validation of the clinical method.
+
+### ENG-012 Checkable explanations and named guarantees
+
+Status: Future
+
+Recorded 2026-10-01 alongside ENG-011, after reviewing Oli Evans's [`ods`](https://github.com/olizilla/ods) test suite. Adopt its pattern of numbered, testable guarantees over scoring output - not a new verification engine, but a discipline applied to what `clincalc` already computes and returns.
+
+- [ ] **ENG-012.1 Strengthen evidence behind calculation workings.** Inspired by `ods find --sql` and its equivalence tests, inventory existing `CalculationResponse.working` fields and verify that displayed contributions, units, rounding and interpretations agree with the actual typed result and primary-source literature vectors. Keep explanations driven by the same engine, avoiding a second implementation of scoring merely for display. Start with representative additive and continuous calculators, then enforce only genuinely universal properties through the registry.
+- [ ] **ENG-012.2 Publish a compact guarantee-to-test index.** Borrow the named-guarantee structure of [`ods/docs/tests.md`](https://github.com/olizilla/ods/blob/7f95000/docs/tests.md), linking existing leaf-purity, input-validation, licence, locale-completeness and result-output contracts to their tests. Test every promised renderer/surface for each universal invariant and prove representative assertions fail on deliberate violations. Keep this an index over authoritative specs, not duplicated scoring documentation.
+
 ---
 
 ## Collaboration & sister projects
