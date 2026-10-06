@@ -10,8 +10,9 @@
 //! below 1.5e-7 on erf), which is ample for reporting centiles to one decimal
 //! place.
 //!
-//! Reference data, interpolation, and coverage policy belong to each centile
-//! reference (ENG-010.2 onwards), not to this module.
+//! Interpolation of L, M, and S between tabulated ages (ENG-010.2) is here too.
+//! Reference data and coverage policy belong to each centile reference
+//! (ENG-010.3 onwards), not to this module.
 
 /// Below this magnitude `L` is treated as zero (the logarithmic limit of the
 /// Box-Cox transform), avoiding catastrophic cancellation in `(x/M)^L - 1`.
@@ -64,6 +65,98 @@ pub fn normal_cdf(z: f64) -> f64 {
 /// Convert a z-score to a centile (0-100) on the standard normal distribution.
 pub fn sds_to_centile(z: f64) -> f64 {
     100.0 * normal_cdf(z)
+}
+
+/// One row of an LMS reference table: the L, M, and S values at `x` (usually
+/// decimal age in years, but any monotonic axis works).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct LmsPoint {
+    pub x: f64,
+    pub l: f64,
+    pub m: f64,
+    pub s: f64,
+}
+
+/// Interpolated L, M, and S at a requested position.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Lms {
+    pub l: f64,
+    pub m: f64,
+    pub s: f64,
+}
+
+/// How a reference interpolates between table rows. Each reference declares its
+/// own strategy: cubic is the default for LMSGrowth-style tables, linear is
+/// what the WHO references use.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Interpolation {
+    Linear,
+    Cubic,
+}
+
+/// Interpolate L, M, and S independently at `x` over a table sorted by strictly
+/// increasing `x`.
+///
+/// `Cubic` is Lagrange interpolation through the four rows nearest `x` (two
+/// either side, shifted inwards at the ends of the table), falling back to
+/// linear when the table has fewer than four rows. An exact row match returns
+/// that row unchanged.
+///
+/// Returns `None` if `x` is non-finite or outside the table's range, the table
+/// is empty or not strictly increasing, or any value is non-finite. Callers
+/// own coverage policy, so there is no extrapolation.
+pub fn interpolate(table: &[LmsPoint], x: f64, strategy: Interpolation) -> Option<Lms> {
+    if !x.is_finite() || table.is_empty() {
+        return None;
+    }
+    let all_finite = table
+        .iter()
+        .all(|p| p.x.is_finite() && p.l.is_finite() && p.m.is_finite() && p.s.is_finite());
+    if !all_finite || table.windows(2).any(|w| w[1].x <= w[0].x) {
+        return None;
+    }
+    let first = table[0].x;
+    let last = table[table.len() - 1].x;
+    if x < first || x > last {
+        return None;
+    }
+    // Index of the last row with p.x <= x.
+    let lo = table.partition_point(|p| p.x <= x) - 1;
+    if table[lo].x == x {
+        let p = table[lo];
+        return Some(Lms {
+            l: p.l,
+            m: p.m,
+            s: p.s,
+        });
+    }
+    // x is strictly inside (table[lo].x, table[lo + 1].x).
+    let window: &[LmsPoint] = match strategy {
+        Interpolation::Cubic if table.len() >= 4 => {
+            let start = lo.saturating_sub(1).min(table.len() - 4);
+            &table[start..start + 4]
+        }
+        _ => &table[lo..lo + 2],
+    };
+    Some(Lms {
+        l: lagrange(window, x, |p| p.l),
+        m: lagrange(window, x, |p| p.m),
+        s: lagrange(window, x, |p| p.s),
+    })
+}
+
+fn lagrange(points: &[LmsPoint], x: f64, value: impl Fn(&LmsPoint) -> f64) -> f64 {
+    let mut total = 0.0;
+    for (i, pi) in points.iter().enumerate() {
+        let mut weight = 1.0;
+        for (j, pj) in points.iter().enumerate() {
+            if i != j {
+                weight *= (x - pj.x) / (pi.x - pj.x);
+            }
+        }
+        total += weight * value(pi);
+    }
+    total
 }
 
 fn valid_params(l: f64, m: f64, s: f64) -> bool {
@@ -165,5 +258,87 @@ mod tests {
     fn centile_is_percentage() {
         close(sds_to_centile(0.0), 50.0, 1e-5);
         close(sds_to_centile(-1.645), 5.0, 1e-2);
+    }
+
+    fn pt(x: f64, l: f64, m: f64, s: f64) -> LmsPoint {
+        LmsPoint { x, l, m, s }
+    }
+
+    // Rows sampled from m = x^3 - 2x, l = x^2, s = 0.1 + 0.01x.
+    fn cubic_table() -> Vec<LmsPoint> {
+        [0.0, 1.0, 2.0, 3.0, 4.0, 5.0]
+            .iter()
+            .map(|&x| pt(x, x * x, x * x * x - 2.0 * x, 0.1 + 0.01 * x))
+            .collect()
+    }
+
+    #[test]
+    fn exact_row_is_returned_unchanged() {
+        let t = cubic_table();
+        for strategy in [Interpolation::Linear, Interpolation::Cubic] {
+            let got = interpolate(&t, 3.0, strategy).unwrap();
+            assert_eq!(
+                got,
+                Lms {
+                    l: 9.0,
+                    m: 21.0,
+                    s: 0.13
+                }
+            );
+        }
+    }
+
+    #[test]
+    fn linear_interpolates_midpoint() {
+        let t = [pt(1.0, 1.0, 10.0, 0.1), pt(2.0, 0.0, 20.0, 0.2)];
+        let got = interpolate(&t, 1.25, Interpolation::Linear).unwrap();
+        close(got.l, 0.75, 1e-12);
+        close(got.m, 12.5, 1e-12);
+        close(got.s, 0.125, 1e-12);
+    }
+
+    #[test]
+    fn cubic_reproduces_a_cubic_exactly() {
+        let t = cubic_table();
+        for x in [0.4, 1.5, 2.5, 3.75, 4.9] {
+            let got = interpolate(&t, x, Interpolation::Cubic).unwrap();
+            close(got.m, x * x * x - 2.0 * x, 1e-9);
+            close(got.l, x * x, 1e-9);
+            close(got.s, 0.1 + 0.01 * x, 1e-12);
+        }
+    }
+
+    #[test]
+    fn cubic_beats_linear_on_curved_data() {
+        let t = cubic_table();
+        let exact = 2.5_f64.powi(3) - 5.0;
+        let cubic = interpolate(&t, 2.5, Interpolation::Cubic).unwrap().m;
+        let linear = interpolate(&t, 2.5, Interpolation::Linear).unwrap().m;
+        assert!((cubic - exact).abs() < (linear - exact).abs());
+    }
+
+    #[test]
+    fn cubic_falls_back_to_linear_on_short_tables() {
+        let t = [
+            pt(0.0, 1.0, 10.0, 0.1),
+            pt(1.0, 1.0, 20.0, 0.1),
+            pt(2.0, 1.0, 50.0, 0.1),
+        ];
+        let cubic = interpolate(&t, 0.5, Interpolation::Cubic).unwrap();
+        let linear = interpolate(&t, 0.5, Interpolation::Linear).unwrap();
+        assert_eq!(cubic, linear);
+    }
+
+    #[test]
+    fn out_of_range_and_bad_tables_are_none() {
+        let t = cubic_table();
+        assert!(interpolate(&t, -0.1, Interpolation::Cubic).is_none());
+        assert!(interpolate(&t, 5.1, Interpolation::Linear).is_none());
+        assert!(interpolate(&t, f64::NAN, Interpolation::Linear).is_none());
+        assert!(interpolate(&[], 1.0, Interpolation::Linear).is_none());
+        let unsorted = [pt(1.0, 1.0, 1.0, 0.1), pt(1.0, 1.0, 2.0, 0.1)];
+        assert!(interpolate(&unsorted, 1.0, Interpolation::Linear).is_none());
+        let nan = [pt(0.0, 1.0, f64::NAN, 0.1), pt(1.0, 1.0, 2.0, 0.1)];
+        assert!(interpolate(&nan, 0.5, Interpolation::Linear).is_none());
     }
 }
