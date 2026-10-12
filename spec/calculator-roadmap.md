@@ -26,7 +26,7 @@ _Nothing currently in progress._
 
 ### Planned
 
-_Nothing currently committed to build. Promote from [Future](#future) when scheduled._
+- [ ] **CALC-068 QDiabetes-2018** - 10-year risk of type 2 diabetes in adults from routinely-collected primary-care risk factors; the QResearch/ClinRisk sibling of the shipped `qrisk3` and `qfracture` ports, with the same sex-stratified fractional-polynomial Cox-model shape as `qrisk3.rs`. ClinRisk released the QDiabetes-2018 source under AGPL-3.0 at [qdiabetes.org/src.php](https://qdiabetes.org/src.php) "to enable others to implement the algorithm faithfully" - the same stated rationale and faithful-reimplementation disclaimer requirement as QRISK3/QFracture's LGPL release. An older QDiabetes-2013 variant is also mirrored under LGPL-3.0-or-later at [nhsland/clinrisk-modules](https://github.com/nhsland/clinrisk-modules/tree/master/qDiabetes); implement the clinically current 2018 coefficients, not the 2013 ones. Carry ClinRisk's official disclaimer in every response and verify against qdiabetes.org, per licence terms.
 
 ### Future
 
@@ -48,6 +48,12 @@ The upstream combined BMI / BSA / ideal-body-weight item (`CALC-056`) is complet
 - [ ] **CALC-034 SCORAD** - Atopic dermatitis severity; blocked pending explicit unrestricted permission or legal review because [ePROVIDE identifies SCORAD as all rights reserved](https://eprovide.mapi-trust.org/instruments/scoring-in-atopic-dermatitis) and the [Eczema Foundation legal notice](https://www.pierrefabreeczemafoundation.org/en/legal-notice-po-scorad) reserves adaptation, translation, and software-integration rights
 - [ ] **CALC-035 SCORE2 / SCORE2-OP** - ESC 2021 cardiovascular risk; blocked pending explicit unrestricted software-redistribution terms or legal review
 - [ ] **CALC-061 SAD PERSONS** - Blocked on clinical-safety grounds: poor predictive performance makes a scored implementation liable to misuse for discharge, observation, or referral despite warnings
+
+#### QResearch / ClinRisk candidates
+
+Further QResearch-derived algorithms from the same ClinRisk open-source lineage as the shipped `qrisk3` and `qfracture` ports and the Planned `CALC-068` QDiabetes-2018. ClinRisk also mirrors source for `qKidney`, `qStroke`, `qThrombosis`, `qbleed`, and `qStatin` at [nhsland/clinrisk-modules](https://github.com/nhsland/clinrisk-modules) under the same README-stated LGPL/AGPL licensing rationale; none of those has had its individual `COPYING` file verified yet, so none has a `CALC-*` identifier until that licensing scan happens.
+
+- [ ] **CALC-069 QCancer** - Sex-specific absolute risk across roughly ten cancer sites (blood, breast, cervical, colorectal, gastro-oesophageal, lung, ovarian, pancreatic, renal tract, uterine for women; an analogous male-specific set) from routinely-collected primary-care risk factors and new symptoms, informing NICE NG12 suspected-cancer referral thresholds. ClinRisk released the source under AGPL-3.0 at [nhsland/clinrisk-modules](https://github.com/nhsland/clinrisk-modules/tree/master/qCancer), same faithful-reimplementation rationale as QRISK3/QDiabetes. Two blockers before implementation: (1) the openly-released coefficients are QCancer-2013 vintage (source files dated 2012-13); qcancer.org documents a 2017 recalibration and Hippisley-Cox has published further recalibration work since (CanPredict, 2023/2025), and no newer open coefficient release has been confirmed - do not present 2013 coefficients as the current algorithm without disclosing the vintage explicitly, and do not implement at all until a current open release is confirmed or the vintage disclosure is accepted as sufficient; (2) QCancer is not one score but roughly ten independent per-site logistic sub-models per sex, so a single-calculator-returning-a-vector-of-risks vs. several separate `CALC-*` entries decision is needed before implementation starts.
 
 #### Other candidates
 
