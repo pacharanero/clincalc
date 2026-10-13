@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry: 116 entries comprising 102 active calculators that compute a real result, 11 named-but-unavailable rights-locked stubs (carrying `proprietary` and `unavailable`), two rights-review stubs, and one clinical-safety stub (the latter three carry `unavailable` without `proprietary`). One row per calculator.
+The full registry: 117 entries comprising 103 active calculators that compute a real result, 11 named-but-unavailable rights-locked stubs (carrying `proprietary` and `unavailable`), two rights-review stubs, and one clinical-safety stub (the latter three carry `unavailable` without `proprietary`). One row per calculator.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
