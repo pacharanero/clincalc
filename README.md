@@ -150,6 +150,7 @@ This table tracks every functioning calculation. `✓` means the language is ava
 | `curb65` | ✓ | - | - | ✓ |
 | `das28` | ✓ | - | - | ✓ |
 | `duke_iscvid` | ✓ | - | - | ✓ |
+| `durnin_womersley_skinfold` | ✓ | - | - | ✓ |
 | `egfr` | ✓ | - | - | ✓ |
 | `ehra` | ✓ | - | - | ✓ |
 | `energy_requirement` | ✓ | - | - | ✓ |

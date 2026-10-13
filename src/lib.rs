@@ -141,6 +141,7 @@ pub fn all() -> Vec<Box<dyn Calculator>> {
         Box::new(calculators::fat_free_mass_index::FatFreeMassIndex),
         Box::new(calculators::skeletal_muscle_mass_index::SkeletalMuscleMassIndex),
         Box::new(calculators::jackson_pollock_skinfold::JacksonPollockSkinfold),
+        Box::new(calculators::durnin_womersley_skinfold::DurninWomersleySkinfold),
         Box::new(calculators::max_heart_rate::MaxHeartRate),
         Box::new(calculators::one_rep_max::OneRepMax),
         Box::new(calculators::protein_target::ProteinTarget),
