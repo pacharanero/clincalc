@@ -12,7 +12,7 @@
 //!
 //! Interpolation of L, M, and S between tabulated ages (ENG-010.2) is here too.
 //! Reference data and coverage policy belong to each centile reference
-//! (ENG-010.3 onwards), not to this module.
+//! (ENG-010.3 onwards, see `centile.rs`), not to this module.
 
 /// Below this magnitude `L` is treated as zero (the logarithmic limit of the
 /// Box-Cox transform), avoiding catastrophic cancellation in `(x/M)^L - 1`.
