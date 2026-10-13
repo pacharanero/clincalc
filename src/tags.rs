@@ -234,7 +234,10 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ("ukeld", &["hepatology", "prognostic"]),
     // ---- Endocrinology / bone ----
     ("qfracture", &["primary-care", "endocrinology", "risk"]),
-    ("qdiabetes", &["primary-care", "endocrinology", "screening", "risk"]),
+    (
+        "qdiabetes",
+        &["primary-care", "endocrinology", "screening", "risk"],
+    ),
     // ---- Rheumatology ----
     ("das28", &["rheumatology", "severity"]),
     ("basdai", &["rheumatology", "severity"]),
