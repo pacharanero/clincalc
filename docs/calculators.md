@@ -1,11 +1,11 @@
 # Calculator catalogue
 
-The full registry: 117 entries comprising 103 active calculators that compute a real result, 11 named-but-unavailable rights-locked stubs (carrying `proprietary` and `unavailable`), two rights-review stubs, and one clinical-safety stub (the latter three carry `unavailable` without `proprietary`). One row per calculator.
+The full registry: 118 entries comprising 104 active calculators that compute a real result, 11 named-but-unavailable rights-locked stubs (carrying `proprietary` and `unavailable`), two rights-review stubs, and one clinical-safety stub (the latter three carry `unavailable` without `proprietary`). One row per calculator.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
 !!! info "Two kinds of entry"
-    **Active** entries compute a real score. Their algorithm is either public-domain (implemented from primary literature) or open-source (notably QRISK3 and QFracture, ported from ClinRisk's LGPL-3 source).
+    **Active** entries compute a real score. Their algorithm is either public-domain (implemented from primary literature) or open-source (notably QRISK3 and QFracture, ported from ClinRisk's LGPL-3 source, and QDiabetes-2018, ported from ClinRisk's AGPL-3 source).
 
     **Unavailable** entries are named on purpose. They appear in `clincalc list`, but invoking them never returns a score. Confirmed rights-locked entries carry `proprietary` + `unavailable`; entries awaiting permission or legal review and the clinical-safety entry carry `unavailable` without `proprietary`. Each response preserves the precise reason and alternatives. See [Unavailable on principle](#unavailable-on-principle).
 
@@ -124,6 +124,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `pitt_bacteraemia` | Pitt Bacteraemia Score | Acute severity score for hospitalised bloodstream infection or CRE infection, using index-culture-day physiology and cardiac arrest on that day or in the preceding 48 hours. | `acute-medicine`, `infectious-diseases`, `severity`, `prognostic` |
 | `protein_target` | Resistance-Training Protein Intake | Calculates Morton et al.'s prudent 2.2 g/kg/day protein amount for healthy, non-energy-restricted adults undertaking resistance training and reports the uncertain exploratory 1.62 g/kg/day breakpoint behind it. Not a general dietary minimum, a caloric-deficit target, or a safety ceiling. | `primary-care`, `endocrinology`, `musculoskeletal` |
 | `psa_density` | Prostate-specific Antigen Density | Calculates total serum PSA divided by imaging-derived prostate volume as a continuous prostate-cancer risk modifier, without imposing a universal diagnostic or biopsy cutoff. | `urology`, `oncology` |
+| `qdiabetes` | QDiabetes-2018 (10-year type 2 diabetes risk) | 10-year risk of developing type 2 diabetes (QDiabetes-2018), recommended by NICE for identifying patients at high risk from routinely available primary-care data. | `primary-care`, `endocrinology`, `screening`, `risk` |
 | `qfracture` | QFracture (10-year fracture risk) | 10-year risk of major osteoporotic and hip fracture (QFracture-2012), the open UK alternative to FRAX (NICE CG146/NG6). | `primary-care`, `endocrinology`, `risk` |
 | `qrisk3` | QRISK3 (10-year cardiovascular risk) | 10-year risk of heart attack or stroke (QRISK3-2017), the UK standard for primary CVD risk assessment (NICE NG238). | `primary-care`, `cardiology`, `risk` |
 | `qsofa` | qSOFA Score (Sepsis-3) | Quick bedside prompt flagging suspected-infection patients at higher risk of poor outcome (Sepsis-3). A prognostic prompt, not a diagnosis of sepsis. | `acute-medicine`, `intensive-care`, `screening` |
@@ -169,7 +170,6 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 
 | Candidate | What it does | Tentative tags |
 |---|---|---|
-| **QDiabetes-2018** | 10-year risk of type 2 diabetes in adults from routinely-collected primary-care risk factors; the QResearch/ClinRisk sibling of the shipped `qrisk3` and `qfracture` ports, same sex-stratified fractional-polynomial shape as `qrisk3`. ClinRisk released the source under AGPL-3.0 at [qdiabetes.org/src.php](https://qdiabetes.org/src.php) for faithful reimplementation. | `primary-care`, `endocrinology`, `risk` |
 | **QCancer** | Sex-specific absolute risk across roughly ten cancer sites from routinely-collected primary-care risk factors and new symptoms, informing NICE NG12 suspected-cancer referral thresholds. ClinRisk released the source under AGPL-3.0, but only QCancer-2013-vintage coefficients are confirmed open; qcancer.org documents a later recalibration with no confirmed open release. See `CALC-069` for the version and architecture blockers before implementation. | `primary-care`, `oncology`, `risk` |
 | **StatinMD** (Oxford STRATIFY) | Personalised 1/5/10-year risk of serious statin-induced muscle disorders (rhabdomyolysis / hospitalised myopathy) from 22 routinely-recorded factors (Cai et al, *Lancet Digital Health* 2026). Natural pairing with QRISK3: QRISK3 is the benefit side, StatinMD is the harm side. Licensed for **academic use** via Oxford University Innovation - covered while this project is non-commercial. ([source](https://process.innovation.ox.ac.uk/software/p/25396/stratify---stainmd-risk-calculator---academic-use/1)) | `primary-care`, `cardiology`, `risk` |
 | **RCPCH Digital Growth Charts** | UK-WHO + UK90; z-score / centile / SDS; chart rendering. Needs LMS tables + RCPCH licensing terms. | `paediatrics` |

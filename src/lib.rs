@@ -217,6 +217,7 @@ pub fn all() -> Vec<Box<dyn Calculator>> {
         Box::new(calculators::rcri::Rcri),
         Box::new(calculators::qrisk3::Qrisk3),
         Box::new(calculators::qfracture::Qfracture),
+        Box::new(calculators::qdiabetes::Qdiabetes),
     ];
     // Proprietary / licence-locked tools: registered so a clinician learns why
     // they are absent and where to turn, rather than finding silence.
