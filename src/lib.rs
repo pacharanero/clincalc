@@ -65,6 +65,7 @@
 
 pub mod calculator;
 pub mod calculators;
+pub mod centile;
 pub mod license;
 pub mod lms;
 pub mod locale;
