@@ -47,6 +47,7 @@ pub mod cows;
 pub mod curb65;
 pub mod das28;
 pub mod duke_iscvid;
+pub mod durnin_womersley_skinfold;
 pub mod egfr;
 pub mod ehra;
 pub mod energy_requirement;

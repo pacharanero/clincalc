@@ -206,6 +206,15 @@ pub const TAGS: &[(&str, &[&str])] = &[
             "screening",
         ],
     ),
+    (
+        "durnin_womersley_skinfold",
+        &[
+            "primary-care",
+            "endocrinology",
+            "musculoskeletal",
+            "screening",
+        ],
+    ),
     ("max_heart_rate", &["primary-care", "screening"]),
     ("one_rep_max", &["primary-care", "musculoskeletal"]),
     (
