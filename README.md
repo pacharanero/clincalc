@@ -204,6 +204,7 @@ This table tracks every functioning calculation. `✓` means the language is ava
 | `qsofa` | ✓ | - | - | ✓ |
 | `rcri` | ✓ | - | - | ✓ |
 | `relative_fat_mass` | ✓ | - | - | ✓ |
+| `rockall` | ✓ | - | - | ✓ |
 | `skeletal_muscle_mass_index` | ✓ | - | - | ✓ |
 | `sofa` | ✓ | - | - | ✓ |
 | `timi` | ✓ | - | - | ✓ |

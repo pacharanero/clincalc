@@ -142,6 +142,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
         "glasgow_blatchford",
         &["emergency", "acute-medicine", "risk"],
     ),
+    ("rockall", &["emergency", "acute-medicine", "risk"]),
     ("hinchey", &["surgery", "acute-medicine", "severity"]),
     (
         "pitt_bacteraemia",
