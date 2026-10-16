@@ -108,7 +108,7 @@ For these inputs the schema carries a machine-readable definition - **includes**
 
 The registry contains 11 confirmed rights-locked entries, two entries awaiting permission or legal review, and one safety-blocked entry. Confirmed rights-locked entries return `unavailable: proprietary`; Norton and SCORE2 / SCORE2-OP return `unavailable: rights-review` without asserting that independent implementation is prohibited. The safety-blocked SAD PERSONS entry returns `unavailable: clinical-safety`, the safety reason, cited evidence, and safer clinical approaches. The latter three are not described or tagged as proprietary, none returns a score, and the SAD PERSONS interpretation warns that it must not be used to reduce observation, referral, treatment, or admission/discharge decisions.
 
-This is deliberate. **Naming the gap is part of the project.** Clinical decision tools that public healthcare relies on should be open, free to use, and auditable; tools that are not should be visible as the licensing problem they are, not silently absent. See the [catalogue](calculators.md#unavailable-on-principle).
+This is deliberate. **Naming the gap is part of the project.** Clinical decision tools that public healthcare relies on should be open, free to use, and auditable; tools that are not should be visible as the licensing problem they are, not silently absent. See the [catalogue](calculators.md#unavailable-on-principle), and [why isn't there an open ADHD scoring tool?](case-studies.md#why-isnt-there-an-open-adhd-scoring-tool) for a worked example of how this happens in practice.
 
 ## Embedding `clincalc` in a host
 
