@@ -1,0 +1,17 @@
+# SPDX-FileCopyrightText: 2026 Marcus Baw and Baw Medical Ltd
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# Tracks current stable, matching this project's previous
+# `dtolnay/rust-toolchain` `toolchain: stable` input. No MSRV constraint forces
+# a specific pinned version here; see Cargo.toml if that ever changes.
+#
+# Project convention: CI uses plain rustup, not a toolchain Action.
+# `rustup toolchain install` without a channel argument installs the active
+# pin from this file (with its profile and components) rather than updating
+# an unrelated prior `stable` install, then logs the effective compiler/Cargo
+# versions. RUSTUP_TOOLCHAIN and directory overrides take precedence over
+# this file; CI does not set either.
+[toolchain]
+channel = "stable"
+profile = "minimal"
+components = ["clippy", "rustfmt"]

@@ -45,10 +45,13 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install Rust toolchain (stable)
-        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
-        with:
-          toolchain: stable
+      - name: Set up pinned Rust toolchain
+        shell: bash
+        run: |
+          rustup toolchain install --no-self-update
+          rustup show active-toolchain
+          rustc --version
+          cargo --version
 
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
 

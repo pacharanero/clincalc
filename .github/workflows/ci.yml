@@ -26,11 +26,13 @@ jobs:
           version=$(awk -F'"' '/^version[[:space:]]*=/ {print $2; exit}' Cargo.toml)
           s/check-release-version "v$version"
 
-      - name: Install Rust toolchain (stable, with rustfmt and clippy)
-        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
-        with:
-          toolchain: stable
-          components: rustfmt, clippy
+      - name: Set up pinned Rust toolchain
+        shell: bash
+        run: |
+          rustup toolchain install --no-self-update
+          rustup show active-toolchain
+          rustc --version
+          cargo --version
 
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
 
@@ -92,10 +94,13 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install Rust stable
-        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
-        with:
-          toolchain: stable
+      - name: Set up pinned Rust toolchain
+        shell: bash
+        run: |
+          rustup toolchain install --no-self-update
+          rustup show active-toolchain
+          rustc --version
+          cargo --version
       - name: Build wheel
         working-directory: python
         run: |
