@@ -4,6 +4,120 @@ All notable changes to `calc` are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-10-17
+
+### Added
+
+- **calc**: Add Rockall Score for upper GI bleeding (CALC-070) ([#125](https://github.com/pacharanero/clincalc/issues/125)) ([0974779](https://github.com/pacharanero/clincalc/commit/0974779c4e66e7476864c14b3918c763914bfab3))
+
+- **calc**: Add QDiabetes-2018 10-year type 2 diabetes risk (CALC-068) ([#124](https://github.com/pacharanero/clincalc/issues/124)) ([e6e2b61](https://github.com/pacharanero/clincalc/commit/e6e2b6105ad8add891c16ac1ee1b3106dd93fabb))
+
+- **calc**: Add Durnin-Womersley 4-site skinfold body fat % (CALC-067) ([4679b17](https://github.com/pacharanero/clincalc/commit/4679b1702b4c82f0a460396d4ae7aa1f6ec09cec))
+
+- Add CentileReference trait for LMS centile references (ENG-010.3) ([b8494d0](https://github.com/pacharanero/clincalc/commit/b8494d04aa2da8f0066c1979ec94db5cbab8e43e))
+
+- **engine**: Add LMS linear and cubic Lagrange interpolation (ENG-010.2) ([b53b99e](https://github.com/pacharanero/clincalc/commit/b53b99e98bd5bead0a860ff908f2ff8a785e3e32))
+
+- **engine**: Add LMS Box-Cox and normal CDF transforms (ENG-010.1) ([55aff37](https://github.com/pacharanero/clincalc/commit/55aff37025a0e5cc4ab22688f5c62ddb2205eb85))
+
+- **locale**: Block incomplete translation bundles (ENG-001.4) ([2e1567f](https://github.com/pacharanero/clincalc/commit/2e1567f50fd303670ca56e8f5aaa319cbb32feb4))
+
+- **cli**: Add clincalc audit-references command (ENG-008.2) ([a697636](https://github.com/pacharanero/clincalc/commit/a697636bd99d9022870ae25c3224e950a66f24c4))
+
+- **surfaces**: Report licence reverification when recorded ([5b9a05c](https://github.com/pacharanero/clincalc/commit/5b9a05c6ecb1806bf725b99f19125807775180ac))
+
+- **license**: Add last_verified and verification_url (ENG-008.1) ([a11fa6c](https://github.com/pacharanero/clincalc/commit/a11fa6c52d550d77b5e37561111b04e20fbd1a2a))
+
+- **cli**: Complete clipboard provenance (ENG-006.6) ([9174f24](https://github.com/pacharanero/clincalc/commit/9174f24c1617d0974ca33cde5ea0ca3fc6abee22))
+
+### Changed
+
+- **cli**: Deduplicate inputs/working line rendering ([5539d8c](https://github.com/pacharanero/clincalc/commit/5539d8c6b5f7ab947ec26d0f612074c6c428f092))
+
+### Dependencies
+
+- **deps**: Bump rustls 0.23.45 -> 0.23.46 ([4238b87](https://github.com/pacharanero/clincalc/commit/4238b87eae4aeed0a7109ffca85ddb2235931a4e))
+
+- **deps**: Bump the routine-minor-and-patch group ([89fc5f5](https://github.com/pacharanero/clincalc/commit/89fc5f58844f6c266907cf9ca09503d392f1cd3a))
+
+- **deps**: Bump tauri-plugin-opener in /gui/src-tauri ([87745f7](https://github.com/pacharanero/clincalc/commit/87745f7a8ee47495786fc105f3aeb06fba235d17))
+
+- **deps**: Bump tauri in /gui/src-tauri ([4a224e1](https://github.com/pacharanero/clincalc/commit/4a224e1fda0d5ce39ff246026f26aed77e45c44d))
+
+- **deps**: Bump tokio in / ([59cf26c](https://github.com/pacharanero/clincalc/commit/59cf26c6a54717a11d6bd70fbb8516a477ae1da4))
+
+- **deps**: Bump zensical in / ([3a852dc](https://github.com/pacharanero/clincalc/commit/3a852dcf4e9ea79b2ec72c8ca13695932dccfe19))
+
+- **deps**: Bump dtolnay/rust-toolchain ([a566a87](https://github.com/pacharanero/clincalc/commit/a566a871a9e5f20755851c75194dd3f2816866af))
+
+- **deps**: Bump taiki-e/install-action ([304531b](https://github.com/pacharanero/clincalc/commit/304531b39cdb9b0519645192fe8e30e4cc099d41))
+
+- **deps**: Bump tauri-plugin-opener in /gui/src-tauri ([838a115](https://github.com/pacharanero/clincalc/commit/838a115ea6c627d74235ca5c79211e6c03e35a0f))
+
+- **deps**: Bump the routine-minor-and-patch group ([f288e3d](https://github.com/pacharanero/clincalc/commit/f288e3dc28eb913689c26c1143df74d9798923c0))
+
+- **deps**: Bump tauri in /gui/src-tauri ([8161789](https://github.com/pacharanero/clincalc/commit/8161789276278ad48bb6ef72145d269d33214f67))
+
+- **deps**: Bump pyo3 in /python ([#113](https://github.com/pacharanero/clincalc/issues/113)) ([4830c06](https://github.com/pacharanero/clincalc/commit/4830c065b4b217573b43acb4f911d94afab39ea1))
+
+- **deps**: Bump taiki-e/install-action ([#106](https://github.com/pacharanero/clincalc/issues/106)) ([c3da0a4](https://github.com/pacharanero/clincalc/commit/c3da0a41e37775447b81e65794f432e9b557814e))
+
+- **deps**: Bump dtolnay/rust-toolchain ([#107](https://github.com/pacharanero/clincalc/issues/107)) ([845865e](https://github.com/pacharanero/clincalc/commit/845865edc5fbc4e3df92a65889d8698deff06840))
+
+- **deps**: Bump zensical in / ([ebfff30](https://github.com/pacharanero/clincalc/commit/ebfff3004d03be1530ec96a71cf0b00951fa50f2))
+
+- **deps**: Bump the routine-minor-and-patch group ([#104](https://github.com/pacharanero/clincalc/issues/104)) ([6ed6201](https://github.com/pacharanero/clincalc/commit/6ed6201b7321cca179053907aaa7baacb2659355))
+
+- **deps**: Bump tauri in /gui/src-tauri ([#103](https://github.com/pacharanero/clincalc/issues/103)) ([82f572d](https://github.com/pacharanero/clincalc/commit/82f572da4067288d7342e67a337fb67a6c81dcba))
+
+- **deps**: Bump zensical in / ([#102](https://github.com/pacharanero/clincalc/issues/102)) ([340592b](https://github.com/pacharanero/clincalc/commit/340592b09ba410445a8568f59d50e92b18b080b9))
+
+- **deps**: Bump taiki-e/install-action ([#101](https://github.com/pacharanero/clincalc/issues/101)) ([a002f94](https://github.com/pacharanero/clincalc/commit/a002f94b573184372dcfb22d7d0dc11d67d2b0ef))
+
+- **deps**: Bump taiki-e/install-action ([#92](https://github.com/pacharanero/clincalc/issues/92)) ([3229b91](https://github.com/pacharanero/clincalc/commit/3229b91417d7e2ec7a2246c1be077fdd6324bb48))
+
+- **deps**: Bump zensical in / ([#94](https://github.com/pacharanero/clincalc/issues/94)) ([293a907](https://github.com/pacharanero/clincalc/commit/293a90769fbea5b810e872d746c5b9dc7e56a143))
+
+- **deps**: Bump clap in / ([#95](https://github.com/pacharanero/clincalc/issues/95)) ([b4f934c](https://github.com/pacharanero/clincalc/commit/b4f934c3117fccd4e47719d0d5a254210477b82d))
+
+- **deps**: Bump clap_complete in / ([#96](https://github.com/pacharanero/clincalc/issues/96)) ([0bf0e4a](https://github.com/pacharanero/clincalc/commit/0bf0e4a061a1470f2c9dbe4d3f074e46f504811e))
+
+- **deps**: Bump the routine-minor-and-patch group ([#97](https://github.com/pacharanero/clincalc/issues/97)) ([a47d4b5](https://github.com/pacharanero/clincalc/commit/a47d4b52348882c7c96f5a0a1610544b0a29b5fe))
+
+- **deps**: Bump dtolnay/rust-toolchain ([#93](https://github.com/pacharanero/clincalc/issues/93)) ([96c11d2](https://github.com/pacharanero/clincalc/commit/96c11d27597f5dc8e85277c54c6be0b127f40a39))
+
+- **deps**: Bump the routine-minor-and-patch group ([16e4c59](https://github.com/pacharanero/clincalc/commit/16e4c59a55f7f6ba7d299bd1c5f87e80a403c3d1))
+
+- **deps**: Bump zensical in / ([6d9160d](https://github.com/pacharanero/clincalc/commit/6d9160d0186cdc6d09fc23dbbed64ebea38c706c))
+
+- **deps**: Bump the github-actions-minor-and-patch group with 2 updates ([33ddf91](https://github.com/pacharanero/clincalc/commit/33ddf91a64c31690a01eb2369964968c9cac891f))
+
+### Documentation
+
+- **case-studies**: Add "how long will these restrictions actually last?" ([d7a71bd](https://github.com/pacharanero/clincalc/commit/d7a71bddda505a763771fd4b8bef50473c9e5c70))
+
+- Add case study on the ADHD scoring-tool licensing gap ([20f5f5d](https://github.com/pacharanero/clincalc/commit/20f5f5d92c3cbac73b5f9e4c8b740f4a76282df2))
+
+- **roadmap**: Track Vanderbilt/SNAP-IV/WURS as rights-review ADHD candidates ([2763952](https://github.com/pacharanero/clincalc/commit/276395256a68253e7a440c49b199e7664d54add4))
+
+- **roadmap**: Add 20 calculator gaps found via MDCalc cross-reference (CALC-070..089) ([24e531f](https://github.com/pacharanero/clincalc/commit/24e531f613f5c3f3d6424a8e33a18e380e2e0f80))
+
+- **roadmap**: Add QDiabetes-2018 and QCancer candidates ([e5693f7](https://github.com/pacharanero/clincalc/commit/e5693f7ffc549fe614276e1334e8242ef9d95687))
+
+- **roadmap**: Add ENG-011/ENG-012 from reviewing Oli Evans's ods ([74b0c9d](https://github.com/pacharanero/clincalc/commit/74b0c9d147cb17b31b99999f99baccfa16b2a0c2))
+
+- **roadmap**: Remove DOC-002, superseded by completed ENG-001.7 ([fe7ec9b](https://github.com/pacharanero/clincalc/commit/fe7ec9bfcbd34a2639a849f981af59a4db2a8fa0))
+
+### Fixed
+
+- **calc**: Update hardcoded registry counts for the new calculator ([dee255f](https://github.com/pacharanero/clincalc/commit/dee255f64e98eb3df51142be24f2dfa2d142c565))
+
+- **audit**: Resolve broken intra-doc link in module docs ([648b265](https://github.com/pacharanero/clincalc/commit/648b2656536e9b09b9bc5715f774d5f8eac39198))
+
+- **release**: Dispatch environment-bound workflow ([0efac74](https://github.com/pacharanero/clincalc/commit/0efac744a73406182337c00524fa996dae799a1a))
+
+- **release**: Pass secrets to reusable workflow ([cbd2e23](https://github.com/pacharanero/clincalc/commit/cbd2e23cf96013666380b40c5a145bb165a474ed))
+
 ## [0.3.4] - 2026-09-13
 
 ### Fixed
