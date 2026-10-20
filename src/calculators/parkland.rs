@@ -125,12 +125,30 @@ impl Calculator for Parkland {
     }
     fn input_schema(&self) -> Value {
         json!({
-            "$schema": "https://json-schema.org/draft/2020-12/schema", "title": "ParklandInput", "type": "object", "additionalProperties": false,
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "title": "ParklandInput",
+            "type": "object",
+            "additionalProperties": false,
             "required": ["age_years", "weight_kg", "burn_tbsa_percent"],
             "properties": {
-                "age_years": { "type": "number", "minimum": 16, "maximum": 120, "description": "Age in years; adults only (paediatric burn resuscitation needs maintenance fluid and a different protocol)" },
-                "weight_kg": { "type": "number", "minimum": 20, "maximum": 400, "description": "Actual body weight in kg" },
-                "burn_tbsa_percent": { "type": "number", "minimum": 1, "maximum": 100, "description": "Percentage of total body surface area with partial-thickness (second-degree) or full-thickness burns; exclude superficial erythema" }
+                "age_years": {
+                    "type": "number",
+                    "minimum": 16,
+                    "maximum": 120,
+                    "description": "Age in years; adults only (paediatric burn resuscitation needs maintenance fluid and a different protocol)"
+                },
+                "weight_kg": {
+                    "type": "number",
+                    "minimum": 20,
+                    "maximum": 400,
+                    "description": "Actual body weight in kg"
+                },
+                "burn_tbsa_percent": {
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Percentage of total body surface area with partial-thickness (second-degree) or full-thickness burns; exclude superficial erythema"
+                }
             }
         })
     }
