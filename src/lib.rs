@@ -190,6 +190,7 @@ pub fn all() -> Vec<Box<dyn Calculator>> {
         Box::new(calculators::lrinec::Lrinec),
         Box::new(calculators::glasgow_blatchford::GlasgowBlatchford),
         Box::new(calculators::rockall::Rockall),
+        Box::new(calculators::parkland::Parkland),
         Box::new(calculators::hinchey::Hinchey),
         Box::new(calculators::timi::Timi),
         Box::new(calculators::child_pugh::ChildPugh),

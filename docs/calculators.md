@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry: 119 entries comprising 105 active calculators that compute a real result, 11 named-but-unavailable rights-locked stubs (carrying `proprietary` and `unavailable`), two rights-review stubs, and one clinical-safety stub (the latter three carry `unavailable` without `proprietary`). One row per calculator.
+The full registry: 120 entries comprising 106 active calculators that compute a real result, 11 named-but-unavailable rights-locked stubs (carrying `proprietary` and `unavailable`), two rights-review stubs, and one clinical-safety stub (the latter three carry `unavailable` without `proprietary`). One row per calculator.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
@@ -118,6 +118,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `one_rep_max` | One-Rep Max Estimator | Estimates 1RM from a submaximal weight and reps using Epley, Brzycki, or Lombardi. | `primary-care`, `musculoskeletal` |
 | `orbit` | ORBIT Bleeding Risk Score | Estimates major-bleeding risk in an anticoagulated adult with electrocardiographically confirmed atrial fibrillation from age, source-defined sex-specific haemoglobin/haematocrit thresholds or anaemia history, bleeding history, eGFR, and antiplatelet treatment. Reports observed ORBIT-AF incidence rates per 100 patient-years, not a personalised annual probability, and does not determine whether anticoagulation should be started, stopped, or withheld. | `cardiology`, `risk` |
 | `padua` | Padua Prediction Score (VTE risk) | VTE risk in hospitalised medical inpatients, guiding thromboprophylaxis (NICE NG89). | `acute-medicine`, `vascular`, `risk` |
+| `parkland` | Parkland Formula (burns fluid resuscitation) | Adult first-24-hour crystalloid volume after a major burn (4 mL x kg x % TBSA, half in the first 8 hours from time of burn), from the Baxter-Shires formula. A starting estimate to be titrated to response; not for children, and excludes maintenance fluid. | `emergency`, `intensive-care`, `surgery` |
 | `pasi` | Psoriasis Area and Severity Index (PASI) | Calculates standard PASI from clinician-rated extent, erythema, induration, and desquamation across four body regions without imposing a universal treatment threshold. | `dermatology`, `severity` |
 | `perc` | PERC Rule (PE Rule-out Criteria) | Eight-item block rule for stable adult emergency-department outpatients with suspected pulmonary embolism and clinician gestalt below 15%; PERC-negative can avoid further PE-specific testing. | `emergency`, `respiratory`, `vascular` |
 | `phq9` | PHQ-9 Depression Severity | Nine-item depression severity score (0-27) with standard bands; item 9 flags self-harm risk. | `primary-care`, `mental-health`, `screening` |
