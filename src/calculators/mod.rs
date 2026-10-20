@@ -89,6 +89,7 @@ pub mod nyha;
 pub mod one_rep_max;
 pub mod orbit;
 pub mod padua;
+pub mod parkland;
 pub mod pasi;
 pub mod perc;
 pub mod phq9;

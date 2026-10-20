@@ -192,6 +192,7 @@ This table tracks every functioning calculation. `✓` means the language is ava
 | `one_rep_max` | ✓ | - | - | ✓ |
 | `orbit` | ✓ | - | - | ✓ |
 | `padua` | ✓ | - | - | ✓ |
+| `parkland` | ✓ | - | - | ✓ |
 | `pasi` | ✓ | - | - | ✓ |
 | `perc` | ✓ | - | - | ✓ |
 | `phq9` | ✓ | - | - | ✓ |
