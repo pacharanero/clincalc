@@ -424,6 +424,38 @@ mod registry_tests {
         }
     }
 
+    /// Policy: README.md's and docs/calculators.md's prose summaries of the
+    /// registry size must stay in sync with the actual registry. Unlike the
+    /// per-calculator status rows above, these are hand-maintained sentences
+    /// and have drifted more than once when a new calculator's registration
+    /// touchpoints omitted them.
+    #[test]
+    fn registry_size_prose_matches_the_actual_count() {
+        let total = all().len();
+        let active = all()
+            .iter()
+            .filter(|c| !c.tags().contains(&"unavailable"))
+            .count();
+        let unavailable = total - active;
+
+        let readme = include_str!("../README.md");
+        let expected_readme = format!(
+            "The registry contains {active} active calculators and {unavailable} named-but-unavailable entries, for {total} entries in total."
+        );
+        assert!(
+            readme.contains(&expected_readme),
+            "README.md's registry-size summary is stale; expected to find: {expected_readme}"
+        );
+
+        let catalogue = include_str!("../docs/calculators.md");
+        let expected_catalogue_prefix =
+            format!("The full registry: {total} entries comprising {active} active calculators");
+        assert!(
+            catalogue.contains(&expected_catalogue_prefix),
+            "docs/calculators.md's registry-size summary is stale; expected to find: {expected_catalogue_prefix}"
+        );
+    }
+
     /// Locale-aware companion methods must preserve the complete English
     /// contract until a calculator opts into a reviewed translation bundle.
     #[test]
