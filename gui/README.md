@@ -2,7 +2,7 @@
 
 Tauri 2 + React 19 + Mantine 8 + Vite 7, matching the GitEHR house-style frontend stack while using a quieter Lato typeface and the same teal primary.
 
-Status: **MVP**. Three calculators (FeverPAIN, CHA2DS2-VASc, and QRISK3) are hand-crafted end-to-end. Other active calculators in the registry show a "GUI coming soon" placeholder when selected because their scoring already works via the CLI. Entries withheld for rights or clinical-safety reasons instead show the engine's exact unavailability explanation and never imply that scoring logic ships or is planned.
+Status: **MVP**. Ten calculators (FeverPAIN, CHA2DS2-VASc, QRISK3, GCS, CURB-65, NEWS2, Wells Score for PE, QDiabetes-2018, Rockall, and PHQ-9) are hand-crafted end-to-end. Other active calculators in the registry show a "GUI coming soon" placeholder when selected because their scoring already works via the CLI. Entries withheld for rights or clinical-safety reasons instead show the engine's exact unavailability explanation and never imply that scoring logic ships or is planned.
 
 ## Architecture
 
@@ -21,8 +21,15 @@ gui/
 │   ├── api/calc.ts        Typed wrappers around Tauri invoke
 │   └── calculators/
 │       ├── Cha2ds2Vasc.tsx
+│       ├── Curb65.tsx
 │       ├── FeverPain.tsx
-│       └── Qrisk3.tsx
+│       ├── Gcs.tsx
+│       ├── News2.tsx
+│       ├── Phq9.tsx
+│       ├── Qdiabetes.tsx
+│       ├── Qrisk3.tsx
+│       ├── Rockall.tsx
+│       └── WellsPe.tsx
 └── src-tauri/
     ├── Cargo.toml         Excluded from the calc workspace (own Cargo.lock)
     ├── tauri.conf.json
