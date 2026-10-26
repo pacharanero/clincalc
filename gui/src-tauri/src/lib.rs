@@ -88,8 +88,22 @@ fn calculate(name: &str, input: serde_json::Value) -> Result<CalculationResponse
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
-        .plugin(tauri_plugin_opener::init())
+    let mut builder = tauri::Builder::default().plugin(tauri_plugin_opener::init());
+
+    // Agent-driven GUI automation (screenshots, DOM, console logs, IPC) for
+    // development only; never compiled into release builds. Bound to
+    // localhost rather than the plugin's 0.0.0.0 default, which would
+    // otherwise expose this debug bridge to the whole LAN.
+    #[cfg(debug_assertions)]
+    {
+        builder = builder.plugin(
+            tauri_plugin_mcp_bridge::Builder::new()
+                .bind_address("127.0.0.1")
+                .build(),
+        );
+    }
+
+    builder
         .invoke_handler(tauri::generate_handler![list_calculators, calculate])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
