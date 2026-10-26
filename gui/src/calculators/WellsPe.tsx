@@ -129,7 +129,6 @@ function buildClipboardSummary(r: CalculationResponse, inputs: Inputs): string {
     "",
     `Two-tier: ${twoTier || "—"}`,
     `Three-tier: ${threeTier || "—"}`,
-    `Reference: ${r.reference ?? ""}`,
   ].join("\n");
 }
 

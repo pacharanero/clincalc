@@ -95,8 +95,6 @@ function buildClipboardSummary(r: CalculationResponse, inputs: Inputs): string {
     `Temperature: ${inputs.temperature} degC (${asString(working.temperature_score ?? "")})`,
     "",
     r.interpretation ?? "",
-    "",
-    `Reference: ${r.reference ?? ""}`,
   ].join("\n");
 }
 

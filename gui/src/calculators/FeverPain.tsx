@@ -115,8 +115,6 @@ function buildClipboardSummary(r: CalculationResponse, inputs: Inputs): string {
     "",
     `Prescribing: ${rec || "(not stated)"}`,
     `Streptococcus isolation: ${strep || "(not stated)"}`,
-    "",
-    `Reference: ${r.reference ?? ""}`,
   ].join("\n");
 }
 

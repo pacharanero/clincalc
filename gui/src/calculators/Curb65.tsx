@@ -87,8 +87,6 @@ function buildClipboardSummary(r: CalculationResponse, inputs: Inputs): string {
     "",
     `Risk band: ${band || "—"}`,
     mortality ? `30-day mortality (Lim 2003 cohort): ${mortality}%` : "",
-    "",
-    `Reference: ${r.reference ?? ""}`,
   ]
     .filter((line) => line !== "")
     .join("\n");

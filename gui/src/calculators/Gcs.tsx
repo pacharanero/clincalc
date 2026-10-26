@@ -125,8 +125,6 @@ function buildClipboardSummary(r: CalculationResponse, inputs: Inputs): string {
     `Motor (M): ${label(MOTOR_OPTIONS, inputs.motor_response)}`,
     "",
     r.interpretation ?? "",
-    "",
-    `Reference: ${r.reference ?? ""}`,
   ].join("\n");
 }
 

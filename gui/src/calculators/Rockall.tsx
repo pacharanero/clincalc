@@ -135,7 +135,7 @@ function buildClipboardSummary(r: CalculationResponse, inputs: Inputs): string {
   } else {
     lines.push(`Pre-endoscopy subtotal: ${preEndoscopy}/7`);
   }
-  lines.push("", r.interpretation ?? "", "", `Reference: ${r.reference ?? ""}`);
+  lines.push("", r.interpretation ?? "");
   return lines.join("\n");
 }
 

@@ -259,8 +259,6 @@ function buildClipboardSummary(r: CalculationResponse, inputs: Inputs): string {
       ? `Risk factors:\n${selected}`
       : "No listed QRISK3 clinical risk factors selected.",
     "",
-    `Reference: ${r.reference ?? ""}`,
-    "",
     asString(working.disclaimer),
   ].join("\n");
 }

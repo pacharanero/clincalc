@@ -127,7 +127,6 @@ function buildClipboardSummary(r: CalculationResponse, inputs: Inputs): string {
     r.interpretation ?? "",
     "",
     `Recommendation band: ${recommendation || "not stated"}`,
-    `Reference: ${r.reference ?? ""}`,
   ].join("\n");
 }
 

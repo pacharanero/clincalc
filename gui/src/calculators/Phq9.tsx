@@ -108,8 +108,6 @@ function buildClipboardSummary(r: CalculationResponse, inputs: Inputs): string {
       : "Item 9 (self-harm): negative.",
     "",
     itemLines,
-    "",
-    `Reference: ${r.reference ?? ""}`,
   ].join("\n");
 }
 
