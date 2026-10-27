@@ -60,7 +60,7 @@ struct Cli {
     ///
     /// For `clincalc api`, this sets the server's configured default locale,
     /// used only when a request supplies no `?locale=` or `Accept-Language`
-    /// of its own.
+    /// of its own. For `clincalc mcp`, it fixes the session locale.
     #[arg(
         long,
         global = true,
@@ -165,7 +165,7 @@ fn main() -> anyhow::Result<()> {
         Some(Commands::Tags(cmd)) => clincalc::cli::run_tags(cmd),
         Some(Commands::Version(cmd)) => clincalc::cli::run_version(cmd),
         Some(Commands::Completions(args)) => run_completions(args),
-        Some(Commands::Mcp) => reject_surface_locale(locale, "mcp").and_then(|()| run_mcp()),
+        Some(Commands::Mcp) => run_mcp(clincalc::cli::resolve_cli_locale(locale)?),
         Some(Commands::Api(cmd)) => run_api(cmd, clincalc::cli::resolve_cli_locale(locale)?),
         Some(Commands::AuditReferences(cmd)) => reject_surface_locale(locale, "audit-references")
             .and_then(|()| run_audit_references(cmd)),
@@ -265,12 +265,12 @@ fn legacy_version_request() -> Option<String> {
 }
 
 #[cfg(feature = "mcp")]
-fn run_mcp() -> Result<()> {
-    tokio::runtime::Runtime::new()?.block_on(clincalc::mcp::serve_stdio())
+fn run_mcp(locale: clincalc::SupportedLocale) -> Result<()> {
+    tokio::runtime::Runtime::new()?.block_on(clincalc::mcp::serve_stdio_with_locale(locale))
 }
 
 #[cfg(not(feature = "mcp"))]
-fn run_mcp() -> Result<()> {
+fn run_mcp(_locale: clincalc::SupportedLocale) -> Result<()> {
     Err(anyhow!(
         "MCP support was not compiled into this clincalc binary.\nReinstall with MCP enabled, for example: cargo install clincalc --features mcp"
     ))

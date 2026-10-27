@@ -19,26 +19,42 @@ use rmcp::transport::stdio;
 use rmcp::{ErrorData as McpError, RoleServer, ServerHandler, ServiceExt};
 use serde_json::Value;
 
-use crate::Calculator;
+use crate::{Calculator, SupportedLocale};
 
 const TOOL_PREFIX: &str = "clincalc_";
 
 /// Start the local stdio MCP server and wait until the host closes it.
 pub async fn serve_stdio() -> anyhow::Result<()> {
-    let service = CalcMcpServer.serve(stdio()).await?;
+    serve_stdio_with_locale(SupportedLocale::En).await
+}
+
+/// Start the local stdio MCP server with a configured session locale.
+///
+/// The locale is fixed for the life of the session: tool titles, descriptions,
+/// input schemas, and calculation responses are served in it. A calculator that
+/// does not advertise the locale is served in English as a whole, never mixed.
+pub async fn serve_stdio_with_locale(locale: SupportedLocale) -> anyhow::Result<()> {
+    let service = CalcMcpServer::with_locale(locale).serve(stdio()).await?;
     service.waiting().await?;
     Ok(())
 }
 
 /// Registry-backed MCP server for all calculators.
 #[derive(Debug, Clone, Copy, Default)]
-pub struct CalcMcpServer;
+pub struct CalcMcpServer {
+    locale: SupportedLocale,
+}
 
 impl CalcMcpServer {
+    /// Create a server whose session locale is `locale`.
+    pub fn with_locale(locale: SupportedLocale) -> Self {
+        Self { locale }
+    }
+
     fn tools(&self) -> Vec<Tool> {
         crate::all()
             .into_iter()
-            .map(|calc| tool_for_calculator(calc.as_ref()))
+            .map(|calc| tool_for_calculator(calc.as_ref(), self.locale))
             .collect()
     }
 
@@ -102,7 +118,7 @@ impl CalcMcpServer {
         })?;
 
         let input = Value::Object(arguments.unwrap_or_default());
-        let response = match calc.calculate(&input) {
+        let response = match calc.calculate_for(&input, self.locale) {
             Ok(response) => response,
             Err(err) => {
                 return Ok(CallToolResult::error(vec![ContentBlock::text(format!(
@@ -123,12 +139,12 @@ impl CalcMcpServer {
     }
 }
 
-fn tool_for_calculator(calc: &dyn Calculator) -> Tool {
+fn tool_for_calculator(calc: &dyn Calculator, locale: SupportedLocale) -> Tool {
     let lic = calc.license();
-    let schema = schema_object(calc.input_schema());
+    let schema = schema_object(calc.input_schema_for(locale));
     let description = format!(
         "{} Reference: {} Licence: {} ({})",
-        calc.description(),
+        calc.description_for(locale),
         calc.reference(),
         lic.license,
         lic.source_url
@@ -139,9 +155,9 @@ fn tool_for_calculator(calc: &dyn Calculator) -> Tool {
         Cow::Owned(description),
         Arc::new(schema),
     )
-    .with_title(calc.title())
+    .with_title(calc.title_for(locale))
     .with_annotations(
-        ToolAnnotations::with_title(calc.title())
+        ToolAnnotations::with_title(calc.title_for(locale))
             .read_only(true)
             .destructive(false)
             .idempotent(true)
@@ -177,13 +193,13 @@ mod tests {
 
     #[test]
     fn every_calculator_has_one_tool() {
-        let server = CalcMcpServer;
+        let server = CalcMcpServer::default();
         assert_eq!(server.tools().len(), crate::all().len());
     }
 
     #[test]
     fn tool_schemas_match_calculator_schemas() {
-        let by_name: HashMap<_, _> = CalcMcpServer
+        let by_name: HashMap<_, _> = CalcMcpServer::default()
             .tools()
             .into_iter()
             .map(|tool| (tool.name.to_string(), tool))
@@ -215,7 +231,7 @@ mod tests {
 
     #[test]
     fn mcp_dispatch_matches_direct_calculation() {
-        let server = CalcMcpServer;
+        let server = CalcMcpServer::default();
         let input = serde_json::json!({
             "fever": true,
             "purulence": true,
@@ -226,7 +242,7 @@ mod tests {
 
         let direct = crate::get("feverpain")
             .expect("feverpain calculator exists")
-            .calculate(&input)
+            .calculate_for(&input, SupportedLocale::En)
             .expect("direct feverpain calculation succeeds");
         let arguments = input.as_object().expect("input is an object").clone();
         let via_mcp = server
@@ -242,7 +258,7 @@ mod tests {
 
     #[test]
     fn proprietary_stubs_are_exposed_and_callable() {
-        let server = CalcMcpServer;
+        let server = CalcMcpServer::default();
         let proprietary = crate::all()
             .into_iter()
             .find(|calc| calc.tags().contains(&"proprietary"))
@@ -255,5 +271,37 @@ mod tests {
             .expect("proprietary stub call succeeds");
         assert_eq!(result.is_error, Some(false));
         assert!(result.structured_content.is_some());
+    }
+
+    #[test]
+    fn session_locale_localises_tools_and_falls_back_whole() {
+        let es = CalcMcpServer::with_locale(SupportedLocale::Es);
+
+        for calc in crate::all() {
+            let tool = es
+                .get_tool(&tool_name_for_calculator(calc.name()))
+                .unwrap_or_else(|| panic!("missing tool for {}", calc.name()));
+            // `*_for` falls back to English as a whole for unadvertised locales.
+            assert_eq!(
+                tool.title.as_deref(),
+                Some(calc.title_for(SupportedLocale::Es))
+            );
+            assert_eq!(
+                Value::Object((*tool.input_schema).clone()),
+                calc.input_schema_for(SupportedLocale::Es)
+            );
+        }
+    }
+
+    #[test]
+    fn session_locale_is_applied_to_calls() {
+        let es = CalcMcpServer::with_locale(SupportedLocale::Es);
+        let result = es
+            .call_calculator_tool("clincalc_feverpain", Some(JsonObject::new()))
+            .expect("call succeeds");
+        let direct = crate::get("feverpain")
+            .expect("feverpain exists")
+            .calculate_for(&serde_json::json!({}), SupportedLocale::Es);
+        assert_eq!(result.is_error == Some(true), direct.is_err());
     }
 }
