@@ -99,6 +99,14 @@ LIBGL_ALWAYS_SOFTWARE=1 timeout 8s gui/src-tauri/target/release/calc-gui
 
 Treat these as diagnostic switches, not defaults. In local testing all variants launched and stayed up until `timeout`; `LIBGL_ALWAYS_SOFTWARE=1` emitted an NVIDIA/libEGL warning and is likely only useful to confirm a GPU/compositor path issue.
 
+### `s/gui-dev` window opens blank on first launch
+
+This is **not** a WebKitGTK/GPU/compositor bug, despite how it looks. It is an intermittent cold-start race between the Tauri webview's first navigation and the Vite dev server actually being ready to serve a working module graph: Tauri's `beforeDevCommand`/`devUrl` wait for the Vite port to open, not for Vite to finish its initial dependency pre-bundle. When the webview's first request loses that race, `src/main.tsx` fetches fine (200 OK, valid JS) but never mounts React into `#root` - no thrown error, no console output, just a silently empty page. It doesn't happen on every launch.
+
+**Fix: reload the window once** (Ctrl+Shift+R). It recovers instantly and reliably, because by then Vite is warm.
+
+This was diagnosed with the debug-only `tauri-plugin-mcp-bridge` (see `src-tauri/src/lib.rs`), which exposes webview console logs and DOM state over a local WebSocket - the only way to see that `#root` was empty with zero JS errors, rather than guessing from native window screenshots. Every WebKitGTK rendering workaround above (`WEBKIT_DISABLE_*`, `GDK_BACKEND=x11`, a poisoned `~/.cache/fontconfig`, niri/wlroots compositor quirks) was ruled out this way before the actual mechanism was found; none of them touch this symptom, because the bug is upstream of rendering entirely.
+
 ## Windows code signing
 
 Not configured yet. When the EV cert from SSL.com / Sectigo arrives, point Tauri at it via `bundle.windows.certificateThumbprint` (or the env vars `TAURI_SIGNING_CERTIFICATE_THUMBPRINT` etc.). Without a cert, Windows SmartScreen shows the "Windows protected your PC" dialog on first run and users must click "More info → Run anyway".
