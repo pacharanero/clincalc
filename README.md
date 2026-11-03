@@ -113,9 +113,11 @@ This table tracks every functioning calculation. `✓` means the language is ava
 |---|:---:|:---:|:---:|:---:|
 | `abcd2` | ✓ | - | - | ✓ |
 | `abpi` | ✓ | - | - | ✓ |
+| `ag_ratio` | ✓ | - | - | ✓ |
 | `alcohol_units` | ✓ | - | - | ✓ |
 | `alvarado` | ✓ | - | - | ✓ |
 | `amts` | ✓ | - | - | ✓ |
+| `anc` | ✓ | - | - | ✓ |
 | `anion_gap` | ✓ | - | - | ✓ |
 | `apache2` | ✓ | - | - | ✓ |
 | `apgar` | ✓ | - | - | ✓ |
@@ -134,6 +136,7 @@ This table tracks every functioning calculation. `✓` means the language is ava
 | `body_fat_circumference` | ✓ | - | - | ✓ |
 | `body_surface_area` | ✓ | - | - | ✓ |
 | `braden` | ✓ | - | - | ✓ |
+| `bun_creatinine_ratio` | ✓ | - | - | ✓ |
 | `caprini` | ✓ | - | - | ✓ |
 | `centor` | ✓ | - | - | ✓ |
 | `cha2ds2_va` | ✓ | - | - | ✓ |
@@ -171,6 +174,7 @@ This table tracks every functioning calculation. `✓` means the language is ava
 | `gleason` | ✓ | - | - | ✓ |
 | `grace` | ✓ | - | - | ✓ |
 | `hasbled` | ✓ | - | - | ✓ |
+| `hba1c_eag` | ✓ | - | - | ✓ |
 | `heart` | ✓ | - | - | ✓ |
 | `hinchey` | ✓ | - | - | ✓ |
 | `homa_ir` | ✓ | - | - | ✓ |
@@ -180,6 +184,7 @@ This table tracks every functioning calculation. `✓` means the language is ava
 | `khorana` | ✓ | - | - | ✓ |
 | `ldl_cholesterol` | ✓ | - | - | ✓ |
 | `lrinec` | ✓ | - | - | ✓ |
+| `map` | ✓ | - | - | ✓ |
 | `max_heart_rate` | ✓ | - | - | ✓ |
 | `meld` | ✓ | - | - | ✓ |
 | `meld_3` | ✓ | - | - | ✓ |
@@ -209,6 +214,7 @@ This table tracks every functioning calculation. `✓` means the language is ava
 | `skeletal_muscle_mass_index` | ✓ | - | - | ✓ |
 | `sofa` | ✓ | - | - | ✓ |
 | `timi` | ✓ | - | - | ✓ |
+| `transferrin_saturation` | ✓ | - | - | ✓ |
 | `uacr` | ✓ | - | - | ✓ |
 | `ukeld` | ✓ | - | - | ✓ |
 | `waist_to_height_ratio` | ✓ | - | - | ✓ |
@@ -220,7 +226,7 @@ This table tracks every functioning calculation. `✓` means the language is ava
 
 ### Unavailable tools are named, not hidden
 
-The registry contains 106 active calculators and 14 named-but-unavailable entries, for 120 entries in total. Eleven cannot be shipped because they are proprietary or licence-locked: FRAX, MMSE, ELF, ACQ, the Oxford Hip/Knee Scores, CAT, MUST, CFS, LANSS, and SCORAD. Norton and SCORE2 / SCORE2-OP are separately withheld pending permission or legal review because unrestricted software-redistribution rights have not been established; they are not labelled proprietary. Rather than omit these gaps silently, each is registered with its precise unavailable reason and alternatives:
+The registry contains 112 active calculators and 14 named-but-unavailable entries, for 126 entries in total. Eleven cannot be shipped because they are proprietary or licence-locked: FRAX, MMSE, ELF, ACQ, the Oxford Hip/Knee Scores, CAT, MUST, CFS, LANSS, and SCORAD. Norton and SCORE2 / SCORE2-OP are separately withheld pending permission or legal review because unrestricted software-redistribution rights have not been established; they are not labelled proprietary. Rather than omit these gaps silently, each is registered with its precise unavailable reason and alternatives:
 
 ```console
 $ clincalc calc frax --input '{}'

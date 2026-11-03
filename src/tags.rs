@@ -163,6 +163,12 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ("corrected_calcium", &["primary-care", "endocrinology"]),
     ("corrected_sodium", &["endocrinology", "acute-medicine"]),
     ("anion_gap", &["acute-medicine", "nephrology"]),
+    ("bun_creatinine_ratio", &["acute-medicine", "nephrology"]),
+    ("transferrin_saturation", &["haematology"]),
+    ("ag_ratio", &["acute-medicine", "hepatology"]),
+    ("anc", &["haematology", "oncology"]),
+    ("hba1c_eag", &["endocrinology", "primary-care"]),
+    ("map", &["acute-medicine", "intensive-care"]),
     ("energy_requirement", &["primary-care", "endocrinology"]),
     ("bmi", &["primary-care", "endocrinology", "screening"]),
     (

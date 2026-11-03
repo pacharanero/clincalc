@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry: 120 entries comprising 106 active calculators that compute a real result, 11 named-but-unavailable rights-locked stubs (carrying `proprietary` and `unavailable`), two rights-review stubs, and one clinical-safety stub (the latter three carry `unavailable` without `proprietary`). One row per calculator.
+The full registry: 126 entries comprising 112 active calculators that compute a real result, 11 named-but-unavailable rights-locked stubs (carrying `proprietary` and `unavailable`), two rights-review stubs, and one clinical-safety stub (the latter three carry `unavailable` without `proprietary`). One row per calculator.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
@@ -29,9 +29,11 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `abcd2` | ABCD2 Score (Stroke Risk after TIA) | 2-day stroke risk after a transient ischaemic attack. Note NICE NG128 advises against using ABCD2 to guide referral urgency. | `neurology`, `emergency`, `risk` |
 | `abpi` | ABPI (Ankle-Brachial Pressure Index) | Ankle-Brachial Pressure Index per leg from ankle and brachial systolic pressures; screens for peripheral arterial disease and informs compression-therapy safety. | `primary-care`, `vascular` |
 | `acq` | ACQ (Asthma Control Questionnaire) | Asthma control monitoring (BTS/NICE/SIGN asthma). | `respiratory`, `severity`, `proprietary`, `unavailable` |
+| `ag_ratio` | Albumin/Globulin (A/G) Ratio | Albumin/globulin ratio from total protein and albumin, for liver, kidney, and paraprotein screening. | `acute-medicine`, `hepatology` |
 | `alcohol_units` | Alcohol Units (UK) | Calculates UK alcohol units from drink volume and ABV, with optional weekly tally and alcohol kcal. | `primary-care`, `mental-health` |
 | `alvarado` | Alvarado Score (Appendicitis) | MANTRELS score for suspected acute appendicitis (0-10). | `emergency`, `surgery`, `risk` |
 | `amts` | Abbreviated Mental Test Score (AMTS) | Ten-item bedside cognitive screen (0-10); a score below 8 suggests cognitive impairment. | `primary-care`, `geriatrics`, `neurology`, `screening` |
+| `anc` | Absolute Neutrophil Count (ANC) | Absolute neutrophil count from white cell count and differential, with CTCAE neutropenia severity grading. | `haematology`, `oncology` |
 | `anion_gap` | Anion Gap | Serum anion gap from sodium, chloride, bicarbonate, optional potassium, and optional albumin correction. | `acute-medicine`, `nephrology` |
 | `apache2` | APACHE II | ICU acute physiology, age, and chronic health severity score (0-71). | `intensive-care`, `severity`, `prognostic` |
 | `apgar` | Apgar Score | Scores one newborn observation set at 1, 5, 10, 15, or 20 minutes. It documents clinical status and response but does not determine initial resuscitation or diagnose asphyxia. | `paediatrics`, `perinatal`, `severity` |
@@ -50,6 +52,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `body_fat_circumference` | Body Fat % (US Navy Circumference Method) | Estimates body fat percentage from height, waist, neck (and hip for women) using the US Navy / Hodgdon-Beckett regression equations. | `primary-care`, `endocrinology`, `screening` |
 | `body_surface_area` | Body Surface Area (Mosteller) | Calculates body surface area from height and weight using the Mosteller formula. It does not infer dosing or indexing decisions, which remain protocol-specific. | `primary-care` |
 | `braden` | Braden Scale (Pressure Ulcer Risk) | Predicts pressure ulcer risk across six subscales (sensory perception, moisture, activity, mobility, nutrition, friction/shear). Score 6-23; lower = higher risk. | `acute-medicine`, `geriatrics`, `screening` |
+| `bun_creatinine_ratio` | BUN:Creatinine Ratio | Blood urea nitrogen to creatinine ratio, for prerenal-versus-intrinsic azotaemia screening. | `acute-medicine`, `nephrology` |
 | `caprini` | Caprini VTE Risk Score | Peri-operative venous thromboembolism (VTE) risk assessment using weighted risk factors. Score 0=very low to ≥5=high. | `surgery`, `vascular`, `risk` |
 | `cat` | CAT (COPD Assessment Test) | Symptom-burden / health-status measure in COPD (8 items, 0-40; GOLD/NICE NG115). | `respiratory`, `severity`, `proprietary`, `unavailable` |
 | `centor` | Centor / McIsaac Score (Strep Pharyngitis) | Predicts probability of group-A streptococcal pharyngitis to guide antibiotic use and throat swab decisions. | `primary-care`, `infectious-diseases` |
@@ -91,6 +94,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `gleason` | Gleason Grade Group (ISUP/WHO) | Gleason score and ISUP/WHO Grade Group (1-5) from the primary and secondary prostate cancer patterns. | `oncology`, `urology` |
 | `grace` | GRACE ACS Risk Score (in-hospital mortality) | Point-based GRACE 1.0 score (Granger 2003) estimating in-hospital mortality risk in acute coronary syndrome. | `cardiology`, `acute-medicine`, `prognostic` |
 | `hasbled` | HAS-BLED Bleeding Risk (AF) | Bleeding risk in atrial fibrillation on anticoagulation, used alongside CHA2DS2-VASc (NICE NG196). | `cardiology`, `risk` |
+| `hba1c_eag` | HbA1c / Estimated Average Glucose (eAG) | Converts HbA1c (NGSP % or IFCC mmol/mol) to estimated average glucose, and between the two HbA1c reporting units. | `endocrinology`, `primary-care` |
 | `heart` | HEART Score (ED Chest Pain) | 6-week MACE risk for emergency department chest pain, guiding discharge versus admission versus early invasive management (Six AJ et al. 2008). | `cardiology`, `emergency`, `risk` |
 | `hinchey` | Modified Hinchey Classification (Wasvary/Kaiser) | Classifies diverticulitis anatomy using the Wasvary modified stages and Kaiser CT operationalisation; preserves fistula/obstruction as separate categories and does not infer purulent versus fecal peritonitis from CT alone. | `surgery`, `acute-medicine`, `severity` |
 | `homa_ir` | HOMA-IR | Calculates the continuous original HOMA1 surrogate estimate from fasting glucose and fasting insulin. It does not apply a universal diagnostic cutoff because values depend on the assay and population. | `endocrinology`, `screening` |
@@ -101,6 +105,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `lanss` | LANSS (Leeds Assessment of Neuropathic Symptoms and Signs) | Screening for pain of predominantly neuropathic origin (7 items, 0-24; >=12 likely neuropathic). | `neurology`, `screening`, `proprietary`, `unavailable` |
 | `ldl_cholesterol` | LDL and non-HDL Cholesterol | Calculates non-HDL cholesterol and estimates LDL cholesterol using Friedewald, Martin-Hopkins, and Sampson-NIH, with method-specific triglyceride limits. | `primary-care`, `cardiology`, `endocrinology` |
 | `lrinec` | LRINEC Score (Necrotising Fasciitis Risk Indicator) | Six-variable laboratory diagnostic adjunct for severe soft-tissue infection; a score of 6 or more increases suspicion, but poor sensitivity means a low score does not exclude necrotising infection or justify delaying surgical consultation. | `emergency`, `surgery`, `infectious-diseases`, `risk` |
+| `map` | Mean Arterial Pressure (MAP) | Mean arterial pressure from systolic and diastolic blood pressure, with the >=65 mmHg sepsis-resuscitation target. | `acute-medicine`, `intensive-care` |
 | `max_heart_rate` | Max Heart Rate & Training Zones | Estimates HRmax from age (Tanaka 2001) and derives aerobic training zones; uses Karvonen heart-rate reserve when resting HR is supplied. | `primary-care`, `screening` |
 | `meld` | MELD Score (original, 2001) | Model for End-Stage Liver Disease: 3-month mortality risk from bilirubin, INR, and creatinine (Kamath 2001). | `hepatology`, `prognostic` |
 | `meld_3` | MELD 3.0 (OPTN) | Current OPTN MELD 3.0 allocation score for liver-transplant candidates registered at age 12 or older; preserves the uncapped policy-formula score separately and does not determine official allocation. | `hepatology`, `prognostic` |
@@ -138,6 +143,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `skeletal_muscle_mass_index` | Skeletal Muscle Mass Index (SMI) | Whole-body DXA appendicular lean mass normalised to height (primary EWGSOP2 SMI result) and to BMI (supplementary FNIH preliminary candidate criterion) in adults aged 65 or older. Reports each cut-off classification separately because they can disagree. Assesses muscle quantity only - not a standalone sarcopenia diagnosis or exclusion. | `primary-care`, `geriatrics`, `musculoskeletal`, `screening` |
 | `sofa` | SOFA Score (Sequential Organ Failure Assessment) | Grades dysfunction across six organ systems (0-24); underpins the Sepsis-3 definition (rise >= 2 from baseline). | `intensive-care`, `severity` |
 | `timi` | TIMI Risk Score for UA/NSTEMI | 14-day risk of death, MI, or urgent revascularisation in unstable angina / NSTEMI (Antman et al, JAMA 2000). Not the STEMI score. | `cardiology`, `acute-medicine`, `risk` |
+| `transferrin_saturation` | Transferrin Saturation | Transferrin saturation from serum iron and TIBC, for iron-deficiency and haemochromatosis workup. | `haematology` |
 | `uacr` | uACR (urine albumin-to-creatinine ratio) | Urine albumin-to-creatinine ratio from a measured ratio or raw albumin/creatinine; reports the KDIGO albuminuria category (A1-A3). | `primary-care`, `nephrology` |
 | `ukeld` | UKELD (UK Model for End-Stage Liver Disease) | UK liver-transplant listing score from INR, creatinine, bilirubin, and sodium (Barber 2011); 49 is the listing threshold. | `hepatology`, `prognostic` |
 | `waist_to_height_ratio` | Waist-to-Height Ratio (WHtR) | Unitless central-adiposity index: waist circumference divided by height. Boundary 0.5 is the "keep your waist to less than half your height" rule. | `primary-care`, `endocrinology`, `screening` |
