@@ -181,6 +181,23 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ),
     ("carboplatin_calvert", &["oncology"]),
     ("cage", &["primary-care", "mental-health", "screening"]),
+    ("gestational_age", &["perinatal"]),
+    ("bishop", &["perinatal"]),
+    ("pediatric_gcs", &["paediatrics", "neurology", "severity"]),
+    ("cam_icu", &["intensive-care", "screening"]),
+    ("canadian_ct_head", &["emergency", "risk"]),
+    ("heparin_nomogram", &["acute-medicine", "haematology"]),
+    (
+        "psi_port",
+        &[
+            "respiratory",
+            "acute-medicine",
+            "infectious-diseases",
+            "severity",
+            "prognostic",
+        ],
+    ),
+    ("pecarn_head_injury", &["paediatrics", "emergency", "risk"]),
     ("energy_requirement", &["primary-care", "endocrinology"]),
     ("bmi", &["primary-care", "endocrinology", "screening"]),
     (
