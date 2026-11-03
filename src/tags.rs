@@ -169,6 +169,18 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ("anc", &["haematology", "oncology"]),
     ("hba1c_eag", &["endocrinology", "primary-care"]),
     ("map", &["acute-medicine", "intensive-care"]),
+    ("feurea", &["acute-medicine", "nephrology"]),
+    ("ideal_body_weight", &["primary-care"]),
+    ("holliday_segar", &["paediatrics", "acute-medicine"]),
+    ("aa_gradient", &["respiratory", "acute-medicine"]),
+    ("qtc", &["cardiology"]),
+    ("rass", &["intensive-care"]),
+    (
+        "sodium_correction_rate",
+        &["acute-medicine", "endocrinology"],
+    ),
+    ("carboplatin_calvert", &["oncology"]),
+    ("cage", &["primary-care", "mental-health", "screening"]),
     ("energy_requirement", &["primary-care", "endocrinology"]),
     ("bmi", &["primary-care", "endocrinology", "screening"]),
     (
