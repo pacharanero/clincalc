@@ -243,6 +243,21 @@ Recorded 2026-10-01 alongside ENG-011, after reviewing Oli Evans's [`ods`](https
 - [ ] **ENG-012.1 Strengthen evidence behind calculation workings.** Inspired by `ods find --sql` and its equivalence tests, inventory existing `CalculationResponse.working` fields and verify that displayed contributions, units, rounding and interpretations agree with the actual typed result and primary-source literature vectors. Keep explanations driven by the same engine, avoiding a second implementation of scoring merely for display. Start with representative additive and continuous calculators, then enforce only genuinely universal properties through the registry.
 - [ ] **ENG-012.2 Publish a compact guarantee-to-test index.** Borrow the named-guarantee structure of [`ods/docs/tests.md`](https://github.com/olizilla/ods/blob/7f95000/docs/tests.md), linking existing leaf-purity, input-validation, licence, locale-completeness and result-output contracts to their tests. Test every promised renderer/surface for each universal invariant and prove representative assertions fail on deliberate violations. Keep this an index over authoritative specs, not duplicated scoring documentation.
 
+### ENG-013 Bayesian pharmacokinetic dosing engine
+
+Status: Future
+
+Recorded 2026-11-05 as the shared infrastructure blocking [CALC-117](calculator-roadmap.md) (Vancomycin AUC-Guided Dosing). Every commercial Bayesian dosing tool checked against this gap (DoseMeRx, InsightRX, PrecisePK) is closed-source; an open, auditable Bayesian dosing engine is a deliberate differentiator for clincalc, not a feature-parity exercise, which is why this is worth the investment despite being harder than any already-shipped calculator. The simpler two-level first-order PK equations that the 2020 consensus guideline documents as a fallback are explicitly rejected as the implementation target: shipping the guideline's disfavoured method instead of its preferred one would not be a differentiator, and risks clinicians treating a lower-precision estimate as equivalent to Bayesian dosing.
+
+- [ ] **ENG-013.1 Identify and verify an open, citable population-PK model for vancomycin** (structural model - one- or two-compartment; population parameter means, inter-individual variability, and covariate relationships such as weight/creatinine clearance) from a primary publication, not from a commercial tool's undocumented internals. Confirm which published model (if any) is fully reproducible from its own paper before committing to it.
+- [ ] **ENG-013.2 Design the MAP (maximum a posteriori) Bayesian estimator** - given population priors (parameter means and covariance matrix) and one or more observed concentrations with dose/sample timing, solve for the individual's most likely PK parameters by minimising a weighted objective (population term plus observation term). Requires small matrix operations and a numerical optimiser; decide whether this stays dependency-free per the leaf rule (as ENG-010 did for its normal-CDF approximation) or needs its own opt-in feature analogous to `audit-references`'s `dep:ureq`.
+- [ ] **ENG-013.3 Validate the estimator against literature-published worked examples** (concentration-time data paired with the source paper's own reported individual PK parameters and/or recommended dose), not only internal self-consistency.
+- [ ] **ENG-013.4 Build CALC-117 on this engine** once ENG-013.1-3 are resolved: inputs are the patient's dosing/sampling history and the target AUC24/MIC; output is the Bayesian-estimated individual clearance/volume and recommended maintenance dose/interval, with the credible interval or uncertainty disclosed rather than a bare number, given the toxicity stakes.
+
+Open questions for comment:
+- Does the MAP estimator belong in the core leaf crate (new minimal pure-Rust linear algebra) or behind an optional feature (a small vetted matrix dependency), given embedding users may not want the extra weight for one calculator?
+- One-compartment vs two-compartment vancomycin model - which has better-supported open population parameters for a general adult population rather than a single hospital's local dataset?
+
 ---
 
 ## Collaboration & sister projects
