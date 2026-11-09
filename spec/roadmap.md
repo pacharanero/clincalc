@@ -51,7 +51,7 @@ See the design spec at [`gui.md`](gui.md) and the implementation guide at [`gui/
 
 ### Planned
 
-- [ ] **GOV-001 Establish the Open Health Technology Foundation and operating entity** - define ownership, governance, clinical-safety accountability, and the legal entity that will stand behind any future clinician-facing distribution. Until this is complete and the relevant safety and regulatory gates are approved, `clincalc` remains a development, research, education, and evaluation component rather than a finished medical device.
+- [~] **GOV-001 Transfer `clincalc` to the Open Health Technology Foundation (OHTF)** - OHTF is incorporated (Open Health Technology CIC, company number 17544421) and `clincalc` is listed on its site as a Candidate project. Marcus remains the named maintainer; this moves repository ownership and publishing control to OHTF for continuity, not a maintainer change. Full plan, decisions needed, and execution order are in [`ohtf-transfer.md`](ohtf-transfer.md). Until this completes and the relevant safety and regulatory gates are approved, `clincalc` remains a development, research, education, and evaluation component rather than a finished medical device.
 
 ---
 
