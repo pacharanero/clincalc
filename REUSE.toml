@@ -56,6 +56,7 @@ path = [
     "python/README.md",
     "regulatory/**/*.md",
     "s/README.md",
+    "SECURITY.md",
     "spec/**/*.md",
 ]
 precedence = "closest"
