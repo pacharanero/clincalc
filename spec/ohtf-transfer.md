@@ -25,7 +25,8 @@ OHTF's own rule: "Projects keep their existing licences and copyright holders un
 - [x] **crates.io and PyPI Trusted Publishing repointed** to `ohtf/clincalc` (2026-11-10, via each registry's web UI).
 - [x] **Publishing environments locked down**: `crates-io` and `pypi` restricted to `v*` tags only; `homebrew` and `github-release` restricted to `main` branch + `v*` tags (matching their actual dispatch paths - `auto-tag.yml` always dispatches at the tag ref, manual recovery runs from `main` with the tag as an input); `github-pages` already restricted to `main`. All five had been checked against `s/README.md`'s documented intent - `crates-io`/`pypi`/`homebrew`/`github-release` had drifted to `deployment_branch_policy: null` (fully unrestricted) at some point and were not actually enforcing this.
 - [x] **GitHub Pages confirmed working** on the new location: `https://ohtf.github.io/clincalc/` returns 200; `docs.yml` deploys via the artifact-based method (no `gh-pages` branch).
-- [ ] Phase 4.5: a real dry-run of the whole release chain against the new repo/registry identities, not yet done - see below.
+- [x] **README.md and AGENTS.md updated** to state `clincalc` is managed by OHTF, link to this plan, and record the open-source-commitment confirmation and the major-announcements-go-to-the-website convention.
+- [~] **Phase 4.5 (the dry-run) in progress**: `v0.5.0` cut via `s/version++ minor` (2026-11-10). Tag created, binaries built for 4 of 5 targets, but `build-local-artifacts (aarch64-apple-darwin)` is being cancelled instantly (zero build time) on every attempt (3 so far), even after an unrelated GitHub-wide incident ("Git Operations and Pull Requests", 16:10-~21:00 UTC) fully resolved. This looks like an `ohtf`-org-level entitlement/billing issue specific to the `macos-14` runner label (Apple Silicon), not a code or workflow problem - `x86_64-apple-darwin` (`macos-15-intel`) and all three other targets built successfully in the same run. See "Blocked" below.
 - [ ] Phase 5: update the OHTF site's project entry from Candidate to Incubating.
 
 ## What is already in good shape
@@ -46,7 +47,7 @@ OHTF's own rule: "Projects keep their existing licences and copyright holders un
 
 ## Blocked - needs your action
 
-Nothing registry/credential-side remains blocked. What's left (Phase 1.5, Phase 4.5, Phase 5 below) is either a one-line decision or work that can be done from here - no more external web-UI steps only you can take.
+1. **`macos-14` (Apple Silicon) GitHub-hosted runner not available to `ohtf`**: the `v0.5.0` release's `build-local-artifacts (aarch64-apple-darwin)` job is cancelled the instant it would start (0-second job duration) on every attempt, while the identical `x86_64-apple-darwin` job on `macos-15-intel` succeeds in the same run. Ruled out: GitHub-wide incident (resolved, retried after), matrix `fail-fast` (explicitly `false` in `release.yml`), and anything code/workflow-side. This needs org-admin-level checking on `github.com/organizations/ohtf/settings/billing` and `.../settings/actions` - likely either a payment-verification step GitHub requires for macOS runners even on public repos, or a runner-type restriction on a newly created org. `gh api orgs/ohtf/actions/permissions` and the billing endpoint both returned 403 for the current token (needs `admin:org` scope / org-admin web UI access, which only an org owner has).
 
 ## Execution order
 
@@ -56,7 +57,7 @@ Nothing registry/credential-side remains blocked. What's left (Phase 1.5, Phase 
 2. [x] `github:ohtf:clincalc` added as a crates.io co-owner (via the web UI, not `cargo owner --add`).
 3. [x] `gui/src-tauri/tauri.conf.json`'s `identifier` updated to `io.github.ohtf.clincalc`.
 4. [x] `ohtf/homebrew-tap` created; `Cargo.toml` and `release.yml` repointed to it, pushing via `HOMEBREW_TAP_DEPLOY_KEY` (an SSH deploy key on the tap repo, not a personal PAT).
-5. [ ] Agree OHTF's [open-source commitment](https://openhealthtechnology.org/governance/open-source-commitment/) applies to `clincalc` - the last Candidate -> Incubating gate, a statement not a code change. Still outstanding.
+5. [x] Agree OHTF's [open-source commitment](https://openhealthtechnology.org/governance/open-source-commitment/) applies to `clincalc` - the last Candidate -> Incubating gate. Confirmed 2026-11-10 by Marcus, as owner of both `clincalc` and OHTF, with one stated understanding: `clincalc` will remain mindful of any upstream IP licence it must comply with, and if a proposed calculator's primary-source licensing would conflict with the open-source commitment, it is simply omitted from the registry rather than ever compromising that commitment. This matches `clincalc`'s existing practice for proprietary/rights-review calculators (see `docs/calculators.md`'s "Unavailable on principle" section) exactly - no change of practice, just confirmation it continues under OHTF. Recorded in `AGENTS.md`'s new Governance section.
 
 ### Phase 2 - done: the transfer itself
 

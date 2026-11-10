@@ -6,6 +6,8 @@ A score is computed once, in the core library, and the result is identical where
 
 > **Development status:** `clincalc` is published for software development, research, education, and evaluation. It is not a finished medical device and must not be used on its own to make decisions about an individual patient's care. Anyone incorporating it into a product or deploying it for clinical use is responsible for that product or deployment's clinical-safety and regulatory obligations.
 
+`clincalc` is a project of the [Open Health Technology Foundation](https://openhealthtechnology.org) (OHTF), a UK community interest company providing a neutral, long-term home for open-source health software. Marcus Baw remains the project's named maintainer. See [the OHTF project page](https://openhealthtechnology.org/projects/) and [`spec/ohtf-transfer.md`](spec/ohtf-transfer.md) for how the transfer was done.
+
 ## Why
 
 Clinical software developers need reliable implementations of published clinical scores, but rebuilding them separately in every product invites inconsistency. This project provides **open source, evidence-based, auditable reference implementations** - each cites primary literature, is tested against published vectors, and records the licence it is distributed under.

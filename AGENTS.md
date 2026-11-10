@@ -85,6 +85,14 @@ Before writing or bumping any dependency, fetch the package's official repositor
 
 This file, `spec/calculators.md`, `spec/calculator-input-definitions.md`, and the committed JSON files in `examples/` are the calculator authoring path. Do not rely on Claude-specific skills or per-agent hidden workflows.
 
+## Governance
+
+`clincalc` is managed by the [Open Health Technology Foundation](https://openhealthtechnology.org) (OHTF), a UK community interest company (company number 17544421). The repository transferred from a personal account to `github.com/ohtf` on 2026-11-10; Marcus Baw remains the named maintainer throughout - this is a continuity and governance change, not a change of maintainership. Per OHTF's [project lifecycle](https://openhealthtechnology.org/governance/project-lifecycle/) (Candidate -> Incubating -> Active), `clincalc` is moving from Candidate to Incubating; the OHTF website still needs updating to reflect this (Phase 5 of the transfer plan). The full transfer plan, decisions made, and what still needs doing live in [`spec/ohtf-transfer.md`](spec/ohtf-transfer.md).
+
+Marcus Baw, as the owner of both `clincalc` and OHTF, has confirmed OHTF's [open-source commitment](https://openhealthtechnology.org/governance/open-source-commitment/) applies to this project (2026-11-10), with the understanding that any calculator whose primary-source licensing would conflict with that commitment is omitted from the registry rather than compromising it - consistent with how `clincalc` already treats proprietary and rights-review calculators (`docs/calculators.md`'s "Unavailable on principle" section).
+
+**Major announcements** (releases with broad significance, governance changes, security advisories affecting users) should be published to [openhealthtechnology.org](https://openhealthtechnology.org), via a PR against [`ohtf/openhealthtechnology.org-website`](https://github.com/ohtf/openhealthtechnology.org-website). Routine releases and day-to-day work do not need this - use judgement about what counts as "major."
+
 ## Roadmap snapshot
 
 - `cargo-dist` release pipeline publishing `clincalc` to crates.io and the `ohtf/homebrew-tap`.
