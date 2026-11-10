@@ -73,7 +73,7 @@ The script requires a clean `main`, runs the pre-release Rust gate, bumps the Ru
 One-time repository setup is part of the release trust boundary:
 
 - Protect `main` and `v*` tags according to the repository's clinical-software risk tier.
-- Create `github-release` and `homebrew` environments that allow protected `main` and `v*` tags. Store `HOMEBREW_TAP_TOKEN` only in `homebrew`.
+- Create `github-release` and `homebrew` environments that allow protected `main` and `v*` tags. Store `HOMEBREW_TAP_DEPLOY_KEY` (a deploy key scoped to just the tap repo, not a personal-account PAT) only in `homebrew`.
 - Create `crates-io` and `pypi` environments that allow only `v*` tags.
 - Configure the crates.io Trusted Publisher for `publish-crates.yml` with environment `crates-io`.
 - Configure the PyPI Trusted Publisher for `publish-python.yml` with environment `pypi`.
