@@ -87,7 +87,7 @@ This file, `spec/calculators.md`, `spec/calculator-input-definitions.md`, and th
 
 ## Roadmap snapshot
 
-- `cargo-dist` release pipeline publishing `clincalc` to crates.io and the `pacharanero/homebrew-tap`.
+- `cargo-dist` release pipeline publishing `clincalc` to crates.io and the `ohtf/homebrew-tap`.
 - Tauri desktop GUI whose headline is prominent copy-paste ("soft interoperability").
 - `clincalc-web` (single-file HTML) is on the roadmap but deprioritised.
 

@@ -9,9 +9,15 @@ OHTF's own rule: "Projects keep their existing licences and copyright holders un
 ## Status
 
 - [x] `clincalc` listed as a Candidate project on openhealthtechnology.org.
-- [x] `ohtf/clincalc` GitHub team already exists, with Marcus (`pacharanero`) as a team maintainer - this is the team crates.io ownership will reference.
-- [x] `SECURITY.md` added at repo root (this change).
-- [ ] Everything below.
+- [x] `ohtf/clincalc` GitHub team already exists, with Marcus (`pacharanero`) as a team maintainer - this is the team crates.io ownership was meant to reference.
+- [x] `SECURITY.md` added at repo root.
+- [x] All six decisions below made (2026-11-10).
+- [x] `ohtf/homebrew-tap` created and seeded (empty `Formula/`); `Cargo.toml`'s `tap` and `release.yml`'s `publish-homebrew-formula` job repointed to it.
+- [x] Tauri bundle identifier changed to `io.github.ohtf.clincalc`.
+- [ ] **Blocked**: `cargo owner --add github:ohtf:clincalc` failed - the stored crates.io token lacks the `change-owners` scope (crates.io API tokens are scope-limited; this one was issued for publish-only use). See "Blocked - needs your action" below.
+- [ ] **Blocked**: `HOMEBREW_TAP_TOKEN` repo secret still grants access to `pacharanero/homebrew-tap` only, not `ohtf/homebrew-tap`. The next release's `publish-homebrew-formula` job will fail (fail-closed, not silent) until this is replaced.
+- [ ] **Blocked**: PyPI secondary maintainer invite - needs the project owner to add the OHTF PyPI account as a collaborator on `clincalc` via PyPI's web UI; no API access available to do this directly.
+- [ ] The GitHub repository transfer itself (Phase 2) and everything downstream of it (Phases 3-5).
 
 ## What is already in good shape
 
@@ -20,23 +26,30 @@ OHTF's own rule: "Projects keep their existing licences and copyright holders un
 - `publish-crates.yml` and `publish-python.yml` already use crates.io and PyPI **Trusted Publishing** (GitHub OIDC) rather than long-lived tokens. No secret rotation is needed on transfer - only repointing the trust relationship to the new repository path (see below).
 - Marcus is already a named maintainer with a security-relevant history of responsible dependency/CVE handling (see `spec/roadmap.md` ENG-008).
 
-## Decisions needed before executing (ask, don't assume)
+## Decisions (resolved 2026-11-10)
 
-1. **Repository name.** No name clash exists under `github.com/ohtf` (unlike `nhs-number`, which became `nhs-number-py` to disambiguate from the Rust port). Recommend keeping the name `clincalc`. Confirm.
-2. **Homebrew tap.** `pacharanero/homebrew-tap` is shared across `clincalc`, `sct`, `dsc-rs`, and `gitehr` - it is not `clincalc`-specific. Moving it would affect three other projects that have nothing to do with OHTF yet. Recommend **leaving the tap where it is**; the `clincalc.rb` formula inside it just needs its `url`/`homepage` fields updated to point at the new repo path. Confirm, or decide OHTF should have its own tap instead.
-3. **GitHub Pages domain.** No CNAME is currently set; docs are served at `pacharanero.github.io/clincalc/`. After transfer this becomes `ohtf.github.io/clincalc/` by default. OHTF's own policy says it can "hold domains... where that protects the project's independence." Decide: default `ohtf.github.io` URL, or a subdomain of `openhealthtechnology.org` (e.g. `clincalc.openhealthtechnology.org`)? The latter is nicer but is a new piece of DNS/Pages config to set up and maintain.
-4. **crates.io co-ownership.** `cargo owner --add github:ohtf:clincalc` can be run **today**, independent of the GitHub repo transfer - it only requires the acting crates.io account (`pacharanero`) to be a member of the `ohtf/clincalc` GitHub team, which is already true. This adds the team as a second owner alongside `pacharanero`, so publish/yank rights do not depend solely on one personal account. It is additive and reversible (`cargo owner --remove` later). Recommend doing this now. Confirm before it is run, since it changes who can act on the published crate.
-5. **PyPI secondary maintainer.** PyPI has no GitHub-team-owner equivalent to crates.io's. Options: (a) rely solely on Trusted Publishing once repointed to `ohtf/clincalc` (no human PyPI account has standing access at all - arguably the most secure option, but means only a repo admin via CI can ever publish, never a human from a laptop), or (b) add a shared OHTF PyPI account as a second maintainer if one exists or is created. Decide which; (a) is recommended unless OHTF already has a shared PyPI account for other projects.
-6. **Tauri desktop bundle identifier.** `gui/src-tauri/tauri.conf.json` currently has `"identifier": "io.github.pacharanero.calc"`. The GUI has not shipped any signed/distributed build yet (still pre-release per `spec/gui.md`), so this is safe to change now, before it is baked into any installed-app identity, update manifest, or code-signing certificate. Recommend `io.github.ohtf.clincalc`. Confirm the exact string.
+1. **Repository name**: keep `clincalc`. No action needed until Phase 2.
+2. **Homebrew tap**: OHTF gets its own tap, not a shared repurposing of `pacharanero/homebrew-tap` (which stays as-is for `sct`/`dsc-rs`/`gitehr`, none of which are OHTF projects yet). Done: `ohtf/homebrew-tap` created, seeded with an empty `Formula/` directory and a README; `Cargo.toml`'s `tap` and `release.yml`'s `publish-homebrew-formula` job (checkout target and environment URL) repointed to it.
+3. **GitHub Pages domain**: default `ohtf.github.io/clincalc/` for now, no custom domain. No action needed until Phase 2/3 - this is what happens automatically on transfer.
+4. **crates.io co-ownership**: add `github:ohtf:clincalc` as a second owner. **Attempted, blocked** - see "Blocked - needs your action" below.
+5. **PyPI secondary maintainer**: OHTF already has a shared PyPI account (it publishes `nhs-number`). Add it as a second maintainer on the `clincalc` PyPI project rather than relying solely on Trusted Publishing. **Needs your action** - see below.
+6. **Tauri bundle identifier**: changed to `io.github.ohtf.clincalc`. Done - safe, since no signed GUI build has ever shipped.
+
+## Blocked - needs your action
+
+1. **crates.io owner-add**: `cargo owner --add github:ohtf:clincalc` failed with `403 Forbidden: this token does not have the required permissions to perform this action`. The token in `~/.cargo/credentials.toml` is scope-limited (likely publish-only, not `change-owners`). Fix: go to <https://crates.io/settings/tokens>, create a new token with the "Change owners" scope (or a legacy full-access token), `cargo login` with it, then run `cargo owner --add github:ohtf:clincalc` (I can run the command once the token is in place - just say so). Alternatively, add the owner directly via <https://crates.io/crates/clincalc/settings> in the browser, no token needed there.
+2. **`HOMEBREW_TAP_TOKEN` secret**: currently a PAT scoped to `pacharanero/homebrew-tap` (repo secret on `pacharanero/clincalc`, set 2026-07-05). It has no access to the new `ohtf/homebrew-tap`. Fix: create a new PAT (fine-grained, scoped to just `ohtf/homebrew-tap`, contents: read/write) and either update the existing secret (`gh secret set HOMEBREW_TAP_TOKEN --repo pacharanero/clincalc`) or tell me the new token value and I will. Until this is done, `publish-homebrew-formula` will fail loudly on the next release (not publish silently to the wrong place).
+3. **PyPI secondary maintainer invite**: no PyPI API access available to do this directly. Go to <https://pypi.org/manage/project/clincalc/collaboration/> and invite the OHTF PyPI account as a maintainer (or owner, matching however `nhs-number` is set up).
 
 ## Execution order
 
-### Phase 1 - safe to do now, before any transfer (reversible, no external side effects beyond crates.io ownership)
+### Phase 1 - safe to do now, before any transfer (reversible, no external side effects beyond crates.io/Homebrew/PyPI ownership)
 
-1. Add `SECURITY.md` at repo root (this change) - house style requires one on every public repo (`~/code/house-style/security.md`); also satisfies part of OHTF's Incubating gate.
-2. Once decision 4 above is confirmed: `cargo owner --add github:ohtf:clincalc`. Verify with `cargo owner --list`.
-3. Once decision 6 above is confirmed: update `gui/src-tauri/tauri.conf.json`'s `identifier` and re-test the GUI still launches (`s/gui-dev`).
-4. Agree OHTF's [open-source commitment](https://openhealthtechnology.org/governance/open-source-commitment/) applies to `clincalc` - this is the last Candidate -> Incubating gate, and is a statement, not a code change. Record the agreement date here once done.
+1. [x] Add `SECURITY.md` at repo root - house style requires one on every public repo (`~/code/house-style/security.md`); also satisfies part of OHTF's Incubating gate.
+2. [ ] `cargo owner --add github:ohtf:clincalc` - blocked on token scope, see above.
+3. [x] `gui/src-tauri/tauri.conf.json`'s `identifier` updated to `io.github.ohtf.clincalc`.
+4. [x] `ohtf/homebrew-tap` created; `Cargo.toml` and `release.yml` repointed to it. `HOMEBREW_TAP_TOKEN` secret still needs replacing, see above.
+5. [ ] Agree OHTF's [open-source commitment](https://openhealthtechnology.org/governance/open-source-commitment/) applies to `clincalc` - this is the last Candidate -> Incubating gate, and is a statement, not a code change. Record the agreement date here once done.
 
 ### Phase 2 - the transfer itself (manual, by Marcus, on github.com)
 
@@ -80,20 +93,20 @@ sed -i 's#github\.com/pacharanero/clincalc#github.com/ohtf/clincalc#g; s#pachara
 
 Do **not** touch `CHANGELOG.md` - it is a historical record of what was true at each past release and should not be rewritten.
 
-Leave `.github/workflows/release.yml`'s `pacharanero/homebrew-tap` references alone unless decision 2 above changes (the tap itself is not moving).
+`Cargo.toml`'s `tap` and `release.yml`'s `publish-homebrew-formula` already point at `ohtf/homebrew-tap` (done ahead of the transfer, since the tap is a separate repo from the decision of where `clincalc`'s own source lives).
 
 After the sed pass, hand-check (sed will not catch these):
 
 - `Cargo.toml`'s `repository`/`homepage` fields - confirm they parse and `cargo publish --dry-run` still succeeds.
 - `README.md` - check for any badge URLs (shields.io, GitHub Actions status badges) that embed the old owner path; these commonly use a different URL shape than the plain repo links the sed pass catches.
-- The Homebrew formula `clincalc.rb` inside `pacharanero/homebrew-tap` - its `url`/`homepage` need the new path even though the tap repo itself stays put.
 
 ### Phase 4 - reconfigure external publishing (manual, web UI, cannot be scripted)
 
 1. **crates.io Trusted Publishing**: crates.io crate settings -> Trusted Publishing -> update the configured GitHub repository owner from `pacharanero` to `ohtf` (repo name and workflow path stay `clincalc` / `publish-crates.yml`). Until this is done, the next tagged release's `publish-crates.yml` run will fail at the OIDC handshake, not silently publish from the wrong identity - fail-closed, but do this before the next release.
 2. **PyPI Trusted Publishing**: PyPI project settings -> Publishing -> same update, owner `pacharanero` -> `ohtf`.
-3. **GitHub Pages**: confirm the Pages deployment still targets the right branch/path post-transfer (should be automatic, but verify `docs.yml` ran clean on the new repo).
-4. Verify a real dry-run: tag a patch release (or use the existing `s/check-release-version` / `s/check-github-release` scripts against a test tag) and confirm the full auto-tag -> cargo-dist -> Homebrew -> crates.io -> PyPI chain completes against the new repo path before relying on it for a real release.
+3. **`HOMEBREW_TAP_TOKEN`**: replace with a PAT scoped to `ohtf/homebrew-tap` if not already done in Phase 1.
+4. **GitHub Pages**: confirm the Pages deployment still targets the right branch/path post-transfer (should be automatic, but verify `docs.yml` ran clean on the new repo).
+5. Verify a real dry-run: tag a patch release (or use the existing `s/check-release-version` / `s/check-github-release` scripts against a test tag) and confirm the full auto-tag -> cargo-dist -> Homebrew -> crates.io -> PyPI chain completes against the new repo path before relying on it for a real release.
 
 ### Phase 5 - update the OHTF site
 
@@ -103,5 +116,5 @@ The OHTF website's project entry for `clincalc` already exists (candidate stage)
 
 - Does not change the AGPL-3.0-or-later licence or the SPDX copyright headers.
 - Does not pursue DCO-enforcement CI or Active-stage status - that is a follow-on, not a blocker for the transfer itself.
-- Does not touch the shared `pacharanero/homebrew-tap` repository's ownership, only the one formula file inside it.
+- Does not touch `pacharanero/homebrew-tap`, which stays exactly as-is for `sct`/`dsc-rs`/`gitehr`.
 - Does not attempt the GitHub repository transfer itself, which only the current owner can initiate from GitHub's UI.

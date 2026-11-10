@@ -99,9 +99,10 @@ targets = [
 ]
 install-path = "CARGO_HOME"
 install-updater = false
-# One shared tap for all projects. Needs a HOMEBREW_TAP_TOKEN secret (PAT with
-# write access to the tap repo) on this repo for the release job to push.
-tap = "pacharanero/homebrew-tap"
+# The OHTF foundation-wide tap (clincalc is an OHTF project; see
+# spec/ohtf-transfer.md). Needs a HOMEBREW_TAP_TOKEN secret (PAT with write
+# access to this tap repo) on this repo for the release job to push.
+tap = "ohtf/homebrew-tap"
 publish-jobs = ["homebrew"]
 publish-prereleases = false
 # README and the project LICENSE are auto-detected. Include the mixed-licence
