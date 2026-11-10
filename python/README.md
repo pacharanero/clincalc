@@ -1,6 +1,6 @@
 # clincalc (Python)
 
-Python bindings for the [clincalc](https://github.com/pacharanero/clincalc) Rust engine - open, auditable clinical calculators.
+Python bindings for the [clincalc](https://github.com/ohtf/clincalc) Rust engine - open, auditable clinical calculators.
 
 ## Install
 

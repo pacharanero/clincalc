@@ -19,11 +19,11 @@ Clinical software developers need reliable implementations of published clinical
 Install the latest prebuilt release through the docs-site installer proxy:
 
 ```bash
-curl -LsSf https://pacharanero.github.io/clincalc/install.sh | sh
+curl -LsSf https://ohtf.github.io/clincalc/install.sh | sh
 ```
 
 ```powershell
-powershell -ExecutionPolicy Bypass -c "irm https://pacharanero.github.io/clincalc/install.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "irm https://ohtf.github.io/clincalc/install.ps1 | iex"
 ```
 
 Or install the CLI with Cargo:

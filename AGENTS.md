@@ -91,4 +91,4 @@ This file, `spec/calculators.md`, `spec/calculator-input-definitions.md`, and th
 - Tauri desktop GUI whose headline is prominent copy-paste ("soft interoperability").
 - `clincalc-web` (single-file HTML) is on the roadmap but deprioritised.
 
-Project lives at <https://github.com/pacharanero/clincalc>. Docs are deployed to <https://pacharanero.github.io/clincalc/> from `.github/workflows/deploy-docs-to-ghpages.yml`.
+Project lives at <https://github.com/ohtf/clincalc>. Docs are deployed to <https://ohtf.github.io/clincalc/> from `.github/workflows/deploy-docs-to-ghpages.yml`.

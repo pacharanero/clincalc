@@ -1,6 +1,6 @@
 # Contributing a translation
 
-`clincalc` supports reviewed, complete translation bundles per calculator - never partial or machine-translated strings mixed into an otherwise-English response. This page is the workflow for adding or updating one, per [`spec/multilingual.md`](https://github.com/pacharanero/clincalc/blob/main/spec/multilingual.md), the design document that governs locale support across every surface.
+`clincalc` supports reviewed, complete translation bundles per calculator - never partial or machine-translated strings mixed into an otherwise-English response. This page is the workflow for adding or updating one, per [`spec/multilingual.md`](https://github.com/ohtf/clincalc/blob/main/spec/multilingual.md), the design document that governs locale support across every surface.
 
 If you are looking for the architecture and standards behind translation (BCP 47 locale identifiers, message design, the engine API), read `spec/multilingual.md` first. This page is the contributor-facing "how do I actually submit one" companion to it.
 
@@ -76,4 +76,4 @@ This workflow is written for the current stage: proving the pattern on a handful
 - complete-bundle enforcement (locale-key parity as a blocking registry test) is in place across the registry, and
 - at least two more calculators of different shapes have gone through this workflow with native-speaker and clinical review recorded.
 
-Track progress on both in [`spec/roadmap.md`](https://github.com/pacharanero/clincalc/blob/main/spec/roadmap.md) under ENG-001.
+Track progress on both in [`spec/roadmap.md`](https://github.com/ohtf/clincalc/blob/main/spec/roadmap.md) under ENG-001.

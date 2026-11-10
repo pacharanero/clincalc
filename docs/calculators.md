@@ -20,7 +20,7 @@ clincalc list --tag proprietary                      # the unshippable ones
 clincalc tags                                        # enumerate every tag, with counts
 ```
 
-The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clincalc/blob/main/src/tags.rs) and is reviewable in one file. New tags are added there only after at least two calculators want one.
+The full vocabulary lives in [`src/tags.rs`](https://github.com/ohtf/clincalc/blob/main/src/tags.rs) and is reviewable in one file. New tags are added there only after at least two calculators want one.
 
 ## Catalogue
 
@@ -190,9 +190,9 @@ See [Why some calculators are unavailable](how-it-works.md#unavailable-on-princi
 
 ## Wishlist (candidates for future addition)
 
-Calculators below are clinically valuable and on the radar but not yet implemented. They include remaining entries from the 23-calculator gap recorded against [MedikQuantis](https://medikquantis.me) (Laura Piñero Roig, Barcelona, MIT) at upstream commit [`16c63c85`](https://github.com/laurapiro17/medikquantis/tree/16c63c85aee7a64417205f60cb3e66fccf19fae2), plus candidates from other sources. The complete governed queue and stable identifiers live in [`spec/calculator-roadmap.md`](https://github.com/pacharanero/clincalc/blob/main/spec/calculator-roadmap.md).
+Calculators below are clinically valuable and on the radar but not yet implemented. They include remaining entries from the 23-calculator gap recorded against [MedikQuantis](https://medikquantis.me) (Laura Piñero Roig, Barcelona, MIT) at upstream commit [`16c63c85`](https://github.com/laurapiro17/medikquantis/tree/16c63c85aee7a64417205f60cb3e66fccf19fae2), plus candidates from other sources. The complete governed queue and stable identifiers live in [`spec/calculator-roadmap.md`](https://github.com/ohtf/clincalc/blob/main/spec/calculator-roadmap.md).
 
-Contributions welcome. The shape of the work is documented in [How it works](how-it-works.md#embedding-clincalc-in-a-host), [`AGENTS.md`](https://github.com/pacharanero/clincalc/blob/main/AGENTS.md), and the [`spec/`](https://github.com/pacharanero/clincalc/tree/main/spec) and [`examples/`](https://github.com/pacharanero/clincalc/tree/main/examples) directories.
+Contributions welcome. The shape of the work is documented in [How it works](how-it-works.md#embedding-clincalc-in-a-host), [`AGENTS.md`](https://github.com/ohtf/clincalc/blob/main/AGENTS.md), and the [`spec/`](https://github.com/ohtf/clincalc/tree/main/spec) and [`examples/`](https://github.com/ohtf/clincalc/tree/main/examples) directories.
 
 | Candidate | What it does | Tentative tags |
 |---|---|---|
@@ -206,4 +206,4 @@ Contributions welcome. The shape of the work is documented in [How it works](how
 | **SNAP-IV** | Swanson, Nolan and Pelham ADHD rating scale. Blocked pending explicit permission or legal review: distributor statements conflict between "all rights reserved" and a secondary public-domain claim, unresolved by any primary-source grant. See `CALC-091`. | `primary-care`, `mental-health`, `paediatrics`, `screening` |
 | **Wender Utah Rating Scale (WURS)** | Retrospective adult screen for childhood ADHD symptoms. Blocked pending explicit permission or legal review: no unrestricted-reproduction statement found in the primary 1993 paper, and it is tracked by MAPI Trust's ePROVIDE. See `CALC-092`. | `primary-care`, `mental-health`, `screening` |
 
-MedikQuantis parity is complete when the independently implemented calculation passes clincalc's normal primary-source, licence, schema, and testing gates. Translation progress is tracked independently in the README status table; a locale is not advertised until the review and completeness gates in [`spec/multilingual.md`](https://github.com/pacharanero/clincalc/blob/main/spec/multilingual.md) pass.
+MedikQuantis parity is complete when the independently implemented calculation passes clincalc's normal primary-source, licence, schema, and testing gates. Translation progress is tracked independently in the README status table; a locale is not advertised until the review and completeness gates in [`spec/multilingual.md`](https://github.com/ohtf/clincalc/blob/main/spec/multilingual.md) pass.
