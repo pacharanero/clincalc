@@ -77,7 +77,11 @@ jobs:
 
   python-package:
     name: Python package (${{ matrix.python-version }})
-    runs-on: ubuntu-latest
+    # Pinned rather than ubuntu-latest: GitHub's ubuntu-latest image moved to
+    # 26.04 and dropped the actions/setup-python hosted tool cache for 3.9,
+    # the oldest version this project still supports (pyproject.toml's
+    # requires-python). ubuntu-24.04 still has it.
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         include:
