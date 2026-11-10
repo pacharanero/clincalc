@@ -28,6 +28,7 @@ pub mod auditc;
 pub mod barthel;
 pub mod basdai;
 pub mod binet;
+pub mod bisap;
 pub mod bishop;
 pub mod bmi;
 pub mod bode;

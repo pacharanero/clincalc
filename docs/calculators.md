@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry: 143 entries comprising 129 active calculators that compute a real result, 11 named-but-unavailable rights-locked stubs (carrying `proprietary` and `unavailable`), two rights-review stubs, and one clinical-safety stub (the latter three carry `unavailable` without `proprietary`). One row per calculator.
+The full registry: 144 entries comprising 130 active calculators that compute a real result, 11 named-but-unavailable rights-locked stubs (carrying `proprietary` and `unavailable`), two rights-review stubs, and one clinical-safety stub (the latter three carry `unavailable` without `proprietary`). One row per calculator.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
@@ -47,6 +47,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/pacharanero/clin
 | `barthel` | Barthel Index | Activities of daily living score (0-100) from ten functional domains. | `geriatrics`, `severity` |
 | `basdai` | BASDAI | Bath Ankylosing Spondylitis Disease Activity Index (0-10). | `rheumatology`, `severity` |
 | `binet` | Binet Stage for Chronic Lymphocytic Leukaemia | Derives historical CLL stage A, B, or C from five physical-examination lymphoid areas, haemoglobin, and platelet count. It is not a treatment instruction. | `oncology`, `severity`, `prognostic` |
+| `bisap` | BISAP Score (acute pancreatitis) | Five-item (0-5) early, first-24-hour mortality-risk score for acute pancreatitis: BUN, impaired mental status, SIRS, age and pleural effusion. | `emergency`, `acute-medicine`, `surgery`, `severity` |
 | `bishop` | Bishop Score | Five-parameter cervical-exam score predicting the likelihood of successful labour induction. | `perinatal` |
 | `bmi` | BMI (Body Mass Index) | Body mass index from weight and height, with standard adult category. | `primary-care`, `endocrinology` |
 | `bode` | BODE Index (COPD prognosis) | Multidimensional prognostic index in COPD from BMI, FEV1, mMRC dyspnoea, and six-minute walk distance; predicts ~4-year survival. | `respiratory`, `prognostic` |
