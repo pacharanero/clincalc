@@ -16,7 +16,7 @@ license-files = [
     "LICENSE-LGPL-3.0-or-later.txt",
     "clincalc-third-party-notices.md",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 readme = "README.md"
 keywords = ["clinical", "medical", "calculator", "healthcare", "scoring"]
 classifiers = [

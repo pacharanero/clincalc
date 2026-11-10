@@ -4,7 +4,7 @@ The Python package is a thin wrapper around the Rust engine. It exposes the same
 
 ## Install
 
-`clincalc` supports CPython 3.9 and later. Install the current release from [PyPI](https://pypi.org/project/clincalc/):
+`clincalc` supports CPython 3.11 and later (3.9 and 3.10 are both past upstream end-of-life). Install the current release from [PyPI](https://pypi.org/project/clincalc/):
 
 ```bash
 python -m pip install clincalc

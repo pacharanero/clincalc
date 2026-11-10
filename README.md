@@ -70,7 +70,7 @@ The MCP server exposes every calculator as a typed tool named `clincalc_<name>` 
 
 ## Python package
 
-The Python package requires CPython 3.9 or later. Install it from [PyPI](https://pypi.org/project/clincalc/):
+The Python package requires CPython 3.11 or later (3.9 and 3.10 are both past upstream end-of-life). Install it from [PyPI](https://pypi.org/project/clincalc/):
 
 ```bash
 python -m pip install clincalc

@@ -4,7 +4,7 @@ The `clincalc` CLI is a single self-contained binary with no runtime dependencie
 
 ## Python package
 
-For CPython 3.9 or later:
+For CPython 3.11 or later:
 
 ```bash
 python -m pip install clincalc
@@ -83,6 +83,6 @@ If you see the catalogue, you are ready. Head to the [Walkthrough](walkthrough.m
 
 ## Requirements
 
-- Python package: CPython 3.9 or later; no Rust toolchain is needed when a wheel is available for your platform.
+- Python package: CPython 3.11 or later (3.9 and 3.10 are both past upstream end-of-life); no Rust toolchain is needed when a wheel is available for your platform.
 - CLI via release installer: no runtime dependencies.
 - CLI via Cargo: a Rust toolchain with edition 2024 support, installable via [rustup](https://rustup.rs).

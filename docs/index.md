@@ -39,7 +39,7 @@ A clinical calculation score is computed in the core Rust library, so the result
     python -m pip install clincalc
     ```
 
-    Installs the Python package for CPython 3.9 or later. See the [Python package](python.md) page for a runnable example and pandas support.
+    Installs the Python package for CPython 3.11 or later. See the [Python package](python.md) page for a runnable example and pandas support.
 
 === "From a clone"
 
