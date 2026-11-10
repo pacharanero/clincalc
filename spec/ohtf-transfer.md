@@ -22,14 +22,17 @@ OHTF's own rule: "Projects keep their existing licences and copyright holders un
 - [x] **Incidental fix**: a GitHub-side `ubuntu-latest` runner-image rollout broke the Python 3.9 CI job the same morning (unrelated to the transfer); pinned to `ubuntu-24.04`, then moot once 3.9/3.10 support was dropped entirely (see `CHANGELOG.md` / commit `dccde896`).
 - [x] **Homebrew push credential fixed properly**: replaced the `HOMEBREW_TAP_TOKEN` PAT (scoped to the wrong repo anyway) with `HOMEBREW_TAP_DEPLOY_KEY`, an SSH deploy key added directly to `ohtf/homebrew-tap` with write access - not a personal-account credential at all, repo-scoped rather than account-scoped. `release.yml`'s checkout step now uses `ssh-key:` instead of `token:`. The old `HOMEBREW_TAP_TOKEN` secret was deleted from `ohtf/clincalc` as dead weight.
 - [x] **PyPI ownership transferred**: Marcus transferred the `clincalc` PyPI project to OHTF directly (not just a secondary-maintainer invite - full ownership). Confirmed by the user; PyPI's public API does not expose ownership/collaborator data, so this could not be independently verified via API.
-- [ ] **Not yet done**: crates.io Trusted Publishing and PyPI Trusted Publishing still trust `pacharanero/clincalc`, not `ohtf/clincalc` - see Phase 4. The next tagged release will fail the OIDC handshake on both until this is fixed.
+- [x] **crates.io and PyPI Trusted Publishing repointed** to `ohtf/clincalc` (2026-11-10, via each registry's web UI).
+- [x] **Publishing environments locked down**: `crates-io` and `pypi` restricted to `v*` tags only; `homebrew` and `github-release` restricted to `main` branch + `v*` tags (matching their actual dispatch paths - `auto-tag.yml` always dispatches at the tag ref, manual recovery runs from `main` with the tag as an input); `github-pages` already restricted to `main`. All five had been checked against `s/README.md`'s documented intent - `crates-io`/`pypi`/`homebrew`/`github-release` had drifted to `deployment_branch_policy: null` (fully unrestricted) at some point and were not actually enforcing this.
+- [x] **GitHub Pages confirmed working** on the new location: `https://ohtf.github.io/clincalc/` returns 200; `docs.yml` deploys via the artifact-based method (no `gh-pages` branch).
+- [ ] Phase 4.5: a real dry-run of the whole release chain against the new repo/registry identities, not yet done - see below.
 - [ ] Phase 5: update the OHTF site's project entry from Candidate to Incubating.
 
 ## What is already in good shape
 
 - Licence is AGPL-3.0-or-later, OSI-approved: satisfies OHTF's "open source, or willing to be" test and the Candidate -> Incubating open-source-commitment agreement without any licence change.
 - Clinical safety position is already documented (`clinical-safety/SAFETY.md`, `SAFETY-CASE.md`, `HAZARD-LOG.md`), satisfying "honest about safety."
-- `publish-crates.yml` and `publish-python.yml` already use crates.io and PyPI **Trusted Publishing** (GitHub OIDC) rather than long-lived tokens. No secret rotation is needed on transfer - only repointing the trust relationship to the new repository path (see below).
+- `publish-crates.yml` and `publish-python.yml` already use crates.io and PyPI **Trusted Publishing** (GitHub OIDC) rather than long-lived tokens - now repointed to `ohtf/clincalc` (Phase 4).
 - Marcus is already a named maintainer with a security-relevant history of responsible dependency/CVE handling (see `spec/roadmap.md` ENG-008).
 
 ## Decisions (resolved 2026-11-10)
@@ -43,8 +46,7 @@ OHTF's own rule: "Projects keep their existing licences and copyright holders un
 
 ## Blocked - needs your action
 
-1. **crates.io Trusted Publishing repoint** (Phase 4.1 below): go to <https://crates.io/crates/clincalc/settings> and update the configured GitHub repository owner from `pacharanero` to `ohtf`. Needed before the next tagged release - `publish-crates.yml` will otherwise fail the OIDC handshake.
-2. **PyPI Trusted Publishing repoint** (Phase 4.2 below): go to <https://pypi.org/manage/project/clincalc/settings/publishing/> and make the equivalent change. Worth double-checking this survived the ownership transfer rather than needing to be re-added under the new owner.
+Nothing registry/credential-side remains blocked. What's left (Phase 1.5, Phase 4.5, Phase 5 below) is either a one-line decision or work that can be done from here - no more external web-UI steps only you can take.
 
 ## Execution order
 
@@ -68,13 +70,13 @@ Deliberately left untouched: `CHANGELOG.md` (historical record), `clinical-safet
 
 Verified at the time: `cargo fmt`/`clippy`/`test` (default + `mcp` features) clean, `cargo publish --dry-run` succeeded against the new repository metadata, GUI `npm run build` clean, REUSE lint clean, zensical docs build clean, and CI green on `ohtf/clincalc` (including an incidental same-morning fix for a GitHub runner-image regression in the Python 3.9 CI job, since superseded by dropping 3.9/3.10 support entirely).
 
-### Phase 4 - still outstanding (manual, web UI, cannot be scripted)
+### Phase 4 - done except the live-fire test
 
-1. [ ] **crates.io Trusted Publishing**: crates.io crate settings -> Trusted Publishing -> update the configured GitHub repository owner from `pacharanero` to `ohtf` (repo name and workflow path stay `clincalc` / `publish-crates.yml`). Do this before the next tagged release - `publish-crates.yml` will otherwise fail the OIDC handshake (fail-closed, not a silent wrong-identity publish).
-2. [ ] **PyPI Trusted Publishing**: PyPI project settings -> Publishing -> same update, owner `pacharanero` -> `ohtf`. Check whether the ownership transfer preserved this configuration or reset it.
+1. [x] **crates.io Trusted Publishing**: repointed to owner `ohtf`, workflow `publish-crates.yml`, environment `crates-io`.
+2. [x] **PyPI Trusted Publishing**: repointed to owner `ohtf`, workflow `publish-python.yml`, environment `pypi`.
 3. [x] **Homebrew push credential**: done via deploy key (see Phase 1.4), not a PAT.
-4. [ ] **GitHub Pages**: confirm the Pages deployment targets the right branch/path on `ohtf/clincalc` (should be automatic - verify `docs.yml` has actually run and deployed, not just built).
-5. [ ] Verify a real dry-run: tag a patch release (or use the existing `s/check-release-version` / `s/check-github-release` scripts against a test tag) and confirm the full auto-tag -> cargo-dist -> Homebrew -> crates.io -> PyPI chain completes against the new repo path before relying on it for a real release.
+4. [x] **GitHub Pages**: confirmed live and deploying correctly.
+5. [ ] **Still to do**: a real dry-run. Nothing above has actually been exercised end to end yet - the Trusted Publisher configs, the deploy key, and the environment policies are all new as of today and have not been through a real `auto-tag -> cargo-dist -> Homebrew -> crates.io -> PyPI` cycle. The lowest-risk way to prove it: the next genuine `s/version++` release *is* the dry-run, since every step fails closed (wrong OIDC identity, wrong deploy key scope, wrong environment) rather than silently publishing somewhere wrong. Whether to force a throwaway patch release now purely to test the pipeline, versus trusting the fail-closed design and verifying at the next real release, is a judgement call for Marcus.
 
 ### Phase 5 - not yet started: update the OHTF site
 
