@@ -143,6 +143,10 @@ pub const TAGS: &[(&str, &[&str])] = &[
         &["emergency", "acute-medicine", "risk"],
     ),
     ("rockall", &["emergency", "acute-medicine", "risk"]),
+    (
+        "bisap",
+        &["emergency", "acute-medicine", "surgery", "severity"],
+    ),
     ("parkland", &["emergency", "intensive-care", "surgery"]),
     ("hinchey", &["surgery", "acute-medicine", "severity"]),
     (
