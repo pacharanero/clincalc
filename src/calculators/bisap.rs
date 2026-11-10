@@ -77,8 +77,8 @@ pub struct BisapOutcome {
     pub interpretation: String,
 }
 
-/// Validate inputs.
-pub fn compute(input: &BisapInput) -> Result<BisapInput, CalcError> {
+/// Pure scoring: validate inputs, then score each criterion and sum.
+pub fn compute(input: &BisapInput) -> Result<BisapOutcome, CalcError> {
     if !input.bun_mg_dl.is_finite() || input.bun_mg_dl < 0.0 {
         return Err(CalcError::InvalidInput(
             "bun_mg_dl must be a non-negative number".into(),
@@ -94,10 +94,7 @@ pub fn compute(input: &BisapInput) -> Result<BisapInput, CalcError> {
             "sirs_criteria_count must be between 0 and 4".into(),
         ));
     }
-    Ok(*input)
-}
 
-fn outcome(input: &BisapInput) -> BisapOutcome {
     let bun_criterion = input.bun_mg_dl > BUN_THRESHOLD_MG_DL;
     let mental_status_criterion = input.impaired_mental_status;
     let sirs_criterion = input.sirs_criteria_count >= SIRS_MIN_CRITERIA;
@@ -117,7 +114,7 @@ risk. BISAP is an early (first 24 hours) prognostic aid for acute pancreatitis a
 replace clinical judgement or assessment for organ failure."
     );
 
-    BisapOutcome {
+    Ok(BisapOutcome {
         score,
         bun_criterion,
         mental_status_criterion,
@@ -125,13 +122,12 @@ replace clinical judgement or assessment for organ failure."
         age_criterion,
         pleural_effusion_criterion,
         interpretation,
-    }
+    })
 }
 
 /// Build the dispatchable [`CalculationResponse`] from typed inputs.
 pub fn build_response(input: &BisapInput) -> Result<CalculationResponse, CalcError> {
-    let validated = compute(input)?;
-    let o = outcome(&validated);
+    let o = compute(input)?;
 
     let mut working = Map::new();
     working.insert("total_score".into(), json!(o.score));
@@ -274,7 +270,7 @@ mod tests {
     }
 
     fn score_of(i: &BisapInput) -> u8 {
-        outcome(&compute(i).unwrap()).score
+        compute(i).unwrap().score
     }
 
     #[test]
