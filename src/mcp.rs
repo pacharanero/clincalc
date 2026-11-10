@@ -11,8 +11,9 @@ use std::borrow::Cow;
 use std::sync::Arc;
 
 use rmcp::model::{
-    CallToolRequestParams, CallToolResult, ContentBlock, ErrorCode, Implementation, JsonObject,
-    ListToolsResult, PaginatedRequestParams, ServerCapabilities, ServerInfo, Tool, ToolAnnotations,
+    CallToolRequestParams, CallToolResponse, CallToolResult, ContentBlock, ErrorCode,
+    Implementation, JsonObject, ListToolsResult, PaginatedRequestParams, ServerCapabilities,
+    ServerConfig, Tool, ToolAnnotations,
 };
 use rmcp::service::RequestContext;
 use rmcp::transport::stdio;
@@ -66,8 +67,8 @@ impl CalcMcpServer {
 }
 
 impl ServerHandler for CalcMcpServer {
-    fn get_info(&self) -> ServerInfo {
-        ServerInfo::new(ServerCapabilities::builder().enable_tools().build())
+    fn get_info(&self) -> ServerConfig {
+        ServerConfig::new(ServerCapabilities::builder().enable_tools().build())
             .with_server_info(
                 Implementation::new("clincalc", env!("CARGO_PKG_VERSION"))
                     .with_title("clincalc MCP server")
@@ -83,11 +84,7 @@ impl ServerHandler for CalcMcpServer {
         _request: Option<PaginatedRequestParams>,
         _context: RequestContext<RoleServer>,
     ) -> Result<ListToolsResult, McpError> {
-        Ok(ListToolsResult {
-            tools: self.tools(),
-            next_cursor: None,
-            meta: None,
-        })
+        Ok(ListToolsResult::with_all_items(self.tools()))
     }
 
     fn get_tool(&self, name: &str) -> Option<Tool> {
@@ -98,8 +95,9 @@ impl ServerHandler for CalcMcpServer {
         &self,
         request: CallToolRequestParams,
         _context: RequestContext<RoleServer>,
-    ) -> Result<CallToolResult, McpError> {
+    ) -> Result<CallToolResponse, McpError> {
         self.call_calculator_tool(&request.name, request.arguments)
+            .map(CallToolResponse::from)
     }
 }
 
