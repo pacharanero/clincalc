@@ -120,6 +120,15 @@ include = [
 # on the resulting drift.
 allow-dirty = ["ci"]
 
+# cargo-dist 0.31.0's own default runner for aarch64-apple-darwin is the
+# macos-14 label, which GitHub fully retired on 2026-11-02 (announced
+# 2026-10-01: https://github.blog/changelog/2026-10-01-github-actions-macos-14-runner-image-retirement/).
+# Pinned explicitly to macos-15 rather than macos-latest, matching this
+# project's general preference for an explicit version over a floating
+# label that can move again without warning.
+[workspace.metadata.dist.github-custom-runners]
+aarch64-apple-darwin = "macos-15"
+
 # The profile 'dist' builds release binaries with.
 [profile.dist]
 inherits = "release"
