@@ -2,13 +2,13 @@
 
 Tracks [GOV-001](roadmap.md) in detail: moving `clincalc` from Marcus Baw's personal GitHub account (`pacharanero`) to the Open Health Technology Foundation (OHTF, <https://openhealthtechnology.org>), a UK community interest company (company number 17544421). Marcus remains the named maintainer throughout; this is a governance and continuity change, not a change of maintainership.
 
-`clincalc` is already listed on the OHTF site as a **Candidate project** (<https://openhealthtechnology.org/projects/#clincalc>). Per OHTF's [project lifecycle](https://openhealthtechnology.org/governance/project-lifecycle/), the stages are Candidate -> Incubating -> Active -> Maintenance -> Archived. This plan takes `clincalc` from Candidate to Incubating. Reaching Active is a later milestone (DCO enforcement, full security-contact handover) and is not required to transfer the repository.
+`clincalc` is listed on the OHTF site under [Foundation Projects](https://openhealthtechnology.org/projects/), status **Incubating** (moved there 2026-11-11, having started as a Candidate project). Per OHTF's [project lifecycle](https://openhealthtechnology.org/governance/project-lifecycle/), the stages are Candidate -> Incubating -> Active -> Maintenance -> Archived. This plan took `clincalc` from Candidate to Incubating - **that transfer is now complete.** Reaching Active is a later milestone (DCO enforcement, full security-contact handover), tracked separately, not required for this transfer.
 
 OHTF's own rule: "Projects keep their existing licences and copyright holders until they complete onboarding." The transfer does not change `clincalc`'s AGPL-3.0-or-later licence or its "Marcus Baw and Baw Medical Ltd" SPDX copyright headers unless a separate, explicit decision is made later.
 
 ## Status
 
-**The repository has transferred.** `github.com/ohtf/clincalc` is now the canonical location; `pacharanero/clincalc` redirects to it. Phases 1-3 below are complete.
+**The transfer is complete.** All five phases below are done, confirmed live: the repository, both package registries, the Homebrew tap, and the OHTF website all reflect `clincalc` as an OHTF project. `github.com/ohtf/clincalc` is the canonical location; `pacharanero/clincalc` redirects to it. Nothing in this plan remains outstanding; what follows is the record of how it was done, kept for reference rather than as a live checklist.
 
 - [x] `clincalc` listed as a Candidate project on openhealthtechnology.org.
 - [x] `ohtf/clincalc` GitHub team already exists, with Marcus (`pacharanero`) as a team maintainer.
@@ -27,7 +27,7 @@ OHTF's own rule: "Projects keep their existing licences and copyright holders un
 - [x] **GitHub Pages confirmed working** on the new location: `https://ohtf.github.io/clincalc/` returns 200; `docs.yml` deploys via the artifact-based method (no `gh-pages` branch).
 - [x] **README.md and AGENTS.md updated** to state `clincalc` is managed by OHTF, link to this plan, and record the open-source-commitment confirmation and the major-announcements-go-to-the-website convention.
 - [x] **Phase 4.5 (the dry-run) complete, release pipeline fully verified end to end.** `v0.5.0` cut via `s/version++ minor` (2026-11-10). First attempt hit `build-local-artifacts (aarch64-apple-darwin)` being cancelled instantly on every try - root cause found 2026-11-11: GitHub fully retired the `macos-14` runner image on 2026-11-02, and cargo-dist 0.31.0's own default mapping for that target still pointed at it. Fixed with `[workspace.metadata.dist.github-custom-runners]` (`aarch64-apple-darwin = "macos-15"`) in `Cargo.toml`. Since nothing had ever actually published under `v0.5.0` (confirmed via the crates.io/PyPI APIs, the GitHub Releases API, and the tap's `Formula/` listing before retrying), the tag was moved forward to the fix commit and the release re-run. Result, confirmed live: GitHub Release `v0.5.0` published with 17 assets; `ohtf/homebrew-tap`'s `Formula/clincalc.rb` updated to 0.5.0 pointing at `ohtf/clincalc` and `ohtf/homebrew-tap` throughout; `crates.io` shows `max_version: 0.5.0` via Trusted Publishing against `ohtf/clincalc`; PyPI shows `0.5.0` via Trusted Publishing, with `project_urls` correctly pointing at `ohtf` (the `HOMEBREW_TAP_DEPLOY_KEY` deploy key and the repointed crates.io/PyPI Trusted Publishers were both exercised live, for the first time, successfully).
-- [ ] Phase 5: update the OHTF site's project entry from Candidate to Incubating.
+- [x] **Phase 5 complete**: `clincalc` now listed under "Foundation Projects" (status: Incubating) on openhealthtechnology.org/projects/, confirmed live 2026-11-11, handled by the website's own agent rather than a PR from this repo.
 
 ## What is already in good shape
 
@@ -71,17 +71,17 @@ Deliberately left untouched: `CHANGELOG.md` (historical record), `clinical-safet
 
 Verified at the time: `cargo fmt`/`clippy`/`test` (default + `mcp` features) clean, `cargo publish --dry-run` succeeded against the new repository metadata, GUI `npm run build` clean, REUSE lint clean, zensical docs build clean, and CI green on `ohtf/clincalc` (including an incidental same-morning fix for a GitHub runner-image regression in the Python 3.9 CI job, since superseded by dropping 3.9/3.10 support entirely).
 
-### Phase 4 - done except the live-fire test
+### Phase 4 - done
 
 1. [x] **crates.io Trusted Publishing**: repointed to owner `ohtf`, workflow `publish-crates.yml`, environment `crates-io`.
 2. [x] **PyPI Trusted Publishing**: repointed to owner `ohtf`, workflow `publish-python.yml`, environment `pypi`.
 3. [x] **Homebrew push credential**: done via deploy key (see Phase 1.4), not a PAT.
 4. [x] **GitHub Pages**: confirmed live and deploying correctly.
-5. [ ] **Still to do**: a real dry-run. Nothing above has actually been exercised end to end yet - the Trusted Publisher configs, the deploy key, and the environment policies are all new as of today and have not been through a real `auto-tag -> cargo-dist -> Homebrew -> crates.io -> PyPI` cycle. The lowest-risk way to prove it: the next genuine `s/version++` release *is* the dry-run, since every step fails closed (wrong OIDC identity, wrong deploy key scope, wrong environment) rather than silently publishing somewhere wrong. Whether to force a throwaway patch release now purely to test the pipeline, versus trusting the fail-closed design and verifying at the next real release, is a judgement call for Marcus.
+5. [x] **The dry-run**: `v0.5.0` exercised the full `auto-tag -> cargo-dist -> Homebrew -> crates.io -> PyPI` chain end to end for the first time against every new identity (Trusted Publishers, deploy key, environment policies). Hit and fixed one real issue along the way (the `macos-14` runner retirement, unrelated to anything OHTF-specific) rather than a credential/config problem - everything OHTF-specific worked first time. See Status above for the confirmed live result on all four destinations.
 
-### Phase 5 - not yet started: update the OHTF site
+### Phase 5 - done: the OHTF site
 
-The OHTF website's project entry for `clincalc` already exists (candidate stage). Open a PR against `ohtf/openhealthtechnology.org-website` moving the `clincalc` entry from "Candidate projects" to "Foundation Projects" (Incubating), once Phase 1 and Phase 4 are complete.
+`clincalc` moved from "Candidate projects" to "Foundation Projects" (status: Incubating) on openhealthtechnology.org, handled directly by the website's own agent/maintainers rather than a PR from this repo.
 
 ## What this plan deliberately does not do yet
 
