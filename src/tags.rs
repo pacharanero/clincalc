@@ -80,6 +80,10 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ("orbit", &["cardiology", "risk"]),
     ("nyha", &["cardiology", "severity"]),
     ("heart", &["cardiology", "emergency", "risk"]),
+    (
+        "canadian_syncope_risk",
+        &["emergency", "cardiology", "risk"],
+    ),
     ("grace", &["cardiology", "acute-medicine", "prognostic"]),
     ("timi", &["cardiology", "acute-medicine", "risk"]),
     ("qrisk3", &["primary-care", "cardiology", "risk"]),
@@ -89,6 +93,10 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ("wells_dvt", &["emergency", "vascular"]),
     ("wells_pe", &["emergency", "respiratory", "vascular"]),
     ("perc", &["emergency", "respiratory", "vascular"]),
+    (
+        "pesi",
+        &["emergency", "respiratory", "vascular", "prognostic"],
+    ),
     ("padua", &["acute-medicine", "vascular", "risk"]),
     (
         "caprini",
@@ -110,6 +118,8 @@ pub const TAGS: &[(&str, &[&str])] = &[
         "nihss",
         &["neurology", "emergency", "acute-medicine", "severity"],
     ),
+    ("modified_rankin", &["neurology", "severity"]),
+    ("rosier", &["neurology", "emergency", "screening"]),
     // ---- Acute illness / sepsis / ICU ----
     ("news2", &["acute-medicine", "nhs-mandated", "severity"]),
     ("qsofa", &["acute-medicine", "intensive-care", "screening"]),
@@ -147,8 +157,11 @@ pub const TAGS: &[(&str, &[&str])] = &[
         "bisap",
         &["emergency", "acute-medicine", "surgery", "severity"],
     ),
+    ("ranson", &["acute-medicine", "surgery", "severity"]),
+    ("glasgow_imrie", &["acute-medicine", "surgery", "severity"]),
     ("parkland", &["emergency", "intensive-care", "surgery"]),
     ("hinchey", &["surgery", "acute-medicine", "severity"]),
+    ("truelove_witts", &["acute-medicine", "severity"]),
     (
         "pitt_bacteraemia",
         &[
@@ -173,6 +186,10 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ("anc", &["haematology", "oncology"]),
     ("hba1c_eag", &["endocrinology", "primary-care"]),
     ("map", &["acute-medicine", "intensive-care"]),
+    ("shock_index", &["emergency", "acute-medicine", "risk"]),
+    ("lights_criteria", &["respiratory", "acute-medicine"]),
+    ("winters_formula", &["acute-medicine", "nephrology"]),
+    ("serum_osmolality", &["acute-medicine", "nephrology"]),
     ("feurea", &["acute-medicine", "nephrology"]),
     ("ideal_body_weight", &["primary-care"]),
     ("holliday_segar", &["paediatrics", "acute-medicine"]),
@@ -190,6 +207,10 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ("pediatric_gcs", &["paediatrics", "neurology", "severity"]),
     ("cam_icu", &["intensive-care", "screening"]),
     ("canadian_ct_head", &["emergency", "risk"]),
+    ("canadian_cspine", &["emergency", "risk"]),
+    ("nexus", &["emergency", "risk"]),
+    ("ottawa_ankle", &["emergency", "musculoskeletal"]),
+    ("ottawa_knee", &["emergency", "musculoskeletal"]),
     ("heparin_nomogram", &["acute-medicine", "haematology"]),
     (
         "psi_port",
@@ -297,6 +318,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
         &["surgery", "geriatrics", "musculoskeletal", "prognostic"],
     ),
     ("asa_physical_status", &["surgery", "severity"]),
+    ("mallampati", &["surgery", "severity"]),
     ("barthel", &["geriatrics", "severity"]),
     ("waterlow", &["acute-medicine", "geriatrics", "screening"]),
     ("braden", &["acute-medicine", "geriatrics", "screening"]),
@@ -305,6 +327,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
     // ---- Paediatrics ----
     ("apgar", &["paediatrics", "perinatal", "severity"]),
     ("chalice", &["paediatrics", "emergency"]),
+    ("kocher_criteria", &["paediatrics", "emergency", "risk"]),
     // ---- Unavailable (11 rights-locked, 2 rights-review, 1 clinical-safety) ----
     (
         "frax",

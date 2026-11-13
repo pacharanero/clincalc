@@ -145,6 +145,8 @@ This table tracks every functioning calculation. `✓` means the language is ava
 | `cage` | ✓ | - | - | ✓ |
 | `cam_icu` | ✓ | - | - | ✓ |
 | `canadian_ct_head` | ✓ | - | - | ✓ |
+| `canadian_cspine` | ✓ | - | - | ✓ |
+| `canadian_syncope_risk` | ✓ | - | - | ✓ |
 | `caprini` | ✓ | - | - | ✓ |
 | `carboplatin_calvert` | ✓ | - | - | ✓ |
 | `centor` | ✓ | - | - | ✓ |
@@ -182,6 +184,7 @@ This table tracks every functioning calculation. `✓` means the language is ava
 | `gcs` | ✓ | - | - | ✓ |
 | `gestational_age` | ✓ | - | - | ✓ |
 | `glasgow_blatchford` | ✓ | - | - | ✓ |
+| `glasgow_imrie` | ✓ | - | - | ✓ |
 | `gleason` | ✓ | - | - | ✓ |
 | `grace` | ✓ | - | - | ✓ |
 | `hasbled` | ✓ | - | - | ✓ |
@@ -196,26 +199,34 @@ This table tracks every functioning calculation. `✓` means the language is ava
 | `isth_overt_dic` | ✓ | - | - | ✓ |
 | `jackson_pollock_skinfold` | ✓ | - | - | ✓ |
 | `khorana` | ✓ | - | - | ✓ |
+| `kocher_criteria` | ✓ | - | - | ✓ |
 | `ldl_cholesterol` | ✓ | - | - | ✓ |
+| `lights_criteria` | ✓ | - | - | ✓ |
 | `lrinec` | ✓ | - | - | ✓ |
+| `mallampati` | ✓ | - | - | ✓ |
 | `map` | ✓ | - | - | ✓ |
 | `max_heart_rate` | ✓ | - | - | ✓ |
 | `meld` | ✓ | - | - | ✓ |
 | `meld_3` | ✓ | - | - | ✓ |
+| `modified_rankin` | ✓ | - | - | ✓ |
 | `mrc_dyspnoea` | ✓ | - | - | ✓ |
 | `news2` | ✓ | - | - | ✓ |
+| `nexus` | ✓ | - | - | ✓ |
 | `nhfs` | ✓ | - | - | ✓ |
 | `nihss` | ✓ | - | - | ✓ |
 | `npi` | ✓ | - | - | ✓ |
 | `nyha` | ✓ | - | - | ✓ |
 | `one_rep_max` | ✓ | - | - | ✓ |
 | `orbit` | ✓ | - | - | ✓ |
+| `ottawa_ankle` | ✓ | - | - | ✓ |
+| `ottawa_knee` | ✓ | - | - | ✓ |
 | `padua` | ✓ | - | - | ✓ |
 | `parkland` | ✓ | - | - | ✓ |
 | `pasi` | ✓ | - | - | ✓ |
 | `pecarn_head_injury` | ✓ | - | - | ✓ |
 | `pediatric_gcs` | ✓ | - | - | ✓ |
 | `perc` | ✓ | - | - | ✓ |
+| `pesi` | ✓ | - | - | ✓ |
 | `phq9` | ✓ | - | - | ✓ |
 | `pitt_bacteraemia` | ✓ | - | - | ✓ |
 | `protein_target` | ✓ | - | - | ✓ |
@@ -226,15 +237,20 @@ This table tracks every functioning calculation. `✓` means the language is ava
 | `qrisk3` | ✓ | - | - | ✓ |
 | `qsofa` | ✓ | - | - | ✓ |
 | `qtc` | ✓ | - | - | ✓ |
+| `ranson` | ✓ | - | - | ✓ |
 | `rass` | ✓ | - | - | ✓ |
 | `rcri` | ✓ | - | - | ✓ |
 | `relative_fat_mass` | ✓ | - | - | ✓ |
 | `rockall` | ✓ | - | - | ✓ |
+| `rosier` | ✓ | - | - | ✓ |
+| `serum_osmolality` | ✓ | - | - | ✓ |
+| `shock_index` | ✓ | - | - | ✓ |
 | `skeletal_muscle_mass_index` | ✓ | - | - | ✓ |
 | `sodium_correction_rate` | ✓ | - | - | ✓ |
 | `sofa` | ✓ | - | - | ✓ |
 | `timi` | ✓ | - | - | ✓ |
 | `transferrin_saturation` | ✓ | - | - | ✓ |
+| `truelove_witts` | ✓ | - | - | ✓ |
 | `uacr` | ✓ | - | - | ✓ |
 | `ukeld` | ✓ | - | - | ✓ |
 | `waist_to_height_ratio` | ✓ | - | - | ✓ |
@@ -243,10 +259,11 @@ This table tracks every functioning calculation. `✓` means the language is ava
 | `wells_dvt` | ✓ | - | - | ✓ |
 | `wells_pe` | ✓ | - | - | ✓ |
 | `wilks` | ✓ | - | - | ✓ |
+| `winters_formula` | ✓ | - | - | ✓ |
 
 ### Unavailable tools are named, not hidden
 
-The registry contains 130 active calculators and 14 named-but-unavailable entries, for 144 entries in total. Eleven cannot be shipped because they are proprietary or licence-locked: FRAX, MMSE, ELF, ACQ, the Oxford Hip/Knee Scores, CAT, MUST, CFS, LANSS, and SCORAD. Norton and SCORE2 / SCORE2-OP are separately withheld pending permission or legal review because unrestricted software-redistribution rights have not been established; they are not labelled proprietary. Rather than omit these gaps silently, each is registered with its precise unavailable reason and alternatives:
+The registry contains 147 active calculators and 14 named-but-unavailable entries, for 161 entries in total. Eleven cannot be shipped because they are proprietary or licence-locked: FRAX, MMSE, ELF, ACQ, the Oxford Hip/Knee Scores, CAT, MUST, CFS, LANSS, and SCORAD. Norton and SCORE2 / SCORE2-OP are separately withheld pending permission or legal review because unrestricted software-redistribution rights have not been established; they are not labelled proprietary. Rather than omit these gaps silently, each is registered with its precise unavailable reason and alternatives:
 
 ```console
 $ clincalc calc frax --input '{}'
