@@ -93,7 +93,7 @@ Every calculator implements the `Calculator` trait and also exposes a strongly-t
 
 All CLI behaviour lives in the library (`CalcCommand` + `run()`), so there is nothing to re-implement when embedding it. It ships two ways:
 
-1. The standalone `clincalc` binary - `cargo install --git https://github.com/pacharanero/clincalc clincalc` installs a small, dependency-light tool (tree: `anyhow`, `serde`/`serde_json`, `clap` - no async runtime, no host).
+1. The standalone `clincalc` binary - `cargo install --git https://github.com/ohtf/clincalc clincalc` installs a small, dependency-light tool (tree: `anyhow`, `serde`/`serde_json`, `clap` - no async runtime, no host).
 2. A host CLI subcommand - the host's CLI depends on `clincalc` (with the `cli` feature) and forwards to `clincalc::cli::run`, repeating nothing:
 
 ```rust
@@ -118,7 +118,7 @@ Commands::Calc(cmd) => clincalc::cli::run(cmd)?,
 
 The leaf discipline (nothing in `clincalc` depends on a host or on an async runtime) is what enables both of these without trade-off:
 
-- **Install just the calculators**: `cargo install --git https://github.com/pacharanero/clincalc clincalc` (and, once published, `cargo install clincalc` from crates.io). Cargo builds only `clincalc` + `clap` + `serde` - no host. The installed binary name is `clincalc`, matching the package name.
+- **Install just the calculators**: `cargo install --git https://github.com/ohtf/clincalc clincalc` (and, once published, `cargo install clincalc` from crates.io). Cargo builds only `clincalc` + `clap` + `serde` - no host. The installed binary name is `clincalc`, matching the package name.
 - **Embed in any host**: a host path-, git-, or version-depends on `clincalc` (with `default-features = false` for just the engine, or the `cli` feature to reuse the command surface). There is no fork to maintain.
 
 The one rule that keeps this true: the `clincalc` engine must stay a leaf.
