@@ -15,7 +15,7 @@ cargo install clincalc --features mcp
 Until the crate is published to crates.io, install from Git:
 
 ```bash
-cargo install --git https://github.com/pacharanero/clincalc clincalc --features mcp
+cargo install --git https://github.com/ohtf/clincalc clincalc --features mcp
 ```
 
 Check that the command is available:
@@ -146,4 +146,4 @@ cargo test --features mcp
 cargo clippy --all-targets --features mcp -- -D warnings
 ```
 
-The design spec is [`spec/mcp.md`](https://github.com/pacharanero/clincalc/blob/main/spec/mcp.md).
+The design spec is [`spec/mcp.md`](https://github.com/ohtf/clincalc/blob/main/spec/mcp.md).

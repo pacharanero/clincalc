@@ -5,7 +5,7 @@ SPDX-License-Identifier: CC-BY-SA-4.0
 
 # Third-party notices
 
-This distribution contains third-party-derived clinical modules and runtime dependencies. The complete corresponding source is available from the [clincalc repository](https://github.com/pacharanero/clincalc). Full licence texts are distributed in `LICENSES/`.
+This distribution contains third-party-derived clinical modules and runtime dependencies. The complete corresponding source is available from the [clincalc repository](https://github.com/ohtf/clincalc). Full licence texts are distributed in `LICENSES/`.
 
 ## ClinRisk algorithms
 

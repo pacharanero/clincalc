@@ -4,7 +4,7 @@ The Python package is a thin wrapper around the Rust engine. It exposes the same
 
 ## Install
 
-`clincalc` supports CPython 3.9 and later. Install the current release from [PyPI](https://pypi.org/project/clincalc/):
+`clincalc` supports CPython 3.11 and later (3.9 and 3.10 are both past upstream end-of-life). Install the current release from [PyPI](https://pypi.org/project/clincalc/):
 
 ```bash
 python -m pip install clincalc
@@ -109,7 +109,7 @@ result = clincalc.calculate("curb65", inputs, locale="es")
 print(result["working"]["content_locale"])  # the locale actually used
 ```
 
-An unsupported tag raises `ValueError`. A recognised tag with no reviewed translation for that calculator falls back to English rather than mixing languages. Locale-aware `calculate()` calls report the locale actually used in `working["content_locale"]`, while omitting `locale` preserves the original English response shape. Locale-aware `list_calculators()` entries include `content_locale` and every catalogue entry includes `supported_locales`, allowing callers to distinguish fallback before requesting a schema or template. See [`spec/multilingual.md`](https://github.com/pacharanero/clincalc/blob/main/spec/multilingual.md) for the full locale design and [`docs/translating.md`](translating.md) for how to add a translation.
+An unsupported tag raises `ValueError`. A recognised tag with no reviewed translation for that calculator falls back to English rather than mixing languages. Locale-aware `calculate()` calls report the locale actually used in `working["content_locale"]`, while omitting `locale` preserves the original English response shape. Locale-aware `list_calculators()` entries include `content_locale` and every catalogue entry includes `supported_locales`, allowing callers to distinguish fallback before requesting a schema or template. See [`spec/multilingual.md`](https://github.com/ohtf/clincalc/blob/main/spec/multilingual.md) for the full locale design and [`docs/translating.md`](translating.md) for how to add a translation.
 
 ## Error handling
 

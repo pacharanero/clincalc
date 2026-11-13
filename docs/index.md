@@ -12,7 +12,7 @@ A clinical calculation score is computed in the core Rust library, so the result
 === "Linux / macOS"
 
     ```bash
-    curl -LsSf https://pacharanero.github.io/clincalc/install.sh | sh
+    curl -LsSf https://ohtf.github.io/clincalc/install.sh | sh
     ```
 
     Installs the latest prebuilt CLI release. Full options are on the [Install](install.md) page.
@@ -20,7 +20,7 @@ A clinical calculation score is computed in the core Rust library, so the result
 === "Windows PowerShell"
 
     ```powershell
-    powershell -ExecutionPolicy Bypass -c "irm https://pacharanero.github.io/clincalc/install.ps1 | iex"
+    powershell -ExecutionPolicy Bypass -c "irm https://ohtf.github.io/clincalc/install.ps1 | iex"
     ```
 
     Release installer proxy. Full options on the [Install](install.md) page.
@@ -39,12 +39,12 @@ A clinical calculation score is computed in the core Rust library, so the result
     python -m pip install clincalc
     ```
 
-    Installs the Python package for CPython 3.9 or later. See the [Python package](python.md) page for a runnable example and pandas support.
+    Installs the Python package for CPython 3.11 or later. See the [Python package](python.md) page for a runnable example and pandas support.
 
 === "From a clone"
 
     ```bash
-    git clone https://github.com/pacharanero/clincalc
+    git clone https://github.com/ohtf/clincalc
     cd clincalc
     cargo build --release      # binary at target/release/clincalc
     ```

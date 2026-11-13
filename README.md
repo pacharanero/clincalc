@@ -6,6 +6,8 @@ A score is computed once, in the core library, and the result is identical where
 
 > **Development status:** `clincalc` is published for software development, research, education, and evaluation. It is not a finished medical device and must not be used on its own to make decisions about an individual patient's care. Anyone incorporating it into a product or deploying it for clinical use is responsible for that product or deployment's clinical-safety and regulatory obligations.
 
+`clincalc` is a project of the [Open Health Technology Foundation](https://openhealthtechnology.org) (OHTF), a UK community interest company providing a neutral, long-term home for open-source health software. Marcus Baw remains the project's named maintainer. See [the OHTF project page](https://openhealthtechnology.org/projects/) and [`spec/ohtf-transfer.md`](spec/ohtf-transfer.md) for how the transfer was done.
+
 ## Why
 
 Clinical software developers need reliable implementations of published clinical scores, but rebuilding them separately in every product invites inconsistency. This project provides **open source, evidence-based, auditable reference implementations** - each cites primary literature, is tested against published vectors, and records the licence it is distributed under.
@@ -19,11 +21,11 @@ Clinical software developers need reliable implementations of published clinical
 Install the latest prebuilt release through the docs-site installer proxy:
 
 ```bash
-curl -LsSf https://pacharanero.github.io/clincalc/install.sh | sh
+curl -LsSf https://ohtf.github.io/clincalc/install.sh | sh
 ```
 
 ```powershell
-powershell -ExecutionPolicy Bypass -c "irm https://pacharanero.github.io/clincalc/install.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "irm https://ohtf.github.io/clincalc/install.ps1 | iex"
 ```
 
 Or install the CLI with Cargo:
@@ -70,7 +72,7 @@ The MCP server exposes every calculator as a typed tool named `clincalc_<name>` 
 
 ## Python package
 
-The Python package requires CPython 3.9 or later. Install it from [PyPI](https://pypi.org/project/clincalc/):
+The Python package requires CPython 3.11 or later (3.9 and 3.10 are both past upstream end-of-life). Install it from [PyPI](https://pypi.org/project/clincalc/):
 
 ```bash
 python -m pip install clincalc

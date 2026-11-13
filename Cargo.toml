@@ -1,11 +1,11 @@
 [package]
 name = "clincalc"
-version = "0.4.0"
+version = "0.5.0"
 edition = "2024"
 authors = ["Marcus Baw"]
 license = "AGPL-3.0-or-later AND LGPL-3.0-or-later"
-repository = "https://github.com/pacharanero/clincalc"
-homepage = "https://github.com/pacharanero/clincalc"
+repository = "https://github.com/ohtf/clincalc"
+homepage = "https://github.com/ohtf/clincalc"
 description = "Open, auditable clinical calculators: a serde-only scoring engine plus the `clincalc` CLI and loopback REST API in one crate."
 readme = "README.md"
 documentation = "https://docs.rs/clincalc"
@@ -100,8 +100,8 @@ targets = [
 install-path = "CARGO_HOME"
 install-updater = false
 # The OHTF foundation-wide tap (clincalc is an OHTF project; see
-# spec/ohtf-transfer.md). Needs a HOMEBREW_TAP_TOKEN secret (PAT with write
-# access to this tap repo) on this repo for the release job to push.
+# spec/ohtf-transfer.md). Needs a HOMEBREW_TAP_DEPLOY_KEY secret (an SSH
+# deploy key scoped to just this tap repo) for the release job to push.
 tap = "ohtf/homebrew-tap"
 publish-jobs = ["homebrew"]
 publish-prereleases = false
@@ -119,6 +119,15 @@ include = [
 # and bind publishing jobs to protected environments; tell dist not to error
 # on the resulting drift.
 allow-dirty = ["ci"]
+
+# cargo-dist 0.31.0's own default runner for aarch64-apple-darwin is the
+# macos-14 label, which GitHub fully retired on 2026-11-02 (announced
+# 2026-10-01: https://github.blog/changelog/2026-10-01-github-actions-macos-14-runner-image-retirement/).
+# Pinned explicitly to macos-15 rather than macos-latest, matching this
+# project's general preference for an explicit version over a floating
+# label that can move again without warning.
+[workspace.metadata.dist.github-custom-runners]
+aarch64-apple-darwin = "macos-15"
 
 # The profile 'dist' builds release binaries with.
 [profile.dist]

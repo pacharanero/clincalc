@@ -4,7 +4,7 @@ The `clincalc` CLI is a single self-contained binary with no runtime dependencie
 
 ## Python package
 
-For CPython 3.9 or later:
+For CPython 3.11 or later:
 
 ```bash
 python -m pip install clincalc
@@ -25,7 +25,7 @@ The docs site hosts short installer proxies that fetch cargo-dist's latest relea
 === "Linux / macOS"
 
     ```bash
-    curl -LsSf https://pacharanero.github.io/clincalc/install.sh | sh
+    curl -LsSf https://ohtf.github.io/clincalc/install.sh | sh
     ```
 
     This downloads the latest prebuilt binary for your platform and installs it to Cargo's binary directory (`$CARGO_HOME/bin`, or `~/.cargo/bin` by default).
@@ -33,12 +33,12 @@ The docs site hosts short installer proxies that fetch cargo-dist's latest relea
 === "Windows PowerShell"
 
     ```powershell
-    powershell -ExecutionPolicy Bypass -c "irm https://pacharanero.github.io/clincalc/install.ps1 | iex"
+    powershell -ExecutionPolicy Bypass -c "irm https://ohtf.github.io/clincalc/install.ps1 | iex"
     ```
 
     This downloads the latest Windows binary and installs it to Cargo's binary directory.
 
-The short URLs proxy to cargo-dist's real installer assets on the [latest GitHub Release](https://github.com/pacharanero/clincalc/releases/latest). If you need to pin a version or audit the installer first, fetch the release asset directly from GitHub.
+The short URLs proxy to cargo-dist's real installer assets on the [latest GitHub Release](https://github.com/ohtf/clincalc/releases/latest). If you need to pin a version or audit the installer first, fetch the release asset directly from GitHub.
 
 ## With Cargo
 
@@ -55,7 +55,7 @@ This builds and installs the `clincalc` binary into `~/.cargo/bin`. You need a R
 Clone if you want the source, the example input files, or to contribute:
 
 ```bash
-git clone https://github.com/pacharanero/clincalc
+git clone https://github.com/ohtf/clincalc
 cd clincalc
 cargo build --release          # binary at ./target/release/clincalc
 ./target/release/clincalc list
@@ -67,7 +67,7 @@ To put it on your `PATH` from the clone:
 cargo install --path .
 ```
 
-A clone also gives you [`examples/`](https://github.com/pacharanero/clincalc/tree/main/examples) - ready-made JSON inputs used throughout the [Walkthrough](walkthrough.md).
+A clone also gives you [`examples/`](https://github.com/ohtf/clincalc/tree/main/examples) - ready-made JSON inputs used throughout the [Walkthrough](walkthrough.md).
 
 ## Verify it works
 
@@ -83,6 +83,6 @@ If you see the catalogue, you are ready. Head to the [Walkthrough](walkthrough.m
 
 ## Requirements
 
-- Python package: CPython 3.9 or later; no Rust toolchain is needed when a wheel is available for your platform.
+- Python package: CPython 3.11 or later (3.9 and 3.10 are both past upstream end-of-life); no Rust toolchain is needed when a wheel is available for your platform.
 - CLI via release installer: no runtime dependencies.
 - CLI via Cargo: a Rust toolchain with edition 2024 support, installable via [rustup](https://rustup.rs).

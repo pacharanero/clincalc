@@ -640,7 +640,7 @@ fn openapi_spec() -> serde_json::Value {
                 "name": "AGPL-3.0-or-later AND LGPL-3.0-or-later",
                 "identifier": "AGPL-3.0-or-later AND LGPL-3.0-or-later"
             },
-            "contact": {"url": "https://github.com/pacharanero/clincalc"}
+            "contact": {"url": "https://github.com/ohtf/clincalc"}
         },
         "paths": serde_json::Value::Object(paths),
         "components": {

@@ -16,7 +16,7 @@ license-files = [
     "LICENSE-LGPL-3.0-or-later.txt",
     "clincalc-third-party-notices.md",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 readme = "README.md"
 keywords = ["clinical", "medical", "calculator", "healthcare", "scoring"]
 classifiers = [
@@ -29,8 +29,8 @@ classifiers = [
 pandas = ["pandas>=1.0"]
 
 [project.urls]
-Repository = "https://github.com/pacharanero/clincalc"
-Documentation = "https://pacharanero.github.io/clincalc/"
+Repository = "https://github.com/ohtf/clincalc"
+Documentation = "https://ohtf.github.io/clincalc/"
 
 [tool.maturin]
 # The Rust extension is installed as clincalc/_clincalc.so; the Python package

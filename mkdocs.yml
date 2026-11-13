@@ -1,9 +1,9 @@
 site_name: clincalc
 site_description: Open, auditable clinical calculators - one Rust scoring engine behind a simple command line.
-site_url: https://pacharanero.github.io/clincalc/
+site_url: https://ohtf.github.io/clincalc/
 
-repo_url: https://github.com/pacharanero/clincalc
-repo_name: pacharanero/clincalc
+repo_url: https://github.com/ohtf/clincalc
+repo_name: ohtf/clincalc
 edit_uri: edit/main/docs/
 
 docs_dir: docs
@@ -103,4 +103,4 @@ markdown_extensions:
 
 copyright: >-
   Copyright &copy; 2026 Marcus Baw.
-  Source <a href="https://github.com/pacharanero/clincalc">pacharanero/clincalc</a>.
+  Source <a href="https://github.com/ohtf/clincalc">ohtf/clincalc</a>.

@@ -268,7 +268,7 @@ export default function App() {
               variant="subtle"
               color="gray"
               component="a"
-              href="https://github.com/pacharanero/clincalc"
+              href="https://github.com/ohtf/clincalc"
               target="_blank"
               rel="noreferrer"
               title="View on GitHub"
