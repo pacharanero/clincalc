@@ -221,6 +221,7 @@ pub fn all() -> Vec<Box<dyn Calculator>> {
         Box::new(calculators::ranson::Ranson),
         Box::new(calculators::glasgow_imrie::GlasgowImrie),
         Box::new(calculators::parkland::Parkland),
+        Box::new(calculators::lund_browder::LundBrowder),
         Box::new(calculators::hinchey::Hinchey),
         Box::new(calculators::truelove_witts::TrueloveWitts),
         Box::new(calculators::timi::Timi),

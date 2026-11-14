@@ -1,6 +1,6 @@
 # Calculator catalogue
 
-The full registry: 161 entries comprising 147 active calculators that compute a real result, 11 named-but-unavailable rights-locked stubs (carrying `proprietary` and `unavailable`), two rights-review stubs, and one clinical-safety stub (the latter three carry `unavailable` without `proprietary`). One row per calculator.
+The full registry: 162 entries comprising 148 active calculators that compute a real result, 11 named-but-unavailable rights-locked stubs (carrying `proprietary` and `unavailable`), two rights-review stubs, and one clinical-safety stub (the latter three carry `unavailable` without `proprietary`). One row per calculator.
 
 `clincalc list` prints the same data at any time; `clincalc list --tag <tag>` filters by tag; `clincalc calc <name> --license` prints the algorithm's distribution licence for any single entry.
 
@@ -122,6 +122,7 @@ The full vocabulary lives in [`src/tags.rs`](https://github.com/ohtf/clincalc/bl
 | `ldl_cholesterol` | LDL and non-HDL Cholesterol | Calculates non-HDL cholesterol and estimates LDL cholesterol using Friedewald, Martin-Hopkins, and Sampson-NIH, with method-specific triglyceride limits. | `primary-care`, `cardiology`, `endocrinology` |
 | `lights_criteria` | Light's Criteria (Pleural Effusion) | Exudate-versus-transudate classification of pleural effusion from pleural-fluid-to-serum protein and LDH ratios. | `respiratory`, `acute-medicine` |
 | `lrinec` | LRINEC Score (Necrotising Fasciitis Risk Indicator) | Six-variable laboratory diagnostic adjunct for severe soft-tissue infection; a score of 6 or more increases suspicion, but poor sensitivity means a low score does not exclude necrotising infection or justify delaying surgical consultation. | `emergency`, `surgery`, `infectious-diseases`, `risk` |
+| `lund_browder` | Lund and Browder Chart (%TBSA Burn Estimate) | Age-adjusted total body surface area (%TBSA) burn estimate from 19 named body regions, feeding directly into the Parkland formula. | `emergency`, `intensive-care`, `surgery` |
 | `mallampati` | Mallampati Classification | Four-class ordinal oropharyngeal-view classification predicting difficult laryngoscopy. | `surgery`, `severity` |
 | `map` | Mean Arterial Pressure (MAP) | Mean arterial pressure from systolic and diastolic blood pressure, with the >=65 mmHg sepsis-resuscitation target. | `acute-medicine`, `intensive-care` |
 | `max_heart_rate` | Max Heart Rate & Training Zones | Estimates HRmax from age (Tanaka 2001) and derives aerobic training zones; uses Karvonen heart-rate reserve when resting HR is supplied. | `primary-care`, `screening` |

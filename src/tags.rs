@@ -160,6 +160,7 @@ pub const TAGS: &[(&str, &[&str])] = &[
     ("ranson", &["acute-medicine", "surgery", "severity"]),
     ("glasgow_imrie", &["acute-medicine", "surgery", "severity"]),
     ("parkland", &["emergency", "intensive-care", "surgery"]),
+    ("lund_browder", &["emergency", "intensive-care", "surgery"]),
     ("hinchey", &["surgery", "acute-medicine", "severity"]),
     ("truelove_witts", &["acute-medicine", "severity"]),
     (

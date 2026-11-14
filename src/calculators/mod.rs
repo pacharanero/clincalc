@@ -98,6 +98,7 @@ pub mod kocher_criteria;
 pub mod ldl_cholesterol;
 pub mod lights_criteria;
 pub mod lrinec;
+pub mod lund_browder;
 pub mod mallampati;
 pub mod map;
 pub mod max_heart_rate;
