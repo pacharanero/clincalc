@@ -256,6 +256,12 @@ Open questions for comment:
 - Does the MAP estimator belong in the core leaf crate (new minimal pure-Rust linear algebra) or behind an optional feature (a small vetted matrix dependency), given embedding users may not want the extra weight for one calculator?
 - One-compartment vs two-compartment vancomycin model - which has better-supported open population parameters for a general adult population rather than a single hospital's local dataset?
 
+### ENG-014 Clinical Digital Workbooks (concept)
+
+Status: Future
+
+Recorded 2026-11-14. Not a `clincalc` feature - a possible future *consumer* product (condition-specific interactive pathways combining `clincalc` scoring with governed best-practice narrative, a structured clinician-deviation mechanism, and HTML/PDF export for EPR import), written up in full at [`clinical-digital-workbooks.md`](clinical-digital-workbooks.md) because the idea is worth keeping even though nothing here commits to building it. Surfaced two concrete, independently-justifiable `clincalc` gaps along the way, tracked on their own merits: a Lund-and-Browder-style %TBSA calculator (no existing `CALC-*` item yet) and the already-tracked `ENG-004` FHIR export.
+
 ---
 
 ## Collaboration & sister projects
