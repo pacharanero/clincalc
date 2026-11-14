@@ -483,7 +483,12 @@ class TestListCalculators:
     def test_returns_nonempty_list(self):
         calcs = clincalc.list_calculators()
         assert isinstance(calcs, list)
-        assert len(calcs) == 144
+        # Not an exact count: the registry grows over time, and the exact
+        # total is already enforced against README.md/docs/calculators.md
+        # by src/lib.rs's registry_size_prose_matches_the_actual_count test.
+        # Pinning the same number here too just goes stale on every new
+        # calculator, as it did when this went from 144 to 161.
+        assert len(calcs) > 100
 
     def test_each_entry_has_required_keys(self):
         calcs = clincalc.list_calculators()
